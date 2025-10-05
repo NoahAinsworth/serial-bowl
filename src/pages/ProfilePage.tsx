@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
 import { Input } from '@/components/ui/input';
+import { useTVDB } from '@/hooks/useTVDB';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { search: searchTVDB } = useTVDB();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({
@@ -104,16 +106,15 @@ export default function ProfilePage() {
 
     setSearchingShows(true);
     try {
-      const { data } = await supabase
-        .from('content')
-        .select('id, title, poster_url, external_id')
-        .eq('kind', 'show')
-        .ilike('title', `%${query}%`)
-        .limit(10);
-
-      setSearchResults(data || []);
+      const results = await searchTVDB(query);
+      setSearchResults(results);
     } catch (error) {
       console.error('Error searching shows:', error);
+      toast({
+        title: "Search failed",
+        description: "Unable to search for shows. Please try again.",
+        variant: "destructive",
+      });
     }
     setSearchingShows(false);
   };
@@ -128,7 +129,24 @@ export default function ProfilePage() {
       return;
     }
 
-    const newTop3 = [...top3Shows, show];
+    // Check if show already exists in top 3
+    if (top3Shows.some(s => s.id === show.id)) {
+      toast({
+        title: "Already added",
+        description: "This show is already in your top 3",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const showData = {
+      id: show.id.toString(),
+      external_id: show.id.toString(),
+      title: show.name,
+      poster_url: show.image || '',
+    };
+
+    const newTop3 = [...top3Shows, showData];
     setTop3Shows(newTop3);
 
     await supabase
@@ -143,7 +161,7 @@ export default function ProfilePage() {
 
     toast({
       title: "Added to Top 3",
-      description: `${show.title} added to your top 3 shows`,
+      description: `${show.name} added to your top 3 shows`,
     });
 
     setShowTop3Dialog(false);
@@ -299,11 +317,14 @@ export default function ProfilePage() {
                           className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted"
                           onClick={() => addToTop3(show)}
                         >
-                          {show.poster_url && (
-                            <img src={show.poster_url} alt={show.title} className="w-12 h-16 object-cover rounded" />
+                          {show.image && (
+                            <img src={show.image} alt={show.name} className="w-12 h-16 object-cover rounded" />
                           )}
                           <div className="flex-1">
-                            <p className="font-semibold">{show.title}</p>
+                            <p className="font-semibold">{show.name}</p>
+                            {show.firstAired && (
+                              <p className="text-xs text-muted-foreground">{new Date(show.firstAired).getFullYear()}</p>
+                            )}
                           </div>
                         </Card>
                       ))
