@@ -48,7 +48,7 @@ const App = () => (
                 <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<EpisodeDetailPage />} />
                 <Route path="/dms" element={<DMsPage />} />
                 <Route path="/dms/:userId" element={<DMThreadPage />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                {/* ADD ALL CUSTOM  ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
