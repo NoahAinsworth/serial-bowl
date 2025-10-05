@@ -8,10 +8,8 @@ const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  if (user) {
-    navigate('/home');
-    return null;
-  }
+  // User is already logged in, they're viewing the home feed
+  // Index page is only for landing/marketing
 
   return (
     <div className="min-h-screen bg-background">
