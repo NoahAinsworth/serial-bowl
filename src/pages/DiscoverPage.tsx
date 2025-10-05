@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTVDB } from '@/hooks/useTVDB';
-import { Compass, TrendingUp, Loader2, ChevronRight } from 'lucide-react';
+import { Compass, TrendingUp, Loader2, ChevronRight, Star, Flame } from 'lucide-react';
 
 interface TrendingShow {
   content_id: string;
@@ -13,13 +14,15 @@ interface TrendingShow {
   poster_url?: string;
   external_id: string;
   rating_count: number;
+  avg_rating?: number;
 }
 
 export default function DiscoverPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { search } = useTVDB();
-  const [trendingShows, setTrendingShows] = useState<TrendingShow[]>([]);
+  const [topRatedShows, setTopRatedShows] = useState<TrendingShow[]>([]);
+  const [mostRatedShows, setMostRatedShows] = useState<TrendingShow[]>([]);
   const [popularShows, setPopularShows] = useState<any[]>([]);
   const [newShows, setNewShows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,15 +34,14 @@ export default function DiscoverPage() {
   const loadData = async () => {
     setLoading(true);
 
-    // Load trending shows based on user data (last 7 days activity)
+    // Load user-based trending data
     if (user) {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      const { data } = await supabase
+      // Get top rated shows (highest average rating with min 3 ratings)
+      const { data: ratingsData } = await supabase
         .from('ratings')
         .select(`
           content_id,
+          rating,
           content (
             id,
             title,
@@ -49,13 +51,12 @@ export default function DiscoverPage() {
           )
         `)
         .eq('content.kind', 'show')
-        .gte('created_at', sevenDaysAgo.toISOString())
-        .limit(100);
+        .limit(200);
 
-      if (data) {
-        const showMap = new Map<string, TrendingShow>();
+      if (ratingsData) {
+        const showMap = new Map<string, TrendingShow & { total: number }>();
         
-        data.forEach((rating: any) => {
+        ratingsData.forEach((rating: any) => {
           if (!rating.content) return;
           
           const show = showMap.get(rating.content_id) || {
@@ -64,17 +65,30 @@ export default function DiscoverPage() {
             poster_url: rating.content.poster_url,
             external_id: rating.content.external_id,
             rating_count: 0,
+            avg_rating: 0,
+            total: 0,
           };
 
           show.rating_count++;
+          show.total += rating.rating;
+          show.avg_rating = show.total / show.rating_count;
           showMap.set(rating.content_id, show);
         });
 
-        const trending = Array.from(showMap.values())
+        // Top rated (highest avg rating with at least 3 ratings)
+        const topRated = Array.from(showMap.values())
+          .filter(show => show.rating_count >= 3)
+          .sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0))
+          .slice(0, 10);
+
+        setTopRatedShows(topRated);
+
+        // Most rated (most number of ratings)
+        const mostRated = Array.from(showMap.values())
           .sort((a, b) => b.rating_count - a.rating_count)
           .slice(0, 10);
 
-        setTrendingShows(trending);
+        setMostRatedShows(mostRated);
       }
     }
 
@@ -108,6 +122,27 @@ export default function DiscoverPage() {
 
   const mixedShows = [...popularShows, ...newShows].sort(() => Math.random() - 0.5);
 
+  const ShowPoster = ({ show, onClick }: { show: any, onClick: () => void }) => (
+    <div
+      className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[140px]"
+      onClick={onClick}
+    >
+      <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
+        {show.poster_url ? (
+          <img 
+            src={show.poster_url} 
+            alt={show.title} 
+            className="w-full h-full object-cover" 
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
+            {show.title}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="container max-w-6xl mx-auto py-6 space-y-6 animate-fade-in">
       <div className="flex items-center gap-3 px-4">
@@ -120,73 +155,94 @@ export default function DiscoverPage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="space-y-6">
-          {/* Trending Section - Horizontal Scroll */}
-          {user && trendingShows.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-4 px-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-bold neon-glow">Trending</h2>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <ScrollArea className="w-full whitespace-nowrap">
-                <div className="flex gap-3 px-4 pb-4">
-                  {trendingShows.map((show) => (
-                    <div
-                      key={show.content_id}
-                      className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[140px]"
-                      onClick={() => navigate(`/show/${show.external_id}`)}
-                    >
-                      <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
-                        {show.poster_url ? (
-                          <img 
-                            src={show.poster_url} 
-                            alt={show.title} 
-                            className="w-full h-full object-cover" 
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
-                            {show.title}
-                          </div>
-                        )}
-                      </div>
+        <Tabs defaultValue={user ? "trending" : "browse"} className="w-full">
+          <TabsList className="w-full justify-start mb-6 px-4">
+            {user && <TabsTrigger value="trending">Trending</TabsTrigger>}
+            <TabsTrigger value="browse">Browse</TabsTrigger>
+          </TabsList>
+
+          {user && (
+            <TabsContent value="trending" className="space-y-6 mt-0">
+              {/* Top Rated Shows */}
+              {topRatedShows.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-primary" />
+                      <h2 className="text-xl font-bold neon-glow">Top Rated</h2>
                     </div>
-                  ))}
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex gap-3 px-4 pb-4">
+                      {topRatedShows.map((show) => (
+                        <ShowPoster 
+                          key={show.content_id}
+                          show={show}
+                          onClick={() => navigate(`/show/${show.external_id}`)}
+                        />
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            </div>
+              )}
+
+              {/* Most Rated Shows */}
+              {mostRatedShows.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <Flame className="h-5 w-5 text-primary" />
+                      <h2 className="text-xl font-bold neon-glow">Most Rated</h2>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex gap-3 px-4 pb-4">
+                      {mostRatedShows.map((show) => (
+                        <ShowPoster 
+                          key={show.content_id}
+                          show={show}
+                          onClick={() => navigate(`/show/${show.external_id}`)}
+                        />
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
+                </div>
+              )}
+            </TabsContent>
           )}
 
-          {/* Mixed Popular & New Shows - Vertical Grid */}
-          <div className="px-4">
-            <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
-              {mixedShows.map((show, index) => (
-                <div
-                  key={show.id || index}
-                  className="cursor-pointer hover:scale-105 transition-transform"
-                  onClick={() => navigate(`/show/${show.id || show.external_id}`)}
-                >
-                  <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
-                    {(show.poster_url || show.image) ? (
-                      <img 
-                        src={show.poster_url || show.image} 
-                        alt={show.title || show.name} 
-                        className="w-full h-full object-cover" 
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
-                        {show.title || show.name}
-                      </div>
-                    )}
+          <TabsContent value="browse" className="mt-0">
+            <div className="px-4">
+              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                {mixedShows.map((show, index) => (
+                  <div
+                    key={show.id || index}
+                    className="cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() => navigate(`/show/${show.id || show.external_id}`)}
+                  >
+                    <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
+                      {(show.poster_url || show.image) ? (
+                        <img 
+                          src={show.poster_url || show.image} 
+                          alt={show.title || show.name} 
+                          className="w-full h-full object-cover" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
+                          {show.title || show.name}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
