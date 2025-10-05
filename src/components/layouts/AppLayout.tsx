@@ -27,7 +27,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between px-4">
           <div className="flex flex-col">
-            <div className="text-xl font-bold neon-glow tracking-wider">BINGE EMPIRE</div>
+            <div className="text-xl font-bold neon-glow tracking-wider">SERIAL BOWL</div>
             <div className="text-[10px] uppercase tracking-widest opacity-80 stripe-accent bg-clip-text text-transparent font-semibold">Home of the Bringers</div>
           </div>
           <div className="flex items-center gap-1">
