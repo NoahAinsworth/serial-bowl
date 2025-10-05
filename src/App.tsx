@@ -17,21 +17,38 @@ import NotFound from "./pages/NotFound";
 
 // Simple ProfilePage without complex components
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Settings } from 'lucide-react';
+import { ProfilePictureUpload } from '@/components/ProfilePictureUpload';
+import { supabase } from '@/lib/supabase';
 
 const ProfilePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
+    } else {
+      loadProfile();
     }
   }, [user, navigate]);
+
+  const loadProfile = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    
+    setProfile(data);
+  };
 
   if (!user) return null;
 
@@ -40,12 +57,16 @@ const ProfilePage = () => {
       <Card className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-bold">
-              {user.email?.[0].toUpperCase()}
-            </div>
+            <ProfilePictureUpload 
+              currentAvatarUrl={profile?.avatar_url} 
+              onUploadComplete={loadProfile}
+            />
             <div>
-              <h2 className="text-2xl font-bold">My Profile</h2>
+              <h2 className="text-2xl font-bold">{profile?.handle || 'My Profile'}</h2>
               <p className="text-muted-foreground mt-1">{user.email}</p>
+              {profile?.bio && (
+                <p className="text-sm mt-2">{profile.bio}</p>
+              )}
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')}>
