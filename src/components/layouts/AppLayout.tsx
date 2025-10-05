@@ -36,11 +36,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <Button variant="ghost" size="icon" onClick={() => navigate('/lists')} title="Lists">
               <List className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist & Watched">
               <Bookmark className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/watched')} title="Watched">
-              <Eye className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/stats')} title="Stats">
               <TrendingUp className="h-5 w-5" />

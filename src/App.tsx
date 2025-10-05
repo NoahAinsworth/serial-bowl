@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { Settings } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -134,23 +135,32 @@ const WatchlistPage = () => {
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4">
       <Card className="p-6">
-        <h1 className="text-2xl font-bold">My Watchlist</h1>
-        <p className="text-sm mt-4">Your watchlist coming soon!</p>
+        <Tabs defaultValue="watchlist" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
+            <TabsTrigger value="watched">Watched</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="watchlist">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">My Watchlist</h2>
+              <p className="text-sm text-muted-foreground">Shows you want to watch coming soon!</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="watched">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Watched</h2>
+              <p className="text-sm text-muted-foreground">Shows you've watched coming soon!</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
 };
 
-const WatchedPage = () => {
-  return (
-    <div className="container max-w-4xl mx-auto py-6 px-4">
-      <Card className="p-6">
-        <h1 className="text-2xl font-bold">Watched</h1>
-        <p className="text-sm mt-4">Your watched content coming soon!</p>
-      </Card>
-    </div>
-  );
-};
+const WatchedPage = WatchlistPage;
 
 const ListsPage = () => {
   return (
