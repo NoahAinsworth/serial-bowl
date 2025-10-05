@@ -27,7 +27,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
       .from('ratings')
       .select(`
         id,
-        rating_value,
+        rating,
         created_at,
         content!inner (
           id,
@@ -86,7 +86,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
             <div className="flex items-center gap-1 mt-2">
               <Star className="h-4 w-4 fill-primary text-primary" />
               <span className="text-sm font-bold text-primary">
-                {rating.rating_value * 10}%
+                {rating.rating * 10}%
               </span>
             </div>
           </div>

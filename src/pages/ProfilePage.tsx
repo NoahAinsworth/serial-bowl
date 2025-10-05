@@ -75,6 +75,7 @@ export default function ProfilePage() {
     ]);
 
     setProfile(profileData);
+    console.log('Profile data loaded:', profileData);
     setStats({
       thoughtsCount: thoughtsRes.count || 0,
       followersCount: followersRes.count || 0,
