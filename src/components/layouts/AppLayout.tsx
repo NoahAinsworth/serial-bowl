@@ -15,7 +15,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: Home, label: 'Home', path: '/' },
     { icon: Search, label: 'Search', path: '/search' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
-    { icon: Bell, label: 'Activity', path: '/activity' },
+    { icon: Compass, label: 'Discover', path: '/discover' },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 
@@ -26,21 +26,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <div className="text-xl font-bold neon-glow">SERIALCEREAL</div>
+          <div className="flex flex-col">
+            <div className="text-xl font-bold neon-glow tracking-wider">SERIALCEREAL</div>
+            <div className="text-[10px] uppercase tracking-widest opacity-80 stripe-accent bg-clip-text text-transparent font-semibold">Home of the Bringers</div>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/discover')} title="Discover">
-              <Compass className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate('/activity')} title="Notifications">
+              <Bell className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/lists')} title="Lists">
               <List className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist & Watched">
               <Bookmark className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/stats')} title="Stats">
-              <TrendingUp className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/dms')} title="Messages">
               <MessageSquare className="h-5 w-5" />
