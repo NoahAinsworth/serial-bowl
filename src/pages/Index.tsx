@@ -165,7 +165,7 @@ export default function Index() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <Tabs defaultValue="popular" className="w-full">
+        <Tabs defaultValue={userTrendingShows.length > 0 ? "trending" : "popular"} className="w-full">
           <TabsList className="w-full justify-start mb-6">
             {userTrendingShows.length > 0 && <TabsTrigger value="trending">Trending</TabsTrigger>}
             <TabsTrigger value="popular">Popular</TabsTrigger>
