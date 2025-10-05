@@ -2,28 +2,32 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppLayout } from "@/components/layouts/AppLayout";
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { supabase } from '@/lib/supabase';
-import { Settings } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import Home from "./pages/Home";
 import AuthPage from "./pages/AuthPage";
 import SearchPage from "./pages/SearchPage";
-import PostPage from "./pages/PostPage";
-import ActivityPage from "./pages/ActivityPage";
 import EditProfilePage from "./pages/EditProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
+// Working pages
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext';
+import { Settings } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
+
 const queryClient = new QueryClient();
 
-// Simple Profile Page
+// Profile Page
 const ProfilePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -72,12 +76,82 @@ const ProfilePage = () => {
   );
 };
 
-// Placeholder for other pages
+// Simple Post Page
+const PostPage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [content, setContent] = useState('');
+  const [posting, setPosting] = useState(false);
+
+  const handlePost = async () => {
+    if (!user) {
+      toast({ title: "Sign in required", variant: "destructive" });
+      return;
+    }
+    if (!content.trim()) return;
+
+    setPosting(true);
+    const { error } = await supabase.from('thoughts').insert({
+      user_id: user.id,
+      text_content: content.trim(),
+      moderation_status: 'allow',
+    });
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to post", variant: "destructive" });
+    } else {
+      toast({ title: "Success", description: "Thought posted!" });
+      setContent('');
+      navigate('/');
+    }
+    setPosting(false);
+  };
+
+  return (
+    <div className="container max-w-2xl mx-auto py-6 px-4">
+      <Card className="p-6 space-y-4">
+        <h2 className="text-2xl font-bold">Share Your Thoughts</h2>
+        <Textarea
+          placeholder="What's on your mind about TV?"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="min-h-[150px]"
+          maxLength={500}
+        />
+        <div className="flex justify-between">
+          <span className="text-sm text-muted-foreground">{content.length} / 500</span>
+        </div>
+        <Button onClick={handlePost} disabled={!content.trim() || posting} className="w-full btn-glow">
+          {posting ? 'Posting...' : 'Post Thought'}
+        </Button>
+      </Card>
+    </div>
+  );
+};
+
+// Simple Activity Page
+const ActivityPage = () => {
+  const { user } = useAuth();
+
+  return (
+    <div className="container max-w-2xl mx-auto py-6 px-4">
+      <h1 className="text-3xl font-bold mb-6 neon-glow">Activity</h1>
+      <Card className="p-8 text-center">
+        <p className="text-muted-foreground">
+          {user ? 'No notifications yet!' : 'Sign in to see your notifications'}
+        </p>
+      </Card>
+    </div>
+  );
+};
+
+// Placeholder Page
 const SimplePage = ({ title }: { title: string }) => (
   <div className="container max-w-4xl mx-auto py-6 px-4">
     <Card className="p-6">
       <h1 className="text-2xl font-bold neon-glow">{title}</h1>
-      <p className="text-sm mt-4 text-muted-foreground">This page is coming soon!</p>
+      <p className="text-sm mt-4 text-muted-foreground">Coming soon!</p>
     </Card>
   </div>
 );
