@@ -2,17 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppLayout } from "@/components/layouts/AppLayout";
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/lib/supabase';
-import { Settings, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import Home from "./pages/Home";
 import AuthPage from "./pages/AuthPage";
 import SearchPage from "./pages/SearchPage";
@@ -22,7 +15,16 @@ import EditProfilePage from "./pages/EditProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
-// Simple working components
+// Profile page
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/contexts/AuthContext';
+import { Settings } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+
 const ProfilePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -30,38 +32,48 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (!user) { navigate('/auth'); return; }
-    supabase.from('profiles').select('*').eq('id', user.id).maybeSingle().then(({ data }) => setProfile(data));
-  }, [user]);
+    supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
+      .then(({ data }) => setProfile(data));
+  }, [user, navigate]);
 
   if (!user) return null;
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
-      <Card className="p-6">
-        <div className="flex gap-4 mb-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={profile?.avatar_url} />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
-              {user.email?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold">{profile?.handle || 'My Profile'}</h2>
-            <p className="text-muted-foreground">{user.email}</p>
+      <Card className="p-6 mb-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={profile?.avatar_url} />
+              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                {user.email?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-2xl font-bold">{profile?.handle || 'My Profile'}</h2>
+              <p className="text-muted-foreground mt-1">{user.email}</p>
+              {profile?.bio && <p className="text-sm mt-2">{profile.bio}</p>}
+            </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')}>
             <Settings className="h-5 w-5" />
           </Button>
         </div>
       </Card>
-      <div className="mt-6 grid gap-4">
-        <Button onClick={() => navigate('/search')} variant="outline" className="w-full">Search TV Shows</Button>
-        <Button onClick={() => navigate('/post')} className="w-full btn-glow">Create Post</Button>
+      
+      <div className="grid gap-4">
+        <Button onClick={() => navigate('/search')} variant="outline" className="w-full">
+          Search TV Shows
+        </Button>
+        <Button onClick={() => navigate('/post')} className="w-full btn-glow">
+          Create Post
+        </Button>
       </div>
     </div>
   );
 };
 
+// Simple placeholder page
 const SimplePage = ({ title }: { title: string }) => (
   <div className="container max-w-4xl mx-auto py-6 px-4">
     <Card className="p-6">
