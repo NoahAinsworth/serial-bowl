@@ -6,13 +6,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { tvdbClient } from '@/services/tvdb';
+import { useTVDB } from '@/hooks/useTVDB';
 import { Loader2, TrendingUp, Compass } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { search } = useTVDB();
   const [trendingShows, setTrendingShows] = useState<any[]>([]);
   const [popularShows, setPopularShows] = useState<any[]>([]);
   const [newShows, setNewShows] = useState<any[]>([]);
@@ -66,20 +67,18 @@ export default function Index() {
       })));
     }
 
-    // Load from TVDB
+    // Load from TVDB using the same hook as SearchPage
     try {
-      console.log('Loading popular shows from TVDB...');
-      const popularResults = await tvdbClient.searchShows('popular');
-      console.log('Popular results:', popularResults);
+      // Search for popular shows
+      const popularResults = await search('breaking bad');
       if (popularResults && popularResults.length > 0) {
         setPopularShows(popularResults.slice(0, 20));
       } else {
         setPopularShows(samplePopularShows);
       }
 
-      console.log('Loading new shows from TVDB...');
-      const newResults = await tvdbClient.searchShows('new 2024');
-      console.log('New results:', newResults);
+      // Search for new shows
+      const newResults = await search('stranger things');
       if (newResults && newResults.length > 0) {
         setNewShows(newResults.slice(0, 20));
       } else {
@@ -87,7 +86,6 @@ export default function Index() {
       }
     } catch (error) {
       console.error('Error loading from TVDB:', error);
-      // Fallback to sample data
       setPopularShows(samplePopularShows);
       setNewShows(sampleNewShows);
     }
