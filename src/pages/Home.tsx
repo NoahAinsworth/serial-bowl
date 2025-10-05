@@ -52,7 +52,7 @@ export default function Home() {
       const followingIds = following?.map(f => f.following_id) || [];
 
       if (followingIds.length > 0) {
-        const { data: thoughts } = await supabase
+        const { data: thoughtsData } = await supabase
           .from('thoughts')
           .select(`
             id,
@@ -60,20 +60,56 @@ export default function Home() {
             created_at,
             user_id,
             content_id,
-            profiles!inner(handle, avatar_url),
+            profiles!thoughts_user_id_fkey(id, handle, avatar_url),
             content(id, title, poster_url, external_id, kind)
           `)
           .in('user_id', followingIds)
           .order('created_at', { ascending: false })
           .limit(20);
 
-        if (thoughts) {
-          setFollowingThoughts(thoughts);
+        if (thoughtsData) {
+          // Get reaction counts for each thought
+          const thoughtIds = thoughtsData.map((t: any) => t.id);
+          const { data: reactions } = await supabase
+            .from('reactions')
+            .select('thought_id, reaction_type, user_id')
+            .in('thought_id', thoughtIds);
+
+          const { data: comments } = await supabase
+            .from('comments')
+            .select('thought_id', { count: 'exact', head: true })
+            .in('thought_id', thoughtIds);
+
+          const formattedThoughts = thoughtsData.map((thought: any) => {
+            const thoughtReactions = reactions?.filter((r: any) => r.thought_id === thought.id) || [];
+            const userReaction = thoughtReactions.find((r: any) => r.user_id === user.id);
+            
+            return {
+              id: thought.id,
+              user: {
+                id: thought.profiles.id,
+                handle: thought.profiles.handle,
+                avatar_url: thought.profiles.avatar_url,
+              },
+              content: thought.text_content,
+              show: thought.content?.kind === 'show' ? {
+                title: thought.content.title,
+                external_id: thought.content.external_id,
+              } : undefined,
+              likes: thoughtReactions.filter((r: any) => r.reaction_type === 'like').length,
+              dislikes: thoughtReactions.filter((r: any) => r.reaction_type === 'dislike').length,
+              comments: 0,
+              rethinks: thoughtReactions.filter((r: any) => r.reaction_type === 'rethink').length,
+              userReaction: userReaction?.reaction_type,
+            };
+          });
+
+          setFollowingThoughts(formattedThoughts);
         }
       }
 
       // Load "For You" thoughts (all thoughts)
-      const { data: allThoughts } = await supabase
+      const { data: allThoughtsData } = await supabase
         .from('thoughts')
         .select(`
           id,
@@ -81,14 +117,44 @@ export default function Home() {
           created_at,
           user_id,
           content_id,
-          profiles!inner(handle, avatar_url),
+          profiles!thoughts_user_id_fkey(id, handle, avatar_url),
           content(id, title, poster_url, external_id, kind)
         `)
         .order('created_at', { ascending: false })
         .limit(30);
 
-      if (allThoughts) {
-        setForYouThoughts(allThoughts);
+      if (allThoughtsData) {
+        const thoughtIds = allThoughtsData.map((t: any) => t.id);
+        const { data: reactions } = await supabase
+          .from('reactions')
+          .select('thought_id, reaction_type, user_id')
+          .in('thought_id', thoughtIds);
+
+        const formattedThoughts = allThoughtsData.map((thought: any) => {
+          const thoughtReactions = reactions?.filter((r: any) => r.thought_id === thought.id) || [];
+          const userReaction = thoughtReactions.find((r: any) => r.user_id === user.id);
+          
+          return {
+            id: thought.id,
+            user: {
+              id: thought.profiles.id,
+              handle: thought.profiles.handle,
+              avatar_url: thought.profiles.avatar_url,
+            },
+            content: thought.text_content,
+            show: thought.content?.kind === 'show' ? {
+              title: thought.content.title,
+              external_id: thought.content.external_id,
+            } : undefined,
+            likes: thoughtReactions.filter((r: any) => r.reaction_type === 'like').length,
+            dislikes: thoughtReactions.filter((r: any) => r.reaction_type === 'dislike').length,
+            comments: 0,
+            rethinks: thoughtReactions.filter((r: any) => r.reaction_type === 'rethink').length,
+            userReaction: userReaction?.reaction_type,
+          };
+        });
+
+        setForYouThoughts(formattedThoughts);
       }
     }
 
