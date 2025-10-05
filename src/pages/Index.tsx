@@ -133,7 +133,7 @@ export default function Index() {
           {shows.map((show, index) => (
             <Card
               key={show.id || index}
-              className="cursor-pointer hover:scale-105 transition-transform overflow-hidden flex-shrink-0 w-[160px]"
+              className="cursor-pointer hover:scale-105 transition-transform overflow-hidden flex-shrink-0 w-[45%] min-w-[160px]"
               onClick={() => navigate(`/show/${show.id || show.external_id}`)}
             >
               <div className="aspect-[2/3] bg-muted">
@@ -150,7 +150,7 @@ export default function Index() {
                 )}
               </div>
               <div className="p-3">
-                <h3 className="font-semibold text-sm truncate">{show.title || show.name}</h3>
+                <h3 className="font-semibold text-sm line-clamp-1">{show.title || show.name}</h3>
                 {show.avg_rating && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                     <span>⭐ {Number(show.avg_rating).toFixed(1)}</span>
