@@ -132,10 +132,10 @@ export default function Index() {
           {shows.map((show, index) => (
             <div
               key={show.id || index}
-              className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[30%] min-w-[110px]"
+              className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[28%] min-w-[100px] max-w-[140px]"
               onClick={() => navigate(`/show/${show.id || show.external_id}`)}
             >
-              <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden mb-2 border-2 border-border">
+              <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden mb-2 border border-border">
                 {(show.poster_url || show.image) ? (
                   <img 
                     src={show.poster_url || show.image} 
@@ -148,7 +148,7 @@ export default function Index() {
                   </div>
                 )}
               </div>
-              <h3 className="font-medium text-sm line-clamp-2 text-center">{show.title || show.name}</h3>
+              <h3 className="font-medium text-xs line-clamp-2 text-center">{show.title || show.name}</h3>
             </div>
           ))}
         </div>
