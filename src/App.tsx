@@ -5,17 +5,43 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AppLayout } from "@/components/layouts/AppLayout";
 
-const queryClient = new QueryClient();
+// Import working pages
+import Home from "./pages/Home";
+import AuthPage from "./pages/AuthPage";
+import SearchPage from "./pages/SearchPage";
+import EditProfilePage from "./pages/EditProfilePage";
+import SettingsPage from "./pages/SettingsPage";
+import NotFound from "./pages/NotFound";
 
-const TestPage = () => (
-  <div style={{ padding: '20px', textAlign: 'center' }}>
-    <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '20px' }}>
-      SerialCereal Works!
-    </h1>
-    <p>The app is now running. Adding features back...</p>
-  </div>
-);
+// Import inline optimized pages
+import ProfilePage from "./pages/ProfilePage";
+import PostPage from "./pages/PostPage";
+import ActivityPage from "./pages/ActivityPage";
+import WatchlistPage from "./pages/WatchlistPage";
+import WatchedPage from "./pages/WatchedPage";
+import ListsPage from "./pages/ListsPage";
+import ListDetailPage from "./pages/ListDetailPage";
+import StatsPage from "./pages/StatsPage";
+import DiscoverPage from "./pages/DiscoverPage";
+import UserProfilePage from "./pages/UserProfilePage";
+import DMsPage from "./pages/DMsPage";
+import DMThreadPage from "./pages/DMThreadPage";
+import ShowDetailPage from "./pages/ShowDetailPage";
+import SeasonDetailPage from "./pages/SeasonDetailPage";
+import EpisodeDetailPage from "./pages/EpisodeDetailPage";
+
+// Configure React Query with optimal settings
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -25,9 +51,48 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="*" element={<TestPage />} />
-            </Routes>
+            <AppLayout>
+              <Routes>
+                {/* Core Pages */}
+                <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<AuthPage />} />
+                
+                {/* Content Discovery */}
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/discover" element={<DiscoverPage />} />
+                
+                {/* User Actions */}
+                <Route path="/post" element={<PostPage />} />
+                <Route path="/activity" element={<ActivityPage />} />
+                
+                {/* User Profile */}
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/edit" element={<EditProfilePage />} />
+                <Route path="/user/:userId" element={<UserProfilePage />} />
+                
+                {/* Settings */}
+                <Route path="/settings" element={<SettingsPage />} />
+                
+                {/* Content Management */}
+                <Route path="/watchlist" element={<WatchlistPage />} />
+                <Route path="/watched" element={<WatchedPage />} />
+                <Route path="/lists" element={<ListsPage />} />
+                <Route path="/list/:listId" element={<ListDetailPage />} />
+                <Route path="/stats" element={<StatsPage />} />
+                
+                {/* Messaging */}
+                <Route path="/dms" element={<DMsPage />} />
+                <Route path="/dm/:userId" element={<DMThreadPage />} />
+                
+                {/* Show Details */}
+                <Route path="/show/:id" element={<ShowDetailPage />} />
+                <Route path="/show/:showId/season/:seasonNumber" element={<SeasonDetailPage />} />
+                <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<EpisodeDetailPage />} />
+                
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
