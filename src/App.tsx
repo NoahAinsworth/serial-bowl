@@ -7,6 +7,17 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppLayout } from "@/components/layouts/AppLayout";
 import Home from "./pages/Home";
+import AuthPage from "./pages/AuthPage";
+import SearchPage from "./pages/SearchPage";
+import PostPage from "./pages/PostPage";
+import ActivityPage from "./pages/ActivityPage";
+import ProfilePage from "./pages/ProfilePage";
+import EditProfilePage from "./pages/EditProfilePage";
+import SettingsPage from "./pages/SettingsPage";
+import ShowDetailPage from "./pages/ShowDetailPage";
+import SeasonDetailPage from "./pages/SeasonDetailPage";
+import EpisodeDetailPage from "./pages/EpisodeDetailPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +32,17 @@ const App = () => (
             <AppLayout>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="*" element={<div className="p-8 text-center">Page not found</div>} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/post" element={<PostPage />} />
+                <Route path="/activity" element={<ActivityPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/edit" element={<EditProfilePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/show/:id" element={<ShowDetailPage />} />
+                <Route path="/show/:showId/season/:seasonNumber" element={<SeasonDetailPage />} />
+                <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<EpisodeDetailPage />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
           </BrowserRouter>
