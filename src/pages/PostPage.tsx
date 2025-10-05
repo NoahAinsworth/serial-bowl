@@ -74,101 +74,191 @@ export default function PostPage() {
   };
 
   const handleSelectEpisode = async (episode: TVEpisode) => {
-    // Create/get episode content entry
-    let { data: content } = await supabase
-      .from('content')
-      .select('id, title, kind')
-      .eq('external_src', 'thetvdb')
-      .eq('external_id', episode.id.toString())
-      .eq('kind', 'episode')
-      .maybeSingle();
-
-    if (!content) {
-      const { data: newContent } = await supabase
+    try {
+      // Create/get episode content entry
+      let { data: content, error: fetchError } = await supabase
         .from('content')
-        .insert({
-          external_src: 'thetvdb',
-          external_id: episode.id.toString(),
-          kind: 'episode',
-          title: episode.name,
-          overview: episode.overview,
-          poster_url: episode.image,
-          air_date: episode.aired,
-        })
         .select('id, title, kind')
-        .single();
-      
-      content = newContent;
-    }
+        .eq('external_src', 'thetvdb')
+        .eq('external_id', episode.id.toString())
+        .eq('kind', 'episode')
+        .maybeSingle();
 
-    if (content) {
-      setSelectedContent(content);
-      resetSelection();
+      if (fetchError) {
+        toast({
+          title: "Error",
+          description: `Failed to check episode: ${fetchError.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!content) {
+        const { data: newContent, error: insertError } = await supabase
+          .from('content')
+          .insert({
+            external_src: 'thetvdb',
+            external_id: episode.id.toString(),
+            kind: 'episode',
+            title: episode.name,
+            overview: episode.overview,
+            poster_url: episode.image,
+            air_date: episode.aired,
+          })
+          .select('id, title, kind')
+          .single();
+        
+        if (insertError) {
+          toast({
+            title: "Error",
+            description: `Failed to create episode: ${insertError.message}`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        content = newContent;
+      }
+
+      if (content) {
+        setSelectedContent(content);
+        resetSelection();
+        toast({
+          title: "Success",
+          description: `Tagged: ${content.title}`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
     }
   };
 
   const handleSelectSeasonAsTag = async (season: TVSeason) => {
-    // Create/get season content entry
-    let { data: content } = await supabase
-      .from('content')
-      .select('id, title, kind')
-      .eq('external_src', 'thetvdb')
-      .eq('external_id', season.id.toString())
-      .eq('kind', 'season')
-      .maybeSingle();
-
-    if (!content) {
-      const { data: newContent } = await supabase
+    try {
+      // Create/get season content entry
+      let { data: content, error: fetchError } = await supabase
         .from('content')
-        .insert({
-          external_src: 'thetvdb',
-          external_id: season.id.toString(),
-          kind: 'season',
-          title: season.name,
-        })
         .select('id, title, kind')
-        .single();
-      
-      content = newContent;
-    }
+        .eq('external_src', 'thetvdb')
+        .eq('external_id', season.id.toString())
+        .eq('kind', 'season')
+        .maybeSingle();
 
-    if (content) {
-      setSelectedContent(content);
-      resetSelection();
+      if (fetchError) {
+        toast({
+          title: "Error",
+          description: `Failed to check season: ${fetchError.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!content) {
+        const { data: newContent, error: insertError } = await supabase
+          .from('content')
+          .insert({
+            external_src: 'thetvdb',
+            external_id: season.id.toString(),
+            kind: 'season',
+            title: season.name,
+          })
+          .select('id, title, kind')
+          .single();
+        
+        if (insertError) {
+          toast({
+            title: "Error",
+            description: `Failed to create season: ${insertError.message}`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        content = newContent;
+      }
+
+      if (content) {
+        setSelectedContent(content);
+        resetSelection();
+        toast({
+          title: "Success",
+          description: `Tagged: ${content.title}`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
     }
   };
 
   const handleSelectShowAsTag = async (show: any) => {
-    // Get or create show content entry
-    let { data: content } = await supabase
-      .from('content')
-      .select('id, title, kind')
-      .eq('external_src', 'thetvdb')
-      .eq('external_id', show.id.toString())
-      .eq('kind', 'show')
-      .maybeSingle();
-
-    if (!content) {
-      const { data: newContent } = await supabase
+    try {
+      // Get or create show content entry
+      let { data: content, error: fetchError } = await supabase
         .from('content')
-        .insert({
-          external_src: 'thetvdb',
-          external_id: show.id.toString(),
-          kind: 'show',
-          title: show.name,
-          overview: show.overview,
-          poster_url: show.image,
-          air_date: show.firstAired,
-        })
         .select('id, title, kind')
-        .single();
-      
-      content = newContent;
-    }
+        .eq('external_src', 'thetvdb')
+        .eq('external_id', show.id.toString())
+        .eq('kind', 'show')
+        .maybeSingle();
 
-    if (content) {
-      setSelectedContent(content);
-      resetSelection();
+      if (fetchError) {
+        toast({
+          title: "Error",
+          description: `Failed to check show: ${fetchError.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!content) {
+        const { data: newContent, error: insertError } = await supabase
+          .from('content')
+          .insert({
+            external_src: 'thetvdb',
+            external_id: show.id.toString(),
+            kind: 'show',
+            title: show.name,
+            overview: show.overview,
+            poster_url: show.image,
+            air_date: show.firstAired,
+          })
+          .select('id, title, kind')
+          .single();
+        
+        if (insertError) {
+          toast({
+            title: "Error",
+            description: `Failed to create show: ${insertError.message}`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        content = newContent;
+      }
+
+      if (content) {
+        setSelectedContent(content);
+        resetSelection();
+        toast({
+          title: "Success",
+          description: `Tagged: ${content.title}`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
     }
   };
 
