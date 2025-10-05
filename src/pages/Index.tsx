@@ -67,20 +67,35 @@ export default function Index() {
       })));
     }
 
-    // Load from TVDB using the same hook as SearchPage
+    // Load popular and trending shows from TVDB
     try {
-      // Search for popular shows
-      const popularResults = await search('breaking bad');
-      if (popularResults && popularResults.length > 0) {
-        setPopularShows(popularResults.slice(0, 20));
+      // Search for various popular shows
+      const popularQueries = ['Game of Thrones', 'Breaking Bad', 'The Office', 'Friends', 'The Sopranos'];
+      const popularPromises = popularQueries.map(q => search(q));
+      const popularResultsArrays = await Promise.all(popularPromises);
+      
+      // Take first result from each search
+      const popularResults = popularResultsArrays
+        .map(results => results[0])
+        .filter(Boolean);
+      
+      if (popularResults.length > 0) {
+        setPopularShows(popularResults);
       } else {
         setPopularShows(samplePopularShows);
       }
 
-      // Search for new shows
-      const newResults = await search('stranger things');
-      if (newResults && newResults.length > 0) {
-        setNewShows(newResults.slice(0, 20));
+      // Search for new/recent shows
+      const newQueries = ['The Last of Us', 'House of the Dragon', 'Wednesday', 'Fallout', 'The Bear'];
+      const newPromises = newQueries.map(q => search(q));
+      const newResultsArrays = await Promise.all(newPromises);
+      
+      const newResults = newResultsArrays
+        .map(results => results[0])
+        .filter(Boolean);
+      
+      if (newResults.length > 0) {
+        setNewShows(newResults);
       } else {
         setNewShows(sampleNewShows);
       }
@@ -114,11 +129,11 @@ export default function Index() {
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-4 px-4">{title}</h2>
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-4 px-4 pb-4">
-          {shows.map((show) => (
+        <div className="flex gap-3 px-4 pb-4">
+          {shows.map((show, index) => (
             <Card
-              key={show.id}
-              className="cursor-pointer hover:scale-105 transition-transform overflow-hidden flex-shrink-0 w-[140px]"
+              key={show.id || index}
+              className="cursor-pointer hover:scale-105 transition-transform overflow-hidden flex-shrink-0 w-[160px]"
               onClick={() => navigate(`/show/${show.id || show.external_id}`)}
             >
               <div className="aspect-[2/3] bg-muted">
@@ -129,16 +144,21 @@ export default function Index() {
                     className="w-full h-full object-cover" 
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2">
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
                     No Image
                   </div>
                 )}
               </div>
-              <div className="p-2">
-                <h3 className="font-semibold text-xs truncate">{show.title || show.name}</h3>
+              <div className="p-3">
+                <h3 className="font-semibold text-sm truncate">{show.title || show.name}</h3>
                 {show.avg_rating && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                     <span>⭐ {Number(show.avg_rating).toFixed(1)}</span>
+                  </div>
+                )}
+                {show.firstAired && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {new Date(show.firstAired).getFullYear()}
                   </div>
                 )}
               </div>
