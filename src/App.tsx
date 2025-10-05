@@ -7,12 +7,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppLayout } from "@/components/layouts/AppLayout";
 import Home from "./pages/Home";
-import AuthPage from "./pages/AuthPage";
-import SearchPage from "./pages/SearchPage";
-import PostPage from "./pages/PostPage";
-import ProfilePage from "./pages/ProfilePage";
-import SettingsPage from "./pages/SettingsPage";
-import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -27,12 +21,7 @@ const App = () => (
             <AppLayout>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/post" element={<PostPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<div className="p-8 text-center">Page not found</div>} />
               </Routes>
             </AppLayout>
           </BrowserRouter>
