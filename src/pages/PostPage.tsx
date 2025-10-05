@@ -279,22 +279,19 @@ export default function PostPage() {
               )}
               
               {searchResults.length > 0 && (
-                <div className="max-h-48 overflow-y-auto space-y-2 border rounded-md p-2">
+                <div className="max-h-48 overflow-y-auto space-y-2 border rounded-md p-2 bg-background z-50">
                   {searchResults.map((show) => (
-                    <div key={show.id} className="space-y-1">
-                      <button
-                        onClick={() => handleSelectShow(show)}
-                        className="w-full text-left px-3 py-2 hover:bg-muted rounded-md transition-colors flex items-center justify-between"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{show.name}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-1">
-                            {show.overview}
-                          </p>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </button>
-                    </div>
+                    <button
+                      key={show.id}
+                      onClick={() => handleSelectShow(show)}
+                      className="w-full text-left px-3 py-2 hover:bg-muted rounded-md transition-colors"
+                      type="button"
+                    >
+                      <p className="font-medium">{show.name}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {show.overview}
+                      </p>
+                    </button>
                   ))}
                 </div>
               )}
@@ -302,13 +299,14 @@ export default function PostPage() {
           )}
 
           {selectedShow && !selectedSeason && (
-            <div className="space-y-2 border rounded-md p-3">
+            <div className="space-y-2 border rounded-md p-3 bg-background">
               <div className="flex items-center justify-between mb-2">
-                <p className="font-medium">Select from: {selectedShow.name}</p>
+                <p className="font-medium text-sm">Select from: {selectedShow.name}</p>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={resetSelection}
+                  type="button"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -318,7 +316,8 @@ export default function PostPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleSelectShowAsTag(selectedShow)}
-                className="w-full mb-2"
+                className="w-full"
+                type="button"
               >
                 Tag entire show
               </Button>
@@ -328,22 +327,24 @@ export default function PostPage() {
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground mb-1">Or select a season:</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Or select a season:</p>
                   {seasons.map((season) => (
-                    <div key={season.id} className="flex gap-1">
-                      <button
-                        onClick={() => handleSelectSeason(season)}
-                        className="flex-1 text-left px-3 py-2 hover:bg-muted rounded-md transition-colors text-sm flex items-center justify-between"
-                      >
-                        <span>{season.name}</span>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </button>
+                    <div key={season.id} className="grid grid-cols-3 gap-2">
                       <Button
-                        variant="ghost"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSelectSeason(season)}
+                        className="col-span-2 justify-start"
+                        type="button"
+                      >
+                        {season.name}
+                      </Button>
+                      <Button
+                        variant="default"
                         size="sm"
                         onClick={() => handleSelectSeasonAsTag(season)}
-                        title="Tag this season"
+                        type="button"
                       >
                         Tag
                       </Button>
@@ -355,9 +356,9 @@ export default function PostPage() {
           )}
 
           {selectedSeason && (
-            <div className="space-y-2 border rounded-md p-3">
+            <div className="space-y-2 border rounded-md p-3 bg-background">
               <div className="flex items-center justify-between mb-2">
-                <p className="font-medium">{selectedSeason.name}</p>
+                <p className="font-medium text-sm">{selectedSeason.name}</p>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -365,6 +366,7 @@ export default function PostPage() {
                     setSelectedSeason(null);
                     setEpisodes([]);
                   }}
+                  type="button"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -378,20 +380,25 @@ export default function PostPage() {
                 <div className="space-y-1 max-h-48 overflow-y-auto">
                   <p className="text-sm text-muted-foreground mb-1">Select an episode:</p>
                   {episodes.map((episode) => (
-                    <button
+                    <Button
                       key={episode.id}
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleSelectEpisode(episode)}
-                      className="w-full text-left px-3 py-2 hover:bg-muted rounded-md transition-colors text-sm"
+                      className="w-full justify-start h-auto py-2"
+                      type="button"
                     >
-                      <p className="font-medium">
-                        {episode.number}. {episode.name}
-                      </p>
-                      {episode.overview && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {episode.overview}
+                      <div className="text-left">
+                        <p className="font-medium text-sm">
+                          {episode.number}. {episode.name}
                         </p>
-                      )}
-                    </button>
+                        {episode.overview && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {episode.overview}
+                          </p>
+                        )}
+                      </div>
+                    </Button>
                   ))}
                 </div>
               )}
