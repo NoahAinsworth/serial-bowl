@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ThoughtCard } from '@/components/ThoughtCard';
-import { TrendingShows } from '@/components/TrendingShows';
+import { Card } from '@/components/ui/card';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -64,53 +63,16 @@ export default function Home() {
     const { data: thoughtsData, error } = await query;
 
     if (!error && thoughtsData) {
-      // Get reaction counts for each thought
-      const thoughtsWithCounts = await Promise.all(
-        thoughtsData.map(async (thought: any) => {
-          const { data: reactions } = await supabase
-            .from('reactions')
-            .select('reaction_type')
-            .eq('thought_id', thought.id);
+      const simplifiedThoughts = thoughtsData.map((thought: any) => ({
+        id: thought.id,
+        user_id: thought.user_id,
+        handle: thought.profiles?.handle || 'Unknown',
+        content: thought.text_content,
+        show: thought.content?.title,
+        created_at: thought.created_at,
+      }));
 
-          const { data: comments } = await supabase
-            .from('comments')
-            .select('id')
-            .eq('thought_id', thought.id);
-
-          let userReaction = undefined;
-          if (user) {
-            const { data } = await supabase
-              .from('reactions')
-              .select('reaction_type')
-              .eq('thought_id', thought.id)
-              .eq('user_id', user.id)
-              .single();
-            userReaction = data?.reaction_type;
-          }
-
-          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
-          const dislikes = reactions?.filter(r => r.reaction_type === 'dislike').length || 0;
-          const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
-
-          return {
-            id: thought.id,
-            user: {
-              id: thought.profiles.id,
-              handle: thought.profiles.handle,
-              avatar_url: thought.profiles.avatar_url,
-            },
-            content: thought.text_content,
-            show: thought.content ? { title: thought.content.title } : undefined,
-            likes,
-            dislikes,
-            comments: comments?.length || 0,
-            rethinks,
-            userReaction,
-          };
-        })
-      );
-
-      setThoughts(thoughtsWithCounts);
+      setThoughts(simplifiedThoughts);
     }
 
     setLoading(false);
@@ -137,7 +99,7 @@ export default function Home() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
-      <TrendingShows />
+      <h1 className="text-3xl font-bold neon-glow text-center">Your Feed</h1>
       
       <Tabs value={feedMode} onValueChange={(value) => setFeedMode(value as 'following' | 'for-you')} className="w-full">
         <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
@@ -151,31 +113,55 @@ export default function Home() {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : thoughts.length === 0 ? (
-            <div className="text-center text-muted-foreground py-12">
-              {feedMode === 'following' ? (
-                <>
-                  <p>No thoughts from people you follow yet</p>
-                  <p className="text-sm mt-2">Try the "For You" feed or follow some users!</p>
-                </>
-              ) : (
-                <p>No thoughts yet. Be the first to post!</p>
-              )}
-            </div>
+            <Card className="p-12 text-center">
+              <p className="text-muted-foreground mb-4">
+                {feedMode === 'following' ? (
+                  <>No thoughts from people you follow yet. Try the "For You" feed!</>
+                ) : (
+                  <>No thoughts yet. Be the first to post!</>
+                )}
+              </p>
+              <Button onClick={() => navigate('/post')} className="btn-glow">
+                Create Post
+              </Button>
+            </Card>
           ) : (
             <div className="space-y-4">
               {thoughts.map((thought) => (
-                <ThoughtCard
-                  key={thought.id}
-                  thought={thought}
-                  onReactionChange={loadFeed}
-                />
+                <Card key={thought.id} className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                      {thought.handle[0]?.toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold">{thought.handle}</span>
+                        {thought.show && (
+                          <span className="text-sm text-muted-foreground">• {thought.show}</span>
+                        )}
+                      </div>
+                      <p className="text-foreground">{thought.content}</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {new Date(thought.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
               ))}
             </div>
           )}
         </TabsContent>
       </Tabs>
 
-      {/* Footer */}
+      <div className="mt-8 text-center">
+        <Button onClick={() => navigate('/search')} variant="outline" className="mr-2">
+          Search Shows
+        </Button>
+        <Button onClick={() => navigate('/post')} className="btn-glow">
+          Create Post
+        </Button>
+      </div>
+
       <div className="mt-8 text-center text-sm text-muted-foreground">
         TV data provided by TheTVDB
       </div>
