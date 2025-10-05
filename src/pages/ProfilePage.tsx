@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Settings, Loader2, Share2 } from 'lucide-react';
+import { Settings, Loader2, Share2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
@@ -75,6 +75,19 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4">
+      {/* DM Button - Top Left */}
+      <div className="mb-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => navigate('/messages')}
+          className="gap-2"
+        >
+          <MessageSquare className="h-4 w-4" />
+          Messages
+        </Button>
+      </div>
+
       {/* Header Section */}
       <Card className="p-6 mb-6">
         <div className="flex items-start gap-6 mb-6">
@@ -133,6 +146,21 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
+        </div>
+      </Card>
+
+      {/* Top 3 Shows Section */}
+      <Card className="p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4">Top 3 Shows</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="text-center">
+              <div className="aspect-[2/3] bg-muted rounded-lg mb-2 flex items-center justify-center">
+                <span className="text-muted-foreground">#{i}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Coming Soon</p>
+            </div>
+          ))}
         </div>
       </Card>
 
