@@ -292,19 +292,56 @@ export default function PostPage() {
 
     setPosting(true);
 
+    // First, ensure profile exists
+    const { data: profileExists } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!profileExists) {
+      // Create profile if it doesn't exist
+      const defaultHandle = `user${user.id.substring(0, 8)}`;
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          handle: defaultHandle,
+          bio: '',
+        });
+
+      if (profileError) {
+        toast({
+          title: "Error",
+          description: "Please set up your profile first",
+          variant: "destructive",
+        });
+        setPosting(false);
+        navigate('/profile/edit');
+        return;
+      }
+
+      // Create user role
+      await supabase.from('user_roles').insert({
+        user_id: user.id,
+        role: 'user',
+      });
+    }
+
     const { error } = await supabase
       .from('thoughts')
       .insert({
         user_id: user.id,
         content_id: selectedContent?.id || null,
         text_content: content.trim(),
-        moderation_status: 'allow', // Simple allow for MVP
+        moderation_status: 'allow',
       });
 
     if (error) {
+      console.error('Post error:', error);
       toast({
         title: "Error",
-        description: "Failed to post thought",
+        description: error.message || "Failed to post thought",
         variant: "destructive",
       });
     } else {

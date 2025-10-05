@@ -95,19 +95,30 @@ export default function EditProfilePage() {
   const handleSave = async () => {
     if (!user) return;
 
+    // Validate handle
+    if (!profile.handle.trim()) {
+      toast({
+        title: "Error",
+        description: "Handle cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSaving(true);
     const { error } = await supabase
       .from('profiles')
       .update({
-        handle: profile.handle,
-        bio: profile.bio,
+        handle: profile.handle.trim(),
+        bio: profile.bio.trim(),
       })
       .eq('id', user.id);
 
     if (error) {
+      console.error('Save error:', error);
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: error.message || "Failed to update profile",
         variant: "destructive",
       });
     } else {
