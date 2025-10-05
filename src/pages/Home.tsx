@@ -6,39 +6,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTVDB } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
-import { Loader2, TrendingUp } from 'lucide-react';
+import { Loader2, TrendingUp, Users, Sparkles } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
+import { ThoughtCard } from '@/components/ThoughtCard';
 
 export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { search: searchTVDB } = useTVDB();
-  const [discoverShows, setDiscoverShows] = useState<any[]>([]);
   const [trendingShows, setTrendingShows] = useState<any[]>([]);
+  const [followingThoughts, setFollowingThoughts] = useState<any[]>([]);
+  const [forYouThoughts, setForYouThoughts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadShows();
-  }, []);
+    loadData();
+  }, [user]);
 
-  const loadShows = async () => {
+  const loadData = async () => {
     setLoading(true);
     
-    // Load popular/random shows from TVDB
-    const popularQueries = [
-      'walking dead', 'breaking bad', 'game of thrones', 'stranger things', 
-      'the office', 'friends', 'the mandalorian', 'house of the dragon',
-      'the last of us', 'wednesday', 'succession', 'euphoria'
-    ];
-    const randomQuery = popularQueries[Math.floor(Math.random() * popularQueries.length)];
-    
-    try {
-      const tvdbResults = await searchTVDB(randomQuery);
-      setDiscoverShows(tvdbResults.slice(0, 12));
-    } catch (error) {
-      console.error('Error loading TVDB shows:', error);
-    }
-
     // Load trending shows based on user ratings
     const { data: topRatedContent } = await supabase
       .from('aggregates')
@@ -53,6 +40,56 @@ export default function Home() {
         rating_count: item.rating_count,
         avg_rating: item.avg_rating,
       })));
+    }
+
+    if (user) {
+      // Load thoughts from people you follow
+      const { data: following } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id);
+
+      const followingIds = following?.map(f => f.following_id) || [];
+
+      if (followingIds.length > 0) {
+        const { data: thoughts } = await supabase
+          .from('thoughts')
+          .select(`
+            id,
+            text_content,
+            created_at,
+            user_id,
+            content_id,
+            profiles!inner(handle, avatar_url),
+            content(id, title, poster_url, external_id, kind)
+          `)
+          .in('user_id', followingIds)
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (thoughts) {
+          setFollowingThoughts(thoughts);
+        }
+      }
+
+      // Load "For You" thoughts (all thoughts)
+      const { data: allThoughts } = await supabase
+        .from('thoughts')
+        .select(`
+          id,
+          text_content,
+          created_at,
+          user_id,
+          content_id,
+          profiles!inner(handle, avatar_url),
+          content(id, title, poster_url, external_id, kind)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(30);
+
+      if (allThoughts) {
+        setForYouThoughts(allThoughts);
+      }
     }
 
     setLoading(false);
@@ -77,54 +114,85 @@ export default function Home() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4">
-      <Tabs defaultValue="discover" className="w-full">
+      <Tabs defaultValue="feed" className="w-full">
         <TabsList className="w-full grid grid-cols-2 mb-6">
-          <TabsTrigger value="discover">Discover</TabsTrigger>
+          <TabsTrigger value="feed">
+            <Sparkles className="h-4 w-4 mr-2" />
+            Feed
+          </TabsTrigger>
           <TabsTrigger value="trending">
             <TrendingUp className="h-4 w-4 mr-2" />
             Trending
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="discover">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">Discover Shows</h2>
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {discoverShows.map((show) => (
-                <Card
-                  key={show.id}
-                  className="cursor-pointer hover:scale-105 transition-transform overflow-hidden"
-                  onClick={() => navigate(`/show/${show.id}`)}
-                >
-                  <div className="aspect-[2/3] bg-muted">
-                    {show.image ? (
-                      <img src={show.image} alt={show.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="font-semibold text-sm truncate">{show.name}</h3>
-                    {show.firstAired && (
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(show.firstAired).getFullYear()}
-                      </p>
-                    )}
-                  </div>
+        <TabsContent value="feed">
+          <Tabs defaultValue="foryou" className="w-full">
+            <TabsList className="w-full grid grid-cols-2 mb-4">
+              <TabsTrigger value="foryou">For You</TabsTrigger>
+              <TabsTrigger value="following">
+                <Users className="h-4 w-4 mr-2" />
+                Following
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="foryou">
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : forYouThoughts.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <p className="text-muted-foreground">No thoughts yet. Start sharing!</p>
                 </Card>
-              ))}
-            </div>
-          )}
+              ) : (
+                <div className="space-y-4">
+                  {forYouThoughts.map((thought) => (
+                    <ThoughtCard
+                      key={thought.id}
+                      thought={thought}
+                      onDelete={loadData}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="following">
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : followingThoughts.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <p className="text-muted-foreground">
+                    Follow users to see their thoughts here
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => navigate('/search')}
+                  >
+                    Find Users
+                  </Button>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {followingThoughts.map((thought) => (
+                    <ThoughtCard
+                      key={thought.id}
+                      thought={thought}
+                      onDelete={loadData}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="trending">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">Trending on Serial Bowl</h2>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">Trending Shows</h2>
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
