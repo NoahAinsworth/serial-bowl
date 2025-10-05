@@ -131,12 +131,12 @@ export default function Index() {
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex gap-3 px-4 pb-4">
           {shows.map((show, index) => (
-            <Card
+            <div
               key={show.id || index}
-              className="cursor-pointer hover:scale-105 transition-transform overflow-hidden flex-shrink-0 w-[45%] min-w-[160px]"
+              className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[30%] min-w-[110px]"
               onClick={() => navigate(`/show/${show.id || show.external_id}`)}
             >
-              <div className="aspect-[2/3] bg-muted">
+              <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden mb-2">
                 {(show.poster_url || show.image) ? (
                   <img 
                     src={show.poster_url || show.image} 
@@ -149,20 +149,8 @@ export default function Index() {
                   </div>
                 )}
               </div>
-              <div className="p-3">
-                <h3 className="font-semibold text-sm line-clamp-1">{show.title || show.name}</h3>
-                {show.avg_rating && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                    <span>⭐ {Number(show.avg_rating).toFixed(1)}</span>
-                  </div>
-                )}
-                {show.firstAired && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {new Date(show.firstAired).getFullYear()}
-                  </div>
-                )}
-              </div>
-            </Card>
+              <h3 className="font-medium text-sm line-clamp-2 text-center">{show.title || show.name}</h3>
+            </div>
           ))}
         </div>
         <ScrollBar orientation="horizontal" />
