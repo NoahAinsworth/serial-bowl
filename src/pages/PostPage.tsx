@@ -8,14 +8,14 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useTVDB } from '@/hooks/useTVDB';
-import { X, Loader2 } from 'lucide-react';
+import { useTVDB, TVSeason, TVEpisode } from '@/hooks/useTVDB';
+import { X, Loader2, ChevronRight } from 'lucide-react';
 
 export default function PostPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { search } = useTVDB();
+  const { search, fetchSeasons, fetchEpisodes } = useTVDB();
   
   const [content, setContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,6 +23,14 @@ export default function PostPage() {
   const [selectedContent, setSelectedContent] = useState<{ id: string; title: string; kind: string } | null>(null);
   const [searching, setSearching] = useState(false);
   const [posting, setPosting] = useState(false);
+  
+  // For hierarchical selection
+  const [selectedShow, setSelectedShow] = useState<any | null>(null);
+  const [seasons, setSeasons] = useState<TVSeason[]>([]);
+  const [selectedSeason, setSelectedSeason] = useState<TVSeason | null>(null);
+  const [episodes, setEpisodes] = useState<TVEpisode[]>([]);
+  const [loadingSeasons, setLoadingSeasons] = useState(false);
+  const [loadingEpisodes, setLoadingEpisodes] = useState(false);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -44,14 +52,101 @@ export default function PostPage() {
   };
 
   const handleSelectShow = async (show: any) => {
-    // Get or create content entry
+    setSelectedShow(show);
+    setSearchQuery('');
+    setSearchResults([]);
+    
+    // Load seasons for this show
+    setLoadingSeasons(true);
+    const seasonsData = await fetchSeasons(show.id);
+    setSeasons(seasonsData.filter(s => s.number !== 0)); // Filter out Season 0
+    setLoadingSeasons(false);
+  };
+
+  const handleSelectSeason = async (season: TVSeason) => {
+    setSelectedSeason(season);
+    
+    // Load episodes for this season
+    setLoadingEpisodes(true);
+    const episodesData = await fetchEpisodes(selectedShow!.id, season.number);
+    setEpisodes(episodesData);
+    setLoadingEpisodes(false);
+  };
+
+  const handleSelectEpisode = async (episode: TVEpisode) => {
+    // Create/get episode content entry
+    let { data: content } = await supabase
+      .from('content')
+      .select('id, title, kind')
+      .eq('external_src', 'thetvdb')
+      .eq('external_id', episode.id.toString())
+      .eq('kind', 'episode')
+      .maybeSingle();
+
+    if (!content) {
+      const { data: newContent } = await supabase
+        .from('content')
+        .insert({
+          external_src: 'thetvdb',
+          external_id: episode.id.toString(),
+          kind: 'episode',
+          title: episode.name,
+          overview: episode.overview,
+          poster_url: episode.image,
+          air_date: episode.aired,
+        })
+        .select('id, title, kind')
+        .single();
+      
+      content = newContent;
+    }
+
+    if (content) {
+      setSelectedContent(content);
+      resetSelection();
+    }
+  };
+
+  const handleSelectSeasonAsTag = async (season: TVSeason) => {
+    // Create/get season content entry
+    let { data: content } = await supabase
+      .from('content')
+      .select('id, title, kind')
+      .eq('external_src', 'thetvdb')
+      .eq('external_id', season.id.toString())
+      .eq('kind', 'season')
+      .maybeSingle();
+
+    if (!content) {
+      const { data: newContent } = await supabase
+        .from('content')
+        .insert({
+          external_src: 'thetvdb',
+          external_id: season.id.toString(),
+          kind: 'season',
+          title: season.name,
+        })
+        .select('id, title, kind')
+        .single();
+      
+      content = newContent;
+    }
+
+    if (content) {
+      setSelectedContent(content);
+      resetSelection();
+    }
+  };
+
+  const handleSelectShowAsTag = async (show: any) => {
+    // Get or create show content entry
     let { data: content } = await supabase
       .from('content')
       .select('id, title, kind')
       .eq('external_src', 'thetvdb')
       .eq('external_id', show.id.toString())
       .eq('kind', 'show')
-      .single();
+      .maybeSingle();
 
     if (!content) {
       const { data: newContent } = await supabase
@@ -73,9 +168,15 @@ export default function PostPage() {
 
     if (content) {
       setSelectedContent(content);
-      setSearchQuery('');
-      setSearchResults([]);
+      resetSelection();
     }
+  };
+
+  const resetSelection = () => {
+    setSelectedShow(null);
+    setSeasons([]);
+    setSelectedSeason(null);
+    setEpisodes([]);
   };
 
   const handlePost = async () => {
@@ -143,12 +244,17 @@ export default function PostPage() {
         {selectedContent && (
           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-md">
             <span className="text-sm text-primary flex-1">
-              📺 {selectedContent.title}
+              {selectedContent.kind === 'show' && '📺'}
+              {selectedContent.kind === 'season' && '📁'}
+              {selectedContent.kind === 'episode' && '🎬'} {selectedContent.title}
             </span>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSelectedContent(null)}
+              onClick={() => {
+                setSelectedContent(null);
+                resetSelection();
+              }}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -156,33 +262,139 @@ export default function PostPage() {
         )}
 
         <div className="space-y-2">
-          <Label>Tag a show (optional)</Label>
-          <Input
-            placeholder="Search for a show..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <Label>Tag content (optional)</Label>
           
-          {searching && (
-            <div className="flex justify-center py-2">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          {!selectedShow && (
+            <>
+              <Input
+                placeholder="Search for a show..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              
+              {searching && (
+                <div className="flex justify-center py-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              )}
+              
+              {searchResults.length > 0 && (
+                <div className="max-h-48 overflow-y-auto space-y-2 border rounded-md p-2">
+                  {searchResults.map((show) => (
+                    <div key={show.id} className="space-y-1">
+                      <button
+                        onClick={() => handleSelectShow(show)}
+                        className="w-full text-left px-3 py-2 hover:bg-muted rounded-md transition-colors flex items-center justify-between"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium">{show.name}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {show.overview}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {selectedShow && !selectedSeason && (
+            <div className="space-y-2 border rounded-md p-3">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-medium">Select from: {selectedShow.name}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetSelection}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSelectShowAsTag(selectedShow)}
+                className="w-full mb-2"
+              >
+                Tag entire show
+              </Button>
+
+              {loadingSeasons ? (
+                <div className="flex justify-center py-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground mb-1">Or select a season:</p>
+                  {seasons.map((season) => (
+                    <div key={season.id} className="flex gap-1">
+                      <button
+                        onClick={() => handleSelectSeason(season)}
+                        className="flex-1 text-left px-3 py-2 hover:bg-muted rounded-md transition-colors text-sm flex items-center justify-between"
+                      >
+                        <span>{season.name}</span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSelectSeasonAsTag(season)}
+                        title="Tag this season"
+                      >
+                        Tag
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          
-          {searchResults.length > 0 && (
-            <div className="max-h-48 overflow-y-auto space-y-2 border rounded-md p-2">
-              {searchResults.map((show) => (
-                <button
-                  key={show.id}
-                  onClick={() => handleSelectShow(show)}
-                  className="w-full text-left px-3 py-2 hover:bg-muted rounded-md transition-colors"
+
+          {selectedSeason && (
+            <div className="space-y-2 border rounded-md p-3">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-medium">{selectedSeason.name}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedSeason(null);
+                    setEpisodes([]);
+                  }}
                 >
-                  <p className="font-medium">{show.name}</p>
-                  <p className="text-sm text-muted-foreground line-clamp-1">
-                    {show.overview}
-                  </p>
-                </button>
-              ))}
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {loadingEpisodes ? (
+                <div className="flex justify-center py-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="space-y-1 max-h-48 overflow-y-auto">
+                  <p className="text-sm text-muted-foreground mb-1">Select an episode:</p>
+                  {episodes.map((episode) => (
+                    <button
+                      key={episode.id}
+                      onClick={() => handleSelectEpisode(episode)}
+                      className="w-full text-left px-3 py-2 hover:bg-muted rounded-md transition-colors text-sm"
+                    >
+                      <p className="font-medium">
+                        {episode.number}. {episode.name}
+                      </p>
+                      {episode.overview && (
+                        <p className="text-xs text-muted-foreground line-clamp-1">
+                          {episode.overview}
+                        </p>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
