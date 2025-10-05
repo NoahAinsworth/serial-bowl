@@ -26,10 +26,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between px-4">
-          <div className="flex flex-col">
-            <div className="text-xl font-bold neon-glow tracking-wider">SERIAL BOWL</div>
-            <div className="text-[10px] uppercase tracking-widest opacity-80 stripe-accent bg-clip-text text-transparent font-semibold">Home of the Bringers</div>
-          </div>
+          <div className="text-xl font-bold neon-glow tracking-wider">SERIAL BOWL</div>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => navigate('/activity')} title="Notifications">
               <Bell className="h-5 w-5" />
@@ -42,7 +39,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </Button>
           </div>
         </div>
-        <div className="h-1 stripe-accent"></div>
       </header>
 
       {/* Main Content */}
@@ -52,7 +48,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Bottom Navigation */}
       <nav className="sticky bottom-0 z-40 w-full border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="h-1 stripe-accent"></div>
         <div className="container flex h-16 items-center justify-around px-4">
           {navItems.map(({ icon: Icon, label, path }) => (
             <Link
