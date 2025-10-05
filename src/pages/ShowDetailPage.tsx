@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { RatingInput } from '@/components/RatingInput';
 import { WatchlistButton } from '@/components/WatchlistButton';
 import { WatchedButton } from '@/components/WatchedButton';
+import { ReviewButton } from '@/components/ReviewButton';
 import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -161,6 +162,7 @@ export default function ShowDetailPage() {
                     <>
                       <WatchlistButton contentId={contentId} showTitle={show.name} />
                       <WatchedButton contentId={contentId} showTitle={show.name} />
+                      <ReviewButton contentId={contentId} showTitle={show.name} />
                     </>
                   )}
                 </div>

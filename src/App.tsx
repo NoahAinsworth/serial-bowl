@@ -23,6 +23,9 @@ import DMThreadPage from "./pages/DMThreadPage";
 import WatchlistPage from "./pages/WatchlistPage";
 import WatchedPage from "./pages/WatchedPage";
 import StatsPage from "./pages/StatsPage";
+import ListsPage from "./pages/ListsPage";
+import ListDetailPage from "./pages/ListDetailPage";
+import DiscoverPage from "./pages/DiscoverPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +57,9 @@ const App = () => (
                 <Route path="/watchlist" element={<WatchlistPage />} />
                 <Route path="/watched" element={<WatchedPage />} />
                 <Route path="/stats" element={<StatsPage />} />
+                <Route path="/lists" element={<ListsPage />} />
+                <Route path="/lists/:listId" element={<ListDetailPage />} />
+                <Route path="/discover" element={<DiscoverPage />} />
                 {/* ADD ALL CUSTOM  ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
