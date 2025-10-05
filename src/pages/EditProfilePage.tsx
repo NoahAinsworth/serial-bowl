@@ -1,0 +1,155 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, LogOut } from 'lucide-react';
+
+export default function EditProfilePage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
+  const [profile, setProfile] = useState({
+    handle: '',
+    bio: '',
+  });
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    loadProfile();
+  }, [user]);
+
+  const loadProfile = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('handle, bio')
+      .eq('id', user.id)
+      .single();
+
+    if (data) {
+      setProfile({
+        handle: data.handle || '',
+        bio: data.bio || '',
+      });
+    }
+    setLoading(false);
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    setSaving(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        handle: profile.handle,
+        bio: profile.bio,
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+      navigate('/profile');
+    }
+    setSaving(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
+      <h1 className="text-3xl font-bold">Edit Profile</h1>
+
+      <Card className="p-6 space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="handle">Handle</Label>
+          <Input
+            id="handle"
+            value={profile.handle}
+            onChange={(e) => setProfile({ ...profile, handle: e.target.value })}
+            placeholder="@yourhandle"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="bio">Bio</Label>
+          <Textarea
+            id="bio"
+            value={profile.bio}
+            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+            placeholder="Tell us about yourself..."
+            className="resize-none"
+            rows={4}
+            maxLength={160}
+          />
+          <p className="text-xs text-muted-foreground">
+            {profile.bio.length} / 160
+          </p>
+        </div>
+
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full btn-glow"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Saving...
+            </>
+          ) : (
+            'Save Changes'
+          )}
+        </Button>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Account</h2>
+        <Separator className="mb-4" />
+        <Button
+          onClick={handleSignOut}
+          variant="destructive"
+          className="w-full"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </Button>
+      </Card>
+    </div>
+  );
+}

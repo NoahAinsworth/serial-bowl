@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Search, Loader2 } from 'lucide-react';
 import { useTVDB } from '@/hooks/useTVDB';
+import { UserSearch } from '@/components/UserSearch';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
@@ -89,9 +90,7 @@ export default function SearchPage() {
           )}
         </TabsContent>
         <TabsContent value="users" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            User search coming soon
-          </div>
+          <UserSearch query={query} />
         </TabsContent>
       </Tabs>
     </div>
