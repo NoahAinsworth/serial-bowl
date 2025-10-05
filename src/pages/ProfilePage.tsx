@@ -9,6 +9,7 @@ import { Settings, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
+import { ProfilePictureUpload } from '@/components/ProfilePictureUpload';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState({
     handle: '@me',
     bio: '',
+    avatar_url: '',
     showCount: 0,
     seasonCount: 0,
     episodeCount: 0,
@@ -39,7 +41,7 @@ export default function ProfilePage() {
 
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('handle, bio')
+      .select('handle, bio, avatar_url')
       .eq('id', user.id)
       .single();
 
@@ -77,6 +79,7 @@ export default function ProfilePage() {
     setProfile({
       handle: profileData?.handle || '@me',
       bio: profileData?.bio || '',
+      avatar_url: profileData?.avatar_url || '',
       showCount,
       seasonCount,
       episodeCount,
@@ -101,9 +104,10 @@ export default function ProfilePage() {
       <Card className="p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-bold">
-              {profile.handle[1]?.toUpperCase() || 'U'}
-            </div>
+            <ProfilePictureUpload
+              currentAvatarUrl={profile.avatar_url}
+              onUploadComplete={(url) => setProfile(prev => ({ ...prev, avatar_url: url }))}
+            />
             <div>
               <h2 className="text-2xl font-bold">{profile.handle}</h2>
               <p className="text-muted-foreground mt-1">{profile.bio || 'TV enthusiast 📺'}</p>
