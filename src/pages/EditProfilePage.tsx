@@ -41,7 +41,17 @@ export default function EditProfilePage() {
       .from('profiles')
       .select('handle, bio, avatar_url')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load profile",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
     if (data) {
       setProfile({
@@ -49,6 +59,35 @@ export default function EditProfilePage() {
         bio: data.bio || '',
         avatar_url: data.avatar_url || '',
       });
+    } else {
+      // Create profile if it doesn't exist
+      const defaultHandle = `user${user.id.substring(0, 8)}`;
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          handle: defaultHandle,
+          bio: '',
+        });
+
+      if (insertError) {
+        toast({
+          title: "Error",
+          description: "Failed to create profile",
+          variant: "destructive",
+        });
+      } else {
+        setProfile({
+          handle: defaultHandle,
+          bio: '',
+          avatar_url: '',
+        });
+        // Also create user role
+        await supabase.from('user_roles').insert({
+          user_id: user.id,
+          role: 'user',
+        });
+      }
     }
     setLoading(false);
   };
