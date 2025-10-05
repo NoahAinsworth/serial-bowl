@@ -344,20 +344,24 @@ export default function PostPage() {
           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-md">
             <button
               onClick={async () => {
-                const { data } = await supabase
-                  .from('content')
-                  .select('external_id, metadata')
-                  .eq('id', selectedContent.id)
-                  .single();
-                
-                if (data?.external_id) {
-                  if (selectedContent.kind === 'show') {
-                    navigate(`/show/${data.external_id}`);
-                  } else if (selectedContent.kind === 'season' && data.metadata) {
-                    navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}`);
-                  } else if (selectedContent.kind === 'episode' && data.metadata) {
-                    navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}/episode/${data.metadata.episode_number}`);
+                try {
+                  const { data } = await supabase
+                    .from('content')
+                    .select('external_id, metadata')
+                    .eq('id', selectedContent.id)
+                    .single();
+                  
+                  if (data?.external_id) {
+                    if (selectedContent.kind === 'show') {
+                      navigate(`/show/${data.external_id}`);
+                    } else if (selectedContent.kind === 'season' && data.metadata?.show_id) {
+                      navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}`);
+                    } else if (selectedContent.kind === 'episode' && data.metadata?.show_id) {
+                      navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}/episode/${data.metadata.episode_number}`);
+                    }
                   }
+                } catch (error) {
+                  console.error('Navigation error:', error);
                 }
               }}
               className="text-sm text-primary flex-1 text-left hover:underline"
