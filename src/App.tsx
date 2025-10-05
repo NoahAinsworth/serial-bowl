@@ -10,9 +10,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
-import { Settings, Loader2, Compass, List, Bookmark, Eye, TrendingUp, MessageSquare, Trash2, Star } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Home from "./pages/Home";
@@ -73,7 +72,7 @@ const ProfilePage = () => {
   );
 };
 
-// Simple Post Page
+// Post Page
 const PostPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -127,7 +126,7 @@ const PostPage = () => {
   );
 };
 
-// Simple Activity Page
+// Activity Page
 const ActivityPage = () => {
   const { user } = useAuth();
 
@@ -143,244 +142,7 @@ const ActivityPage = () => {
   );
 };
 
-// Watchlist & Watched combined page
-const WatchlistPage = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [watchlist, setWatchlist] = useState<any[]>([]);
-  const [watched, setWatched] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) loadData();
-  }, [user]);
-
-  const loadData = async () => {
-    if (!user) return;
-    
-    const [watchlistRes, watchedRes] = await Promise.all([
-      supabase.from('watchlist').select('*, content(*)').eq('user_id', user.id),
-      supabase.from('watched').select('*, content(*)').eq('user_id', user.id)
-    ]);
-
-    setWatchlist(watchlistRes.data || []);
-    setWatched(watchedRes.data || []);
-    setLoading(false);
-  };
-
-  if (!user) return (
-    <div className="container max-w-4xl mx-auto py-12 px-4 text-center">
-      <p className="text-muted-foreground">Sign in to view your watchlist</p>
-    </div>
-  );
-
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  );
-
-  return (
-    <div className="container max-w-4xl mx-auto py-6 px-4">
-      <Tabs defaultValue="watchlist" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="watchlist"><Bookmark className="h-4 w-4 mr-2" />Watchlist</TabsTrigger>
-          <TabsTrigger value="watched"><Eye className="h-4 w-4 mr-2" />Watched</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="watchlist">
-          {watchlist.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground mb-4">Your watchlist is empty</p>
-              <Button onClick={() => navigate('/search')} className="btn-glow">Find Shows</Button>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {watchlist.map((item) => (
-                <Card key={item.id} className="p-4">
-                  <p className="font-bold">{item.content?.title || 'Unknown'}</p>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="watched">
-          {watched.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">No watched shows yet</p>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {watched.map((item) => (
-                <Card key={item.id} className="p-4">
-                  <p className="font-bold">{item.content?.title || 'Unknown'}</p>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-};
-
-// Lists Page
-const ListsPage = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [lists, setLists] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) loadLists();
-  }, [user]);
-
-  const loadLists = async () => {
-    if (!user) return;
-    const { data } = await supabase.from('custom_lists').select('*').eq('user_id', user.id);
-    setLists(data || []);
-    setLoading(false);
-  };
-
-  if (!user) return (
-    <div className="container max-w-4xl mx-auto py-12 px-4 text-center">
-      <p className="text-muted-foreground">Sign in to view your lists</p>
-    </div>
-  );
-
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  );
-
-  return (
-    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6">
-      <div className="flex items-center gap-3">
-        <List className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold neon-glow">My Lists</h1>
-      </div>
-      {lists.length === 0 ? (
-        <Card className="p-12 text-center">
-          <p className="text-muted-foreground">No lists created yet</p>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {lists.map((list) => (
-            <Card key={list.id} className="p-4 hover:border-primary/50 transition-all cursor-pointer" onClick={() => navigate(`/list/${list.id}`)}>
-              <h3 className="font-bold">{list.name}</h3>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Stats Page
-const StatsPage = () => {
-  const { user } = useAuth();
-  const [stats, setStats] = useState({ ratings: 0, thoughts: 0, followers: 0, following: 0 });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) loadStats();
-  }, [user]);
-
-  const loadStats = async () => {
-    if (!user) return;
-    
-    const [ratings, thoughts, followers, following] = await Promise.all([
-      supabase.from('ratings').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-      supabase.from('thoughts').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', user.id),
-      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', user.id),
-    ]);
-
-    setStats({
-      ratings: ratings.count || 0,
-      thoughts: thoughts.count || 0,
-      followers: followers.count || 0,
-      following: following.count || 0,
-    });
-    setLoading(false);
-  };
-
-  if (!user) return (
-    <div className="container max-w-4xl mx-auto py-12 px-4 text-center">
-      <p className="text-muted-foreground">Sign in to view your stats</p>
-    </div>
-  );
-
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  );
-
-  return (
-    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6">
-      <div className="flex items-center gap-3">
-        <TrendingUp className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold neon-glow">Your Stats</h1>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-6 text-center">
-          <Star className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
-          <p className="text-2xl font-bold">{stats.ratings}</p>
-          <p className="text-sm text-muted-foreground">Ratings</p>
-        </Card>
-        <Card className="p-6 text-center">
-          <MessageSquare className="h-6 w-6 mx-auto mb-2 text-green-500" />
-          <p className="text-2xl font-bold">{stats.thoughts}</p>
-          <p className="text-sm text-muted-foreground">Thoughts</p>
-        </Card>
-        <Card className="p-6 text-center">
-          <p className="text-2xl font-bold">{stats.followers}</p>
-          <p className="text-sm text-muted-foreground">Followers</p>
-        </Card>
-        <Card className="p-6 text-center">
-          <p className="text-2xl font-bold">{stats.following}</p>
-          <p className="text-sm text-muted-foreground">Following</p>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// Discover Page
-const DiscoverPage = () => {
-  return (
-    <div className="container max-w-6xl mx-auto py-6 px-4 space-y-6">
-      <div className="flex items-center gap-3">
-        <Compass className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold neon-glow">Discover</h1>
-      </div>
-      <Card className="p-12 text-center">
-        <p className="text-muted-foreground">Browse trending and recommended shows coming soon!</p>
-      </Card>
-    </div>
-  );
-};
-
-// DMs Page
-const DMsPage = () => {
-  return (
-    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6">
-      <div className="flex items-center gap-3">
-        <MessageSquare className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold neon-glow">Messages</h1>
-      </div>
-      <Card className="p-12 text-center">
-        <p className="text-muted-foreground">Direct messages coming soon!</p>
-      </Card>
-    </div>
-  );
-};
-
-// Placeholder for other pages
+// Simple placeholder
 const SimplePage = ({ title }: { title: string }) => (
   <div className="container max-w-4xl mx-auto py-6 px-4">
     <Card className="p-6">
@@ -408,18 +170,18 @@ const App = () => (
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/profile/edit" element={<EditProfilePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/discover" element={<SimplePage title="Discover" />} />
+                <Route path="/lists" element={<SimplePage title="My Lists" />} />
+                <Route path="/list/:listId" element={<SimplePage title="List Details" />} />
+                <Route path="/watchlist" element={<SimplePage title="Watchlist & Watched" />} />
+                <Route path="/watched" element={<SimplePage title="Watchlist & Watched" />} />
+                <Route path="/stats" element={<SimplePage title="Stats" />} />
+                <Route path="/dms" element={<SimplePage title="Messages" />} />
+                <Route path="/dm/:userId" element={<SimplePage title="Chat" />} />
                 <Route path="/user/:userId" element={<SimplePage title="User Profile" />} />
                 <Route path="/show/:id" element={<SimplePage title="Show Details" />} />
                 <Route path="/show/:showId/season/:seasonNumber" element={<SimplePage title="Season Details" />} />
                 <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<SimplePage title="Episode Details" />} />
-                <Route path="/watchlist" element={<WatchlistPage />} />
-                <Route path="/watched" element={<WatchlistPage />} />
-                <Route path="/lists" element={<ListsPage />} />
-                <Route path="/list/:listId" element={<SimplePage title="List Details" />} />
-                <Route path="/stats" element={<StatsPage />} />
-                <Route path="/discover" element={<DiscoverPage />} />
-                <Route path="/dms" element={<DMsPage />} />
-                <Route path="/dm/:userId" element={<SimplePage title="Chat" />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
