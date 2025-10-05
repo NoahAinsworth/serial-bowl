@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, Repeat2, Trash2 } from 'lucide-react';
@@ -29,6 +30,18 @@ interface ThoughtCardProps {
     content: string;
     show?: {
       title: string;
+      external_id?: string;
+    };
+    season?: {
+      title: string;
+      external_id?: string;
+      show_external_id?: string;
+    };
+    episode?: {
+      title: string;
+      external_id?: string;
+      season_external_id?: string;
+      show_external_id?: string;
     };
     likes: number;
     dislikes: number;
@@ -43,6 +56,7 @@ interface ThoughtCardProps {
 export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [localReaction, setLocalReaction] = useState(thought.userReaction);
   const [localLikes, setLocalLikes] = useState(thought.likes);
   const [localDislikes, setLocalDislikes] = useState(thought.dislikes);
@@ -186,11 +200,32 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
             )}
           </div>
           <p className="text-foreground mb-2 break-words">{thought.content}</p>
-          {thought.show && (
-            <div className="inline-block px-2 py-1 rounded-md bg-primary/10 text-primary text-sm mb-3">
-              📺 {thought.show.title}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {thought.show && (
+              <div 
+                className="inline-block px-2 py-1 rounded-md bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={() => thought.show?.external_id && navigate(`/show/${thought.show.external_id}`)}
+              >
+                📺 {thought.show.title}
+              </div>
+            )}
+            {thought.season && (
+              <div 
+                className="inline-block px-2 py-1 rounded-md bg-secondary/10 text-secondary text-sm cursor-pointer hover:bg-secondary/20 transition-colors"
+                onClick={() => thought.season?.show_external_id && thought.season?.external_id && navigate(`/show/${thought.season.show_external_id}/season/${thought.season.external_id}`)}
+              >
+                📖 {thought.season.title}
+              </div>
+            )}
+            {thought.episode && (
+              <div 
+                className="inline-block px-2 py-1 rounded-md bg-accent/10 text-accent text-sm cursor-pointer hover:bg-accent/20 transition-colors"
+                onClick={() => thought.episode?.show_external_id && thought.episode?.season_external_id && thought.episode?.external_id && navigate(`/show/${thought.episode.show_external_id}/season/${thought.episode.season_external_id}/episode/${thought.episode.external_id}`)}
+              >
+                🎬 {thought.episode.title}
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-6 text-muted-foreground">
             <Button
               variant="ghost"

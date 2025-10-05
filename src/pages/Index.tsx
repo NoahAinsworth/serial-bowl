@@ -17,7 +17,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center space-y-6 mb-16">
           <h1 className="text-5xl md:text-7xl font-bold neon-glow animate-fade-in">
-            TV Social
+            Binge Empire
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
             Rate, discuss, and connect with fellow TV enthusiasts. Your ultimate social network for television.

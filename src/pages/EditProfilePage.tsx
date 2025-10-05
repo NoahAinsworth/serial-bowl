@@ -23,6 +23,7 @@ export default function EditProfilePage() {
     handle: '',
     bio: '',
     avatar_url: '',
+    displayName: '',
   });
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function EditProfilePage() {
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('handle, bio, avatar_url')
+      .select('handle, bio, avatar_url, settings')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -54,10 +55,12 @@ export default function EditProfilePage() {
     }
 
     if (data) {
+      const settings = data.settings as any;
       setProfile({
         handle: data.handle || '',
         bio: data.bio || '',
         avatar_url: data.avatar_url || '',
+        displayName: settings?.displayName || '',
       });
     } else {
       // Create profile if it doesn't exist
@@ -81,6 +84,7 @@ export default function EditProfilePage() {
           handle: defaultHandle,
           bio: '',
           avatar_url: '',
+          displayName: '',
         });
         // Also create user role
         await supabase.from('user_roles').insert({
@@ -106,11 +110,25 @@ export default function EditProfilePage() {
     }
 
     setSaving(true);
+    
+    // Get current settings to preserve other data
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('settings')
+      .eq('id', user.id)
+      .maybeSingle();
+    
+    const currentSettings = (currentProfile?.settings as any) || {};
+    
     const { error } = await supabase
       .from('profiles')
       .update({
         handle: profile.handle.trim(),
         bio: profile.bio.trim(),
+        settings: {
+          ...currentSettings,
+          displayName: profile.displayName.trim(),
+        },
       })
       .eq('id', user.id);
 
@@ -160,7 +178,21 @@ export default function EditProfilePage() {
         <Separator />
 
         <div className="space-y-2">
-          <Label htmlFor="handle">Handle</Label>
+          <Label htmlFor="displayName">Display Name</Label>
+          <Input
+            id="displayName"
+            value={profile.displayName}
+            onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
+            placeholder="Your name"
+            maxLength={50}
+          />
+          <p className="text-xs text-muted-foreground">
+            This is how your name will appear on your profile
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="handle">Username</Label>
           <Input
             id="handle"
             value={profile.handle}

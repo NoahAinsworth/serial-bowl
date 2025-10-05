@@ -6,10 +6,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Settings, Loader2, Share2, MessageSquare } from 'lucide-react';
+import { Edit, Loader2, Share2, MessageSquare, Search, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
+import { UserSearch } from '@/components/UserSearch';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -22,6 +32,12 @@ export default function ProfilePage() {
     followersCount: 0,
     followingCount: 0,
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchDialog, setShowSearchDialog] = useState(false);
+  const [showTop3Dialog, setShowTop3Dialog] = useState(false);
+  const [top3Shows, setTop3Shows] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchingShows, setSearchingShows] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -29,7 +45,18 @@ export default function ProfilePage() {
       return;
     }
     loadProfile();
+    loadTop3Shows();
   }, [user]);
+
+  useEffect(() => {
+    const delaySearch = setTimeout(() => {
+      if (showTop3Dialog) {
+        searchShows(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(delaySearch);
+  }, [searchQuery, showTop3Dialog]);
 
   const loadProfile = async () => {
     if (!user) return;
@@ -56,6 +83,96 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
+  const loadTop3Shows = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('profiles')
+      .select('settings')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const settings = data?.settings as any;
+    if (settings?.top3Shows) {
+      setTop3Shows(settings.top3Shows);
+    }
+  };
+
+  const searchShows = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchingShows(true);
+    try {
+      const { data } = await supabase
+        .from('content')
+        .select('id, title, poster_url, external_id')
+        .eq('kind', 'show')
+        .ilike('title', `%${query}%`)
+        .limit(10);
+
+      setSearchResults(data || []);
+    } catch (error) {
+      console.error('Error searching shows:', error);
+    }
+    setSearchingShows(false);
+  };
+
+  const addToTop3 = async (show: any) => {
+    if (top3Shows.length >= 3) {
+      toast({
+        title: "Maximum reached",
+        description: "You can only have 3 shows in your top 3",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newTop3 = [...top3Shows, show];
+    setTop3Shows(newTop3);
+
+    await supabase
+      .from('profiles')
+      .update({
+        settings: {
+          ...profile?.settings,
+          top3Shows: newTop3,
+        },
+      })
+      .eq('id', user!.id);
+
+    toast({
+      title: "Added to Top 3",
+      description: `${show.title} added to your top 3 shows`,
+    });
+
+    setShowTop3Dialog(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  const removeFromTop3 = async (showId: string) => {
+    const newTop3 = top3Shows.filter(show => show.id !== showId);
+    setTop3Shows(newTop3);
+
+    await supabase
+      .from('profiles')
+      .update({
+        settings: {
+          ...profile?.settings,
+          top3Shows: newTop3,
+        },
+      })
+      .eq('id', user!.id);
+
+    toast({
+      title: "Removed from Top 3",
+      description: "Show removed from your top 3",
+    });
+  };
+
   const handleShare = () => {
     const profileUrl = `${window.location.origin}/user/${user?.id}`;
     navigator.clipboard.writeText(profileUrl);
@@ -75,8 +192,8 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4">
-      {/* DM Button - Top Left */}
-      <div className="mb-4">
+      {/* Action Buttons - Top Left */}
+      <div className="mb-4 flex gap-2">
         <Button 
           variant="outline" 
           size="sm" 
@@ -85,6 +202,15 @@ export default function ProfilePage() {
         >
           <MessageSquare className="h-4 w-4" />
           Messages
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSearchDialog(true)}
+          className="gap-2"
+        >
+          <Search className="h-4 w-4" />
+          Search Users
         </Button>
       </div>
 
@@ -103,15 +229,15 @@ export default function ProfilePage() {
           <div className="flex-1">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h1 className="text-2xl font-bold">{profile?.handle || 'Anonymous'}</h1>
+                <h1 className="text-2xl font-bold">{profile?.settings?.displayName || profile?.handle || 'Anonymous'}</h1>
                 <p className="text-muted-foreground">@{profile?.handle || 'user'}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon" onClick={handleShare} title="Share profile">
                   <Share2 className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')}>
-                  <Settings className="h-5 w-5" />
+                <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile">
+                  <Edit className="h-5 w-5" />
                 </Button>
               </div>
             </div>
@@ -151,14 +277,86 @@ export default function ProfilePage() {
 
       {/* Top 3 Shows Section */}
       <Card className="p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Top 3 Shows</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Top 3 Shows</h2>
+          {top3Shows.length < 3 && (
+            <Dialog open={showTop3Dialog} onOpenChange={setShowTop3Dialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Show
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add to Top 3</DialogTitle>
+                  <DialogDescription>Search and add a show to your top 3</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Search for a show..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <div className="max-h-[300px] overflow-y-auto space-y-2">
+                    {searchingShows ? (
+                      <div className="text-center py-4">
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                      </div>
+                    ) : (
+                      searchResults.map((show) => (
+                        <Card
+                          key={show.id}
+                          className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted"
+                          onClick={() => addToTop3(show)}
+                        >
+                          {show.poster_url && (
+                            <img src={show.poster_url} alt={show.title} className="w-12 h-16 object-cover rounded" />
+                          )}
+                          <div className="flex-1">
+                            <p className="font-semibold">{show.title}</p>
+                          </div>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
         <div className="grid grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="text-center">
-              <div className="aspect-[2/3] bg-muted rounded-lg mb-2 flex items-center justify-center">
-                <span className="text-muted-foreground">#{i}</span>
+          {top3Shows.map((show, index) => (
+            <div key={show.id} className="text-center relative group">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80"
+                onClick={() => removeFromTop3(show.id)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <div 
+                className="aspect-[2/3] bg-muted rounded-lg mb-2 overflow-hidden cursor-pointer"
+                onClick={() => navigate(`/show/${show.external_id}`)}
+              >
+                {show.poster_url ? (
+                  <img src={show.poster_url} alt={show.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-muted-foreground">#{index + 1}</span>
+                  </div>
+                )}
               </div>
-              <p className="text-xs text-muted-foreground">Coming Soon</p>
+              <p className="text-xs font-medium truncate">{show.title}</p>
+            </div>
+          ))}
+          {[...Array(3 - top3Shows.length)].map((_, i) => (
+            <div key={`empty-${i}`} className="text-center">
+              <div className="aspect-[2/3] bg-muted rounded-lg mb-2 flex items-center justify-center">
+                <span className="text-muted-foreground">#{top3Shows.length + i + 1}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Empty Slot</p>
             </div>
           ))}
         </div>
@@ -189,6 +387,23 @@ export default function ProfilePage() {
           <UserThoughts userId={user!.id} />
         </TabsContent>
       </Tabs>
+
+      {/* User Search Dialog */}
+      <Dialog open={showSearchDialog} onOpenChange={setShowSearchDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Search Users</DialogTitle>
+            <DialogDescription>Find and follow other users</DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder="Search by username..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="mb-4"
+          />
+          <UserSearch query={searchQuery} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
