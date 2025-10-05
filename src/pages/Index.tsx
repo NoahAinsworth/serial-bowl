@@ -67,14 +67,13 @@ export default function Index() {
       })));
     }
 
-    // Load popular and trending shows from TVDB
+    // Load from TVDB - mix of classic and recent popular shows
     try {
-      // Search for various popular shows
-      const popularQueries = ['Game of Thrones', 'Breaking Bad', 'The Office', 'Friends', 'The Sopranos'];
+      // Popular shows - varied selection
+      const popularQueries = ['Succession', 'Ted Lasso', 'Severance', 'The Bear', 'True Detective', 'Fargo'];
       const popularPromises = popularQueries.map(q => search(q));
       const popularResultsArrays = await Promise.all(popularPromises);
       
-      // Take first result from each search
       const popularResults = popularResultsArrays
         .map(results => results[0])
         .filter(Boolean);
@@ -85,8 +84,8 @@ export default function Index() {
         setPopularShows(samplePopularShows);
       }
 
-      // Search for new/recent shows
-      const newQueries = ['The Last of Us', 'House of the Dragon', 'Wednesday', 'Fallout', 'The Bear'];
+      // New/Recent shows - 2023-2024 hits
+      const newQueries = ['The Last of Us', 'Fallout', 'Shōgun', 'The Penguin', 'Baby Reindeer', '3 Body Problem'];
       const newPromises = newQueries.map(q => search(q));
       const newResultsArrays = await Promise.all(newPromises);
       
@@ -136,7 +135,7 @@ export default function Index() {
               className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[30%] min-w-[110px]"
               onClick={() => navigate(`/show/${show.id || show.external_id}`)}
             >
-              <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden mb-2">
+              <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden mb-2 border-2 border-border">
                 {(show.poster_url || show.image) ? (
                   <img 
                     src={show.poster_url || show.image} 
