@@ -47,8 +47,26 @@ export default function SettingsPage() {
       .eq('id', user.id)
       .single();
 
-    if (data?.settings) {
-      setSettings(data.settings as typeof settings);
+    if (data?.settings && typeof data.settings === 'object') {
+      // Merge loaded settings with defaults to ensure all properties exist
+      const loadedSettings = data.settings as any;
+      setSettings({
+        privacy: {
+          private_profile: loadedSettings?.privacy?.private_profile ?? false,
+          dm_permission: loadedSettings?.privacy?.dm_permission ?? 'everyone',
+          comment_permission: loadedSettings?.privacy?.comment_permission ?? 'everyone',
+        },
+        safety: {
+          hide_spoilers: loadedSettings?.safety?.hide_spoilers ?? true,
+          strict_safety: loadedSettings?.safety?.strict_safety ?? false,
+        },
+        notifications: {
+          thoughts: loadedSettings?.notifications?.thoughts ?? true,
+          comments: loadedSettings?.notifications?.comments ?? true,
+          follows: loadedSettings?.notifications?.follows ?? true,
+          dms: loadedSettings?.notifications?.dms ?? true,
+        },
+      });
     }
   };
 
