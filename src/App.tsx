@@ -1,23 +1,82 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AppLayout } from "@/components/layouts/AppLayout";
+
 import Home from "./pages/Home";
 import AuthPage from "./pages/AuthPage";
+import SearchPage from "./pages/SearchPage";
+import EditProfilePage from "./pages/EditProfilePage";
+import SettingsPage from "./pages/SettingsPage";
+import NotFound from "./pages/NotFound";
+import ProfilePage from "./pages/ProfilePage";
+import PostPage from "./pages/PostPage";
+import ActivityPage from "./pages/ActivityPage";
+import WatchlistPage from "./pages/WatchlistPage";
+import WatchedPage from "./pages/WatchedPage";
+import ListsPage from "./pages/ListsPage";
+import ListDetailPage from "./pages/ListDetailPage";
+import StatsPage from "./pages/StatsPage";
+import DiscoverPage from "./pages/DiscoverPage";
+import UserProfilePage from "./pages/UserProfilePage";
+import DMsPage from "./pages/DMsPage";
+import DMThreadPage from "./pages/DMThreadPage";
+import ShowDetailPage from "./pages/ShowDetailPage";
+import SeasonDetailPage from "./pages/SeasonDetailPage";
+import EpisodeDetailPage from "./pages/EpisodeDetailPage";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
-  <ThemeProvider>
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen bg-background text-foreground">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="*" element={<div className="p-4 text-foreground">Page not found</div>} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
-  </ThemeProvider>
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/discover" element={<DiscoverPage />} />
+                <Route path="/post" element={<PostPage />} />
+                <Route path="/activity" element={<ActivityPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/edit" element={<EditProfilePage />} />
+                <Route path="/user/:userId" element={<UserProfilePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/watchlist" element={<WatchlistPage />} />
+                <Route path="/watched" element={<WatchedPage />} />
+                <Route path="/lists" element={<ListsPage />} />
+                <Route path="/list/:listId" element={<ListDetailPage />} />
+                <Route path="/stats" element={<StatsPage />} />
+                <Route path="/dms" element={<DMsPage />} />
+                <Route path="/dm/:userId" element={<DMThreadPage />} />
+                <Route path="/show/:id" element={<ShowDetailPage />} />
+                <Route path="/show/:showId/season/:seasonNumber" element={<SeasonDetailPage />} />
+                <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<EpisodeDetailPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
 );
 
 export default App;
