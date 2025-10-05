@@ -1,7 +1,18 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Repeat2 } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -26,9 +37,10 @@ interface ThoughtCardProps {
     userReaction?: 'like' | 'dislike' | 'rethink';
   };
   onReactionChange?: () => void;
+  onDelete?: () => void;
 }
 
-export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
+export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [localReaction, setLocalReaction] = useState(thought.userReaction);
@@ -36,6 +48,9 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
   const [localDislikes, setLocalDislikes] = useState(thought.dislikes);
   const [localRethinks, setLocalRethinks] = useState(thought.rethinks);
   const [showComments, setShowComments] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  
+  const isOwner = user?.id === thought.user.id;
 
   const handleReaction = async (type: 'like' | 'dislike' | 'rethink') => {
     if (!user) {
@@ -98,6 +113,35 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!user || !isOwner) return;
+
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('thoughts')
+        .delete()
+        .eq('id', thought.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Thought deleted",
+        description: "Your thought has been removed",
+      });
+
+      onDelete?.();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete thought",
+        variant: "destructive",
+      });
+      setDeleting(false);
+    }
+  };
+
   return (
     <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in hover-scale">
       <div className="flex gap-3">
@@ -105,10 +149,41 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
           {thought.user.handle[1]?.toUpperCase() || 'U'}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center justify-between gap-2 mb-2">
             <span className="font-semibold text-foreground truncate">
               {thought.user.handle}
             </span>
+            {isOwner && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
+                    disabled={deleting}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete thought?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your thought.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
           <p className="text-foreground mb-2 break-words">{thought.content}</p>
           {thought.show && (

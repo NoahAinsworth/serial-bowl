@@ -114,6 +114,7 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
           key={thought.id}
           thought={thought}
           onReactionChange={loadThoughts}
+          onDelete={loadThoughts}
         />
       ))}
     </div>
