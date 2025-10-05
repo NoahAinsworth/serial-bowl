@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { AppLayout } from "@/components/layouts/AppLayout";
+
 import Home from "./pages/Home";
 import AuthPage from "./pages/AuthPage";
 import SearchPage from "./pages/SearchPage";
@@ -24,7 +24,7 @@ const App = () => (
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          <AppLayout>
+          <div className="min-h-screen bg-background text-foreground">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/auth" element={<AuthPage />} />
@@ -32,7 +32,7 @@ const App = () => (
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </AppLayout>
+          </div>
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
