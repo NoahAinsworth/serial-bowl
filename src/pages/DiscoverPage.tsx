@@ -29,6 +29,7 @@ export default function DiscoverPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [bingeBotPrompt, setBingeBotPrompt] = useState<string>("");
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -174,7 +175,7 @@ export default function DiscoverPage() {
 
   const handleAskBingeBot = (showName: string, tvdbId: string) => {
     setBingeBotPrompt(`Tell me about ${showName} (TVDB:${tvdbId}).`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setChatOpen(true);
   };
 
   const ShowPoster = ({ show, onClick, onAskBot }: { show: any, onClick: () => void, onAskBot?: () => void }) => (
@@ -213,10 +214,6 @@ export default function DiscoverPage() {
       <div className="flex items-center gap-3 px-4">
         <Compass className="h-8 w-8 text-primary" />
         <h1 className="text-3xl font-bold neon-glow">Discover</h1>
-      </div>
-
-      <div className="px-4">
-        <BingeBotAI initialPrompt={bingeBotPrompt} />
       </div>
 
       {loading ? (
@@ -333,6 +330,22 @@ export default function DiscoverPage() {
           </TabsContent>
         </Tabs>
       )}
+
+      {/* Floating Binge Bot Button */}
+      <button
+        onClick={() => setChatOpen(true)}
+        className="fixed bottom-20 right-6 rounded-full h-14 w-14 bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform z-50 flex items-center justify-center"
+        title="Ask about a show"
+      >
+        <Compass className="h-6 w-6" />
+      </button>
+
+      {/* Binge Bot Modal */}
+      <BingeBotAI 
+        open={chatOpen} 
+        onOpenChange={setChatOpen} 
+        initialPrompt={bingeBotPrompt} 
+      />
     </div>
   );
 }

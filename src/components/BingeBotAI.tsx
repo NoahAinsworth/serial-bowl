@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2, Bot, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,10 +12,12 @@ interface Message {
 }
 
 interface BingeBotAIProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   initialPrompt?: string;
 }
 
-export function BingeBotAI({ initialPrompt }: BingeBotAIProps) {
+export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -84,109 +87,107 @@ export function BingeBotAI({ initialPrompt }: BingeBotAIProps) {
   ];
 
   return (
-    <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-6 border border-primary/20 mb-6">
-      <div className="flex items-start gap-4 mb-4">
-        {/* Robot Avatar with Hourglass */}
-        <div className="relative w-12 h-12 flex-shrink-0">
-          <svg viewBox="0 0 40 40" className="w-full h-full">
-            {/* Robot body */}
-            <rect x="8" y="12" width="24" height="20" rx="4" fill="hsl(var(--primary))" />
-            {/* Robot head */}
-            <rect x="12" y="6" width="16" height="10" rx="2" fill="hsl(var(--primary))" />
-            {/* Eyes */}
-            <circle cx="17" cy="10" r="1.5" fill="black" />
-            <circle cx="23" cy="10" r="1.5" fill="black" />
-            {/* Hourglass */}
-            <g className={loading ? "animate-spin origin-center" : ""} transform="translate(32, 24)">
-              <path d="M-2,-4 L2,-4 L0,-1 L2,2 L-2,2 L0,-1 Z" fill="hsl(var(--accent))" stroke="black" strokeWidth="0.5" />
-            </g>
-          </svg>
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl h-[60vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <DialogTitle className="flex items-center gap-3">
+            <div className="relative">
+              <Bot className="h-8 w-8 text-primary" />
+              {loading && (
+                <Loader2 className="absolute -bottom-1 -right-1 h-4 w-4 text-primary animate-spin" />
+              )}
+            </div>
+            <span>Binge Bot AI</span>
+          </DialogTitle>
+        </DialogHeader>
 
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-foreground mb-1">Binge Bot AI</h3>
-          <p className="text-sm text-muted-foreground">
-            Ask me anything about shows, seasons, episodes, or actors.
-          </p>
-        </div>
-      </div>
-
-      {/* Chat Area */}
-      <div className="bg-background rounded-md p-4 mb-4 max-h-[300px] overflow-y-auto space-y-3">
-        {messages.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            Start a conversation by asking about a TV show!
-          </p>
-        ) : (
-          messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
-                }`}
-              >
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          {messages.length === 0 ? (
+            <div className="text-center text-muted-foreground py-8">
+              <p className="mb-4">Ask me anything about shows, seasons, episodes, or actors.</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {quickChips.map((chip) => (
+                  <Button
+                    key={chip}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleChipClick(chip)}
+                  >
+                    {chip}
+                  </Button>
+                ))}
               </div>
             </div>
-          ))
-        )}
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <p className="text-sm text-muted-foreground">Thinking...</p>
-            </div>
-          </div>
-        )}
-        <div ref={chatEndRef} />
-      </div>
-
-      {/* Quick Chips */}
-      {(messages.length === 0 || messages[messages.length - 1]?.role === "assistant") && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {quickChips.map((chip) => (
-            <button
-              key={chip}
-              onClick={() => handleChipClick(chip)}
-              className="px-3 py-1 text-xs rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-            >
-              {chip}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Input Area */}
-      <div className="flex gap-2">
-        <Textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask Binge Bot AI about a show…"
-          className="flex-1 resize-none"
-          rows={2}
-          disabled={loading}
-        />
-        <Button
-          onClick={handleSend}
-          disabled={!input.trim() || loading}
-          size="icon"
-          className="h-auto"
-        >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor">
-              <path d="M-2,-4 L2,-4 L0,-1 L2,2 L-2,2 L0,-1 Z" strokeWidth="2" />
-            </svg>
+            <>
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                      msg.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <p className="text-sm text-muted-foreground">Thinking...</p>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+              {!loading && (
+                <div className="flex flex-wrap gap-2">
+                  {quickChips.map((chip) => (
+                    <Button
+                      key={chip}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleChipClick(chip)}
+                    >
+                      {chip}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
-        </Button>
-      </div>
-    </div>
+        </div>
+
+        <div className="px-6 pb-6 pt-4 border-t">
+          <div className="flex gap-2">
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about a show, season, or actor…"
+              className="min-h-[60px] resize-none"
+              disabled={loading}
+            />
+            <Button
+              onClick={handleSend}
+              disabled={!input.trim() || loading}
+              size="icon"
+              className="h-[60px] w-[60px]"
+            >
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
