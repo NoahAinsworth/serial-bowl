@@ -9,6 +9,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { AppLayout } from '@/components/layouts/AppLayout';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -84,8 +85,9 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
-      <h1 className="text-3xl font-bold">Settings</h1>
+    <AppLayout>
+      <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
+        <h1 className="text-3xl font-bold neon-glow">Settings</h1>
 
       {/* Appearance */}
       <Card className="p-6 space-y-4">
@@ -221,9 +223,10 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      <Button onClick={saveSettings} className="w-full btn-glow">
-        Save Settings
-      </Button>
-    </div>
+        <Button onClick={saveSettings} className="w-full btn-glow">
+          Save Settings
+        </Button>
+      </div>
+    </AppLayout>
   );
 }

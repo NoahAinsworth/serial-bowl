@@ -4,6 +4,8 @@ import { Card } from '@/components/ui/card';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
+import { AppLayout } from '@/components/layouts/AppLayout';
+import { Loader2 } from 'lucide-react';
 
 interface DMThread {
   otherUser: {
@@ -90,46 +92,52 @@ export default function DMsPage() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4">
-      <h1 className="text-3xl font-bold mb-6">Messages</h1>
-      
-      {loading ? (
-        <p className="text-center text-muted-foreground">Loading...</p>
-      ) : threads.length === 0 ? (
-        <p className="text-center text-muted-foreground">No messages yet</p>
-      ) : (
-        <div className="space-y-3">
-          {threads.map((thread) => (
-            <Card
-              key={thread.otherUser.id}
-              className="p-4 cursor-pointer hover:border-primary/50 transition-colors"
-              onClick={() => navigate(`/dms/${thread.otherUser.id}`)}
-            >
-              <div className="flex gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold flex-shrink-0">
-                  {thread.otherUser.handle[1]?.toUpperCase() || 'U'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold">{thread.otherUser.handle}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(thread.lastMessage.created_at), { addSuffix: true })}
-                    </span>
+    <AppLayout>
+      <div className="container max-w-2xl mx-auto py-6 px-4">
+        <h1 className="text-3xl font-bold mb-6 neon-glow">Messages</h1>
+        
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : threads.length === 0 ? (
+          <Card className="p-12 text-center">
+            <p className="text-muted-foreground">No messages yet. Start a conversation!</p>
+          </Card>
+        ) : (
+          <div className="space-y-3 animate-fade-in">
+            {threads.map((thread) => (
+              <Card
+                key={thread.otherUser.id}
+                className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
+                onClick={() => navigate(`/dms/${thread.otherUser.id}`)}
+              >
+                <div className="flex gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold flex-shrink-0">
+                    {thread.otherUser.handle[1]?.toUpperCase() || 'U'}
                   </div>
-                  <p className={`text-sm truncate ${thread.unreadCount > 0 ? 'font-semibold' : 'text-muted-foreground'}`}>
-                    {thread.lastMessage.text}
-                  </p>
-                </div>
-                {thread.unreadCount > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs text-white font-bold">
-                    {thread.unreadCount}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold">{thread.otherUser.handle}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(thread.lastMessage.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className={`text-sm truncate ${thread.unreadCount > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                      {thread.lastMessage.text}
+                    </p>
                   </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+                  {thread.unreadCount > 0 && (
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs text-white font-bold neon-glow">
+                      {thread.unreadCount}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </AppLayout>
   );
 }
