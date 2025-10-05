@@ -183,7 +183,7 @@ export default function ShowDetailPage() {
         <div>
         <h2 className="text-2xl font-bold mb-4">Seasons</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {seasons.map((season) => (
+          {seasons.filter(season => season.number !== 0).map((season) => (
             <Card
               key={season.id}
               className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
