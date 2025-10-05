@@ -22,7 +22,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Settings } from 'lucide-react';
-import { ProfilePictureUpload } from '@/components/ProfilePictureUpload';
 import { supabase } from '@/lib/supabase';
 
 const ProfilePage = () => {
@@ -57,10 +56,9 @@ const ProfilePage = () => {
       <Card className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex gap-4">
-            <ProfilePictureUpload 
-              currentAvatarUrl={profile?.avatar_url} 
-              onUploadComplete={loadProfile}
-            />
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-bold">
+              {user.email?.[0].toUpperCase()}
+            </div>
             <div>
               <h2 className="text-2xl font-bold">{profile?.handle || 'My Profile'}</h2>
               <p className="text-muted-foreground mt-1">{user.email}</p>
