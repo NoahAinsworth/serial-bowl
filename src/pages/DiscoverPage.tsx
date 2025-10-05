@@ -23,13 +23,20 @@ export default function DiscoverPage() {
   const { search } = useTVDB();
   const [topRatedShows, setTopRatedShows] = useState<TrendingShow[]>([]);
   const [mostRatedShows, setMostRatedShows] = useState<TrendingShow[]>([]);
-  const [popularShows, setPopularShows] = useState<any[]>([]);
-  const [newShows, setNewShows] = useState<any[]>([]);
+  const [browseShows, setBrowseShows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     loadData();
   }, [user]);
+
+  useEffect(() => {
+    if (page > 0) {
+      loadMoreShows();
+    }
+  }, [page]);
 
   const loadData = async () => {
     setLoading(true);
@@ -92,35 +99,78 @@ export default function DiscoverPage() {
       }
     }
 
-    // Load popular and new shows from TVDB
-    try {
-      const popularQueries = ['Succession', 'Ted Lasso', 'Severance', 'The Bear', 'Breaking Bad', 'Game of Thrones'];
-      const popularPromises = popularQueries.map(q => search(q));
-      const popularResultsArrays = await Promise.all(popularPromises);
-      
-      const popularResults = popularResultsArrays
-        .map(results => results[0])
-        .filter(Boolean);
-      
-      setPopularShows(popularResults);
-
-      const newQueries = ['The Last of Us', 'Fallout', 'Shōgun', 'The Penguin', 'Baby Reindeer', '3 Body Problem'];
-      const newPromises = newQueries.map(q => search(q));
-      const newResultsArrays = await Promise.all(newPromises);
-      
-      const newResults = newResultsArrays
-        .map(results => results[0])
-        .filter(Boolean);
-      
-      setNewShows(newResults);
-    } catch (error) {
-      console.error('Error loading from TVDB:', error);
-    }
+    // Load initial browse shows
+    await loadInitialBrowseShows();
 
     setLoading(false);
   };
 
-  const mixedShows = [...popularShows, ...newShows].sort(() => Math.random() - 0.5);
+  const loadInitialBrowseShows = async () => {
+    try {
+      const queries = [
+        'Breaking Bad', 'Game of Thrones', 'Succession', 'Ted Lasso', 
+        'Severance', 'The Bear', 'The Last of Us', 'Fallout', 
+        'Shōgun', 'The Penguin', 'Baby Reindeer', '3 Body Problem',
+        'True Detective', 'Fargo', 'The Wire', 'The Sopranos',
+        'Better Call Saul', 'Stranger Things', 'The Boys', 'The Mandalorian'
+      ];
+      
+      const promises = queries.map(q => search(q));
+      const resultsArrays = await Promise.all(promises);
+      
+      const results = resultsArrays
+        .map(results => results[0])
+        .filter(Boolean);
+      
+      setBrowseShows(results.sort(() => Math.random() - 0.5));
+    } catch (error) {
+      console.error('Error loading browse shows:', error);
+    }
+  };
+
+  const loadMoreShows = async () => {
+    setLoadingMore(true);
+    try {
+      const moreQueries = [
+        'House of the Dragon', 'Loki', 'Wednesday', 'The Witcher',
+        'Westworld', 'Ozark', 'The Crown', 'Peaky Blinders',
+        'Dark', 'Chernobyl', 'Band of Brothers', 'The Office',
+        'Parks and Recreation', 'Community', 'Atlanta', 'Barry',
+        'Euphoria', 'The White Lotus', 'Only Murders in the Building', 'Poker Face'
+      ];
+      
+      const startIndex = page * 10;
+      const endIndex = startIndex + 10;
+      const queriesForPage = moreQueries.slice(startIndex, endIndex);
+      
+      if (queriesForPage.length > 0) {
+        const promises = queriesForPage.map(q => search(q));
+        const resultsArrays = await Promise.all(promises);
+        
+        const results = resultsArrays
+          .map(results => results[0])
+          .filter(Boolean);
+        
+        setBrowseShows(prev => [...prev, ...results]);
+      }
+    } catch (error) {
+      console.error('Error loading more shows:', error);
+    }
+    setLoadingMore(false);
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const scrollPosition = target.scrollTop + target.clientHeight;
+    const scrollHeight = target.scrollHeight;
+    
+    // Load more when scrolled to 80% of the content
+    if (scrollPosition >= scrollHeight * 0.8 && !loadingMore && page < 5) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  
 
   const ShowPoster = ({ show, onClick }: { show: any, onClick: () => void }) => (
     <div
@@ -216,11 +266,14 @@ export default function DiscoverPage() {
           )}
 
           <TabsContent value="browse" className="mt-0">
-            <div className="px-4">
-              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                {mixedShows.map((show, index) => (
+            <div 
+              className="px-4 max-h-[calc(100vh-250px)] overflow-y-auto"
+              onScroll={handleScroll}
+            >
+              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3 pb-4">
+                {browseShows.map((show, index) => (
                   <div
-                    key={show.id || index}
+                    key={`${show.id}-${index}`}
                     className="cursor-pointer hover:scale-105 transition-transform"
                     onClick={() => navigate(`/show/${show.id || show.external_id}`)}
                   >
@@ -240,6 +293,11 @@ export default function DiscoverPage() {
                   </div>
                 ))}
               </div>
+              {loadingMore && (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
