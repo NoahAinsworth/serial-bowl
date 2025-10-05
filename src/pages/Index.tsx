@@ -66,23 +66,30 @@ export default function Index() {
       })));
     }
 
-    // Set sample shows
-    setPopularShows(samplePopularShows);
-    setNewShows(sampleNewShows);
-
-    // Try to load from TVDB as well (if available)
+    // Load from TVDB
     try {
-      const popularResults = await tvdbClient.searchShows('the');
+      console.log('Loading popular shows from TVDB...');
+      const popularResults = await tvdbClient.searchShows('popular');
+      console.log('Popular results:', popularResults);
       if (popularResults && popularResults.length > 0) {
         setPopularShows(popularResults.slice(0, 20));
+      } else {
+        setPopularShows(samplePopularShows);
       }
 
-      const newResults = await tvdbClient.searchShows('2024');
+      console.log('Loading new shows from TVDB...');
+      const newResults = await tvdbClient.searchShows('new 2024');
+      console.log('New results:', newResults);
       if (newResults && newResults.length > 0) {
         setNewShows(newResults.slice(0, 20));
+      } else {
+        setNewShows(sampleNewShows);
       }
     } catch (error) {
-      console.error('TVDB not available, using sample data:', error);
+      console.error('Error loading from TVDB:', error);
+      // Fallback to sample data
+      setPopularShows(samplePopularShows);
+      setNewShows(sampleNewShows);
     }
 
     setLoading(false);
