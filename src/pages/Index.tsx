@@ -18,6 +18,31 @@ export default function Index() {
   const [newShows, setNewShows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Sample show data for popular shows
+  const samplePopularShows = [
+    { id: 121361, name: 'The Last of Us', image: 'https://artworks.thetvdb.com/banners/v4/series/392256/posters/63689372.jpg' },
+    { id: 328487, name: 'The Boys', image: 'https://artworks.thetvdb.com/banners/v4/series/355567/posters/62554138.jpg' },
+    { id: 82856, name: 'The Mandalorian', image: 'https://artworks.thetvdb.com/banners/v4/series/361753/posters/61892024.jpg' },
+    { id: 121361, name: 'Wednesday', image: 'https://artworks.thetvdb.com/banners/v4/series/395985/posters/63374619.jpg' },
+    { id: 305074, name: 'The Witcher', image: 'https://artworks.thetvdb.com/banners/v4/series/362696/posters/63414221.jpg' },
+    { id: 366524, name: 'House of the Dragon', image: 'https://artworks.thetvdb.com/banners/v4/series/371572/posters/62477381.jpg' },
+    { id: 279121, name: 'Loki', image: 'https://artworks.thetvdb.com/banners/v4/series/367557/posters/62068448.jpg' },
+    { id: 383121, name: 'Stranger Things', image: 'https://artworks.thetvdb.com/banners/v4/series/305074/posters/62171138.jpg' },
+    { id: 328487, name: 'Breaking Bad', image: 'https://artworks.thetvdb.com/banners/posters/81189-22.jpg' },
+    { id: 366524, name: 'Game of Thrones', image: 'https://artworks.thetvdb.com/banners/posters/121361-51.jpg' },
+  ];
+
+  const sampleNewShows = [
+    { id: 419124, name: 'Fallout', image: 'https://artworks.thetvdb.com/banners/v4/series/416477/posters/64235416.jpg' },
+    { id: 421453, name: 'Shōgun', image: 'https://artworks.thetvdb.com/banners/v4/series/390777/posters/64161137.jpg' },
+    { id: 414906, name: 'The Penguin', image: 'https://artworks.thetvdb.com/banners/v4/series/427173/posters/65128734.jpg' },
+    { id: 392256, name: '3 Body Problem', image: 'https://artworks.thetvdb.com/banners/v4/series/392256/posters/63689372.jpg' },
+    { id: 410788, name: 'Baby Reindeer', image: 'https://artworks.thetvdb.com/banners/v4/series/437064/posters/64556917.jpg' },
+    { id: 403490, name: 'Masters of the Air', image: 'https://artworks.thetvdb.com/banners/v4/series/383121/posters/63882914.jpg' },
+    { id: 425480, name: 'A Gentleman in Moscow', image: 'https://artworks.thetvdb.com/banners/v4/series/407386/posters/64212843.jpg' },
+    { id: 401371, name: 'Ripley', image: 'https://artworks.thetvdb.com/banners/v4/series/401371/posters/64305064.jpg' },
+  ];
+
   useEffect(() => {
     loadData();
   }, [user]);
@@ -33,7 +58,7 @@ export default function Index() {
       .order('rating_count', { ascending: false })
       .limit(20);
 
-    if (topRatedContent) {
+    if (topRatedContent && topRatedContent.length > 0) {
       setTrendingShows(topRatedContent.map((item: any) => ({
         ...item.content,
         rating_count: item.rating_count,
@@ -41,17 +66,23 @@ export default function Index() {
       })));
     }
 
-    // Load popular and new shows from TVDB
-    try {
-      // Search for popular shows
-      const popularResults = await tvdbClient.searchShows('the');
-      setPopularShows(popularResults.slice(0, 20));
+    // Set sample shows
+    setPopularShows(samplePopularShows);
+    setNewShows(sampleNewShows);
 
-      // Search for new shows (2024 releases)
+    // Try to load from TVDB as well (if available)
+    try {
+      const popularResults = await tvdbClient.searchShows('the');
+      if (popularResults && popularResults.length > 0) {
+        setPopularShows(popularResults.slice(0, 20));
+      }
+
       const newResults = await tvdbClient.searchShows('2024');
-      setNewShows(newResults.slice(0, 20));
+      if (newResults && newResults.length > 0) {
+        setNewShows(newResults.slice(0, 20));
+      }
     } catch (error) {
-      console.error('Error loading TVDB shows:', error);
+      console.error('TVDB not available, using sample data:', error);
     }
 
     setLoading(false);
