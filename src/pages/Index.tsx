@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useTVDB } from '@/hooks/useTVDB';
@@ -13,7 +14,7 @@ export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { search } = useTVDB();
-  const [trendingShows, setTrendingShows] = useState<any[]>([]);
+  const [userTrendingShows, setUserTrendingShows] = useState<any[]>([]);
   const [popularShows, setPopularShows] = useState<any[]>([]);
   const [newShows, setNewShows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,20 +51,19 @@ export default function Index() {
   const loadData = async () => {
     setLoading(true);
     
-    // Load trending shows based on database ratings
-    const { data: topRatedContent } = await supabase
-      .from('aggregates')
-      .select('content_id, rating_count, avg_rating, content!inner(id, title, poster_url, external_id, kind)')
-      .eq('content.kind', 'show')
-      .order('rating_count', { ascending: false })
-      .limit(20);
+    // Load user's trending shows (based on their activity)
+    if (user) {
+      const { data: userActivity } = await supabase
+        .from('ratings')
+        .select('content_id, content!inner(id, title, poster_url, external_id, kind)')
+        .eq('user_id', user.id)
+        .eq('content.kind', 'show')
+        .order('created_at', { ascending: false })
+        .limit(20);
 
-    if (topRatedContent && topRatedContent.length > 0) {
-      setTrendingShows(topRatedContent.map((item: any) => ({
-        ...item.content,
-        rating_count: item.rating_count,
-        avg_rating: item.avg_rating,
-      })));
+      if (userActivity && userActivity.length > 0) {
+        setUserTrendingShows(userActivity.map((item: any) => item.content));
+      }
     }
 
     // Load from TVDB - mix of classic and recent popular shows
@@ -165,22 +165,31 @@ export default function Index() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="space-y-6">
-          {trendingShows.length > 0 && (
-            <ShowCarousel shows={trendingShows} title="Trending this week" />
+        <Tabs defaultValue="popular" className="w-full">
+          <TabsList className="w-full justify-start mb-6">
+            {userTrendingShows.length > 0 && <TabsTrigger value="trending">Trending</TabsTrigger>}
+            <TabsTrigger value="popular">Popular</TabsTrigger>
+            <TabsTrigger value="new">New Releases</TabsTrigger>
+          </TabsList>
+
+          {userTrendingShows.length > 0 && (
+            <TabsContent value="trending" className="space-y-6">
+              <ShowCarousel shows={userTrendingShows} title="Your trending shows" />
+            </TabsContent>
           )}
-          {popularShows.length > 0 && (
-            <ShowCarousel shows={popularShows} title="Popular shows" />
-          )}
-          {newShows.length > 0 && (
-            <ShowCarousel shows={newShows} title="New releases" />
-          )}
-          {trendingShows.length === 0 && popularShows.length === 0 && newShows.length === 0 && (
-            <Card className="p-12 text-center mx-4">
-              <p className="text-muted-foreground">No shows available</p>
-            </Card>
-          )}
-        </div>
+
+          <TabsContent value="popular" className="space-y-6">
+            {popularShows.length > 0 && (
+              <ShowCarousel shows={popularShows} title="Popular shows" />
+            )}
+          </TabsContent>
+
+          <TabsContent value="new" className="space-y-6">
+            {newShows.length > 0 && (
+              <ShowCarousel shows={newShows} title="New releases" />
+            )}
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
