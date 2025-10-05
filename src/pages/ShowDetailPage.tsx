@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { RatingInput } from '@/components/RatingInput';
+import { WatchlistButton } from '@/components/WatchlistButton';
 import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -150,16 +151,21 @@ export default function ShowDetailPage() {
               className="w-full md:w-48 h-auto md:h-72 object-cover rounded-lg"
             />
           )}
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2 neon-glow">{show.name}</h1>
-            <p className="text-muted-foreground mb-4">{show.overview}</p>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Rate this show</p>
-                <RatingInput initialRating={userRating} onRate={handleRate} />
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold mb-2 neon-glow">{show.name}</h1>
+              <p className="text-muted-foreground mb-4">{show.overview}</p>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  {contentId && (
+                    <WatchlistButton contentId={contentId} showTitle={show.name} />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Rate this show</p>
+                  <RatingInput initialRating={userRating} onRate={handleRate} />
+                </div>
               </div>
             </div>
-          </div>
         </div>
       </Card>
 

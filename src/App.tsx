@@ -20,6 +20,8 @@ import SeasonDetailPage from "./pages/SeasonDetailPage";
 import EpisodeDetailPage from "./pages/EpisodeDetailPage";
 import DMsPage from "./pages/DMsPage";
 import DMThreadPage from "./pages/DMThreadPage";
+import WatchlistPage from "./pages/WatchlistPage";
+import StatsPage from "./pages/StatsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +50,8 @@ const App = () => (
                 <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<EpisodeDetailPage />} />
                 <Route path="/dms" element={<DMsPage />} />
                 <Route path="/dms/:userId" element={<DMThreadPage />} />
+                <Route path="/watchlist" element={<WatchlistPage />} />
+                <Route path="/stats" element={<StatsPage />} />
                 {/* ADD ALL CUSTOM  ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

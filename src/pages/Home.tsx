@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ThoughtCard } from '@/components/ThoughtCard';
+import { TrendingShows } from '@/components/TrendingShows';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -135,7 +136,9 @@ export default function Home() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4">
+    <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
+      <TrendingShows />
+      
       <Tabs value={feedMode} onValueChange={(value) => setFeedMode(value as 'following' | 'for-you')} className="w-full">
         <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
           <TabsTrigger value="for-you">For You</TabsTrigger>

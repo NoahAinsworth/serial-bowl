@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, PlusSquare, Bell, User, MessageSquare } from 'lucide-react';
+import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AppLayoutProps {
@@ -30,10 +30,16 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <div className="text-xl font-bold neon-glow">SERIALCEREAL</div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dms')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist">
+              <Bookmark className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/stats')} title="Stats">
+              <TrendingUp className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/dms')} title="Messages">
               <MessageSquare className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/settings')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
               <User className="h-5 w-5" />
             </Button>
           </div>
