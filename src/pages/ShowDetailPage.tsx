@@ -5,6 +5,8 @@ import { RatingInput } from '@/components/RatingInput';
 import { WatchlistButton } from '@/components/WatchlistButton';
 import { WatchedButton } from '@/components/WatchedButton';
 import { ReviewButton } from '@/components/ReviewButton';
+import { AddToListButton } from '@/components/AddToListButton';
+import { ReviewsList } from '@/components/ReviewsList';
 import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -163,6 +165,7 @@ export default function ShowDetailPage() {
                       <WatchlistButton contentId={contentId} showTitle={show.name} />
                       <WatchedButton contentId={contentId} showTitle={show.name} />
                       <ReviewButton contentId={contentId} showTitle={show.name} />
+                      <AddToListButton contentId={contentId} showTitle={show.name} />
                     </>
                   )}
                 </div>
@@ -173,9 +176,11 @@ export default function ShowDetailPage() {
               </div>
             </div>
         </div>
-      </Card>
+        </Card>
 
-      <div>
+        {contentId && <ReviewsList contentId={contentId} />}
+
+        <div>
         <h2 className="text-2xl font-bold mb-4">Seasons</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {seasons.map((season) => (

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { RatingInput } from '@/components/RatingInput';
+import { EpisodeCheckbox } from '@/components/EpisodeCheckbox';
 import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -133,31 +134,44 @@ export default function SeasonDetailPage() {
 
       <div>
         <h2 className="text-2xl font-bold mb-4">Episodes</h2>
-        <div className="space-y-3">
-          {episodes.map((episode) => (
-            <Card
-              key={episode.id}
-              className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
-              onClick={() => navigate(`/show/${showId}/season/${seasonNumber}/episode/${episode.number}`)}
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="font-semibold">
-                    {episode.number}. {episode.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                    {episode.overview}
-                  </p>
+          <div className="space-y-3">
+            {episodes.map((episode) => (
+              <Card
+                key={episode.id}
+                className="p-4 hover:border-primary/50 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <EpisodeCheckbox
+                    episodeId={episode.id.toString()}
+                    showId={showId!}
+                    seasonNumber={parseInt(seasonNumber!)}
+                    episodeNumber={episode.number}
+                  />
+                  
+                  <div 
+                    className="flex-1 cursor-pointer"
+                    onClick={() => navigate(`/show/${showId}/season/${seasonNumber}/episode/${episode.number}`)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="font-semibold">
+                          {episode.number}. {episode.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                          {episode.overview}
+                        </p>
+                      </div>
+                      {episode.aired && (
+                        <span className="text-sm text-muted-foreground ml-4">
+                          {new Date(episode.aired).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                {episode.aired && (
-                  <span className="text-sm text-muted-foreground ml-4">
-                    {new Date(episode.aired).toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
       </div>
     </div>
   );
