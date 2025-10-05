@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useTVDB } from '@/hooks/useTVDB';
-import { Loader2, TrendingUp, Compass } from 'lucide-react';
+import { Loader2, ChevronRight } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 
 export default function Index() {
@@ -126,16 +125,19 @@ export default function Index() {
 
   const ShowCarousel = ({ shows, title }: { shows: any[], title: string }) => (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-4 px-4">{title}</h2>
+      <div className="flex items-center justify-between mb-4 px-4">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <ChevronRight className="h-6 w-6 text-muted-foreground" />
+      </div>
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex gap-3 px-4 pb-4">
           {shows.map((show, index) => (
             <div
               key={show.id || index}
-              className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[28%] min-w-[100px] max-w-[140px]"
+              className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[140px]"
               onClick={() => navigate(`/show/${show.id || show.external_id}`)}
             >
-              <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden mb-2 border border-border">
+              <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
                 {(show.poster_url || show.image) ? (
                   <img 
                     src={show.poster_url || show.image} 
@@ -148,7 +150,6 @@ export default function Index() {
                   </div>
                 )}
               </div>
-              <h3 className="font-medium text-xs line-clamp-2 text-center">{show.title || show.name}</h3>
             </div>
           ))}
         </div>
@@ -159,54 +160,28 @@ export default function Index() {
 
   return (
     <div className="container max-w-6xl mx-auto py-6">
-      <Tabs defaultValue="discover" className="w-full">
-        <TabsList className="w-full grid grid-cols-2 mb-6 mx-4">
-          <TabsTrigger value="discover">
-            <Compass className="h-4 w-4 mr-2" />
-            Discover
-          </TabsTrigger>
-          <TabsTrigger value="trending">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Trending
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="discover">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {popularShows.length > 0 && (
-                <ShowCarousel shows={popularShows} title="Popular Shows" />
-              )}
-              {newShows.length > 0 && (
-                <ShowCarousel shows={newShows} title="New Releases" />
-              )}
-              {popularShows.length === 0 && newShows.length === 0 && (
-                <Card className="p-12 text-center mx-4">
-                  <p className="text-muted-foreground">No shows available</p>
-                </Card>
-              )}
-            </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {trendingShows.length > 0 && (
+            <ShowCarousel shows={trendingShows} title="Trending this week" />
           )}
-        </TabsContent>
-
-        <TabsContent value="trending">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : trendingShows.length === 0 ? (
+          {popularShows.length > 0 && (
+            <ShowCarousel shows={popularShows} title="Popular shows" />
+          )}
+          {newShows.length > 0 && (
+            <ShowCarousel shows={newShows} title="New releases" />
+          )}
+          {trendingShows.length === 0 && popularShows.length === 0 && newShows.length === 0 && (
             <Card className="p-12 text-center mx-4">
-              <p className="text-muted-foreground">No trending shows yet. Be the first to rate!</p>
+              <p className="text-muted-foreground">No shows available</p>
             </Card>
-          ) : (
-            <ShowCarousel shows={trendingShows} title="Trending on Serialcereal" />
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
     </div>
   );
 }
