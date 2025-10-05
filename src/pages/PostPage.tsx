@@ -104,6 +104,11 @@ export default function PostPage() {
             overview: episode.overview,
             poster_url: episode.image,
             air_date: episode.aired,
+            metadata: {
+              show_id: selectedShow!.id,
+              season_number: episode.seasonNumber,
+              episode_number: episode.number,
+            }
           })
           .select('id, title, kind')
           .single();
@@ -165,6 +170,10 @@ export default function PostPage() {
             external_id: season.id.toString(),
             kind: 'season',
             title: season.name,
+            metadata: {
+              show_id: selectedShow!.id,
+              season_number: season.number,
+            }
           })
           .select('id, title, kind')
           .single();
@@ -333,11 +342,31 @@ export default function PostPage() {
 
         {selectedContent && (
           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-md">
-            <span className="text-sm text-primary flex-1">
+            <button
+              onClick={async () => {
+                const { data } = await supabase
+                  .from('content')
+                  .select('external_id, metadata')
+                  .eq('id', selectedContent.id)
+                  .single();
+                
+                if (data?.external_id) {
+                  if (selectedContent.kind === 'show') {
+                    navigate(`/show/${data.external_id}`);
+                  } else if (selectedContent.kind === 'season' && data.metadata) {
+                    navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}`);
+                  } else if (selectedContent.kind === 'episode' && data.metadata) {
+                    navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}/episode/${data.metadata.episode_number}`);
+                  }
+                }
+              }}
+              className="text-sm text-primary flex-1 text-left hover:underline"
+              type="button"
+            >
               {selectedContent.kind === 'show' && '📺'}
               {selectedContent.kind === 'season' && '📁'}
               {selectedContent.kind === 'episode' && '🎬'} {selectedContent.title}
-            </span>
+            </button>
             <Button
               variant="ghost"
               size="sm"
