@@ -6,7 +6,7 @@ import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { AppLayout } from '@/components/layouts/AppLayout';
+
 import { Loader2 } from 'lucide-react';
 
 export default function EpisodeDetailPage() {
@@ -135,38 +135,36 @@ export default function EpisodeDetailPage() {
   }
 
   return (
-    <AppLayout>
-      <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
-        <Card className="p-6 space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground">
-              Season {seasonNumber} · Episode {episodeNumber}
-            </p>
-            <h1 className="text-3xl font-bold mt-1 neon-glow">{episode.name}</h1>
-          </div>
-          
-          {episode.image && (
-            <img
-              src={episode.image}
-              alt={episode.name}
-              className="w-full h-auto rounded-lg"
-            />
-          )}
-          
-          <p className="text-foreground">{episode.overview}</p>
-          
-          {episode.aired && (
-            <p className="text-sm text-muted-foreground">
-              Aired: {new Date(episode.aired).toLocaleDateString()}
-            </p>
-          )}
-          
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
-            <RatingInput initialRating={userRating} onRate={handleRate} />
-          </div>
-        </Card>
-      </div>
-    </AppLayout>
+    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
+      <Card className="p-6 space-y-4">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Season {seasonNumber} · Episode {episodeNumber}
+          </p>
+          <h1 className="text-3xl font-bold mt-1 neon-glow">{episode.name}</h1>
+        </div>
+        
+        {episode.image && (
+          <img
+            src={episode.image}
+            alt={episode.name}
+            className="w-full h-auto rounded-lg"
+          />
+        )}
+        
+        <p className="text-foreground">{episode.overview}</p>
+        
+        {episode.aired && (
+          <p className="text-sm text-muted-foreground">
+            Aired: {new Date(episode.aired).toLocaleDateString()}
+          </p>
+        )}
+        
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
+          <RatingInput initialRating={userRating} onRate={handleRate} />
+        </div>
+      </Card>
+    </div>
   );
 }

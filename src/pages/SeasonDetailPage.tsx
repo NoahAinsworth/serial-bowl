@@ -6,7 +6,7 @@ import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { AppLayout } from '@/components/layouts/AppLayout';
+
 import { Loader2 } from 'lucide-react';
 
 export default function SeasonDetailPage() {
@@ -120,47 +120,45 @@ export default function SeasonDetailPage() {
   }
 
   return (
-    <AppLayout>
-      <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
-        <Card className="p-6">
-          <h1 className="text-3xl font-bold mb-4 neon-glow">Season {seasonNumber}</h1>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Rate this season</p>
-              <RatingInput initialRating={userRating} onRate={handleRate} />
-            </div>
-          </div>
-        </Card>
-
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Episodes</h2>
-          <div className="space-y-3">
-            {episodes.map((episode) => (
-              <Card
-                key={episode.id}
-                className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
-                onClick={() => navigate(`/show/${showId}/season/${seasonNumber}/episode/${episode.number}`)}
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="font-semibold">
-                      {episode.number}. {episode.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                      {episode.overview}
-                    </p>
-                  </div>
-                  {episode.aired && (
-                    <span className="text-sm text-muted-foreground ml-4">
-                      {new Date(episode.aired).toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
-              </Card>
-            ))}
+    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
+      <Card className="p-6">
+        <h1 className="text-3xl font-bold mb-4 neon-glow">Season {seasonNumber}</h1>
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">Rate this season</p>
+            <RatingInput initialRating={userRating} onRate={handleRate} />
           </div>
         </div>
+      </Card>
+
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Episodes</h2>
+        <div className="space-y-3">
+          {episodes.map((episode) => (
+            <Card
+              key={episode.id}
+              className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
+              onClick={() => navigate(`/show/${showId}/season/${seasonNumber}/episode/${episode.number}`)}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="font-semibold">
+                    {episode.number}. {episode.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    {episode.overview}
+                  </p>
+                </div>
+                {episode.aired && (
+                  <span className="text-sm text-muted-foreground ml-4">
+                    {new Date(episode.aired).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }

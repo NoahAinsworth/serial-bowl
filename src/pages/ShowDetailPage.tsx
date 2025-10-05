@@ -6,7 +6,7 @@ import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { AppLayout } from '@/components/layouts/AppLayout';
+
 import { Loader2 } from 'lucide-react';
 
 export default function ShowDetailPage() {
@@ -140,45 +140,43 @@ export default function ShowDetailPage() {
   }
 
   return (
-    <AppLayout>
-      <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
-        <Card className="p-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            {show.image && (
-              <img
-                src={show.image}
-                alt={show.name}
-                className="w-full md:w-48 h-auto md:h-72 object-cover rounded-lg"
-              />
-            )}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2 neon-glow">{show.name}</h1>
-              <p className="text-muted-foreground mb-4">{show.overview}</p>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Rate this show</p>
-                  <RatingInput initialRating={userRating} onRate={handleRate} />
-                </div>
+    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
+      <Card className="p-6">
+        <div className="flex flex-col md:flex-row gap-6">
+          {show.image && (
+            <img
+              src={show.image}
+              alt={show.name}
+              className="w-full md:w-48 h-auto md:h-72 object-cover rounded-lg"
+            />
+          )}
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold mb-2 neon-glow">{show.name}</h1>
+            <p className="text-muted-foreground mb-4">{show.overview}</p>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Rate this show</p>
+                <RatingInput initialRating={userRating} onRate={handleRate} />
               </div>
             </div>
           </div>
-        </Card>
+        </div>
+      </Card>
 
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Seasons</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {seasons.map((season) => (
-              <Card
-                key={season.id}
-                className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
-                onClick={() => navigate(`/show/${id}/season/${season.number}`)}
-              >
-                <h3 className="font-semibold text-center">{season.name}</h3>
-              </Card>
-            ))}
-          </div>
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Seasons</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {seasons.map((season) => (
+            <Card
+              key={season.id}
+              className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
+              onClick={() => navigate(`/show/${id}/season/${season.number}`)}
+            >
+              <h3 className="font-semibold text-center">{season.name}</h3>
+            </Card>
+          ))}
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }
