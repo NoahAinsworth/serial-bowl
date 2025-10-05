@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp } from 'lucide-react';
+import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AppLayoutProps {
@@ -33,6 +33,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist">
               <Bookmark className="h-5 w-5" />
             </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/watched')} title="Watched">
+              <Eye className="h-5 w-5" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/stats')} title="Stats">
               <TrendingUp className="h-5 w-5" />
             </Button>
@@ -40,7 +43,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <MessageSquare className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
-              <User className="h-5 w-5" />
+              <Settings className="h-5 w-5" />
             </Button>
           </div>
         </div>

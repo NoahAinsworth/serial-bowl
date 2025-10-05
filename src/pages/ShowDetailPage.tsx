@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { RatingInput } from '@/components/RatingInput';
 import { WatchlistButton } from '@/components/WatchlistButton';
+import { WatchedButton } from '@/components/WatchedButton';
 import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -155,9 +156,12 @@ export default function ShowDetailPage() {
               <h1 className="text-3xl font-bold mb-2 neon-glow">{show.name}</h1>
               <p className="text-muted-foreground mb-4">{show.overview}</p>
               <div className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {contentId && (
-                    <WatchlistButton contentId={contentId} showTitle={show.name} />
+                    <>
+                      <WatchlistButton contentId={contentId} showTitle={show.name} />
+                      <WatchedButton contentId={contentId} showTitle={show.name} />
+                    </>
                   )}
                 </div>
                 <div>
