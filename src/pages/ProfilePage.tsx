@@ -236,7 +236,9 @@ export default function ProfilePage() {
           <div className="flex-1">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-aurora bg-clip-text text-transparent">{profile?.settings?.displayName || profile?.handle || 'Anonymous'}</h1>
+                {profile?.settings?.displayName && (
+                  <h1 className="text-2xl font-bold bg-gradient-aurora bg-clip-text text-transparent">{profile.settings.displayName}</h1>
+                )}
                 <p className="text-muted-foreground">@{profile?.handle || 'user'}</p>
               </div>
               <div className="flex gap-2">
