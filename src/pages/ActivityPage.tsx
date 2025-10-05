@@ -1,101 +1,148 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { ThoughtCard } from '@/components/ThoughtCard';
-import { Loader2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Loader2, Heart, MessageCircle, Repeat2, UserPlus } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function ActivityPage() {
   const { user } = useAuth();
-  const [thoughts, setThoughts] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadActivity();
+    if (user) {
+      loadNotifications();
+    } else {
+      setLoading(false);
+    }
   }, [user]);
 
-  const loadActivity = async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+  const loadNotifications = async () => {
+    if (!user) return;
 
-    // Get users that the current user follows
-    const { data: following } = await supabase
-      .from('follows')
-      .select('following_id')
-      .eq('follower_id', user.id);
-
-    const followingIds = following?.map(f => f.following_id) || [];
-
-    // Get thoughts from followed users
-    const { data: thoughtsData, error } = await supabase
-      .from('thoughts')
+    // Get reactions to user's thoughts
+    const { data: reactions } = await supabase
+      .from('reactions')
       .select(`
         id,
-        user_id,
-        text_content,
-        content_id,
+        reaction_type,
         created_at,
-        profiles!thoughts_user_id_fkey (
-          id,
-          handle,
-          avatar_url
+        user_id,
+        thought_id,
+        profiles!reactions_user_id_fkey (
+          handle
         ),
-        content (
-          title
+        thoughts!inner (
+          user_id,
+          text_content
         )
       `)
-      .in('user_id', followingIds.length > 0 ? followingIds : ['00000000-0000-0000-0000-000000000000'])
+      .eq('thoughts.user_id', user.id)
+      .neq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(20);
 
-    if (!error && thoughtsData) {
-      // Get reaction counts for each thought
-      const thoughtsWithCounts = await Promise.all(
-        thoughtsData.map(async (thought: any) => {
-          const { data: reactions } = await supabase
-            .from('reactions')
-            .select('reaction_type')
-            .eq('thought_id', thought.id);
+    // Get comments on user's thoughts
+    const { data: comments } = await supabase
+      .from('comments')
+      .select(`
+        id,
+        created_at,
+        user_id,
+        thought_id,
+        text_content,
+        profiles!comments_user_id_fkey (
+          handle
+        ),
+        thoughts!inner (
+          user_id,
+          text_content
+        )
+      `)
+      .eq('thoughts.user_id', user.id)
+      .neq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
 
-          const { data: comments } = await supabase
-            .from('comments')
-            .select('id')
-            .eq('thought_id', thought.id);
+    // Get new followers
+    const { data: follows } = await supabase
+      .from('follows')
+      .select(`
+        id,
+        created_at,
+        follower_id,
+        profiles!follows_follower_id_fkey (
+          handle
+        )
+      `)
+      .eq('following_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
 
-          const { data: userReaction } = await supabase
-            .from('reactions')
-            .select('reaction_type')
-            .eq('thought_id', thought.id)
-            .eq('user_id', user.id)
-            .single();
+    // Combine and sort all notifications
+    const allNotifications = [
+      ...(reactions?.map((r: any) => ({
+        id: `reaction-${r.id}`,
+        type: r.reaction_type,
+        user: r.profiles?.handle || 'Unknown',
+        thought: r.thoughts?.text_content || '',
+        thoughtId: r.thought_id,
+        createdAt: r.created_at,
+      })) || []),
+      ...(comments?.map((c: any) => ({
+        id: `comment-${c.id}`,
+        type: 'comment',
+        user: c.profiles?.handle || 'Unknown',
+        thought: c.thoughts?.text_content || '',
+        thoughtId: c.thought_id,
+        comment: c.text_content,
+        createdAt: c.created_at,
+      })) || []),
+      ...(follows?.map((f: any) => ({
+        id: `follow-${f.id}`,
+        type: 'follow',
+        user: f.profiles?.handle || 'Unknown',
+        createdAt: f.created_at,
+      })) || []),
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
-          const dislikes = reactions?.filter(r => r.reaction_type === 'dislike').length || 0;
-          const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
-
-          return {
-            id: thought.id,
-            user: {
-              id: thought.profiles.id,
-              handle: thought.profiles.handle,
-              avatar_url: thought.profiles.avatar_url,
-            },
-            content: thought.text_content,
-            show: thought.content ? { title: thought.content.title } : undefined,
-            likes,
-            dislikes,
-            comments: comments?.length || 0,
-            rethinks,
-            userReaction: userReaction?.reaction_type,
-          };
-        })
-      );
-
-      setThoughts(thoughtsWithCounts);
-    }
-
+    setNotifications(allNotifications);
     setLoading(false);
+  };
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'like':
+        return <Heart className="h-5 w-5 text-red-500 fill-red-500" />;
+      case 'comment':
+        return <MessageCircle className="h-5 w-5 text-blue-500" />;
+      case 'rethink':
+        return <Repeat2 className="h-5 w-5 text-green-500" />;
+      case 'follow':
+        return <UserPlus className="h-5 w-5 text-primary" />;
+      default:
+        return null;
+    }
+  };
+
+  const getMessage = (notif: any) => {
+    switch (notif.type) {
+      case 'like':
+        return `${notif.user} liked your thought`;
+      case 'dislike':
+        return `${notif.user} reacted to your thought`;
+      case 'comment':
+        return `${notif.user} commented: "${notif.comment}"`;
+      case 'rethink':
+        return `${notif.user} rethought your thought`;
+      case 'follow':
+        return `${notif.user} started following you`;
+      default:
+        return '';
+    }
   };
 
   if (loading) {
@@ -108,24 +155,39 @@ export default function ActivityPage() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
-      <h1 className="text-3xl font-bold mb-6">Activity</h1>
+      <h1 className="text-3xl font-bold mb-6 neon-glow">Activity</h1>
       
       {!user ? (
-        <p className="text-center text-muted-foreground">
-          Sign in to see activity from people you follow
-        </p>
-      ) : thoughts.length === 0 ? (
-        <p className="text-center text-muted-foreground">
-          No activity yet. Follow some users to see their thoughts here!
-        </p>
+        <Card className="p-8 text-center">
+          <p className="text-muted-foreground">Sign in to see your notifications</p>
+        </Card>
+      ) : notifications.length === 0 ? (
+        <Card className="p-8 text-center">
+          <p className="text-muted-foreground">No notifications yet. Start engaging with the community!</p>
+        </Card>
       ) : (
-        <div className="space-y-4">
-          {thoughts.map((thought) => (
-            <ThoughtCard
-              key={thought.id}
-              thought={thought}
-              onReactionChange={loadActivity}
-            />
+        <div className="space-y-3">
+          {notifications.map((notif) => (
+            <Card
+              key={notif.id}
+              className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
+              onClick={() => notif.thoughtId && navigate('/')}
+            >
+              <div className="flex gap-3 items-start">
+                <div className="mt-1">{getIcon(notif.type)}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm">{getMessage(notif)}</p>
+                  {notif.thought && (
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                      "{notif.thought}"
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
+                  </p>
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
       )}

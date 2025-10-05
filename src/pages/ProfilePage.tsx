@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Settings, Loader2, UserPlus, UserMinus } from 'lucide-react';
+import { Settings, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { UserRatings } from '@/components/UserRatings';
+import { UserThoughts } from '@/components/UserThoughts';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -132,24 +134,16 @@ export default function ProfilePage() {
           <TabsTrigger value="thoughts">Thoughts ({profile.thoughtCount})</TabsTrigger>
         </TabsList>
         <TabsContent value="shows" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            {profile.showCount === 0 ? 'No shows rated yet' : 'Your rated shows will appear here'}
-          </div>
+          <UserRatings userId={user?.id} contentKind="show" />
         </TabsContent>
         <TabsContent value="seasons" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            {profile.seasonCount === 0 ? 'No seasons rated yet' : 'Your rated seasons will appear here'}
-          </div>
+          <UserRatings userId={user?.id} contentKind="season" />
         </TabsContent>
         <TabsContent value="episodes" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            {profile.episodeCount === 0 ? 'No episodes rated yet' : 'Your rated episodes will appear here'}
-          </div>
+          <UserRatings userId={user?.id} contentKind="episode" />
         </TabsContent>
         <TabsContent value="thoughts" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            {profile.thoughtCount === 0 ? 'No thoughts posted yet' : 'Your thoughts will appear here'}
-          </div>
+          <UserThoughts userId={user?.id} />
         </TabsContent>
       </Tabs>
     </div>

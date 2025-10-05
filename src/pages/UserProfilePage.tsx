@@ -7,7 +7,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
-import { ThoughtCard } from '@/components/ThoughtCard';
+import { UserRatings } from '@/components/UserRatings';
+import { UserThoughts } from '@/components/UserThoughts';
 
 export default function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -278,35 +279,17 @@ export default function UserProfilePage() {
           <TabsTrigger value="seasons">Seasons ({profile.seasonCount})</TabsTrigger>
           <TabsTrigger value="episodes">Eps ({profile.episodeCount})</TabsTrigger>
         </TabsList>
-        <TabsContent value="thoughts" className="mt-4 space-y-4">
-          {thoughts.length === 0 ? (
-            <div className="text-center text-muted-foreground py-12">
-              No thoughts yet
-            </div>
-          ) : (
-            thoughts.map((thought) => (
-              <ThoughtCard
-                key={thought.id}
-                thought={thought}
-                onReactionChange={loadThoughts}
-              />
-            ))
-          )}
+        <TabsContent value="thoughts" className="mt-4">
+          <UserThoughts userId={userId} />
         </TabsContent>
         <TabsContent value="shows" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            Rated shows will appear here
-          </div>
+          <UserRatings userId={userId} contentKind="show" />
         </TabsContent>
         <TabsContent value="seasons" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            Rated seasons will appear here
-          </div>
+          <UserRatings userId={userId} contentKind="season" />
         </TabsContent>
         <TabsContent value="episodes" className="mt-4">
-          <div className="text-center text-muted-foreground py-12">
-            Rated episodes will appear here
-          </div>
+          <UserRatings userId={userId} contentKind="episode" />
         </TabsContent>
       </Tabs>
     </div>
