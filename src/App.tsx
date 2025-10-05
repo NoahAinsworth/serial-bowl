@@ -1,17 +1,22 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import Home from "./pages/Home";
+import AuthPage from "./pages/AuthPage";
 
 const App = () => (
   <ThemeProvider>
-    <BrowserRouter>
-      <div className="min-h-screen p-8 bg-background text-foreground">
-        <h1 className="text-3xl mb-4">SerialCereal</h1>
-        <Routes>
-          <Route path="/" element={<div>Home Page - Theme Provider Added</div>} />
-          <Route path="*" element={<div>Page not found</div>} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="min-h-screen bg-background text-foreground">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="*" element={<div className="p-4 text-foreground">Page not found</div>} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   </ThemeProvider>
 );
 
