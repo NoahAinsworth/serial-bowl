@@ -5,6 +5,7 @@ import { Heart, MessageCircle, Repeat2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { CommentsSection } from '@/components/CommentsSection';
 
 interface ThoughtCardProps {
   thought: {
@@ -34,6 +35,7 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
   const [localLikes, setLocalLikes] = useState(thought.likes);
   const [localDislikes, setLocalDislikes] = useState(thought.dislikes);
   const [localRethinks, setLocalRethinks] = useState(thought.rethinks);
+  const [showComments, setShowComments] = useState(false);
 
   const handleReaction = async (type: 'like' | 'dislike' | 'rethink') => {
     if (!user) {
@@ -46,7 +48,6 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
     }
 
     try {
-      // Remove existing reaction if same type
       if (localReaction === type) {
         await supabase
           .from('reactions')
@@ -60,7 +61,6 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
         if (type === 'rethink') setLocalRethinks(prev => prev - 1);
         setLocalReaction(undefined);
       } else {
-        // Remove old reaction if exists
         if (localReaction) {
           await supabase
             .from('reactions')
@@ -74,7 +74,6 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
           if (localReaction === 'rethink') setLocalRethinks(prev => prev - 1);
         }
 
-        // Add new reaction
         await supabase
           .from('reactions')
           .insert({
@@ -100,7 +99,7 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
   };
 
   return (
-    <Card className="p-4 hover:border-primary/50 transition-colors">
+    <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in hover-scale">
       <div className="flex gap-3">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold flex-shrink-0">
           {thought.user.handle[1]?.toUpperCase() || 'U'}
@@ -122,7 +121,7 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('like')}
-              className={localReaction === 'like' ? 'text-primary' : ''}
+              className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
             >
               <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
               <span className="text-sm">{localLikes}</span>
@@ -130,6 +129,7 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => setShowComments(!showComments)}
               className="hover:text-accent transition-colors"
             >
               <MessageCircle className="h-4 w-4 mr-1" />
@@ -139,12 +139,14 @@ export function ThoughtCard({ thought, onReactionChange }: ThoughtCardProps) {
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('rethink')}
-              className={localReaction === 'rethink' ? 'text-secondary' : ''}
+              className={`transition-all duration-200 ${localReaction === 'rethink' ? 'text-secondary' : ''}`}
             >
               <Repeat2 className="h-4 w-4 mr-1" />
               <span className="text-sm">{localRethinks}</span>
             </Button>
           </div>
+
+          {showComments && <CommentsSection thoughtId={thought.id} />}
         </div>
       </div>
     </Card>

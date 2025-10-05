@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { formatDistanceToNow } from 'date-fns';
 interface Message {
   id: string;
   sender_id: string;
+  recipient_id?: string;
   text_content: string;
   created_at: string;
   read: boolean;
@@ -32,18 +33,29 @@ export default function DMThreadPage() {
       loadOtherUser();
       markAsRead();
       
-      // Set up realtime subscription
+      // Set up realtime subscription for new messages
       const channel = supabase
-        .channel('dm-changes')
+        .channel(`dm-thread-${userId}`)
         .on(
           'postgres_changes',
           {
             event: 'INSERT',
             schema: 'public',
             table: 'dms',
-            filter: `sender_id=eq.${userId},recipient_id=eq.${user.id}`,
           },
-          () => loadMessages()
+          (payload) => {
+            const newMsg = payload.new as Message;
+            // Only add if it's part of this conversation
+            if (
+              (newMsg.sender_id === userId && newMsg.recipient_id === user.id) ||
+              (newMsg.sender_id === user.id && newMsg.recipient_id === userId)
+            ) {
+              setMessages(prev => [...prev, newMsg]);
+              if (newMsg.sender_id === userId) {
+                markAsRead();
+              }
+            }
+          }
         )
         .subscribe();
 
@@ -103,12 +115,24 @@ export default function DMThreadPage() {
   const handleSend = async () => {
     if (!user || !userId || !newMessage.trim()) return;
 
+    const optimisticMessage = {
+      id: 'temp-' + Date.now(),
+      sender_id: user.id,
+      recipient_id: userId,
+      text_content: newMessage.trim(),
+      created_at: new Date().toISOString(),
+      read: false,
+    };
+
+    setMessages(prev => [...prev, optimisticMessage]);
+    setNewMessage('');
+
     const { error } = await supabase
       .from('dms')
       .insert({
         sender_id: user.id,
         recipient_id: userId,
-        text_content: newMessage.trim(),
+        text_content: optimisticMessage.text_content,
       });
 
     if (error) {
@@ -117,9 +141,7 @@ export default function DMThreadPage() {
         description: "Failed to send message",
         variant: "destructive",
       });
-    } else {
-      setNewMessage('');
-      loadMessages();
+      setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
     }
   };
 
@@ -132,7 +154,7 @@ export default function DMThreadPage() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4 flex flex-col h-[calc(100vh-200px)]">
+    <div className="container max-w-2xl mx-auto py-6 px-4 flex flex-col h-[calc(100vh-200px)] animate-fade-in">
       {otherUser && (
         <h1 className="text-2xl font-bold mb-4">{otherUser.handle}</h1>
       )}
@@ -144,7 +166,7 @@ export default function DMThreadPage() {
             return (
               <div
                 key={message.id}
-                className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-scale-in`}
               >
                 <div
                   className={`max-w-[70%] rounded-lg p-3 ${

@@ -12,6 +12,7 @@ import SearchPage from "./pages/SearchPage";
 import PostPage from "./pages/PostPage";
 import ActivityPage from "./pages/ActivityPage";
 import ProfilePage from "./pages/ProfilePage";
+import UserProfilePage from "./pages/UserProfilePage";
 import EditProfilePage from "./pages/EditProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ShowDetailPage from "./pages/ShowDetailPage";
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/activity" element={<ActivityPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/profile/edit" element={<EditProfilePage />} />
+                <Route path="/user/:userId" element={<UserProfilePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/show/:id" element={<ShowDetailPage />} />
                 <Route path="/show/:showId/season/:seasonNumber" element={<SeasonDetailPage />} />
