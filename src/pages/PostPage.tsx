@@ -377,28 +377,28 @@ export default function PostPage() {
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="space-y-1 max-h-48 overflow-y-auto">
-                  <p className="text-sm text-muted-foreground mb-1">Select an episode:</p>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  <p className="text-sm text-muted-foreground mb-2">Select an episode:</p>
                   {episodes.map((episode) => (
-                    <Button
+                    <button
                       key={episode.id}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSelectEpisode(episode)}
-                      className="w-full justify-start h-auto py-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelectEpisode(episode);
+                      }}
+                      className="w-full text-left px-4 py-3 border rounded-md hover:bg-muted hover:border-primary transition-colors cursor-pointer bg-background"
                       type="button"
                     >
-                      <div className="text-left">
-                        <p className="font-medium text-sm">
-                          {episode.number}. {episode.name}
+                      <p className="font-medium text-sm">
+                        {episode.number}. {episode.name}
+                      </p>
+                      {episode.overview && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                          {episode.overview}
                         </p>
-                        {episode.overview && (
-                          <p className="text-xs text-muted-foreground line-clamp-1">
-                            {episode.overview}
-                          </p>
-                        )}
-                      </div>
-                    </Button>
+                      )}
+                    </button>
                   ))}
                 </div>
               )}
