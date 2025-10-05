@@ -591,6 +591,24 @@ export type Database = {
           },
         ]
       }
+      tmdb_cache: {
+        Row: {
+          cache_key: string
+          payload: Json
+          updated_at: string | null
+        }
+        Insert: {
+          cache_key: string
+          payload: Json
+          updated_at?: string | null
+        }
+        Update: {
+          cache_key?: string
+          payload?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tvdb_episodes: {
         Row: {
           episode: number
