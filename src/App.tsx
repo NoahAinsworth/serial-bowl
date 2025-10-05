@@ -6,16 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppLayout } from "@/components/layouts/AppLayout";
-
-// Minimal test component
-const TestPage = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="text-center space-y-4">
-      <h1 className="text-4xl font-bold text-primary">App is Working! 🎉</h1>
-      <p className="text-muted-foreground">The build is successful.</p>
-    </div>
-  </div>
-);
+import Home from "./pages/Home";
+import AuthPage from "./pages/AuthPage";
+import SearchPage from "./pages/SearchPage";
+import PostPage from "./pages/PostPage";
+import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -27,9 +24,17 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="*" element={<TestPage />} />
-            </Routes>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/post" element={<PostPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
