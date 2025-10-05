@@ -14,76 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      comments: {
-        Row: {
-          comment_text: string
-          created_at: string | null
-          id: string
-          thought_id: string
-          user_id: string
-        }
-        Insert: {
-          comment_text: string
-          created_at?: string | null
-          id?: string
-          thought_id: string
-          user_id: string
-        }
-        Update: {
-          comment_text?: string
-          created_at?: string | null
-          id?: string
-          thought_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comments_thought_id_fkey"
-            columns: ["thought_id"]
-            isOneToOne: false
-            referencedRelation: "thoughts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      content: {
-        Row: {
-          created_at: string | null
-          external_id: string
-          external_src: string
-          id: string
-          kind: Database["public"]["Enums"]["content_kind"]
-          poster_url: string | null
-          title: string
-        }
-        Insert: {
-          created_at?: string | null
-          external_id: string
-          external_src?: string
-          id?: string
-          kind: Database["public"]["Enums"]["content_kind"]
-          poster_url?: string | null
-          title: string
-        }
-        Update: {
-          created_at?: string | null
-          external_id?: string
-          external_src?: string
-          id?: string
-          kind?: Database["public"]["Enums"]["content_kind"]
-          poster_url?: string | null
-          title?: string
-        }
-        Relationships: []
-      }
-      content_aggregates: {
+      aggregates: {
         Row: {
           avg_rating: number | null
           content_id: string
@@ -115,11 +46,98 @@ export type Database = {
           },
         ]
       }
+      comments: {
+        Row: {
+          created_at: string | null
+          id: string
+          text_content: string
+          thought_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          text_content: string
+          thought_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          text_content?: string
+          thought_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_thought_id_fkey"
+            columns: ["thought_id"]
+            isOneToOne: false
+            referencedRelation: "thoughts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content: {
+        Row: {
+          air_date: string | null
+          created_at: string | null
+          external_id: string
+          external_src: string
+          id: string
+          kind: Database["public"]["Enums"]["content_kind"]
+          metadata: Json | null
+          parent_id: string | null
+          poster_url: string | null
+          title: string
+        }
+        Insert: {
+          air_date?: string | null
+          created_at?: string | null
+          external_id: string
+          external_src?: string
+          id?: string
+          kind: Database["public"]["Enums"]["content_kind"]
+          metadata?: Json | null
+          parent_id?: string | null
+          poster_url?: string | null
+          title: string
+        }
+        Update: {
+          air_date?: string | null
+          created_at?: string | null
+          external_id?: string
+          external_src?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["content_kind"]
+          metadata?: Json | null
+          parent_id?: string | null
+          poster_url?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_lists: {
         Row: {
           created_at: string | null
           description: string | null
           id: string
+          is_public: boolean | null
           name: string
           user_id: string
         }
@@ -127,6 +145,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_public?: boolean | null
           name: string
           user_id: string
         }
@@ -134,6 +153,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_public?: boolean | null
           name?: string
           user_id?: string
         }
@@ -151,26 +171,26 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          message_text: string
           read: boolean | null
           recipient_id: string
           sender_id: string
+          text_content: string
         }
         Insert: {
           created_at?: string | null
           id?: string
-          message_text: string
           read?: boolean | null
           recipient_id: string
           sender_id: string
+          text_content: string
         }
         Update: {
           created_at?: string | null
           id?: string
-          message_text?: string
           read?: boolean | null
           recipient_id?: string
           sender_id?: string
+          text_content?: string
         }
         Relationships: [
           {
@@ -268,6 +288,7 @@ export type Database = {
           created_at: string | null
           handle: string
           id: string
+          settings: Json | null
           updated_at: string | null
         }
         Insert: {
@@ -276,6 +297,7 @@ export type Database = {
           created_at?: string | null
           handle: string
           id: string
+          settings?: Json | null
           updated_at?: string | null
         }
         Update: {
@@ -284,6 +306,7 @@ export type Database = {
           created_at?: string | null
           handle?: string
           id?: string
+          settings?: Json | null
           updated_at?: string | null
         }
         Relationships: []
@@ -293,21 +316,21 @@ export type Database = {
           content_id: string
           created_at: string | null
           id: string
-          rating_value: number
+          rating: number
           user_id: string
         }
         Insert: {
           content_id: string
           created_at?: string | null
           id?: string
-          rating_value: number
+          rating: number
           user_id: string
         }
         Update: {
           content_id?: string
           created_at?: string | null
           id?: string
-          rating_value?: number
+          rating?: number
           user_id?: string
         }
         Relationships: [
@@ -449,7 +472,7 @@ export type Database = {
           moderation_status:
             | Database["public"]["Enums"]["moderation_status"]
             | null
-          thought_text: string
+          text_content: string
           user_id: string
         }
         Insert: {
@@ -459,7 +482,7 @@ export type Database = {
           moderation_status?:
             | Database["public"]["Enums"]["moderation_status"]
             | null
-          thought_text: string
+          text_content: string
           user_id: string
         }
         Update: {
@@ -469,7 +492,7 @@ export type Database = {
           moderation_status?:
             | Database["public"]["Enums"]["moderation_status"]
             | null
-          thought_text?: string
+          text_content?: string
           user_id?: string
         }
         Relationships: [

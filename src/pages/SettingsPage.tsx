@@ -48,7 +48,7 @@ export default function SettingsPage() {
       .single();
 
     if (data?.settings) {
-      setSettings(data.settings);
+      setSettings(data.settings as typeof settings);
     }
   };
 

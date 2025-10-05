@@ -328,14 +328,14 @@ export default function PostPage() {
       });
     }
 
-    const { error } = await supabase
+    const { error} = await supabase
       .from('thoughts')
       .insert({
         user_id: user.id,
         content_id: selectedContent?.id || null,
         text_content: content.trim(),
-        moderation_status: 'allow',
-      });
+        moderation_status: 'approved',
+      } as any);
 
     if (error) {
       console.error('Post error:', error);
@@ -391,10 +391,12 @@ export default function PostPage() {
                   if (data?.external_id) {
                     if (selectedContent.kind === 'show') {
                       navigate(`/show/${data.external_id}`);
-                    } else if (selectedContent.kind === 'season' && data.metadata?.show_id) {
-                      navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}`);
-                    } else if (selectedContent.kind === 'episode' && data.metadata?.show_id) {
-                      navigate(`/show/${data.metadata.show_id}/season/${data.metadata.season_number}/episode/${data.metadata.episode_number}`);
+                    } else if (selectedContent.kind === 'season' && data.metadata) {
+                      const metadata = data.metadata as any;
+                      navigate(`/show/${metadata.show_id}/season/${metadata.season_number}`);
+                    } else if (selectedContent.kind === 'episode' && data.metadata) {
+                      const metadata = data.metadata as any;
+                      navigate(`/show/${metadata.show_id}/season/${metadata.season_number}/episode/${metadata.episode_number}`);
                     }
                   }
                 } catch (error) {
