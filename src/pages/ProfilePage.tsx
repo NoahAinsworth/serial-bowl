@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Settings, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
-import { ProfilePictureUpload } from '@/components/ProfilePictureUpload';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -104,10 +104,12 @@ export default function ProfilePage() {
       <Card className="p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex gap-4">
-            <ProfilePictureUpload
-              currentAvatarUrl={profile.avatar_url}
-              onUploadComplete={(url) => setProfile(prev => ({ ...prev, avatar_url: url }))}
-            />
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={profile.avatar_url} alt={profile.handle} />
+              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                {user?.email?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
             <div>
               <h2 className="text-2xl font-bold">{profile.handle}</h2>
               <p className="text-muted-foreground mt-1">{profile.bio || 'TV enthusiast 📺'}</p>
