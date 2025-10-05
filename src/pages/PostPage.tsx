@@ -5,11 +5,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB, TVSeason, TVEpisode } from '@/hooks/useTVDB';
-import { X, Loader2, ChevronRight } from 'lucide-react';
+import { X, Loader2, Star } from 'lucide-react';
 
 export default function PostPage() {
   const navigate = useNavigate();
@@ -17,12 +18,15 @@ export default function PostPage() {
   const { toast } = useToast();
   const { search, fetchSeasons, fetchEpisodes } = useTVDB();
   
+  const [postType, setPostType] = useState<'thought' | 'review'>('thought');
   const [content, setContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedContent, setSelectedContent] = useState<{ id: string; title: string; kind: string } | null>(null);
   const [searching, setSearching] = useState(false);
   const [posting, setPosting] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
   
   // For hierarchical selection
   const [selectedShow, setSelectedShow] = useState<any | null>(null);
@@ -282,13 +286,31 @@ export default function PostPage() {
     if (!user) {
       toast({
         title: "Sign in required",
-        description: "Please sign in to post thoughts",
+        description: "Please sign in to post",
         variant: "destructive",
       });
       return;
     }
 
     if (!content.trim()) return;
+
+    if (postType === 'review' && !selectedContent) {
+      toast({
+        title: "Selection required",
+        description: "Please select a show, season, or episode to review",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (postType === 'review' && rating === 0) {
+      toast({
+        title: "Rating required",
+        description: "Please select a rating for your review",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setPosting(true);
 
@@ -300,7 +322,6 @@ export default function PostPage() {
       .maybeSingle();
 
     if (!profileExists) {
-      // Create profile if it doesn't exist
       const defaultHandle = `user${user.id.substring(0, 8)}`;
       const { error: profileError } = await supabase
         .from('profiles')
@@ -321,37 +342,87 @@ export default function PostPage() {
         return;
       }
 
-      // Create user role
       await supabase.from('user_roles').insert({
         user_id: user.id,
         role: 'user',
       });
     }
 
-    const { error} = await supabase
-      .from('thoughts')
-      .insert({
-        user_id: user.id,
-        content_id: selectedContent?.id || null,
-        text_content: content.trim(),
-        moderation_status: 'approved',
-      } as any);
+    if (postType === 'thought') {
+      const { error } = await supabase
+        .from('thoughts')
+        .insert({
+          user_id: user.id,
+          content_id: selectedContent?.id || null,
+          text_content: content.trim(),
+          moderation_status: 'approved',
+        } as any);
 
-    if (error) {
-      console.error('Post error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to post thought",
-        variant: "destructive",
-      });
+      if (error) {
+        console.error('Post error:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to post thought",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Thought posted!",
+        });
+        setContent('');
+        setSelectedContent(null);
+        navigate('/');
+      }
     } else {
-      toast({
-        title: "Success",
-        description: "Thought posted!",
-      });
-      setContent('');
-      setSelectedContent(null);
-      navigate('/');
+      // Post review
+      const { error: reviewError } = await supabase
+        .from('reviews')
+        .insert({
+          user_id: user.id,
+          content_id: selectedContent!.id,
+          review_text: content.trim(),
+        });
+
+      if (reviewError) {
+        console.error('Review error:', reviewError);
+        toast({
+          title: "Error",
+          description: reviewError.message || "Failed to post review",
+          variant: "destructive",
+        });
+        setPosting(false);
+        return;
+      }
+
+      // Add/update rating
+      const { error: ratingError } = await supabase
+        .from('ratings')
+        .upsert({
+          user_id: user.id,
+          content_id: selectedContent!.id,
+          rating: rating,
+        }, {
+          onConflict: 'user_id,content_id'
+        });
+
+      if (ratingError) {
+        console.error('Rating error:', ratingError);
+        toast({
+          title: "Error",
+          description: "Failed to save rating",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Review posted!",
+        });
+        setContent('');
+        setSelectedContent(null);
+        setRating(0);
+        navigate('/');
+      }
     }
 
     setPosting(false);
@@ -360,22 +431,76 @@ export default function PostPage() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
       <Card className="p-6 space-y-4">
-        <h2 className="text-2xl font-bold">Share Your Thoughts</h2>
+        <h2 className="text-2xl font-bold">Create Post</h2>
         
-        <div>
-          <Textarea
-            placeholder="What's on your mind about TV?"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-[150px] resize-none"
-            maxLength={500}
-          />
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-sm text-muted-foreground">
-              {content.length} / 500
-            </span>
-          </div>
-        </div>
+        <Tabs value={postType} onValueChange={(v) => setPostType(v as 'thought' | 'review')}>
+          <TabsList className="w-full grid grid-cols-2">
+            <TabsTrigger value="thought">Thought</TabsTrigger>
+            <TabsTrigger value="review">Review</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="thought" className="space-y-4">
+            <div>
+              <Textarea
+                placeholder="What's on your mind about TV?"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="min-h-[150px] resize-none"
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-muted-foreground">
+                  {content.length} / 500
+                </span>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="review" className="space-y-4">
+            <div>
+              <Label className="mb-2 block">Rating *</Label>
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoveredRating(star)}
+                    onMouseLeave={() => setHoveredRating(0)}
+                    className="transition-all"
+                  >
+                    <Star
+                      className={`h-6 w-6 ${
+                        star <= (hoveredRating || rating)
+                          ? 'fill-primary text-primary'
+                          : 'text-muted-foreground'
+                      }`}
+                    />
+                  </button>
+                ))}
+                {rating > 0 && (
+                  <span className="ml-2 text-lg font-bold text-primary">{rating}</span>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-2 block">Review *</Label>
+              <Textarea
+                placeholder="Share your thoughts about this show..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="min-h-[150px] resize-none"
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-muted-foreground">
+                  {content.length} / 500
+                </span>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {selectedContent && (
           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-md">
@@ -424,7 +549,7 @@ export default function PostPage() {
         )}
 
         <div className="space-y-2">
-          <Label>Tag content (optional)</Label>
+          <Label>{postType === 'review' ? 'Select content to review *' : 'Tag content (optional)'}</Label>
           
           {!selectedShow && (
             <>
@@ -570,7 +695,7 @@ export default function PostPage() {
 
         <Button
           onClick={handlePost}
-          disabled={!content.trim() || posting}
+          disabled={!content.trim() || posting || (postType === 'review' && (!selectedContent || rating === 0))}
           className="w-full btn-glow"
         >
           {posting ? (
@@ -579,7 +704,7 @@ export default function PostPage() {
               Posting...
             </>
           ) : (
-            'Post Thought'
+            postType === 'review' ? 'Post Review' : 'Post Thought'
           )}
         </Button>
       </Card>
