@@ -37,9 +37,9 @@ serve(async (req) => {
     
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const openaiApiKey = Deno.env.get("OPENAI_API_KEY")!;
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
     
-    if (!openaiApiKey) throw new Error("OPENAI_API_KEY not configured");
+    if (!lovableApiKey) throw new Error("LOVABLE_API_KEY not configured");
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -61,30 +61,31 @@ serve(async (req) => {
       content: messages[messages.length - 1].content,
     });
 
-    // Call OpenAI
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Call Lovable AI
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${openaiApiKey}`,
+        Authorization: `Bearer ${lovableApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           ...messages,
         ],
-        temperature: 0.7,
-        max_tokens: 800,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("OpenAI error:", response.status, errorText);
+      console.error("Lovable AI error:", response.status, errorText);
       
       if (response.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
+      }
+      if (response.status === 402) {
+        throw new Error("Payment required. Please add credits to your Lovable AI workspace.");
       }
       throw new Error("AI request failed");
     }
