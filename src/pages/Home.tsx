@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 
 export default function Home() {
   const { user } = useAuth();
@@ -10,8 +11,8 @@ export default function Home() {
   if (!user) {
     return (
       <div className="container max-w-2xl mx-auto py-12 px-4 text-center space-y-6">
-        <div>
-          <h1 className="text-4xl font-bold mb-2 neon-glow">SERIALCEREAL</h1>
+        <div className="flex flex-col items-center gap-4">
+          <img src={cerealBowlLogo} alt="Serialcereal Logo" className="w-32 h-32 neon-glow" />
           <p className="text-xl text-muted-foreground">Your TV social network</p>
         </div>
         <p className="text-muted-foreground">
