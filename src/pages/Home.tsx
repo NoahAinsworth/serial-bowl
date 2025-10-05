@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -135,51 +136,41 @@ export default function Home() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
-      {/* Feed Mode Toggle */}
-      <div className="flex items-center justify-center gap-4 mb-6">
-        <Button
-          variant={feedMode === 'following' ? 'default' : 'ghost'}
-          onClick={() => setFeedMode('following')}
-          className="btn-glow"
-        >
-          Following
-        </Button>
-        <Button
-          variant={feedMode === 'for-you' ? 'default' : 'ghost'}
-          onClick={() => setFeedMode('for-you')}
-          className="btn-glow"
-        >
-          For You
-        </Button>
-      </div>
+      <Tabs value={feedMode} onValueChange={(value) => setFeedMode(value as 'following' | 'for-you')} className="w-full">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+          <TabsTrigger value="for-you">For You</TabsTrigger>
+          <TabsTrigger value="following">Following</TabsTrigger>
+        </TabsList>
 
-      {/* Feed */}
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : thoughts.length === 0 ? (
-        <div className="text-center text-muted-foreground py-12">
-          {feedMode === 'following' ? (
-            <>
-              <p>No thoughts from people you follow yet</p>
-              <p className="text-sm mt-2">Try the "For You" feed or follow some users!</p>
-            </>
+        <TabsContent value={feedMode} className="mt-0">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : thoughts.length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">
+              {feedMode === 'following' ? (
+                <>
+                  <p>No thoughts from people you follow yet</p>
+                  <p className="text-sm mt-2">Try the "For You" feed or follow some users!</p>
+                </>
+              ) : (
+                <p>No thoughts yet. Be the first to post!</p>
+              )}
+            </div>
           ) : (
-            <p>No thoughts yet. Be the first to post!</p>
+            <div className="space-y-4">
+              {thoughts.map((thought) => (
+                <ThoughtCard
+                  key={thought.id}
+                  thought={thought}
+                  onReactionChange={loadFeed}
+                />
+              ))}
+            </div>
           )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {thoughts.map((thought) => (
-            <ThoughtCard
-              key={thought.id}
-              thought={thought}
-              onReactionChange={loadFeed}
-            />
-          ))}
-        </div>
-      )}
+        </TabsContent>
+      </Tabs>
 
       {/* Footer */}
       <div className="mt-8 text-center text-sm text-muted-foreground">
