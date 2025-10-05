@@ -181,7 +181,7 @@ export default function EditProfilePage() {
           <Label htmlFor="displayName">Display Name</Label>
           <Input
             id="displayName"
-            value={profile.displayName}
+            value={profile.displayName || ''}
             onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
             placeholder="Your name"
             maxLength={50}

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
-
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
+import { UserSearch } from '@/components/UserSearch';
 
 interface DMThread {
   otherUser: {
@@ -26,6 +28,7 @@ export default function DMsPage() {
   const navigate = useNavigate();
   const [threads, setThreads] = useState<DMThread[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showUserSearch, setShowUserSearch] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -93,7 +96,13 @@ export default function DMsPage() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
-      <h1 className="text-3xl font-bold mb-6 neon-glow">Messages</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold neon-glow">Messages</h1>
+        <Button variant="outline" size="sm" onClick={() => setShowUserSearch(true)}>
+          <Search className="h-4 w-4 mr-2" />
+          Search Users
+        </Button>
+      </div>
       
       {loading ? (
         <div className="flex justify-center py-12">
@@ -136,6 +145,15 @@ export default function DMsPage() {
           ))}
         </div>
       )}
+
+      <Dialog open={showUserSearch} onOpenChange={setShowUserSearch}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Search Users to Message</DialogTitle>
+          </DialogHeader>
+          <UserSearch query="" />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,11 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Edit, Loader2, Share2, MessageSquare, Search, Plus, X } from 'lucide-react';
+import { Edit, Loader2, Share2, MessageSquare, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
-import { UserSearch } from '@/components/UserSearch';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -33,7 +32,6 @@ export default function ProfilePage() {
     followingCount: 0,
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchDialog, setShowSearchDialog] = useState(false);
   const [showTop3Dialog, setShowTop3Dialog] = useState(false);
   const [top3Shows, setTop3Shows] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -197,20 +195,11 @@ export default function ProfilePage() {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => navigate('/messages')}
+          onClick={() => navigate('/dms')}
           className="gap-2"
         >
           <MessageSquare className="h-4 w-4" />
           Messages
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowSearchDialog(true)}
-          className="gap-2"
-        >
-          <Search className="h-4 w-4" />
-          Search Users
         </Button>
       </div>
 
@@ -388,22 +377,6 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
 
-      {/* User Search Dialog */}
-      <Dialog open={showSearchDialog} onOpenChange={setShowSearchDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Search Users</DialogTitle>
-            <DialogDescription>Find and follow other users</DialogDescription>
-          </DialogHeader>
-          <Input
-            placeholder="Search by username..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="mb-4"
-          />
-          <UserSearch query={searchQuery} />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
