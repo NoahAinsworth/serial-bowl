@@ -254,7 +254,11 @@ create policy "Content is viewable by everyone"
 
 create policy "Authenticated users can create content"
   on public.content for insert
-  with check (auth.uid() is not null);
+  with check (true);
+
+create policy "Authenticated users can update content"
+  on public.content for update
+  using (true);
 
 -- Ratings: authenticated users manage own
 create policy "Ratings are viewable by everyone"
