@@ -27,7 +27,10 @@ export default function Home() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
-      <h1 className="text-3xl font-bold neon-glow text-center">Your Feed</h1>
+      <div className="flex flex-col items-center gap-2 mb-6">
+        <img src={cerealBowlLogo} alt="Serialcereal Logo" className="w-24 h-24 neon-glow" />
+        <h2 className="text-2xl font-bold neon-glow">Your Feed</h2>
+      </div>
       
       <Card className="p-12 text-center">
         <p className="text-muted-foreground mb-4">No thoughts yet. Be the first to post!</p>
