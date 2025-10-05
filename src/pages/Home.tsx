@@ -24,8 +24,12 @@ export default function Home() {
   const loadShows = async () => {
     setLoading(true);
     
-    // Load random popular shows from TVDB
-    const popularQueries = ['breaking bad', 'the office', 'game of thrones', 'stranger things', 'the mandalorian'];
+    // Load popular/random shows from TVDB
+    const popularQueries = [
+      'walking dead', 'breaking bad', 'game of thrones', 'stranger things', 
+      'the office', 'friends', 'the mandalorian', 'house of the dragon',
+      'the last of us', 'wednesday', 'succession', 'euphoria'
+    ];
     const randomQuery = popularQueries[Math.floor(Math.random() * popularQueries.length)];
     
     try {
@@ -35,21 +39,20 @@ export default function Home() {
       console.error('Error loading TVDB shows:', error);
     }
 
-    // Load trending shows from user data
-    if (user) {
-      const { data: topRatedContent } = await supabase
-        .from('aggregates')
-        .select('content_id, rating_count, avg_rating, content!inner(id, title, poster_url, external_id, kind)')
-        .order('rating_count', { ascending: false })
-        .limit(12);
+    // Load trending shows based on user ratings
+    const { data: topRatedContent } = await supabase
+      .from('aggregates')
+      .select('content_id, rating_count, avg_rating, content!inner(id, title, poster_url, external_id, kind)')
+      .eq('content.kind', 'show')
+      .order('rating_count', { ascending: false })
+      .limit(12);
 
-      if (topRatedContent) {
-        setTrendingShows(topRatedContent.map((item: any) => ({
-          ...item.content,
-          rating_count: item.rating_count,
-          avg_rating: item.avg_rating,
-        })));
-      }
+    if (topRatedContent) {
+      setTrendingShows(topRatedContent.map((item: any) => ({
+        ...item.content,
+        rating_count: item.rating_count,
+        avg_rating: item.avg_rating,
+      })));
     }
 
     setLoading(false);
@@ -84,7 +87,7 @@ export default function Home() {
         </TabsList>
 
         <TabsContent value="discover">
-          <h2 className="text-2xl font-bold mb-4 bg-gradient-aurora bg-clip-text text-transparent">Discover Shows</h2>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">Discover Shows</h2>
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -121,7 +124,7 @@ export default function Home() {
         </TabsContent>
 
         <TabsContent value="trending">
-          <h2 className="text-2xl font-bold mb-4 bg-gradient-aurora bg-clip-text text-transparent">Trending on Serial Bowl</h2>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">Trending on Serial Bowl</h2>
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
