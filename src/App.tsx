@@ -1,10 +1,32 @@
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AppLayout } from "./components/layouts/AppLayout";
+import Index from "./pages/Index";
 import Home from "./pages/Home";
 import AuthPage from "./pages/AuthPage";
+import SearchPage from "./pages/SearchPage";
+import ShowDetailPage from "./pages/ShowDetailPage";
+import SeasonDetailPage from "./pages/SeasonDetailPage";
+import EpisodeDetailPage from "./pages/EpisodeDetailPage";
+import ProfilePage from "./pages/ProfilePage";
+import UserProfilePage from "./pages/UserProfilePage";
+import EditProfilePage from "./pages/EditProfilePage";
+import SettingsPage from "./pages/SettingsPage";
+import WatchlistPage from "./pages/WatchlistPage";
+import WatchedPage from "./pages/WatchedPage";
+import ListsPage from "./pages/ListsPage";
+import ListDetailPage from "./pages/ListDetailPage";
+import ActivityPage from "./pages/ActivityPage";
+import DiscoverPage from "./pages/DiscoverPage";
+import StatsPage from "./pages/StatsPage";
+import PostPage from "./pages/PostPage";
+import DMsPage from "./pages/DMsPage";
+import DMThreadPage from "./pages/DMThreadPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,12 +43,32 @@ const App = () => (
     <ThemeProvider>
       <AuthProvider>
         <TooltipProvider>
+          <Sonner />
           <BrowserRouter>
             <div className="min-h-screen bg-background text-foreground">
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Index />} />
+                <Route path="/home" element={<AppLayout><Home /></AppLayout>} />
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="*" element={<div className="p-4">Page not found</div>} />
+                <Route path="/search" element={<AppLayout><SearchPage /></AppLayout>} />
+                <Route path="/show/:id" element={<AppLayout><ShowDetailPage /></AppLayout>} />
+                <Route path="/show/:showId/season/:seasonNumber" element={<AppLayout><SeasonDetailPage /></AppLayout>} />
+                <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<AppLayout><EpisodeDetailPage /></AppLayout>} />
+                <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
+                <Route path="/user/:handle" element={<AppLayout><UserProfilePage /></AppLayout>} />
+                <Route path="/profile/edit" element={<AppLayout><EditProfilePage /></AppLayout>} />
+                <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+                <Route path="/watchlist" element={<AppLayout><WatchlistPage /></AppLayout>} />
+                <Route path="/watched" element={<AppLayout><WatchedPage /></AppLayout>} />
+                <Route path="/lists" element={<AppLayout><ListsPage /></AppLayout>} />
+                <Route path="/list/:id" element={<AppLayout><ListDetailPage /></AppLayout>} />
+                <Route path="/activity" element={<AppLayout><ActivityPage /></AppLayout>} />
+                <Route path="/discover" element={<AppLayout><DiscoverPage /></AppLayout>} />
+                <Route path="/stats" element={<AppLayout><StatsPage /></AppLayout>} />
+                <Route path="/post" element={<AppLayout><PostPage /></AppLayout>} />
+                <Route path="/messages" element={<AppLayout><DMsPage /></AppLayout>} />
+                <Route path="/messages/:userId" element={<AppLayout><DMThreadPage /></AppLayout>} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
           </BrowserRouter>
