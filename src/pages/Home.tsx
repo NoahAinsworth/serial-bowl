@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Repeat2 } from 'lucide-react';
+import { ThoughtCard } from '@/components/ThoughtCard';
 
 export default function Home() {
   const [feedMode, setFeedMode] = useState<'following' | 'for-you'>('for-you');
@@ -50,40 +49,19 @@ export default function Home() {
       {/* Feed */}
       <div className="space-y-4">
         {mockThoughts.map((thought) => (
-          <Card key={thought.id} className="p-4 hover:border-primary/50 transition-colors">
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
-                {thought.user.handle[1].toUpperCase()}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-semibold text-foreground">
-                    {thought.user.handle}
-                  </span>
-                </div>
-                <p className="text-foreground mb-2">{thought.content}</p>
-                {thought.show && (
-                  <div className="inline-block px-2 py-1 rounded-md bg-primary/10 text-primary text-sm mb-3">
-                    📺 {thought.show}
-                  </div>
-                )}
-                <div className="flex items-center gap-6 text-muted-foreground">
-                  <button className="flex items-center gap-2 hover:text-primary transition-colors">
-                    <Heart className="h-4 w-4" />
-                    <span className="text-sm">{thought.likes}</span>
-                  </button>
-                  <button className="flex items-center gap-2 hover:text-accent transition-colors">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="text-sm">{thought.comments}</span>
-                  </button>
-                  <button className="flex items-center gap-2 hover:text-secondary transition-colors">
-                    <Repeat2 className="h-4 w-4" />
-                    <span className="text-sm">{thought.rethinks}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Card>
+          <ThoughtCard
+            key={thought.id}
+            thought={{
+              id: thought.id.toString(),
+              user: { id: '1', handle: thought.user.handle },
+              content: thought.content,
+              show: thought.show ? { title: thought.show } : undefined,
+              likes: thought.likes,
+              dislikes: 0,
+              comments: thought.comments,
+              rethinks: thought.rethinks,
+            }}
+          />
         ))}
       </div>
 

@@ -64,3 +64,58 @@ class TVDBClient {
 }
 
 export const tvdbClient = new TVDBClient();
+
+// Export convenience functions
+export async function searchShows(query: string) {
+  const results = await tvdbClient.searchShows(query);
+  return results.map((show: any) => ({
+    id: show.tvdb_id,
+    name: show.name,
+    overview: show.overview || '',
+    image: show.image_url || '',
+    firstAired: show.first_air_time || '',
+  }));
+}
+
+export async function getShow(id: number) {
+  const show = await tvdbClient.getShow(id);
+  return {
+    id: show.id,
+    name: show.name,
+    overview: show.overview || '',
+    image: show.image || '',
+    firstAired: show.firstAired || '',
+  };
+}
+
+export async function getSeasons(showId: number) {
+  const episodes = await tvdbClient.getEpisodes(showId);
+  const seasonsMap = new Map();
+  
+  episodes.episodes?.forEach((ep: any) => {
+    if (!seasonsMap.has(ep.seasonNumber)) {
+      seasonsMap.set(ep.seasonNumber, {
+        id: ep.seasonNumber,
+        number: ep.seasonNumber,
+        name: `Season ${ep.seasonNumber}`,
+        overview: '',
+        image: ep.image || '',
+      });
+    }
+  });
+  
+  return Array.from(seasonsMap.values()).sort((a, b) => a.number - b.number);
+}
+
+export async function getEpisodes(seriesId: number) {
+  const data = await tvdbClient.getEpisodes(seriesId);
+  return (data.episodes || []).map((ep: any) => ({
+    id: ep.id,
+    name: ep.name,
+    overview: ep.overview || '',
+    aired: ep.aired || '',
+    seasonNumber: ep.seasonNumber,
+    number: ep.number,
+    image: ep.image || '',
+  }));
+}
