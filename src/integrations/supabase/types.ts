@@ -46,6 +46,85 @@ export type Database = {
           },
         ]
       }
+      chat_events: {
+        Row: {
+          created_at: string | null
+          id: string
+          payload: Json | null
+          session_id: string | null
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          role: string
+          session_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          role: string
+          session_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           created_at: string | null
@@ -511,6 +590,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tvdb_episodes: {
+        Row: {
+          episode: number
+          json: Json | null
+          season: number
+          tvdb_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          episode: number
+          json?: Json | null
+          season: number
+          tvdb_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          episode?: number
+          json?: Json | null
+          season?: number
+          tvdb_id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      tvdb_shows: {
+        Row: {
+          json: Json | null
+          name: string | null
+          tvdb_id: number
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          json?: Json | null
+          name?: string | null
+          tvdb_id: number
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          json?: Json | null
+          name?: string | null
+          tvdb_id?: number
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTVDB } from '@/hooks/useTVDB';
 import { Compass, TrendingUp, Loader2, ChevronRight, Star, Flame } from 'lucide-react';
+import { BingeBotAI } from '@/components/BingeBotAI';
 
 interface TrendingShow {
   content_id: string;
@@ -27,6 +28,7 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
+  const [bingeBotPrompt, setBingeBotPrompt] = useState<string>("");
 
   useEffect(() => {
     loadData();
@@ -170,26 +172,39 @@ export default function DiscoverPage() {
     }
   };
 
-  
+  const handleAskBingeBot = (showName: string, tvdbId: string) => {
+    setBingeBotPrompt(`Tell me about ${showName} (TVDB:${tvdbId}).`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  const ShowPoster = ({ show, onClick }: { show: any, onClick: () => void }) => (
-    <div
-      className="cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-[140px]"
-      onClick={onClick}
-    >
-      <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
-        {show.poster_url ? (
-          <img 
-            src={show.poster_url} 
-            alt={show.title} 
-            className="w-full h-full object-cover" 
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
-            {show.title}
-          </div>
-        )}
+  const ShowPoster = ({ show, onClick, onAskBot }: { show: any, onClick: () => void, onAskBot?: () => void }) => (
+    <div className="cursor-pointer hover-scale transition-transform flex-shrink-0 w-[140px] relative group">
+      <div onClick={onClick}>
+        <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
+          {show.poster_url ? (
+            <img 
+              src={show.poster_url} 
+              alt={show.title} 
+              className="w-full h-full object-cover" 
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
+              {show.title}
+            </div>
+          )}
+        </div>
       </div>
+      {onAskBot && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAskBot();
+          }}
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium hover:bg-primary/90"
+        >
+          Ask Bot
+        </button>
+      )}
     </div>
   );
 
@@ -198,6 +213,10 @@ export default function DiscoverPage() {
       <div className="flex items-center gap-3 px-4">
         <Compass className="h-8 w-8 text-primary" />
         <h1 className="text-3xl font-bold neon-glow">Discover</h1>
+      </div>
+
+      <div className="px-4">
+        <BingeBotAI initialPrompt={bingeBotPrompt} />
       </div>
 
       {loading ? (
@@ -230,6 +249,7 @@ export default function DiscoverPage() {
                           key={show.content_id}
                           show={show}
                           onClick={() => navigate(`/show/${show.external_id}`)}
+                          onAskBot={() => handleAskBingeBot(show.title, show.external_id)}
                         />
                       ))}
                     </div>
@@ -255,6 +275,7 @@ export default function DiscoverPage() {
                           key={show.content_id}
                           show={show}
                           onClick={() => navigate(`/show/${show.external_id}`)}
+                          onAskBot={() => handleAskBingeBot(show.title, show.external_id)}
                         />
                       ))}
                     </div>
@@ -274,22 +295,32 @@ export default function DiscoverPage() {
                 {browseShows.map((show, index) => (
                   <div
                     key={`${show.id}-${index}`}
-                    className="cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() => navigate(`/show/${show.id || show.external_id}`)}
+                    className="cursor-pointer hover-scale transition-transform relative group"
                   >
-                    <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
-                      {(show.poster_url || show.image) ? (
-                        <img 
-                          src={show.poster_url || show.image} 
-                          alt={show.title || show.name} 
-                          className="w-full h-full object-cover" 
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
-                          {show.title || show.name}
-                        </div>
-                      )}
+                    <div onClick={() => navigate(`/show/${show.id || show.external_id}`)}>
+                      <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
+                        {(show.poster_url || show.image) ? (
+                          <img 
+                            src={show.poster_url || show.image} 
+                            alt={show.title || show.name} 
+                            className="w-full h-full object-cover" 
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
+                            {show.title || show.name}
+                          </div>
+                        )}
+                      </div>
                     </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAskBingeBot(show.title || show.name, show.id || show.external_id);
+                      }}
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium hover:bg-primary/90"
+                    >
+                      Ask Bot
+                    </button>
                   </div>
                 ))}
               </div>
