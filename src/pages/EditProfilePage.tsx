@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogOut } from 'lucide-react';
+import { ProfilePictureUpload } from '@/components/ProfilePictureUpload';
 
 export default function EditProfilePage() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ export default function EditProfilePage() {
   const [profile, setProfile] = useState({
     handle: '',
     bio: '',
+    avatar_url: '',
   });
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function EditProfilePage() {
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('handle, bio')
+      .select('handle, bio, avatar_url')
       .eq('id', user.id)
       .single();
 
@@ -45,6 +47,7 @@ export default function EditProfilePage() {
       setProfile({
         handle: data.handle || '',
         bio: data.bio || '',
+        avatar_url: data.avatar_url || '',
       });
     }
     setLoading(false);
@@ -95,7 +98,17 @@ export default function EditProfilePage() {
     <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
       <h1 className="text-3xl font-bold">Edit Profile</h1>
 
-      <Card className="p-6 space-y-4">
+      <Card className="p-6 space-y-6">
+        <div className="flex flex-col items-center space-y-4">
+          <ProfilePictureUpload 
+            currentAvatarUrl={profile.avatar_url}
+            onUploadComplete={(url) => setProfile({ ...profile, avatar_url: url })}
+          />
+          <p className="text-sm text-muted-foreground">Click to change profile picture</p>
+        </div>
+
+        <Separator />
+
         <div className="space-y-2">
           <Label htmlFor="handle">Handle</Label>
           <Input
