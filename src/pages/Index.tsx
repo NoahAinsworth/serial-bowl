@@ -21,6 +21,7 @@ export default function Index() {
   // Use the feed hook for each tab
   const trendingFeed = useFeed('trending');
   const hotTakesFeed = useFeed('hot');
+  const reviewsFeed = useFeed('reviews');
   const bingeFeed = useFeed('binge');
 
   // Map tab to appropriate feed
@@ -30,6 +31,8 @@ export default function Index() {
         return trendingFeed;
       case 'hot-takes':
         return hotTakesFeed;
+      case 'reviews':
+        return reviewsFeed;
       case 'binge':
         return bingeFeed;
       default:
@@ -112,7 +115,7 @@ export default function Index() {
         </div>
       )}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
+        <TabsList className="w-full grid grid-cols-4 mb-6">
           <TabsTrigger 
             value="trending" 
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
@@ -124,6 +127,12 @@ export default function Index() {
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
           >
             Hot Takes
+          </TabsTrigger>
+          <TabsTrigger 
+            value="reviews" 
+            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
+            Reviews
           </TabsTrigger>
           <TabsTrigger 
             value="binge" 
@@ -170,6 +179,26 @@ export default function Index() {
             ) : (
               <div className="space-y-4">
                 {hotTakesFeed.posts.map(renderPost)}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-0">
+            {reviewsFeed.loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : reviewsFeed.error ? (
+              <div className="text-center text-red-500 py-12">
+                {reviewsFeed.error}
+              </div>
+            ) : reviewsFeed.posts.length === 0 ? (
+              <div className="text-center text-muted-foreground py-12">
+                No reviews yet
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reviewsFeed.posts.map(renderPost)}
               </div>
             )}
           </TabsContent>

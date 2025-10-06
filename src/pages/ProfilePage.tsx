@@ -384,23 +384,21 @@ export default function ProfilePage() {
 
       {/* Tabs Section */}
       <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="w-full grid grid-cols-5">
+        <TabsList className="w-full grid grid-cols-6">
           <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="reviews">Reviews</TabsTrigger>
           <TabsTrigger value="shows">Shows</TabsTrigger>
           <TabsTrigger value="seasons">Seasons</TabsTrigger>
           <TabsTrigger value="episodes">Episodes</TabsTrigger>
           <TabsTrigger value="lists">Lists</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="posts" className="mt-6 space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Thoughts</h3>
-            <UserThoughts userId={user!.id} />
-          </div>
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Reviews</h3>
-            <UserReviews userId={user!.id} />
-          </div>
+        <TabsContent value="posts" className="mt-6">
+          <UserThoughts userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="reviews" className="mt-6">
+          <UserReviews userId={user!.id} />
         </TabsContent>
 
         <TabsContent value="shows" className="mt-6">

@@ -14,8 +14,10 @@ export function RatingInput({ initialRating = 0, onRate, disabled = false }: Rat
 
   const handleClick = (rating: number) => {
     if (disabled) return;
-    setSelectedRating(rating);
-    onRate(rating);
+    // Toggle: if clicking the same rating, deselect it
+    const newRating = selectedRating === rating ? 0 : rating;
+    setSelectedRating(newRating);
+    onRate(newRating);
   };
 
   const displayRating = hoveredRating || selectedRating;
