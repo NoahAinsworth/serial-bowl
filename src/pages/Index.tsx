@@ -5,8 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Loader2, RefreshCw } from 'lucide-react';
-import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
-import serialBowlWordmark from '@/assets/serial-bowl-wordmark.png';
+import serialBowlLogo from '@/assets/serial-bowl-logo.png';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
 import { CerealBowlIcon } from '@/components/CerealBowlIcon';
@@ -134,8 +133,8 @@ export default function Index() {
   if (!user) {
     return (
       <div className="container max-w-2xl mx-auto py-12 px-4 text-center space-y-6">
-        <div className="flex flex-col items-center gap-4">
-          <img src={cerealBowlLogo} alt="Serialcereal Logo" className="w-32 h-32 neon-glow" />
+        <div className="flex flex-col items-center gap-6">
+          <img src={serialBowlLogo} alt="Serial Bowl Logo" className="w-64 h-auto" />
           <p className="text-xl text-muted-foreground">Your TV social network</p>
         </div>
         <p className="text-muted-foreground">
