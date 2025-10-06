@@ -186,26 +186,27 @@ export default function ShowDetailPage() {
                   <p className="text-sm text-muted-foreground mb-2">Rate this show</p>
                   <RatingInput initialRating={userRating} onRate={handleRate} />
                 </div>
-                {contentId && (
-                  <div>
-                    <PostTypeSelector 
-                      onReviewClick={() => {
-                        setPostType('review');
-                        setPostDialogOpen(true);
-                      }}
-                      onThoughtClick={() => {
-                        setPostType('thought');
-                        setPostDialogOpen(true);
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
         </div>
-        </Card>
+      </Card>
 
-        {contentId && <ReviewsList contentId={contentId} />}
+      {contentId && (
+        <Card className="p-6">
+          <PostTypeSelector 
+            onReviewClick={() => {
+              setPostType('review');
+              setPostDialogOpen(true);
+            }}
+            onThoughtClick={() => {
+              setPostType('thought');
+              setPostDialogOpen(true);
+            }}
+          />
+        </Card>
+      )}
+
+      {contentId && <ReviewsList contentId={contentId} />}
 
         <div>
         <h2 className="text-2xl font-bold mb-4">Seasons</h2>
