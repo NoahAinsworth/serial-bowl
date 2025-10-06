@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { Loader2, TrendingUp, Flame, Star, Sparkles, Plus } from 'lucide-react';
+import { Loader2, Flame, Zap, Star, Sparkles, Plus } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
@@ -502,19 +502,19 @@ export default function Index() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-4 mb-6">
-          <TabsTrigger value="trending" className="gap-2">
-            <TrendingUp className="h-6 w-6" />
+          <TabsTrigger value="trending" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
+            <Flame className="h-5 w-5" />
             Trending
           </TabsTrigger>
-          <TabsTrigger value="hot-takes" className="gap-2">
-            <Flame className="h-6 w-6" />
+          <TabsTrigger value="hot-takes" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
+            <Zap className="h-5 w-5" />
             Hot Takes
           </TabsTrigger>
-          <TabsTrigger value="reviews" className="gap-2">
+          <TabsTrigger value="reviews" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
             <Star className="h-5 w-5" />
             Reviews
           </TabsTrigger>
-          <TabsTrigger value="binge" className="gap-2">
+          <TabsTrigger value="binge" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
             <Sparkles className="h-5 w-5" />
             Binge
           </TabsTrigger>
