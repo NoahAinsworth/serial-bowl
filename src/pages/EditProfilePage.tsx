@@ -24,6 +24,7 @@ export default function EditProfilePage() {
     bio: '',
     avatar_url: '',
     displayName: '',
+    bannerColor: 'hsl(280, 100%, 70%)',
   });
 
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function EditProfilePage() {
         bio: data.bio || '',
         avatar_url: data.avatar_url || '',
         displayName: settings?.displayName || '',
+        bannerColor: settings?.bannerColor || 'hsl(280, 100%, 70%)',
       });
     } else {
       // Create profile if it doesn't exist
@@ -85,6 +87,7 @@ export default function EditProfilePage() {
           bio: '',
           avatar_url: '',
           displayName: '',
+          bannerColor: 'hsl(280, 100%, 70%)',
         });
         // Also create user role
         await supabase.from('user_roles').insert({
@@ -128,6 +131,7 @@ export default function EditProfilePage() {
         settings: {
           ...currentSettings,
           displayName: profile.displayName.trim(),
+          bannerColor: profile.bannerColor,
         },
       })
       .eq('id', user.id);
@@ -171,8 +175,10 @@ export default function EditProfilePage() {
           <ProfilePictureUpload 
             currentAvatarUrl={profile.avatar_url}
             onUploadComplete={(url) => setProfile({ ...profile, avatar_url: url })}
+            bannerColor={profile.bannerColor}
+            onBannerColorChange={(color) => setProfile({ ...profile, bannerColor: color })}
           />
-          <p className="text-sm text-muted-foreground">Click to change profile picture</p>
+          <p className="text-sm text-muted-foreground">Click camera to change picture, pencil to change banner color</p>
         </div>
 
         <Separator />

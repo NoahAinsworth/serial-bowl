@@ -225,9 +225,14 @@ export default function ProfilePage() {
       {/* Header Section */}
       <Card className="p-6 mb-6 card-enhanced">
         <div className="flex items-start gap-6 mb-6">
-          {/* Avatar */}
-          <div className="avatar-ring">
-            <Avatar className="h-24 w-24">
+          {/* Avatar with Polaroid Banner */}
+          <div 
+            className="polaroid-banner"
+            style={{ 
+              '--banner-color': (profile?.settings as any)?.bannerColor || 'hsl(280, 100%, 70%)' 
+            } as React.CSSProperties}
+          >
+            <Avatar className="h-24 w-24 relative z-10">
               <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
               <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl">
                 {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
