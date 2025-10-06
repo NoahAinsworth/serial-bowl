@@ -13,6 +13,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 import { Loader2 } from 'lucide-react';
+import { PostTypeSelector } from '@/components/PostTypeSelector';
+import { PostCreationDialog } from '@/components/PostCreationDialog';
 
 export default function ShowDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +27,8 @@ export default function ShowDetailPage() {
   const [seasons, setSeasons] = useState<TVSeason[]>([]);
   const [userRating, setUserRating] = useState(0);
   const [contentId, setContentId] = useState<string | null>(null);
+  const [postType, setPostType] = useState<'review' | 'thought'>('review');
+  const [postDialogOpen, setPostDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -164,7 +168,6 @@ export default function ShowDetailPage() {
                     <>
                       <WatchlistButton contentId={contentId} showTitle={show.name} />
                       <WatchedButton contentId={contentId} showTitle={show.name} />
-                      <ReviewButton contentId={contentId} showTitle={show.name} />
                       <AddToListButton contentId={contentId} showTitle={show.name} />
                     </>
                   )}
@@ -173,6 +176,17 @@ export default function ShowDetailPage() {
                   <p className="text-sm text-muted-foreground mb-2">Rate this show</p>
                   <RatingInput initialRating={userRating} onRate={handleRate} />
                 </div>
+                {contentId && (
+                  <div>
+                    <PostTypeSelector 
+                      value={postType} 
+                      onChange={(type) => {
+                        setPostType(type);
+                        setPostDialogOpen(true);
+                      }} 
+                    />
+                  </div>
+                )}
               </div>
             </div>
         </div>
@@ -194,6 +208,19 @@ export default function ShowDetailPage() {
           ))}
         </div>
       </div>
+
+      {contentId && (
+        <PostCreationDialog
+          open={postDialogOpen}
+          onOpenChange={setPostDialogOpen}
+          postType={postType}
+          contentId={contentId}
+          contentTitle={show?.name || ''}
+          onSuccess={() => {
+            // Reload reviews/data if needed
+          }}
+        />
+      )}
     </div>
   );
 }

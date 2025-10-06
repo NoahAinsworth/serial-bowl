@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 import { Loader2 } from 'lucide-react';
+import { PostTypeSelector } from '@/components/PostTypeSelector';
+import { PostCreationDialog } from '@/components/PostCreationDialog';
 
 export default function EpisodeDetailPage() {
   const { showId, seasonNumber, episodeNumber } = useParams<{ 
@@ -22,6 +24,8 @@ export default function EpisodeDetailPage() {
   const [episode, setEpisode] = useState<TVEpisode | null>(null);
   const [userRating, setUserRating] = useState(0);
   const [contentId, setContentId] = useState<string | null>(null);
+  const [postType, setPostType] = useState<'review' | 'thought'>('review');
+  const [postDialogOpen, setPostDialogOpen] = useState(false);
 
   useEffect(() => {
     if (showId && seasonNumber && episodeNumber) {
@@ -160,11 +164,35 @@ export default function EpisodeDetailPage() {
           </p>
         )}
         
-        <div>
-          <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
-          <RatingInput initialRating={userRating} onRate={handleRate} />
-        </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
+              <RatingInput initialRating={userRating} onRate={handleRate} />
+            </div>
+            {contentId && (
+              <div>
+                <PostTypeSelector 
+                  value={postType} 
+                  onChange={(type) => {
+                    setPostType(type);
+                    setPostDialogOpen(true);
+                  }} 
+                />
+              </div>
+            )}
       </Card>
+
+      {contentId && episode && (
+        <PostCreationDialog
+          open={postDialogOpen}
+          onOpenChange={setPostDialogOpen}
+          postType={postType}
+          contentId={contentId}
+          contentTitle={episode.name}
+          onSuccess={() => {
+            // Reload data if needed
+          }}
+        />
+      )}
     </div>
   );
 }

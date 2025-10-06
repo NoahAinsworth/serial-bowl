@@ -1,0 +1,164 @@
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { RatingInput } from '@/components/RatingInput';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+
+interface PostCreationDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  postType: 'review' | 'thought';
+  contentId: string;
+  contentTitle: string;
+  onSuccess?: () => void;
+}
+
+export function PostCreationDialog({
+  open,
+  onOpenChange,
+  postType,
+  contentId,
+  contentTitle,
+  onSuccess,
+}: PostCreationDialogProps) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [text, setText] = useState('');
+  const [rating, setRating] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to post",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!text.trim() && postType === 'thought') {
+      toast({
+        title: "Content required",
+        description: "Please write something",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!text.trim() && !rating && postType === 'review') {
+      toast({
+        title: "Content required",
+        description: "Please add a rating or write a review",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      if (postType === 'review') {
+        // Save review
+        if (text.trim()) {
+          const { error: reviewError } = await supabase
+            .from('reviews')
+            .upsert({
+              user_id: user.id,
+              content_id: contentId,
+              review_text: text,
+            });
+
+          if (reviewError) throw reviewError;
+        }
+
+        // Save rating if provided
+        if (rating > 0) {
+          const { error: ratingError } = await supabase
+            .from('ratings')
+            .upsert({
+              user_id: user.id,
+              content_id: contentId,
+              rating,
+            });
+
+          if (ratingError) throw ratingError;
+        }
+      } else {
+        // Save thought
+        const { error: thoughtError } = await supabase
+          .from('thoughts')
+          .insert({
+            user_id: user.id,
+            content_id: contentId,
+            text_content: text,
+          });
+
+        if (thoughtError) throw thoughtError;
+      }
+
+      toast({
+        title: "Success",
+        description: `${postType === 'review' ? 'Review' : 'Thought'} posted!`,
+      });
+
+      setText('');
+      setRating(0);
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error posting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to post. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {postType === 'review' ? 'Write a Review' : 'Share a Thought'}
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">{contentTitle}</p>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          {postType === 'review' && (
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">Rating</p>
+              <RatingInput initialRating={rating} onRate={setRating} />
+            </div>
+          )}
+
+          <div>
+            <Textarea
+              placeholder={postType === 'review' ? 'Write your review...' : 'Share your thoughts...'}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              rows={6}
+            />
+          </div>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full"
+          >
+            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Post {postType === 'review' ? 'Review' : 'Thought'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

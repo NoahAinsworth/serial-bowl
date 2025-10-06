@@ -9,6 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 import { Loader2 } from 'lucide-react';
+import { PostTypeSelector } from '@/components/PostTypeSelector';
+import { PostCreationDialog } from '@/components/PostCreationDialog';
 
 export default function SeasonDetailPage() {
   const { showId, seasonNumber } = useParams<{ showId: string; seasonNumber: string }>();
@@ -20,6 +22,8 @@ export default function SeasonDetailPage() {
   const [episodes, setEpisodes] = useState<TVEpisode[]>([]);
   const [userRating, setUserRating] = useState(0);
   const [contentId, setContentId] = useState<string | null>(null);
+  const [postType, setPostType] = useState<'review' | 'thought'>('review');
+  const [postDialogOpen, setPostDialogOpen] = useState(false);
 
   useEffect(() => {
     if (showId && seasonNumber) {
@@ -129,6 +133,17 @@ export default function SeasonDetailPage() {
             <p className="text-sm text-muted-foreground mb-2">Rate this season</p>
             <RatingInput initialRating={userRating} onRate={handleRate} />
           </div>
+          {contentId && (
+            <div>
+              <PostTypeSelector 
+                value={postType} 
+                onChange={(type) => {
+                  setPostType(type);
+                  setPostDialogOpen(true);
+                }} 
+              />
+            </div>
+          )}
         </div>
       </Card>
 
@@ -173,6 +188,19 @@ export default function SeasonDetailPage() {
             ))}
           </div>
       </div>
+
+      {contentId && (
+        <PostCreationDialog
+          open={postDialogOpen}
+          onOpenChange={setPostDialogOpen}
+          postType={postType}
+          contentId={contentId}
+          contentTitle={`Season ${seasonNumber}`}
+          onSuccess={() => {
+            // Reload data if needed
+          }}
+        />
+      )}
     </div>
   );
 }
