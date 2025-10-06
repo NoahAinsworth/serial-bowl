@@ -504,19 +504,19 @@ export default function Index() {
         <TabsList className="w-full grid grid-cols-4 mb-6">
           <TabsTrigger value="trending" className="gap-2">
             <TrendingUp className="h-6 w-6" />
-            <span className="hidden sm:inline">Trending</span>
+            Trending
           </TabsTrigger>
           <TabsTrigger value="hot-takes" className="gap-2">
             <Flame className="h-6 w-6" />
-            <span className="hidden sm:inline">Hot Takes</span>
+            Hot Takes
           </TabsTrigger>
           <TabsTrigger value="reviews" className="gap-2">
             <Star className="h-5 w-5" />
-            <span className="hidden sm:inline">Reviews</span>
+            Reviews
           </TabsTrigger>
           <TabsTrigger value="binge" className="gap-2">
             <Sparkles className="h-5 w-5" />
-            <span className="hidden sm:inline">Binge</span>
+            Binge
           </TabsTrigger>
         </TabsList>
 

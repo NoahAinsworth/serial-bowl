@@ -394,6 +394,7 @@ export default function ProfilePage() {
 
         <TabsContent value="posts" className="mt-6 space-y-6">
           <div>
+            <h3 className="text-lg font-semibold mb-4">Thoughts</h3>
             <UserThoughts userId={user!.id} />
           </div>
           <div className="mt-6">
