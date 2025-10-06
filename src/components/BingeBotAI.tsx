@@ -174,8 +174,8 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
         </div>
 
       {/* Input Area */}
-      <div className="px-6 pt-4 border-t max-w-4xl mx-auto w-full" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}>
-        <div className="flex gap-2">
+      <div className="px-6 pt-4 border-t max-w-4xl mx-auto w-full pb-safe" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}>
+        <div className="flex gap-2 mb-4">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
