@@ -2,8 +2,8 @@ import { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings, List, Compass, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 import { BingeBotAI } from '@/components/BingeBotAI';
+import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -29,7 +29,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-center px-4 relative">
-          <CerealBowlIcon size={32} />
+          <img src={cerealBowlLogo} alt="Serial Bowl" className="h-10 w-auto" />
           <div className="flex items-center gap-1 absolute right-4">
             <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI" className="gap-1.5">
               <Bot className="h-5 w-5" />
