@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 import serialBowlWordmark from '@/assets/serial-bowl-wordmark.png';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
 import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 import { useFeed } from '@/hooks/useFeed';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 
 export default function Index() {
   const { user } = useAuth();
@@ -37,6 +38,12 @@ export default function Index() {
   };
 
   const currentFeed = getFeedForTab();
+  
+  // Pull to refresh for current feed
+  const { isRefreshing } = usePullToRefresh({ 
+    onRefresh: async () => currentFeed.refetch(),
+    disabled: currentFeed.loading,
+  });
 
   const renderPost = (post: any) => {
     if (post.type === 'review') {
@@ -98,6 +105,12 @@ export default function Index() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
+      {isRefreshing && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+          <RefreshCw className="h-4 w-4 animate-spin" />
+          <span className="text-sm">Refreshing...</span>
+        </div>
+      )}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger 

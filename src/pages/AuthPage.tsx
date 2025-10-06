@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { env } from '@/lib/env';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ export default function AuthPage() {
         data: {
           handle: handle.startsWith('@') ? handle : `@${handle}`,
         },
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: env.AUTH_REDIRECT,
       },
     });
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { env } from '@/lib/env';
 
 interface FeedPost {
   id: string;
@@ -45,8 +46,11 @@ export function useFeed(tab: string) {
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/feed-api?tab=${tab}`,
-        { headers }
+        `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${tab}`,
+        { 
+          headers,
+          signal: AbortSignal.timeout(10000),
+        }
       );
 
       if (!response.ok) {

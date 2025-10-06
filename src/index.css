@@ -134,6 +134,26 @@ All colors MUST be HSL.
     font-weight: 700;
     letter-spacing: -0.02em;
   }
+  
+  /* Touch-friendly tap targets */
+  a, button, input, select, textarea {
+    touch-action: manipulation;
+  }
+  
+  /* Prevent text selection on buttons and links */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  
+  /* Smooth scrolling on mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Smooth scrolling on mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @layer utilities {

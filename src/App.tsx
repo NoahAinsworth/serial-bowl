@@ -5,6 +5,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AppLayout } from "./components/layouts/AppLayout";
+import { OfflineBanner } from "./components/OfflineBanner";
+import { useDeepLink } from "./hooks/useDeepLink";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import AuthPage from "./pages/AuthPage";
@@ -41,15 +43,12 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Sonner />
-          <BrowserRouter>
-            <div className="min-h-screen bg-background text-foreground">
-              <Routes>
+function AppRouter() {
+  useDeepLink();
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <OfflineBanner />
+      <Routes>
                 <Route path="/" element={<AppLayout><Index /></AppLayout>} />
                 <Route path="/home" element={<AppLayout><Home /></AppLayout>} />
                 <Route path="/auth" element={<AuthPage />} />
@@ -76,7 +75,18 @@ const App = () => (
                 <Route path="/binge" element={<AppLayout><BingePage /></AppLayout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </div>
+    </div>
+  );
+}
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Sonner />
+          <BrowserRouter>
+            <AppRouter />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
