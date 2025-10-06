@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
+import serialBowlWordmark from '@/assets/serial-bowl-wordmark.png';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
 import { CerealBowlIcon } from '@/components/CerealBowlIcon';
@@ -352,33 +353,15 @@ export default function Index() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
       {/* Serial Bowl Wordmark */}
-      <div className="text-center mb-6">
-        <div className="inline-block">
-          <div 
-            className="text-5xl font-black tracking-wider leading-none"
-            style={{
-              background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #00d4aa 75%, #0ea5e9 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              filter: 'drop-shadow(0 0 15px rgba(255, 107, 53, 0.25))'
-            }}
-          >
-            BOWL
-          </div>
-          <div 
-            className="text-3xl font-black tracking-wider leading-none mt-0.5"
-            style={{
-              background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #00d4aa 75%, #0ea5e9 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              filter: 'drop-shadow(0 0 15px rgba(255, 107, 53, 0.25))'
-            }}
-          >
-            SERIAL
-          </div>
-        </div>
+      <div className="flex justify-center mb-6">
+        <img 
+          src={serialBowlWordmark} 
+          alt="Serial Bowl" 
+          className="w-64 h-auto"
+          style={{
+            filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.3))'
+          }}
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
