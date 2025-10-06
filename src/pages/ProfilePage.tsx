@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
 import { UserLists } from '@/components/UserLists';
+import { UserReviews } from '@/components/UserReviews';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
 import {
@@ -393,8 +394,11 @@ export default function ProfilePage() {
 
         <TabsContent value="posts" className="mt-6 space-y-6">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Thoughts</h3>
             <UserThoughts userId={user!.id} />
+          </div>
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4">Reviews</h3>
+            <UserReviews userId={user!.id} />
           </div>
         </TabsContent>
 
