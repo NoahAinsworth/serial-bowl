@@ -503,19 +503,19 @@ export default function Index() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-4 mb-6">
           <TabsTrigger value="trending" className="gap-2">
-            <TrendingUp className="h-4 w-4" />
+            <TrendingUp className="h-5 w-5" />
             Trending
           </TabsTrigger>
           <TabsTrigger value="hot-takes" className="gap-2">
-            <Flame className="h-4 w-4" />
+            <Flame className="h-5 w-5" />
             Hot Takes
           </TabsTrigger>
           <TabsTrigger value="reviews" className="gap-2">
-            <Star className="h-4 w-4" />
+            <Star className="h-5 w-5" />
             Reviews
           </TabsTrigger>
           <TabsTrigger value="binge" className="gap-2">
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-5 w-5" />
             Binge
           </TabsTrigger>
         </TabsList>
