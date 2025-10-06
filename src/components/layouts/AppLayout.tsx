@@ -30,8 +30,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <div className="text-lg font-black tracking-wider bg-gradient-to-r from-[#ff6b35] via-[#f7931e] to-[#00d4aa] bg-clip-text text-transparent">
+            <div className="relative pb-2">
+              <div className="text-lg font-black tracking-wider text-foreground">
                 SERIAL BOWL
               </div>
               <div className="absolute -bottom-1 left-0 right-0 h-[2px] bg-gradient-to-r from-[#ff6b35] via-[#00d4aa] to-[#0ea5e9]" />
