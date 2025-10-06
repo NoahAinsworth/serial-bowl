@@ -17,6 +17,7 @@ export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('trending');
+  const [postType, setPostType] = useState<'all' | 'thoughts' | 'reviews'>('all');
   
   // Use the feed hook for each tab
   const trendingFeed = useFeed('trending');
@@ -88,6 +89,50 @@ export default function Index() {
     }
   };
 
+  const getFilteredPosts = (posts: any[]) => {
+    if (postType === 'thoughts') {
+      return posts.filter(p => p.type === 'thought');
+    }
+    if (postType === 'reviews') {
+      return posts.filter(p => p.type === 'review');
+    }
+    return posts;
+  };
+
+  const renderFeedContent = (feed: any) => {
+    const filteredPosts = getFilteredPosts(feed.posts);
+    
+    if (feed.loading) {
+      return (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+    
+    if (feed.error) {
+      return (
+        <div className="text-center text-red-500 py-12">
+          {feed.error}
+        </div>
+      );
+    }
+    
+    if (filteredPosts.length === 0) {
+      return (
+        <div className="text-center text-muted-foreground py-12">
+          No {postType === 'all' ? 'posts' : postType} yet
+        </div>
+      );
+    }
+    
+    return (
+      <div className="space-y-4">
+        {filteredPosts.map(renderPost)}
+      </div>
+    );
+  };
+
 
   if (!user) {
     return (
@@ -143,84 +188,29 @@ export default function Index() {
         </TabsList>
 
         <div className="max-h-[calc(100vh-240px)] overflow-y-auto">
+          {/* Secondary Tabs for Post Type */}
+          <Tabs value={postType} onValueChange={(v) => setPostType(v as any)} className="mb-4">
+            <TabsList className="w-full grid grid-cols-3">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="thoughts">Posts</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <TabsContent value="trending" className="mt-0">
-            {currentFeed.loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : currentFeed.error ? (
-              <div className="text-center text-red-500 py-12">
-                {currentFeed.error}
-              </div>
-            ) : currentFeed.posts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No posts yet
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {currentFeed.posts.map(renderPost)}
-              </div>
-            )}
+            {renderFeedContent(currentFeed)}
           </TabsContent>
 
           <TabsContent value="hot-takes" className="mt-0">
-            {hotTakesFeed.loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : hotTakesFeed.error ? (
-              <div className="text-center text-red-500 py-12">
-                {hotTakesFeed.error}
-              </div>
-            ) : hotTakesFeed.posts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No posts yet
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {hotTakesFeed.posts.map(renderPost)}
-              </div>
-            )}
+            {renderFeedContent(hotTakesFeed)}
           </TabsContent>
 
           <TabsContent value="reviews" className="mt-0">
-            {reviewsFeed.loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : reviewsFeed.error ? (
-              <div className="text-center text-red-500 py-12">
-                {reviewsFeed.error}
-              </div>
-            ) : reviewsFeed.posts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No reviews yet
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {reviewsFeed.posts.map(renderPost)}
-              </div>
-            )}
+            {renderFeedContent(reviewsFeed)}
           </TabsContent>
 
           <TabsContent value="binge" className="mt-0">
-            {bingeFeed.loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : bingeFeed.error ? (
-              <div className="text-center text-red-500 py-12">
-                {bingeFeed.error}
-              </div>
-            ) : bingeFeed.posts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                {user ? 'Start following users to see their content here!' : 'Please log in to see personalized content'}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {bingeFeed.posts.map(renderPost)}
-              </div>
-            )}
+            {renderFeedContent(bingeFeed)}
           </TabsContent>
         </div>
 
