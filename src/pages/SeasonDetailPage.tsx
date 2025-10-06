@@ -55,7 +55,6 @@ export default function SeasonDetailPage() {
           external_id: externalId,
           kind: 'season',
           title: `Season ${seasonNumber}`,
-          overview: '',
         })
         .select()
         .single();

@@ -68,7 +68,6 @@ export default function ShowDetailPage() {
           external_id: externalId,
           kind: 'show',
           title: show.name,
-          overview: show.overview,
           poster_url: show.image,
           air_date: show.firstAired,
         })

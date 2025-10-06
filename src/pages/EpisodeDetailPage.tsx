@@ -60,7 +60,6 @@ export default function EpisodeDetailPage() {
           external_id: externalId,
           kind: 'episode',
           title: episode.name,
-          overview: episode.overview,
           air_date: episode.aired,
         })
         .select()
