@@ -145,18 +145,20 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
 
       <div className="space-y-3">
         {users.map((profile) => (
-          <Card key={profile.id} className="p-4">
+          <Card key={profile.id} className="p-4 card-enhanced group">
             <div className="flex items-center justify-between gap-3">
               <div
                 className="flex items-center gap-3 flex-1 cursor-pointer"
                 onClick={() => navigate(`/user/${profile.id}`)}
               >
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={profile.avatar_url} alt={profile.handle} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
-                    {profile.handle[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="avatar-ring">
+                  <Avatar className="h-12 w-12 transition-transform group-hover:scale-110">
+                    <AvatarImage src={profile.avatar_url} alt={profile.handle} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
+                      {profile.handle[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="font-semibold truncate">{profile.handle}</h3>
                   <p className="text-sm text-muted-foreground">@{profile.handle}</p>

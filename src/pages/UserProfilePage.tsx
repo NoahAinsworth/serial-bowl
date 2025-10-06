@@ -231,15 +231,17 @@ export default function UserProfilePage() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4 animate-fade-in">
-      <Card className="p-6 mb-6">
+      <Card className="p-6 mb-6 card-enhanced">
         <div className="flex items-start justify-between mb-4">
           <div className="flex gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={profile.avatar_url} alt={profile.handle} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
-                {profile.handle[0]?.toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
+            <div className="avatar-ring">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={profile.avatar_url} alt={profile.handle} />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
+                  {profile.handle[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </div>
             <div>
               <h2 className="text-2xl font-bold">{profile.handle}</h2>
               <p className="text-muted-foreground mt-1">{profile.bio || 'TV enthusiast 📺'}</p>

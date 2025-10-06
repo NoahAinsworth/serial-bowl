@@ -225,42 +225,126 @@ All colors MUST be HSL.
 
   /* Neon Glow Effect */
   .neon-glow {
-    text-shadow: 0 0 10px hsl(var(--cyan-glow) / 0.6),
-                 0 0 20px hsl(var(--cyan-glow) / 0.4),
-                 0 0 30px hsl(var(--cyan-glow) / 0.2);
+    text-shadow: 
+      0 0 10px hsl(var(--primary) / 0.5),
+      0 0 20px hsl(var(--primary) / 0.3),
+      0 0 30px hsl(var(--primary) / 0.2);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      text-shadow: 
+        0 0 10px hsl(var(--primary) / 0.5),
+        0 0 20px hsl(var(--primary) / 0.3),
+        0 0 30px hsl(var(--primary) / 0.2);
+    }
+    50% {
+      text-shadow: 
+        0 0 15px hsl(var(--primary) / 0.6),
+        0 0 30px hsl(var(--primary) / 0.4),
+        0 0 45px hsl(var(--primary) / 0.3);
+    }
   }
 
   /* Button Glow */
   .btn-glow {
-    box-shadow: 0 0 15px hsl(var(--primary) / 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+      0 0 15px hsl(var(--primary) / 0.3),
+      0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
   }
 
   .btn-glow:hover {
-    box-shadow: 0 0 25px hsl(var(--primary) / 0.5),
-                0 0 40px hsl(var(--primary) / 0.3);
+    box-shadow: 
+      0 0 25px hsl(var(--primary) / 0.5),
+      0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
   }
 
-  /* Retro Stripe Accent */
-  .stripe-accent {
+  .btn-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
       90deg,
-      hsl(var(--neon-violet)) 0%,
-      hsl(var(--electric-blue)) 50%,
-      hsl(var(--cyan-glow)) 100%
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  .btn-glow:hover::before {
+    left: 100%;
+  }
+
+  /* Card Enhancements */
+  .card-enhanced {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--card) / 0.95) 100%
+    );
+    border: 1px solid hsl(var(--border));
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.1),
+      0 0 20px hsl(var(--primary) / 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .card-enhanced:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: 
+      0 8px 16px rgba(0, 0, 0, 0.15),
+      0 0 30px hsl(var(--primary) / 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Hover Scale */
+  .hover-scale {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Stripe Accent */
+  .stripe-accent {
+    background-image: repeating-linear-gradient(
+      45deg,
+      hsl(var(--primary) / 0.05),
+      hsl(var(--primary) / 0.05) 10px,
+      transparent 10px,
+      transparent 20px
     );
   }
 
-  /* Aurora Gradient */
+  /* Aurora Background */
   .bg-gradient-aurora {
-    background: linear-gradient(135deg, 
-      hsl(240, 100%, 50%) 0%,
-      hsl(200, 100%, 50%) 20%,
-      hsl(180, 100%, 50%) 35%,
-      hsl(160, 100%, 45%) 50%,
-      hsl(60, 100%, 50%) 65%,
-      hsl(30, 100%, 50%) 80%,
-      hsl(320, 100%, 50%) 100%
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.1),
+      hsl(var(--secondary) / 0.1),
+      hsl(var(--accent) / 0.1)
     );
     background-size: 200% 200%;
     animation: aurora-shift 8s ease infinite;
@@ -272,6 +356,56 @@ All colors MUST be HSL.
     }
     50% {
       background-position: 100% 50%;
+    }
+  }
+
+  /* Avatar Ring */
+  .avatar-ring {
+    position: relative;
+  }
+
+  .avatar-ring::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary))
+    );
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .avatar-ring:hover::before {
+    opacity: 1;
+  }
+
+  /* Shimmer Effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
     }
   }
 }

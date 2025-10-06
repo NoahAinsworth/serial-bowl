@@ -95,14 +95,16 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
           </p>
         ) : (
           comments.map((comment) => (
-            <Card key={comment.id} className="p-3 animate-scale-in">
+            <Card key={comment.id} className="p-3 animate-scale-in card-enhanced">
               <div className="flex items-start gap-2">
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarImage src={comment.profiles.avatar_url} alt={comment.profiles.handle} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-sm font-bold">
-                    {comment.profiles.handle[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="avatar-ring">
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarImage src={comment.profiles.avatar_url} alt={comment.profiles.handle} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-sm font-bold">
+                      {comment.profiles.handle[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-semibold">{comment.profiles.handle}</span>

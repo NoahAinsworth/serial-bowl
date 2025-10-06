@@ -29,14 +29,16 @@ export function ReviewCard({ review }: ReviewCardProps) {
   const navigate = useNavigate();
 
   return (
-    <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in hover-scale">
+    <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in card-enhanced group">
       <div className="flex gap-3">
-        <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer" onClick={() => navigate(`/user/${review.user.id}`)}>
-          <AvatarImage src={review.user.avatar_url} alt={review.user.handle} />
-          <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
-            {review.user.handle[0]?.toUpperCase() || 'U'}
-          </AvatarFallback>
-        </Avatar>
+        <div className="avatar-ring">
+          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform group-hover:scale-110" onClick={() => navigate(`/user/${review.user.id}`)}>
+            <AvatarImage src={review.user.avatar_url} alt={review.user.handle} />
+            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
+              {review.user.handle[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="font-semibold text-foreground">

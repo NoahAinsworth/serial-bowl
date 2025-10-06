@@ -223,15 +223,17 @@ export default function ProfilePage() {
       </div>
 
       {/* Header Section */}
-      <Card className="p-6 mb-6">
+      <Card className="p-6 mb-6 card-enhanced">
         <div className="flex items-start gap-6 mb-6">
           {/* Avatar */}
-          <Avatar className="h-24 w-24 rounded-lg">
-            <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl rounded-lg">
-              {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <div className="avatar-ring">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
+              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl">
+                {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+          </div>
 
           {/* Profile Info */}
           <div className="flex-1">

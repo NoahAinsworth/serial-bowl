@@ -158,14 +158,16 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
   };
 
   return (
-    <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in hover-scale">
+    <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in card-enhanced group">
       <div className="flex gap-3">
-        <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer" onClick={() => navigate(`/user/${thought.user.id}`)}>
-          <AvatarImage src={thought.user.avatar_url} alt={thought.user.handle} />
-          <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
-            {thought.user.handle[0]?.toUpperCase() || 'U'}
-          </AvatarFallback>
-        </Avatar>
+        <div className="avatar-ring">
+          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform group-hover:scale-110" onClick={() => navigate(`/user/${thought.user.id}`)}>
+            <AvatarImage src={thought.user.avatar_url} alt={thought.user.handle} />
+            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
+              {thought.user.handle[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="font-semibold text-foreground truncate">
@@ -207,26 +209,35 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
           <div className="flex flex-wrap gap-2 mb-3">
             {thought.show && (
               <div 
-                className="inline-block px-2 py-1 rounded-md bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-colors"
+                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm cursor-pointer hover:from-primary/20 hover:to-primary/10 transition-all duration-300 border border-primary/20 hover:border-primary/40 hover:scale-105"
                 onClick={() => thought.show?.external_id && navigate(`/show/${thought.show.external_id}`)}
               >
-                📺 {thought.show.title}
+                <span className="flex items-center gap-1.5">
+                  <span className="text-base">📺</span>
+                  <span className="font-medium">{thought.show.title}</span>
+                </span>
               </div>
             )}
             {thought.season && (
               <div 
-                className="inline-block px-2 py-1 rounded-md bg-secondary/10 text-secondary text-sm cursor-pointer hover:bg-secondary/20 transition-colors"
+                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-secondary/10 to-secondary/5 text-secondary text-sm cursor-pointer hover:from-secondary/20 hover:to-secondary/10 transition-all duration-300 border border-secondary/20 hover:border-secondary/40 hover:scale-105"
                 onClick={() => thought.season?.show_external_id && thought.season?.external_id && navigate(`/show/${thought.season.show_external_id}/season/${thought.season.external_id}`)}
               >
-                📖 {thought.season.title}
+                <span className="flex items-center gap-1.5">
+                  <span className="text-base">📖</span>
+                  <span className="font-medium">{thought.season.title}</span>
+                </span>
               </div>
             )}
             {thought.episode && (
               <div 
-                className="inline-block px-2 py-1 rounded-md bg-accent/10 text-accent text-sm cursor-pointer hover:bg-accent/20 transition-colors"
+                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 text-accent text-sm cursor-pointer hover:from-accent/20 hover:to-accent/10 transition-all duration-300 border border-accent/20 hover:border-accent/40 hover:scale-105"
                 onClick={() => thought.episode?.show_external_id && thought.episode?.season_external_id && thought.episode?.external_id && navigate(`/show/${thought.episode.show_external_id}/season/${thought.episode.season_external_id}/episode/${thought.episode.external_id}`)}
               >
-                🎬 {thought.episode.title}
+                <span className="flex items-center gap-1.5">
+                  <span className="text-base">🎬</span>
+                  <span className="font-medium">{thought.episode.title}</span>
+                </span>
               </div>
             )}
           </div>

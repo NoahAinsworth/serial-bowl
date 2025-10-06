@@ -293,8 +293,8 @@ export default function Index() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Home</h1>
-        <Button onClick={() => navigate('/post')} className="gap-2">
+        <h1 className="text-3xl font-bold gradient-text">Home</h1>
+        <Button onClick={() => navigate('/post')} className="gap-2 btn-glow">
           <Plus className="h-4 w-4" />
           Post
         </Button>

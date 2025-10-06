@@ -98,8 +98,8 @@ export default function DMsPage() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold neon-glow">Messages</h1>
-        <Button variant="outline" size="sm" onClick={() => setShowUserSearch(true)}>
+        <h1 className="text-3xl font-bold gradient-text">Messages</h1>
+        <Button variant="outline" size="sm" onClick={() => setShowUserSearch(true)} className="btn-glow">
           <Search className="h-4 w-4 mr-2" />
           Search Users
         </Button>
@@ -118,16 +118,18 @@ export default function DMsPage() {
           {threads.map((thread) => (
             <Card
               key={thread.otherUser.id}
-              className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
+              className="p-4 cursor-pointer hover:border-primary/50 transition-all card-enhanced group"
               onClick={() => navigate(`/dms/${thread.otherUser.id}`)}
             >
               <div className="flex gap-3">
-                <Avatar className="h-12 w-12 flex-shrink-0">
-                  <AvatarImage src={thread.otherUser.avatar_url} alt={thread.otherUser.handle} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
-                    {thread.otherUser.handle[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="avatar-ring">
+                  <Avatar className="h-12 w-12 flex-shrink-0 transition-transform group-hover:scale-110">
+                    <AvatarImage src={thread.otherUser.avatar_url} alt={thread.otherUser.handle} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
+                      {thread.otherUser.handle[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold">{thread.otherUser.handle}</span>
