@@ -60,14 +60,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {label === 'Home' ? (
-                <CerealBowlIcon className="h-6 w-6" size={24} />
-              ) : (
-                <>
-                  <Icon className="h-6 w-6" />
-                  <span className="text-xs">{label}</span>
-                </>
-              )}
+              <Icon className="h-6 w-6" />
+              <span className="text-xs">{label}</span>
             </Link>
           ))}
         </div>

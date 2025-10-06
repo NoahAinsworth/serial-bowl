@@ -8,6 +8,7 @@ import { Loader2, TrendingUp, ThumbsDown, Star, Plus } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
+import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 
 export default function Index() {
   const { user } = useAuth();
@@ -293,7 +294,7 @@ export default function Index() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold gradient-text">Home</h1>
+        <CerealBowlIcon size={48} />
         <Button onClick={() => navigate('/post')} className="gap-2 btn-glow">
           <Plus className="h-4 w-4" />
           Post
