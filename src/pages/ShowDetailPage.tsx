@@ -179,11 +179,14 @@ export default function ShowDetailPage() {
                 {contentId && (
                   <div>
                     <PostTypeSelector 
-                      value={postType} 
-                      onChange={(type) => {
-                        setPostType(type);
+                      onReviewClick={() => {
+                        setPostType('review');
                         setPostDialogOpen(true);
-                      }} 
+                      }}
+                      onThoughtClick={() => {
+                        setPostType('thought');
+                        setPostDialogOpen(true);
+                      }}
                     />
                   </div>
                 )}

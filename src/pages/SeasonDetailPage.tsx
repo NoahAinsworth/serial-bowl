@@ -136,11 +136,14 @@ export default function SeasonDetailPage() {
           {contentId && (
             <div>
               <PostTypeSelector 
-                value={postType} 
-                onChange={(type) => {
-                  setPostType(type);
+                onReviewClick={() => {
+                  setPostType('review');
                   setPostDialogOpen(true);
-                }} 
+                }}
+                onThoughtClick={() => {
+                  setPostType('thought');
+                  setPostDialogOpen(true);
+                }}
               />
             </div>
           )}

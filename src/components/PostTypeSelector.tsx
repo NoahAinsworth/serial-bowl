@@ -1,17 +1,30 @@
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Star, MessageSquare } from 'lucide-react';
 
 interface PostTypeSelectorProps {
-  value: 'review' | 'thought';
-  onChange: (value: 'review' | 'thought') => void;
+  onReviewClick: () => void;
+  onThoughtClick: () => void;
 }
 
-export function PostTypeSelector({ value, onChange }: PostTypeSelectorProps) {
+export function PostTypeSelector({ onReviewClick, onThoughtClick }: PostTypeSelectorProps) {
   return (
-    <Tabs value={value} onValueChange={(v) => onChange(v as 'review' | 'thought')}>
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="review">Review</TabsTrigger>
-        <TabsTrigger value="thought">Thought</TabsTrigger>
-      </TabsList>
-    </Tabs>
+    <div className="grid grid-cols-2 gap-2">
+      <Button
+        variant="outline"
+        onClick={onReviewClick}
+        className="w-full"
+      >
+        <Star className="mr-2 h-4 w-4" />
+        Write Review
+      </Button>
+      <Button
+        variant="outline"
+        onClick={onThoughtClick}
+        className="w-full"
+      >
+        <MessageSquare className="mr-2 h-4 w-4" />
+        Share Thought
+      </Button>
+    </div>
   );
 }
