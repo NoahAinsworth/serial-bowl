@@ -22,7 +22,6 @@ export default function Index() {
   // Use the feed hook for each tab
   const trendingFeed = useFeed('trending');
   const hotTakesFeed = useFeed('hot');
-  const reviewsFeed = useFeed('reviews');
   const bingeFeed = useFeed('binge');
 
   // Map tab to appropriate feed
@@ -32,8 +31,6 @@ export default function Index() {
         return trendingFeed;
       case 'hot-takes':
         return hotTakesFeed;
-      case 'reviews':
-        return reviewsFeed;
       case 'binge':
         return bingeFeed;
       default:
@@ -160,7 +157,7 @@ export default function Index() {
         </div>
       )}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-4 mb-6">
+        <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger 
             value="trending" 
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
@@ -172,12 +169,6 @@ export default function Index() {
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
           >
             Hot Takes
-          </TabsTrigger>
-          <TabsTrigger 
-            value="reviews" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-          >
-            Reviews
           </TabsTrigger>
           <TabsTrigger 
             value="binge" 
@@ -203,10 +194,6 @@ export default function Index() {
 
           <TabsContent value="hot-takes" className="mt-0">
             {renderFeedContent(hotTakesFeed)}
-          </TabsContent>
-
-          <TabsContent value="reviews" className="mt-0">
-            {renderFeedContent(reviewsFeed)}
           </TabsContent>
 
           <TabsContent value="binge" className="mt-0">

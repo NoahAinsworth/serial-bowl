@@ -40,6 +40,7 @@ export default function ProfilePage() {
   const [top3Shows, setTop3Shows] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchingShows, setSearchingShows] = useState(false);
+  const [postType, setPostType] = useState<'all' | 'thoughts' | 'reviews'>('all');
 
   useEffect(() => {
     if (!user) {
@@ -384,9 +385,8 @@ export default function ProfilePage() {
 
       {/* Tabs Section */}
       <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="w-full grid grid-cols-6">
+        <TabsList className="w-full grid grid-cols-5">
           <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
           <TabsTrigger value="shows">Shows</TabsTrigger>
           <TabsTrigger value="seasons">Seasons</TabsTrigger>
           <TabsTrigger value="episodes">Episodes</TabsTrigger>
@@ -394,11 +394,29 @@ export default function ProfilePage() {
         </TabsList>
 
         <TabsContent value="posts" className="mt-6">
-          <UserThoughts userId={user!.id} />
-        </TabsContent>
+          {/* Secondary Tabs for Post Type */}
+          <Tabs value={postType} onValueChange={(v) => setPostType(v as any)} className="mb-4">
+            <TabsList className="w-full grid grid-cols-3">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="thoughts">Posts</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <TabsContent value="reviews" className="mt-6">
-          <UserReviews userId={user!.id} />
+          {postType === 'all' && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Posts</h3>
+                <UserThoughts userId={user!.id} />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Reviews</h3>
+                <UserReviews userId={user!.id} />
+              </div>
+            </div>
+          )}
+          {postType === 'thoughts' && <UserThoughts userId={user!.id} />}
+          {postType === 'reviews' && <UserReviews userId={user!.id} />}
         </TabsContent>
 
         <TabsContent value="shows" className="mt-6">
