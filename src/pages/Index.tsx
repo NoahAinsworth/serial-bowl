@@ -93,7 +93,9 @@ export default function Index() {
         content (
           id,
           title,
-          external_id
+          external_id,
+          kind,
+          metadata
         )
       `)
       .order('created_at', { ascending: false })
@@ -130,6 +132,38 @@ export default function Index() {
         const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
         const totalInteractions = likes + dislikes + rethinks;
 
+        // Determine what to show based on content kind
+        let contentDisplay: any = undefined;
+        if (thought.content) {
+          if (thought.content.kind === 'show') {
+            contentDisplay = {
+              show: { 
+                title: thought.content.title, 
+                external_id: thought.content.external_id 
+              }
+            };
+          } else if (thought.content.kind === 'season') {
+            const metadata = thought.content.metadata as any;
+            contentDisplay = {
+              season: {
+                title: thought.content.title,
+                external_id: thought.content.external_id,
+                show_external_id: metadata?.show_id
+              }
+            };
+          } else if (thought.content.kind === 'episode') {
+            const metadata = thought.content.metadata as any;
+            contentDisplay = {
+              episode: {
+                title: thought.content.title,
+                external_id: thought.content.external_id,
+                season_external_id: metadata?.season_number,
+                show_external_id: metadata?.show_id
+              }
+            };
+          }
+        }
+
         return {
           id: thought.id,
           user: {
@@ -138,7 +172,7 @@ export default function Index() {
             avatar_url: thought.profiles.avatar_url,
           },
           content: thought.text_content,
-          show: thought.content ? { title: thought.content.title, external_id: thought.content.external_id } : undefined,
+          ...contentDisplay,
           likes,
           dislikes,
           comments: comments?.length || 0,

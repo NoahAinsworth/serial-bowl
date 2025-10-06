@@ -79,6 +79,9 @@ export default function PostPage() {
 
   const handleSelectEpisode = async (episode: TVEpisode) => {
     try {
+      // Format episode title with show name and season/episode numbers
+      const episodeTitle = `${selectedShow!.name} — S${String(episode.seasonNumber).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}: ${episode.name}`;
+      
       // Create/get episode content entry
       let { data: content, error: fetchError } = await supabase
         .from('content')
@@ -104,16 +107,17 @@ export default function PostPage() {
             external_src: 'thetvdb',
             external_id: episode.id.toString(),
             kind: 'episode',
-            title: episode.name,
-            overview: episode.overview,
-            poster_url: episode.image,
-            air_date: episode.aired,
-            metadata: {
-              show_id: selectedShow!.id,
-              season_number: episode.seasonNumber,
-              episode_number: episode.number,
-            }
-          })
+            title: episodeTitle,
+              overview: episode.overview,
+              poster_url: episode.image,
+              air_date: episode.aired,
+              metadata: {
+                show_id: selectedShow!.id,
+                show_name: selectedShow!.name,
+                season_number: episode.seasonNumber,
+                episode_number: episode.number,
+              }
+            })
           .select('id, title, kind')
           .single();
         
@@ -176,6 +180,7 @@ export default function PostPage() {
             title: season.name,
             metadata: {
               show_id: selectedShow!.id,
+              show_name: selectedShow!.name,
               season_number: season.number,
             }
           })
@@ -273,6 +278,12 @@ export default function PostPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const formatContentDisplay = (content: { title: string; kind: string; id: string }) => {
+    // For episodes, we need to fetch metadata to display in format: Show Name — S02E05: Episode Title
+    // For now just return title, but we'll enhance this
+    return content.title;
   };
 
   const resetSelection = () => {
@@ -531,9 +542,10 @@ export default function PostPage() {
               className="text-sm text-primary flex-1 text-left hover:underline"
               type="button"
             >
-              {selectedContent.kind === 'show' && '📺'}
-              {selectedContent.kind === 'season' && '📁'}
-              {selectedContent.kind === 'episode' && '🎬'} {selectedContent.title}
+              {selectedContent.kind === 'show' && '📺 '}
+              {selectedContent.kind === 'season' && '📁 '}
+              {selectedContent.kind === 'episode' && '🎬 '}
+              {formatContentDisplay(selectedContent)}
             </button>
             <Button
               variant="ghost"

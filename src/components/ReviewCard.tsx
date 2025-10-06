@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -30,9 +31,12 @@ export function ReviewCard({ review }: ReviewCardProps) {
   return (
     <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in hover-scale">
       <div className="flex gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold flex-shrink-0">
-          {review.user.handle[1]?.toUpperCase() || 'U'}
-        </div>
+        <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer" onClick={() => navigate(`/user/${review.user.id}`)}>
+          <AvatarImage src={review.user.avatar_url} alt={review.user.handle} />
+          <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
+            {review.user.handle[0]?.toUpperCase() || 'U'}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="font-semibold text-foreground">

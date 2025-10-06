@@ -36,7 +36,10 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
           avatar_url
         ),
         content (
-          title
+          title,
+          kind,
+          external_id,
+          metadata
         )
       `)
       .eq('user_id', userId)
@@ -67,6 +70,32 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
           const dislikes = reactions?.filter(r => r.reaction_type === 'dislike').length || 0;
           const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
 
+          // Determine what to show based on content kind
+          let contentDisplay: any = {};
+          if (thought.content) {
+            if (thought.content.kind === 'show') {
+              contentDisplay.show = { 
+                title: thought.content.title, 
+                external_id: thought.content.external_id 
+              };
+            } else if (thought.content.kind === 'season') {
+              const metadata = thought.content.metadata as any;
+              contentDisplay.season = {
+                title: thought.content.title,
+                external_id: thought.content.external_id,
+                show_external_id: metadata?.show_id
+              };
+            } else if (thought.content.kind === 'episode') {
+              const metadata = thought.content.metadata as any;
+              contentDisplay.episode = {
+                title: thought.content.title,
+                external_id: thought.content.external_id,
+                season_external_id: metadata?.season_number,
+                show_external_id: metadata?.show_id
+              };
+            }
+          }
+
           return {
             id: thought.id,
             user: {
@@ -75,7 +104,7 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
               avatar_url: thought.profiles.avatar_url,
             },
             content: thought.text_content,
-            show: thought.content ? { title: thought.content.title } : undefined,
+            ...contentDisplay,
             likes,
             dislikes,
             comments: comments?.length || 0,

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -34,7 +35,8 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
         created_at,
         profiles!comments_user_id_fkey (
           id,
-          handle
+          handle,
+          avatar_url
         )
       `)
       .eq('thought_id', thoughtId)
@@ -95,9 +97,12 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
           comments.map((comment) => (
             <Card key={comment.id} className="p-3 animate-scale-in">
               <div className="flex items-start gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                  {comment.profiles.handle[1]?.toUpperCase() || 'U'}
-                </div>
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarImage src={comment.profiles.avatar_url} alt={comment.profiles.handle} />
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-sm font-bold">
+                    {comment.profiles.handle[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-semibold">{comment.profiles.handle}</span>

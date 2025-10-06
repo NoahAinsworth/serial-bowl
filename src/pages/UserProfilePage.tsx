@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +21,7 @@ export default function UserProfilePage() {
   const [profile, setProfile] = useState({
     handle: '',
     bio: '',
+    avatar_url: '',
     showCount: 0,
     seasonCount: 0,
     episodeCount: 0,
@@ -46,7 +48,7 @@ export default function UserProfilePage() {
 
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('handle, bio')
+      .select('handle, bio, avatar_url')
       .eq('id', userId)
       .single();
 
@@ -88,6 +90,7 @@ export default function UserProfilePage() {
     setProfile({
       handle: profileData.handle,
       bio: profileData.bio || '',
+      avatar_url: profileData.avatar_url || '',
       showCount,
       seasonCount,
       episodeCount,
@@ -231,9 +234,12 @@ export default function UserProfilePage() {
       <Card className="p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-bold">
-              {profile.handle[1]?.toUpperCase() || 'U'}
-            </div>
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={profile.avatar_url} alt={profile.handle} />
+              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
+                {profile.handle[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
             <div>
               <h2 className="text-2xl font-bold">{profile.handle}</h2>
               <p className="text-muted-foreground mt-1">{profile.bio || 'TV enthusiast 📺'}</p>

@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { Loader2, Search } from 'lucide-react';
 import { UserSearch } from '@/components/UserSearch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface DMThread {
   otherUser: {
@@ -121,9 +122,12 @@ export default function DMsPage() {
               onClick={() => navigate(`/dms/${thread.otherUser.id}`)}
             >
               <div className="flex gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold flex-shrink-0">
-                  {thread.otherUser.handle[1]?.toUpperCase() || 'U'}
-                </div>
+                <Avatar className="h-12 w-12 flex-shrink-0">
+                  <AvatarImage src={thread.otherUser.avatar_url} alt={thread.otherUser.handle} />
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
+                    {thread.otherUser.handle[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold">{thread.otherUser.handle}</span>
@@ -151,7 +155,7 @@ export default function DMsPage() {
           <DialogHeader>
             <DialogTitle>Search Users to Message</DialogTitle>
           </DialogHeader>
-          <UserSearch query="" />
+          <UserSearch showMessageButton={true} />
         </DialogContent>
       </Dialog>
     </div>

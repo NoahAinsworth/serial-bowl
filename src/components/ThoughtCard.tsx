@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, MessageCircle, Repeat2, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
@@ -159,9 +160,12 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
   return (
     <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in hover-scale">
       <div className="flex gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold flex-shrink-0">
-          {thought.user.handle[1]?.toUpperCase() || 'U'}
-        </div>
+        <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer" onClick={() => navigate(`/user/${thought.user.id}`)}>
+          <AvatarImage src={thought.user.avatar_url} alt={thought.user.handle} />
+          <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
+            {thought.user.handle[0]?.toUpperCase() || 'U'}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="font-semibold text-foreground truncate">

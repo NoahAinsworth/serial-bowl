@@ -90,7 +90,7 @@ export default function SearchPage() {
           )}
         </TabsContent>
         <TabsContent value="users" className="mt-4">
-          <UserSearch query={query} />
+          <UserSearch />
         </TabsContent>
       </Tabs>
     </div>
