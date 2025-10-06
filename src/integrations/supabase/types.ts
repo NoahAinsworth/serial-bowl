@@ -288,6 +288,63 @@ export type Database = {
           },
         ]
       }
+      feed_impressions: {
+        Row: {
+          created_at: string | null
+          id: string
+          position: number
+          post_id: string
+          post_type: string
+          tab: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          position: number
+          post_id: string
+          post_type: string
+          tab: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          position?: number
+          post_id?: string
+          post_type?: string
+          tab?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      feed_scores: {
+        Row: {
+          computed_at: string | null
+          post_id: string
+          post_type: string
+          reason: Json | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          computed_at?: string | null
+          post_id: string
+          post_type: string
+          reason?: Json | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          computed_at?: string | null
+          post_id?: string
+          post_type?: string
+          reason?: Json | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string | null
@@ -323,6 +380,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      interactions: {
+        Row: {
+          created_at: string | null
+          id: string
+          interaction_type: string
+          post_id: string
+          post_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          interaction_type: string
+          post_id: string
+          post_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          interaction_type?: string
+          post_id?: string
+          post_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       list_items: {
         Row: {
@@ -657,6 +741,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_prefs: {
+        Row: {
+          genres: Json | null
+          shows: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          genres?: Json | null
+          shows?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          genres?: Json | null
+          shows?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -757,7 +862,34 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_post_popularity: {
+        Row: {
+          comments: number | null
+          created_at: string | null
+          dislikes: number | null
+          likes: number | null
+          post_id: string | null
+          post_type: string | null
+          reshares: number | null
+          views: number | null
+        }
+        Relationships: []
+      }
+      v_posts: {
+        Row: {
+          author_id: string | null
+          created_at: string | null
+          id: string | null
+          moderation_status:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          rating: number | null
+          show_id: string | null
+          text: string | null
+          type: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
