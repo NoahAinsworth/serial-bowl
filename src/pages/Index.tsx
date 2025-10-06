@@ -503,11 +503,11 @@ export default function Index() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-4 mb-6">
           <TabsTrigger value="trending" className="gap-2">
-            <TrendingUp className="h-6 w-6" />
+            <TrendingUp className="h-7 w-7" />
             Trending
           </TabsTrigger>
           <TabsTrigger value="hot-takes" className="gap-2">
-            <Flame className="h-6 w-6" />
+            <Flame className="h-7 w-7" />
             Hot Takes
           </TabsTrigger>
           <TabsTrigger value="reviews" className="gap-2">

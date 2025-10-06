@@ -381,13 +381,21 @@ export default function ProfilePage() {
       </Card>
 
       {/* Tabs Section */}
-      <Tabs defaultValue="shows" className="w-full">
-        <TabsList className="w-full grid grid-cols-4">
+      <Tabs defaultValue="posts" className="w-full">
+        <TabsList className="w-full grid grid-cols-5">
+          <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="shows">Shows</TabsTrigger>
           <TabsTrigger value="seasons">Seasons</TabsTrigger>
           <TabsTrigger value="episodes">Episodes</TabsTrigger>
-          <TabsTrigger value="thoughts">Thoughts</TabsTrigger>
+          <TabsTrigger value="lists">Lists</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="posts" className="mt-6 space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Thoughts</h3>
+            <UserThoughts userId={user!.id} />
+          </div>
+        </TabsContent>
 
         <TabsContent value="shows" className="mt-6">
           <UserRatings userId={user!.id} contentKind="show" />
@@ -401,8 +409,23 @@ export default function ProfilePage() {
           <UserRatings userId={user!.id} contentKind="episode" />
         </TabsContent>
 
-        <TabsContent value="thoughts" className="mt-6">
-          <UserThoughts userId={user!.id} />
+        <TabsContent value="lists" className="mt-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">My Lists</h3>
+              <Button onClick={() => navigate('/lists')}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create List
+              </Button>
+            </div>
+            {/* Lists will be shown here - reusing lists page logic */}
+            <div className="text-muted-foreground text-center py-8">
+              <p>Manage your lists from here</p>
+              <Button variant="link" onClick={() => navigate('/lists')}>
+                Go to Lists
+              </Button>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 

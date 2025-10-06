@@ -37,9 +37,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <Button variant="ghost" size="icon" onClick={() => navigate('/activity')} title="Notifications">
               <Bell className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/lists')} title="Lists">
-              <List className="h-5 w-5" />
-            </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
               <Settings className="h-5 w-5" />
             </Button>
