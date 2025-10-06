@@ -16,6 +16,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: Home, label: 'Home', path: '/' },
     { icon: Search, label: 'Search', path: '/search' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
+    { icon: TrendingUp, label: 'Binge', path: '/binge' },
     { icon: Compass, label: 'Discover', path: '/discover' },
     { icon: User, label: 'Profile', path: '/profile' },
   ];

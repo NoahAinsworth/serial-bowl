@@ -211,9 +211,21 @@ export default function DiscoverPage() {
 
   return (
     <div className="container max-w-6xl mx-auto py-6 space-y-6 animate-fade-in">
-      <div className="flex items-center gap-3 px-4">
-        <Compass className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold neon-glow">Discover</h1>
+      <div className="flex items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <Compass className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold neon-glow">Discover</h1>
+        </div>
+        <button
+          onClick={() => setChatOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 via-purple-500 to-orange-500 hover:opacity-90 transition-opacity shadow-lg"
+          title="Ask Binge Bot about shows or episodes"
+        >
+          <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+          <span className="text-sm font-semibold text-white">AI</span>
+        </button>
       </div>
 
       {loading ? (
@@ -330,15 +342,6 @@ export default function DiscoverPage() {
           </TabsContent>
         </Tabs>
       )}
-
-      {/* Floating Binge Bot Button */}
-      <button
-        onClick={() => setChatOpen(true)}
-        className="fixed bottom-20 right-6 rounded-full h-14 w-14 bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform z-50 flex items-center justify-center"
-        title="Ask about a show"
-      >
-        <Compass className="h-6 w-6" />
-      </button>
 
       {/* Binge Bot Modal */}
       <BingeBotAI 

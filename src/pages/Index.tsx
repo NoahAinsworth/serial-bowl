@@ -48,7 +48,7 @@ export default function Index() {
     setPage(0);
     setHasMore(true);
     
-    if (activeTab === 'reviews') {
+    if (activeTab === 'trending') {
       await loadReviews(0);
     } else {
       await loadThoughts(0, activeTab);
@@ -63,7 +63,7 @@ export default function Index() {
     setLoadingMore(true);
     const nextPage = page + 1;
     
-    if (activeTab === 'reviews') {
+    if (activeTab === 'trending') {
       await loadReviews(nextPage);
     } else {
       await loadThoughts(nextPage, activeTab);
@@ -302,79 +302,19 @@ export default function Index() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
+        <TabsList className="w-full grid grid-cols-2 mb-6">
           <TabsTrigger value="trending">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Trending
-          </TabsTrigger>
-          <TabsTrigger value="hot-takes">
-            <ThumbsDown className="h-4 w-4 mr-2" />
-            Hot Takes
-          </TabsTrigger>
-          <TabsTrigger value="reviews">
             <Star className="h-4 w-4 mr-2" />
             Reviews
+          </TabsTrigger>
+          <TabsTrigger value="hot-takes">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Posts
           </TabsTrigger>
         </TabsList>
 
         <div ref={scrollRef} className="max-h-[calc(100vh-240px)] overflow-y-auto">
-          <TabsContent value="trending" className="space-y-4 mt-0">
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : thoughts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No thoughts yet. Be the first to post!
-              </div>
-            ) : (
-              <>
-                {thoughts.map((thought) => (
-                  <ThoughtCard
-                    key={thought.id}
-                    thought={thought}
-                    onReactionChange={() => loadInitialData()}
-                    onDelete={() => loadInitialData()}
-                  />
-                ))}
-                {loadingMore && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="hot-takes" className="space-y-4 mt-0">
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : thoughts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No hot takes yet!
-              </div>
-            ) : (
-              <>
-                {thoughts.map((thought) => (
-                  <ThoughtCard
-                    key={thought.id}
-                    thought={thought}
-                    onReactionChange={() => loadInitialData()}
-                    onDelete={() => loadInitialData()}
-                  />
-                ))}
-                {loadingMore && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="reviews" className="space-y-4 mt-0">
+          <TabsContent value="trending" className="space-y-4 mt-0">{/* Reviews */}
             {loading ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -387,6 +327,34 @@ export default function Index() {
               <>
                 {reviews.map((review) => (
                   <ReviewCard key={review.id} review={review} />
+                ))}
+                {loadingMore && (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  </div>
+                )}
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="hot-takes" className="space-y-4 mt-0">{/* Posts/Thoughts */}
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : thoughts.length === 0 ? (
+              <div className="text-center text-muted-foreground py-12">
+                No posts yet. Be the first to share!
+              </div>
+            ) : (
+              <>
+                {thoughts.map((thought) => (
+                  <ThoughtCard
+                    key={thought.id}
+                    thought={thought}
+                    onReactionChange={() => loadInitialData()}
+                    onDelete={() => loadInitialData()}
+                  />
                 ))}
                 {loadingMore && (
                   <div className="flex justify-center py-4">
