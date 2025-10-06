@@ -351,18 +351,21 @@ export type Database = {
           follower_id: string
           following_id: string
           id: string
+          status: Database["public"]["Enums"]["follow_status"]
         }
         Insert: {
           created_at?: string | null
           follower_id: string
           following_id: string
           id?: string
+          status?: Database["public"]["Enums"]["follow_status"]
         }
         Update: {
           created_at?: string | null
           follower_id?: string
           following_id?: string
           id?: string
+          status?: Database["public"]["Enums"]["follow_status"]
         }
         Relationships: [
           {
@@ -451,6 +454,7 @@ export type Database = {
           created_at: string | null
           handle: string
           id: string
+          is_private: boolean
           settings: Json | null
           updated_at: string | null
         }
@@ -460,6 +464,7 @@ export type Database = {
           created_at?: string | null
           handle: string
           id: string
+          is_private?: boolean
           settings?: Json | null
           updated_at?: string | null
         }
@@ -469,6 +474,7 @@ export type Database = {
           created_at?: string | null
           handle?: string
           id?: string
+          is_private?: boolean
           settings?: Json | null
           updated_at?: string | null
         }
@@ -897,6 +903,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       content_kind: "show" | "season" | "episode"
+      follow_status: "pending" | "accepted" | "blocked"
       moderation_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -1027,6 +1034,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       content_kind: ["show", "season", "episode"],
+      follow_status: ["pending", "accepted", "blocked"],
       moderation_status: ["pending", "approved", "rejected"],
     },
   },
