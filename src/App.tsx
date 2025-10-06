@@ -26,6 +26,8 @@ import StatsPage from "./pages/StatsPage";
 import PostPage from "./pages/PostPage";
 import DMsPage from "./pages/DMsPage";
 import DMThreadPage from "./pages/DMThreadPage";
+import FollowersPage from "./pages/FollowersPage";
+import FollowingPage from "./pages/FollowingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -68,6 +70,8 @@ const App = () => (
                 <Route path="/post" element={<AppLayout><PostPage /></AppLayout>} />
                 <Route path="/dms" element={<AppLayout><DMsPage /></AppLayout>} />
                 <Route path="/dms/:userId" element={<AppLayout><DMThreadPage /></AppLayout>} />
+                <Route path="/followers" element={<AppLayout><FollowersPage /></AppLayout>} />
+                <Route path="/following" element={<AppLayout><FollowingPage /></AppLayout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
