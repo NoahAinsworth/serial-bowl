@@ -243,15 +243,15 @@ export default function ProfilePage() {
             <div className="flex items-start justify-between mb-2">
               <div>
                 {profile?.settings?.displayName && (
-                  <h1 className="text-2xl font-bold text-foreground">{profile.settings.displayName}</h1>
+                  <h1 className="text-2xl font-bold text-white drop-shadow-lg">{profile.settings.displayName}</h1>
                 )}
-                <p className="text-muted-foreground">{profile?.handle || 'user'}</p>
+                <p className="text-white/90 drop-shadow-md">{profile?.handle || 'user'}</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="ghost" size="icon" onClick={handleShare} title="Share profile">
+                <Button variant="ghost" size="icon" onClick={handleShare} title="Share profile" className="text-white hover:bg-white/20">
                   <Share2 className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile">
+                <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile" className="text-white hover:bg-white/20">
                   <Edit className="h-5 w-5" />
                 </Button>
               </div>
@@ -259,31 +259,31 @@ export default function ProfilePage() {
 
             {/* Bio */}
             {profile?.bio && (
-              <p className="text-sm mb-4 text-foreground/80">{profile.bio}</p>
+              <p className="text-sm mb-4 text-white/85 drop-shadow-md">{profile.bio}</p>
             )}
 
             {/* Counts Row */}
             <div className="flex gap-6 text-sm">
               <button 
-                className="hover:underline"
+                className="hover:underline text-white drop-shadow-md"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
               >
                 <span className="font-bold">{stats.thoughtsCount}</span>{' '}
-                <span className="text-muted-foreground">Posts</span>
+                <span className="text-white/80">Posts</span>
               </button>
               <button 
-                className="hover:underline"
+                className="hover:underline text-white drop-shadow-md"
                 onClick={() => navigate('/followers')}
               >
                 <span className="font-bold">{stats.followersCount}</span>{' '}
-                <span className="text-muted-foreground">Followers</span>
+                <span className="text-white/80">Followers</span>
               </button>
               <button 
-                className="hover:underline"
+                className="hover:underline text-white drop-shadow-md"
                 onClick={() => navigate('/following')}
               >
                 <span className="font-bold">{stats.followingCount}</span>{' '}
-                <span className="text-muted-foreground">Following</span>
+                <span className="text-white/80">Following</span>
               </button>
             </div>
           </div>
