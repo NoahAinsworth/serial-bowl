@@ -111,7 +111,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 max-w-4xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto px-6 py-4 pb-0 space-y-4 max-w-4xl mx-auto w-full">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               <p className="mb-4">Ask me anything about shows, seasons, episodes, or actors.</p>
@@ -174,8 +174,8 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
         </div>
 
       {/* Input Area */}
-      <div className="px-6 pb-6 pt-4 border-t max-w-4xl mx-auto w-full">
-        <div className="flex gap-2">
+      <div className="px-6 pb-safe pt-4 border-t max-w-4xl mx-auto w-full safe-bottom">
+        <div className="flex gap-2 pb-4">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
