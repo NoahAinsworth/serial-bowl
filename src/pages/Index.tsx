@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Flame, Zap, Star, Sparkles, Plus } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
@@ -22,6 +22,9 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState('trending');
+  const [trendingSubTab, setTrendingSubTab] = useState('reviews');
+  const [hotTakesSubTab, setHotTakesSubTab] = useState('reviews');
+  const [bingeSubTab, setBingeSubTab] = useState('reviews');
 
   useEffect(() => {
     if (user) {
@@ -374,16 +377,30 @@ export default function Index() {
           </TabsTrigger>
         </TabsList>
 
-        <div ref={scrollRef} className="max-h-[calc(100vh-240px)] overflow-y-auto space-y-8">
+        <div ref={scrollRef} className="max-h-[calc(100vh-240px)] overflow-y-auto">
           <TabsContent value="trending" className="mt-0">
             {loading ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <>
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold px-2">Reviews</h3>
+              <Tabs value={trendingSubTab} onValueChange={setTrendingSubTab} className="w-full">
+                <TabsList className="w-full grid grid-cols-2 mb-4">
+                  <TabsTrigger 
+                    value="reviews"
+                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                  >
+                    Reviews
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="thoughts"
+                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                  >
+                    Thoughts
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="reviews" className="space-y-4 mt-0 animate-fade-in">
                   {trendingReviews.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                       No reviews yet
@@ -395,10 +412,9 @@ export default function Index() {
                       ))}
                     </div>
                   )}
-                </div>
+                </TabsContent>
 
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold px-2">Thoughts</h3>
+                <TabsContent value="thoughts" className="space-y-4 mt-0 animate-fade-in">
                   {trendingThoughts.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                       No thoughts yet
@@ -415,8 +431,8 @@ export default function Index() {
                       ))}
                     </div>
                   )}
-                </div>
-              </>
+                </TabsContent>
+              </Tabs>
             )}
           </TabsContent>
 
@@ -426,9 +442,23 @@ export default function Index() {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <>
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold px-2">Reviews</h3>
+              <Tabs value={hotTakesSubTab} onValueChange={setHotTakesSubTab} className="w-full">
+                <TabsList className="w-full grid grid-cols-2 mb-4">
+                  <TabsTrigger 
+                    value="reviews"
+                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                  >
+                    Reviews
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="thoughts"
+                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                  >
+                    Thoughts
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="reviews" className="space-y-4 mt-0 animate-fade-in">
                   {hotTakesReviews.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                       No reviews yet
@@ -440,10 +470,9 @@ export default function Index() {
                       ))}
                     </div>
                   )}
-                </div>
+                </TabsContent>
 
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold px-2">Thoughts</h3>
+                <TabsContent value="thoughts" className="space-y-4 mt-0 animate-fade-in">
                   {hotTakesThoughts.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                       No thoughts yet
@@ -460,8 +489,8 @@ export default function Index() {
                       ))}
                     </div>
                   )}
-                </div>
-              </>
+                </TabsContent>
+              </Tabs>
             )}
           </TabsContent>
 
@@ -475,9 +504,23 @@ export default function Index() {
                 Start following users to see their content here!
               </div>
             ) : (
-              <>
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold px-2">Reviews</h3>
+              <Tabs value={bingeSubTab} onValueChange={setBingeSubTab} className="w-full">
+                <TabsList className="w-full grid grid-cols-2 mb-4">
+                  <TabsTrigger 
+                    value="reviews"
+                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                  >
+                    Reviews
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="thoughts"
+                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                  >
+                    Thoughts
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="reviews" className="space-y-4 mt-0 animate-fade-in">
                   {bingeReviews.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                       No reviews yet
@@ -489,10 +532,9 @@ export default function Index() {
                       ))}
                     </div>
                   )}
-                </div>
+                </TabsContent>
 
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold px-2">Thoughts</h3>
+                <TabsContent value="thoughts" className="space-y-4 mt-0 animate-fade-in">
                   {bingeThoughts.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                       No thoughts yet
@@ -509,20 +551,12 @@ export default function Index() {
                       ))}
                     </div>
                   )}
-                </div>
-              </>
+                </TabsContent>
+              </Tabs>
             )}
           </TabsContent>
         </div>
       </Tabs>
-
-      <Button 
-        onClick={() => navigate('/post')} 
-        className="fixed bottom-20 right-6 h-14 w-14 rounded-full btn-glow shadow-lg"
-        size="icon"
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
     </div>
   );
 }
