@@ -28,9 +28,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     <div className="flex flex-col h-screen bg-background scanlines">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-center px-4 relative">
-          <CerealBowlIcon size={40} />
-          <div className="flex items-center gap-1 absolute right-4">
+        <div className="container flex h-14 items-center justify-end px-4">
+          <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI" className="gap-1.5">
               <Bot className="h-5 w-5" />
               <span className="text-xs font-semibold">AI</span>

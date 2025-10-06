@@ -352,18 +352,6 @@ export default function Index() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
-      {/* Serial Bowl Wordmark */}
-      <div className="flex justify-center mb-6">
-        <img 
-          src={serialBowlWordmark} 
-          alt="Serial Bowl" 
-          className="w-64 h-auto"
-          style={{
-            filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.3))'
-          }}
-        />
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger 
