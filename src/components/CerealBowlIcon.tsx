@@ -1,45 +1,69 @@
-import { HTMLAttributes } from 'react';
-
-interface CerealBowlIconProps extends HTMLAttributes<SVGElement> {
+interface CerealBowlIconProps {
   size?: number;
+  className?: string;
 }
 
-export const CerealBowlIcon = ({ size = 24, className = '', ...props }: CerealBowlIconProps) => {
+export const CerealBowlIcon = ({ size = 32, className = '' }: CerealBowlIconProps) => {
   return (
-    <div className="flex flex-col items-center gap-0.5">
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {/* Gradient Bowl Layers */}
+      <path
+        d="M25 45 Q25 70 50 78 Q75 70 75 45 Z"
+        fill="url(#gradient1)"
+        opacity="0.9"
+      />
+      <path
+        d="M28 47 Q28 68 50 75 Q72 68 72 47 Z"
+        fill="url(#gradient2)"
+        opacity="0.85"
+      />
+      <path
+        d="M31 49 Q31 66 50 72 Q69 66 69 49 Z"
+        fill="url(#gradient3)"
+        opacity="0.8"
+      />
+      
+      {/* Spoon */}
+      <path
+        d="M48 25 L48 45"
+        stroke="url(#gradient4)"
+        strokeWidth="3"
         strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-        {...props}
-      >
-        {/* Bowl */}
-        <path d="M4 12c0 4.5 3.5 8 8 8s8-3.5 8-8" />
-        {/* Bowl rim */}
-        <path d="M4 12h16" />
-        {/* Cereal pieces */}
-        <circle cx="8" cy="9" r="1.5" fill="currentColor" />
-        <circle cx="12" cy="8" r="1.5" fill="currentColor" />
-        <circle cx="16" cy="9" r="1.5" fill="currentColor" />
-        <circle cx="10" cy="10.5" r="1.2" fill="currentColor" />
-        <circle cx="14" cy="10.5" r="1.2" fill="currentColor" />
-        {/* Spoon - positioned on the right side */}
-        <ellipse cx="19" cy="8" rx="1.2" ry="1.8" />
-        <path d="M19 9.5 L19 18" strokeWidth="1.5" />
-      </svg>
-      {/* Retro color stripes */}
-      <div className="flex gap-0.5">
-        <div className="w-1 h-1 rounded-sm bg-[hsl(var(--cherry))]" />
-        <div className="w-1 h-1 rounded-sm bg-[hsl(var(--accent-yellow))]" />
-        <div className="w-1 h-1 rounded-sm bg-[hsl(var(--cyan-glow))]" />
-        <div className="w-1 h-1 rounded-sm bg-[hsl(var(--neon-violet))]" />
-      </div>
-    </div>
+      />
+      <ellipse
+        cx="48"
+        cy="22"
+        rx="5"
+        ry="4"
+        fill="url(#gradient4)"
+      />
+      
+      {/* Gradient Definitions */}
+      <defs>
+        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#ff6b35" />
+          <stop offset="50%" stopColor="#f7931e" />
+        </linearGradient>
+        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#f7931e" />
+          <stop offset="100%" stopColor="#00d4aa" />
+        </linearGradient>
+        <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#00d4aa" />
+          <stop offset="100%" stopColor="#0ea5e9" />
+        </linearGradient>
+        <linearGradient id="gradient4" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#a855f7" />
+          <stop offset="100%" stopColor="#6366f1" />
+        </linearGradient>
+      </defs>
+    </svg>
   );
 };
