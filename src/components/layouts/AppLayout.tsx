@@ -17,8 +17,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: Search, label: 'Search', path: '/search' },
-    { icon: Library, label: 'Library', path: '/watchlist' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
+    { icon: Compass, label: 'Discover', path: '/discover' },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 
@@ -39,6 +39,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
+              <Library className="h-5 w-5" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI" className="gap-1.5">
               <Bot className="h-5 w-5" />
               <span className="text-xs font-semibold">AI</span>
