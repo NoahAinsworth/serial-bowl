@@ -43,7 +43,7 @@ export function RatingInput({ initialRating = 0, onRate, disabled = false }: Rat
                 "h-6 w-6 transition-colors",
                 rating <= displayRating
                   ? "fill-primary text-primary neon-glow"
-                  : "text-muted-foreground hover:text-primary"
+                  : "text-muted-foreground"
               )}
             />
           </button>

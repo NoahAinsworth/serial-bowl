@@ -127,7 +127,7 @@ export function ReviewButton({
                 <button
                   key={star}
                   type="button"
-                  className="transition-all hover:scale-110"
+                  className="transition-all active:scale-95"
                   onMouseEnter={() => setHoveredRating(star)}
                   onMouseLeave={() => setHoveredRating(0)}
                   onClick={() => setRating(star)}

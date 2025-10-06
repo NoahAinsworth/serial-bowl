@@ -87,7 +87,7 @@ export function TrendingShows() {
         {shows.map((show) => (
           <Card
             key={show.content_id}
-            className="cursor-pointer hover:border-primary/50 transition-all hover-scale overflow-hidden"
+            className="cursor-pointer active:border-primary/50 transition-all active:scale-95 overflow-hidden"
             onClick={() => navigate(`/show/${show.external_id}`)}
           >
             {show.poster_url ? (

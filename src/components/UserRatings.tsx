@@ -67,7 +67,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
       {ratings.map((rating) => (
         <Card
           key={rating.id}
-          className="cursor-pointer hover:border-primary/50 transition-all hover-scale overflow-hidden"
+          className="cursor-pointer active:border-primary/50 transition-all active:scale-95 overflow-hidden"
           onClick={() => {
             if (contentKind === 'show') {
               navigate(`/show/${rating.content.external_id}`);

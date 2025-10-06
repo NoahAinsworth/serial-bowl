@@ -158,10 +158,10 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
   };
 
   return (
-    <Card className="p-4 hover:border-primary/50 transition-all duration-300 animate-fade-in card-enhanced group">
+    <Card className="p-4 active:border-primary/50 transition-all duration-300 animate-fade-in card-enhanced group">
       <div className="flex gap-3">
         <div className="avatar-ring">
-          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform group-hover:scale-110" onClick={() => navigate(`/user/${thought.user.id}`)}>
+          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.id}`)}>
             <AvatarImage src={thought.user.avatar_url} alt={thought.user.handle} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
               {thought.user.handle[0]?.toUpperCase() || 'U'}
@@ -179,7 +179,7 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
+                    className="text-muted-foreground active:text-destructive h-8 w-8 p-0"
                     disabled={deleting}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -196,7 +196,7 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDelete}
-                      className="bg-destructive hover:bg-destructive/90"
+                      className="bg-destructive active:bg-destructive/90"
                     >
                       Delete
                     </AlertDialogAction>
@@ -209,7 +209,7 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
           <div className="flex flex-wrap gap-2 mb-3">
             {thought.show && (
               <div 
-                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm cursor-pointer hover:from-primary/20 hover:to-primary/10 transition-all duration-300 border border-primary/20 hover:border-primary/40 hover:scale-105"
+                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm cursor-pointer active:from-primary/20 active:to-primary/10 transition-all duration-300 border border-primary/20 active:border-primary/40 active:scale-95"
                 onClick={() => thought.show?.external_id && navigate(`/show/${thought.show.external_id}`)}
               >
                 <span className="flex items-center gap-1.5">
@@ -220,7 +220,7 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
             )}
             {thought.season && (
               <div 
-                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-secondary/10 to-secondary/5 text-secondary text-sm cursor-pointer hover:from-secondary/20 hover:to-secondary/10 transition-all duration-300 border border-secondary/20 hover:border-secondary/40 hover:scale-105"
+                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-secondary/10 to-secondary/5 text-secondary text-sm cursor-pointer active:from-secondary/20 active:to-secondary/10 transition-all duration-300 border border-secondary/20 active:border-secondary/40 active:scale-95"
                 onClick={() => thought.season?.show_external_id && thought.season?.external_id && navigate(`/show/${thought.season.show_external_id}/season/${thought.season.external_id}`)}
               >
                 <span className="flex items-center gap-1.5">
@@ -231,7 +231,7 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
             )}
             {thought.episode && (
               <div 
-                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 text-accent text-sm cursor-pointer hover:from-accent/20 hover:to-accent/10 transition-all duration-300 border border-accent/20 hover:border-accent/40 hover:scale-105"
+                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 text-accent text-sm cursor-pointer active:from-accent/20 active:to-accent/10 transition-all duration-300 border border-accent/20 active:border-accent/40 active:scale-95"
                 onClick={() => thought.episode?.show_external_id && thought.episode?.season_external_id && thought.episode?.external_id && navigate(`/show/${thought.episode.show_external_id}/season/${thought.episode.season_external_id}/episode/${thought.episode.external_id}`)}
               >
                 <span className="flex items-center gap-1.5">
@@ -255,7 +255,7 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="hover:text-accent transition-colors"
+              className="active:text-accent transition-colors"
             >
               <MessageCircle className="h-4 w-4 mr-1" />
               <span className="text-sm">{thought.comments}</span>

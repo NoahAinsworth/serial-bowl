@@ -108,7 +108,7 @@ export function UserLists() {
       {lists.map((list) => (
         <Card
           key={list.id}
-          className="p-4 cursor-pointer hover:border-primary/50 transition-all"
+          className="p-4 cursor-pointer active:border-primary/50 transition-all active:scale-[0.98]"
           onClick={() => navigate(`/list/${list.id}`)}
         >
           <div className="flex items-start justify-between mb-2">

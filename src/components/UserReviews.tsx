@@ -85,7 +85,7 @@ export function UserReviews({ userId }: UserReviewsProps) {
       {reviews.map((review) => (
         <Card
           key={review.id}
-          className="p-4 cursor-pointer hover:border-primary/50 transition-all"
+          className="p-4 cursor-pointer active:border-primary/50 transition-all active:scale-[0.98]"
           onClick={() => {
             if (review.content.kind === 'show') {
               navigate(`/show/${review.content.external_id}`);

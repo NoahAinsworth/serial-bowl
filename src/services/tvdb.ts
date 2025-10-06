@@ -1,7 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-
-const TVDB_BASE_URL = import.meta.env.VITE_TVDB_BASE_URL;
-const TVDB_API_KEY = import.meta.env.VITE_TVDB_API_KEY;
+import { env } from '@/lib/env';
 
 class TVDBClient {
   private client: AxiosInstance;
@@ -10,7 +8,7 @@ class TVDBClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: TVDB_BASE_URL,
+      baseURL: env.TVDB_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -25,7 +23,7 @@ class TVDBClient {
 
     try {
       const response = await this.client.post('/login', {
-        apikey: TVDB_API_KEY,
+        apikey: env.TVDB_API_KEY,
       });
       this.token = response.data.data.token;
       this.tokenExpiry = now + 24 * 60 * 60 * 1000; // 24 hours

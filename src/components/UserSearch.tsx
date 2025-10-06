@@ -152,7 +152,7 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
                 onClick={() => navigate(`/user/${profile.id}`)}
               >
                 <div className="avatar-ring">
-                  <Avatar className="h-12 w-12 transition-transform group-hover:scale-110">
+                  <Avatar className="h-12 w-12 transition-transform active:scale-95">
                     <AvatarImage src={profile.avatar_url} alt={profile.handle} />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
                       {profile.handle[0]?.toUpperCase() || 'U'}

@@ -65,10 +65,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <Link
               key={path}
               to={path}
-              className={`flex flex-col items-center gap-1 transition-colors ${
+              className={`flex flex-col items-center gap-1 transition-colors active:scale-95 ${
                 isActive(path)
                   ? 'text-primary neon-glow'
-                  : 'text-muted-foreground hover:text-foreground'
+                  : 'text-muted-foreground'
               }`}
             >
               <Icon className="h-6 w-6" />
