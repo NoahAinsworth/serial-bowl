@@ -13,74 +13,36 @@ import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [thoughts, setThoughts] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [trendingThoughts, setTrendingThoughts] = useState<any[]>([]);
+  const [trendingReviews, setTrendingReviews] = useState<any[]>([]);
+  const [hotTakesThoughts, setHotTakesThoughts] = useState<any[]>([]);
+  const [hotTakesReviews, setHotTakesReviews] = useState<any[]>([]);
+  const [bingeThoughts, setBingeThoughts] = useState<any[]>([]);
+  const [bingeReviews, setBingeReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState('trending');
-  const [bingeFeed, setBingeFeed] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
-      loadInitialData();
+      loadData();
     }
-  }, [user, activeTab]);
+  }, [user]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollRef.current || !hasMore || loadingMore) return;
-      
-      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      if (scrollTop + clientHeight >= scrollHeight * 0.8) {
-        loadMoreData();
-      }
-    };
-
-    const scrollElement = scrollRef.current;
-    scrollElement?.addEventListener('scroll', handleScroll);
-    return () => scrollElement?.removeEventListener('scroll', handleScroll);
-  }, [hasMore, loadingMore, activeTab, page]);
-
-  const loadInitialData = async () => {
+  const loadData = async () => {
     setLoading(true);
-    setPage(0);
-    setHasMore(true);
-    
-    if (activeTab === 'trending') {
-      await loadReviews(0);
-    } else if (activeTab === 'binge') {
-      await loadBingeFeed();
-    } else {
-      await loadThoughts(0, activeTab);
-    }
-    
+    await Promise.all([
+      loadTrendingData(),
+      loadHotTakesData(),
+      loadBingeData()
+    ]);
     setLoading(false);
   };
 
-  const loadMoreData = async () => {
-    if (loadingMore || !hasMore || activeTab === 'binge') return;
+  const loadTrendingData = async () => {
+    const limit = 10;
     
-    setLoadingMore(true);
-    const nextPage = page + 1;
-    
-    if (activeTab === 'trending') {
-      await loadReviews(nextPage);
-    } else {
-      await loadThoughts(nextPage, activeTab);
-    }
-    
-    setPage(nextPage);
-    setLoadingMore(false);
-  };
-
-  const loadThoughts = async (pageNum: number, tab: string) => {
-    const limit = 20;
-    const offset = pageNum * limit;
-
-    // Fetch thoughts with user and content info
+    // Load trending thoughts
     const { data: thoughtsData } = await supabase
       .from('thoughts')
       .select(`
@@ -103,16 +65,169 @@ export default function Index() {
         )
       `)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .limit(limit);
 
-    if (!thoughtsData || thoughtsData.length === 0) {
-      setHasMore(false);
-      if (pageNum === 0) setThoughts([]);
-      return;
-    }
+    const thoughtsWithCounts = await processThoughts(thoughtsData || []);
+    const sortedThoughts = thoughtsWithCounts.sort((a, b) => b.totalInteractions - a.totalInteractions);
+    setTrendingThoughts(sortedThoughts);
 
-    // Get reaction counts and user reactions for each thought
-    const thoughtsWithCounts = await Promise.all(
+    // Load trending reviews
+    const { data: reviewsData } = await supabase
+      .from('reviews')
+      .select(`
+        id,
+        user_id,
+        review_text,
+        content_id,
+        created_at,
+        profiles!reviews_user_id_fkey (
+          id,
+          handle,
+          avatar_url
+        ),
+        content (
+          id,
+          title,
+          poster_url,
+          external_id,
+          kind
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    const reviewsWithRatings = await processReviews(reviewsData || []);
+    setTrendingReviews(reviewsWithRatings);
+  };
+
+  const loadHotTakesData = async () => {
+    const limit = 10;
+    
+    const { data: thoughtsData } = await supabase
+      .from('thoughts')
+      .select(`
+        id,
+        user_id,
+        text_content,
+        content_id,
+        created_at,
+        profiles!thoughts_user_id_fkey (
+          id,
+          handle,
+          avatar_url
+        ),
+        content (
+          id,
+          title,
+          external_id,
+          kind,
+          metadata
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    const thoughtsWithCounts = await processThoughts(thoughtsData || []);
+    const sortedThoughts = thoughtsWithCounts.sort((a, b) => b.dislikes - a.dislikes);
+    setHotTakesThoughts(sortedThoughts);
+
+    const { data: reviewsData } = await supabase
+      .from('reviews')
+      .select(`
+        id,
+        user_id,
+        review_text,
+        content_id,
+        created_at,
+        profiles!reviews_user_id_fkey (
+          id,
+          handle,
+          avatar_url
+        ),
+        content (
+          id,
+          title,
+          poster_url,
+          external_id,
+          kind
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    const reviewsWithRatings = await processReviews(reviewsData || []);
+    setHotTakesReviews(reviewsWithRatings);
+  };
+
+  const loadBingeData = async () => {
+    const limit = 10;
+    
+    const { data: follows } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user!.id);
+
+    const followingIds = follows?.map(f => f.following_id) || [];
+
+    const { data: thoughtsData } = await supabase
+      .from('thoughts')
+      .select(`
+        id,
+        user_id,
+        text_content,
+        content_id,
+        created_at,
+        profiles!thoughts_user_id_fkey (
+          id,
+          handle,
+          avatar_url
+        ),
+        content (
+          id,
+          title,
+          external_id,
+          kind,
+          metadata
+        )
+      `)
+      .in('user_id', followingIds.length > 0 ? followingIds : ['00000000-0000-0000-0000-000000000000'])
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    const thoughtsWithCounts = await processThoughts(thoughtsData || []);
+    setBingeThoughts(thoughtsWithCounts);
+
+    const { data: reviewsData } = await supabase
+      .from('reviews')
+      .select(`
+        id,
+        user_id,
+        review_text,
+        content_id,
+        created_at,
+        profiles!reviews_user_id_fkey (
+          id,
+          handle,
+          avatar_url
+        ),
+        content (
+          id,
+          title,
+          poster_url,
+          external_id,
+          kind
+        )
+      `)
+      .in('user_id', followingIds.length > 0 ? followingIds : ['00000000-0000-0000-0000-000000000000'])
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    const reviewsWithRatings = await processReviews(reviewsData || []);
+    setBingeReviews(reviewsWithRatings);
+  };
+
+  const processThoughts = async (thoughtsData: any[]) => {
+    return await Promise.all(
       thoughtsData.map(async (thought: any) => {
         const { data: reactions } = await supabase
           .from('reactions')
@@ -136,7 +251,6 @@ export default function Index() {
         const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
         const totalInteractions = likes + dislikes + rethinks;
 
-        // Determine what to show based on content kind
         let contentDisplay: any = undefined;
         if (thought.content) {
           if (thought.content.kind === 'show') {
@@ -186,63 +300,10 @@ export default function Index() {
         };
       })
     );
-
-    // Sort based on tab
-    let sortedThoughts = [...thoughtsWithCounts];
-    if (tab === 'trending') {
-      sortedThoughts.sort((a, b) => b.totalInteractions - a.totalInteractions);
-    } else if (tab === 'hot-takes') {
-      sortedThoughts.sort((a, b) => b.dislikes - a.dislikes);
-    }
-
-    if (pageNum === 0) {
-      setThoughts(sortedThoughts);
-    } else {
-      setThoughts(prev => [...prev, ...sortedThoughts]);
-    }
-
-    if (thoughtsData.length < limit) {
-      setHasMore(false);
-    }
   };
 
-  const loadReviews = async (pageNum: number) => {
-    const limit = 20;
-    const offset = pageNum * limit;
-
-    // Fetch reviews with user info, ratings, and content
-    const { data: reviewsData } = await supabase
-      .from('reviews')
-      .select(`
-        id,
-        user_id,
-        review_text,
-        content_id,
-        created_at,
-        profiles!reviews_user_id_fkey (
-          id,
-          handle,
-          avatar_url
-        ),
-        content (
-          id,
-          title,
-          poster_url,
-          external_id,
-          kind
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (!reviewsData || reviewsData.length === 0) {
-      setHasMore(false);
-      if (pageNum === 0) setReviews([]);
-      return;
-    }
-
-    // Get ratings for each review
-    const reviewsWithRatings = await Promise.all(
+  const processReviews = async (reviewsData: any[]) => {
+    return await Promise.all(
       reviewsData.map(async (review: any) => {
         const { data: rating } = await supabase
           .from('ratings')
@@ -265,213 +326,8 @@ export default function Index() {
         };
       })
     );
-
-    if (pageNum === 0) {
-      setReviews(reviewsWithRatings);
-    } else {
-      setReviews(prev => [...prev, ...reviewsWithRatings]);
-    }
-
-    if (reviewsData.length < limit) {
-      setHasMore(false);
-    }
   };
 
-  const loadBingeFeed = async () => {
-    // Get user's follows
-    const { data: follows } = await supabase
-      .from('follows')
-      .select('following_id')
-      .eq('follower_id', user!.id);
-
-    const followingIds = follows?.map(f => f.following_id) || [];
-
-    // Get user's ratings to understand preferences
-    const { data: userRatings } = await supabase
-      .from('ratings')
-      .select('content_id, rating')
-      .eq('user_id', user!.id);
-
-    const ratedContentIds = userRatings?.map(r => r.content_id) || [];
-
-    // Fetch thoughts
-    const { data: thoughtsData } = await supabase
-      .from('thoughts')
-      .select(`
-        id,
-        user_id,
-        text_content,
-        content_id,
-        created_at,
-        profiles!thoughts_user_id_fkey (
-          id,
-          handle,
-          avatar_url
-        ),
-        content (
-          id,
-          title,
-          external_id,
-          kind,
-          metadata
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    // Fetch reviews
-    const { data: reviewsData } = await supabase
-      .from('reviews')
-      .select(`
-        id,
-        user_id,
-        review_text,
-        content_id,
-        created_at,
-        profiles!reviews_user_id_fkey (
-          id,
-          handle,
-          avatar_url
-        ),
-        content (
-          id,
-          title,
-          poster_url,
-          external_id,
-          kind
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    // Score and mix content
-    const scoredContent = [];
-
-    // Process thoughts
-    if (thoughtsData) {
-      for (const thought of thoughtsData) {
-        const { data: reactions } = await supabase
-          .from('reactions')
-          .select('reaction_type')
-          .eq('thought_id', thought.id);
-
-        const { data: comments } = await supabase
-          .from('comments')
-          .select('id')
-          .eq('thought_id', thought.id);
-
-        const { data: userReaction } = await supabase
-          .from('reactions')
-          .select('reaction_type')
-          .eq('thought_id', thought.id)
-          .eq('user_id', user!.id)
-          .maybeSingle();
-
-        const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
-        const dislikes = reactions?.filter(r => r.reaction_type === 'dislike').length || 0;
-        const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
-
-        let score = 0;
-        if (followingIds.includes(thought.user_id)) score += 10;
-        if (thought.content_id && ratedContentIds.includes(thought.content_id)) score += 5;
-        score += likes * 2 - dislikes;
-        score += rethinks * 1.5;
-
-        let contentDisplay: any = undefined;
-        if (thought.content) {
-          if (thought.content.kind === 'show') {
-            contentDisplay = {
-              show: { 
-                title: thought.content.title, 
-                external_id: thought.content.external_id 
-              }
-            };
-          } else if (thought.content.kind === 'season') {
-            const metadata = thought.content.metadata as any;
-            contentDisplay = {
-              season: {
-                title: thought.content.title,
-                external_id: thought.content.external_id,
-                show_external_id: metadata?.show_id
-              }
-            };
-          } else if (thought.content.kind === 'episode') {
-            const metadata = thought.content.metadata as any;
-            contentDisplay = {
-              episode: {
-                title: thought.content.title,
-                external_id: thought.content.external_id,
-                season_external_id: metadata?.season_number,
-                show_external_id: metadata?.show_id
-              }
-            };
-          }
-        }
-
-        scoredContent.push({
-          type: 'thought',
-          score,
-          data: {
-            id: thought.id,
-            user: {
-              id: thought.profiles.id,
-              handle: thought.profiles.handle,
-              avatar_url: thought.profiles.avatar_url,
-            },
-            content: thought.text_content,
-            ...contentDisplay,
-            likes,
-            dislikes,
-            comments: comments?.length || 0,
-            rethinks,
-            totalInteractions: likes + dislikes + rethinks,
-            userReaction: userReaction?.reaction_type,
-          }
-        });
-      }
-    }
-
-    // Process reviews
-    if (reviewsData) {
-      for (const review of reviewsData) {
-        const { data: rating } = await supabase
-          .from('ratings')
-          .select('rating')
-          .eq('user_id', review.user_id)
-          .eq('content_id', review.content_id)
-          .maybeSingle();
-
-        let score = 0;
-        if (followingIds.includes(review.user_id)) score += 10;
-        if (review.content_id && ratedContentIds.includes(review.content_id)) score += 5;
-
-        scoredContent.push({
-          type: 'review',
-          score,
-          data: {
-            id: review.id,
-            user: {
-              id: review.profiles.id,
-              handle: review.profiles.handle,
-              avatar_url: review.profiles.avatar_url,
-            },
-            reviewText: review.review_text,
-            rating: rating?.rating || 0,
-            content: review.content,
-            createdAt: review.created_at,
-          }
-        });
-      }
-    }
-
-    // Sort by score and take top items
-    const sortedFeed = scoredContent
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 20);
-
-    setBingeFeed(sortedFeed);
-    setHasMore(false);
-  };
 
   if (!user) {
     return (
@@ -492,145 +348,181 @@ export default function Index() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <CerealBowlIcon size={48} />
-        <Button onClick={() => navigate('/post')} className="gap-2 btn-glow">
-          <Plus className="h-4 w-4" />
-          Post
-        </Button>
+      <div className="flex justify-center items-center mb-6">
+        <CerealBowlIcon size={56} />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-4 mb-6">
+        <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger 
             value="trending" 
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
           >
-            <span className="text-sm">Trending</span>
+            Trending
           </TabsTrigger>
           <TabsTrigger 
             value="hot-takes" 
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
           >
-            <span className="text-sm">Hot Takes</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="reviews" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-          >
-            <span className="text-sm">Reviews</span>
+            Hot Takes
           </TabsTrigger>
           <TabsTrigger 
             value="binge" 
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
           >
-            <span className="text-sm">Binge</span>
+            Binge
           </TabsTrigger>
         </TabsList>
 
-        <div ref={scrollRef} className="max-h-[calc(100vh-240px)] overflow-y-auto">
-          <TabsContent value="trending" className="space-y-4 mt-0">{/* Trending - mix of popular reviews and thoughts */}
+        <div ref={scrollRef} className="max-h-[calc(100vh-240px)] overflow-y-auto space-y-8">
+          <TabsContent value="trending" className="mt-0">
             {loading ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : reviews.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No reviews yet. Share your first review!
               </div>
             ) : (
               <>
-                {reviews.map((review) => (
-                  <ReviewCard key={review.id} review={review} />
-                ))}
-                {loadingMore && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="hot-takes" className="space-y-4 mt-0">{/* Hot Takes - controversial posts */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : thoughts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No posts yet. Be the first to share!
-              </div>
-            ) : (
-              <>
-                {thoughts.map((thought) => (
-                  <ThoughtCard
-                    key={thought.id}
-                    thought={thought}
-                    onReactionChange={() => loadInitialData()}
-                    onDelete={() => loadInitialData()}
-                  />
-                ))}
-                {loadingMore && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="reviews" className="space-y-4 mt-0">{/* Reviews only */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : reviews.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                No reviews yet. Share your first review!
-              </div>
-            ) : (
-              <>
-                {reviews.map((review) => (
-                  <ReviewCard key={review.id} review={review} />
-                ))}
-                {loadingMore && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="binge" className="space-y-4 mt-0">{/* Personalized Binge feed */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : bingeFeed.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12">
-                Start following users and rating shows to get personalized recommendations!
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {bingeFeed.map((item) => (
-                  item.type === 'thought' ? (
-                    <ThoughtCard
-                      key={item.data.id}
-                      thought={item.data}
-                      onReactionChange={() => loadInitialData()}
-                      onDelete={() => loadInitialData()}
-                    />
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold px-2">Reviews</h3>
+                  {trendingReviews.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                      No reviews yet
+                    </div>
                   ) : (
-                    <ReviewCard key={item.data.id} review={item.data} />
-                  )
-                ))}
+                    <div className="space-y-4">
+                      {trendingReviews.map((review) => (
+                        <ReviewCard key={review.id} review={review} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold px-2">Thoughts</h3>
+                  {trendingThoughts.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                      No thoughts yet
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {trendingThoughts.map((thought) => (
+                        <ThoughtCard
+                          key={thought.id}
+                          thought={thought}
+                          onReactionChange={() => loadData()}
+                          onDelete={() => loadData()}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="hot-takes" className="mt-0">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold px-2">Reviews</h3>
+                  {hotTakesReviews.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                      No reviews yet
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {hotTakesReviews.map((review) => (
+                        <ReviewCard key={review.id} review={review} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold px-2">Thoughts</h3>
+                  {hotTakesThoughts.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                      No thoughts yet
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {hotTakesThoughts.map((thought) => (
+                        <ThoughtCard
+                          key={thought.id}
+                          thought={thought}
+                          onReactionChange={() => loadData()}
+                          onDelete={() => loadData()}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="binge" className="mt-0">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : bingeReviews.length === 0 && bingeThoughts.length === 0 ? (
+              <div className="text-center text-muted-foreground py-12">
+                Start following users to see their content here!
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold px-2">Reviews</h3>
+                  {bingeReviews.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                      No reviews yet
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {bingeReviews.map((review) => (
+                        <ReviewCard key={review.id} review={review} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold px-2">Thoughts</h3>
+                  {bingeThoughts.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                      No thoughts yet
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {bingeThoughts.map((thought) => (
+                        <ThoughtCard
+                          key={thought.id}
+                          thought={thought}
+                          onReactionChange={() => loadData()}
+                          onDelete={() => loadData()}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </TabsContent>
         </div>
       </Tabs>
+
+      <Button 
+        onClick={() => navigate('/post')} 
+        className="fixed bottom-20 right-6 h-14 w-14 rounded-full btn-glow shadow-lg"
+        size="icon"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
     </div>
   );
 }
