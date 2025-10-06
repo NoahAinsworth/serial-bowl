@@ -10,6 +10,7 @@ import { Edit, Loader2, Share2, MessageSquare, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
+import { UserLists } from '@/components/UserLists';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
 import {
@@ -410,22 +411,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="lists" className="mt-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">My Lists</h3>
-              <Button onClick={() => navigate('/lists')}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create List
-              </Button>
-            </div>
-            {/* Lists will be shown here - reusing lists page logic */}
-            <div className="text-muted-foreground text-center py-8">
-              <p>Manage your lists from here</p>
-              <Button variant="link" onClick={() => navigate('/lists')}>
-                Go to Lists
-              </Button>
-            </div>
-          </div>
+          <UserLists />
         </TabsContent>
       </Tabs>
 
