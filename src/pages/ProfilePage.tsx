@@ -426,14 +426,8 @@ export default function ProfilePage() {
 
           {postType === 'all' && (
             <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Posts</h3>
-                <UserThoughts userId={user!.id} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Reviews</h3>
-                <UserReviews userId={user!.id} />
-              </div>
+              <UserThoughts userId={user!.id} />
+              <UserReviews userId={user!.id} />
             </div>
           )}
           {postType === 'thoughts' && <UserThoughts userId={user!.id} />}
