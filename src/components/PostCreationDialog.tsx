@@ -63,20 +63,7 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review') {
-        // Save review
-        if (text.trim()) {
-          const { error: reviewError } = await supabase
-            .from('reviews')
-            .upsert({
-              user_id: user.id,
-              content_id: contentId,
-              review_text: text,
-            });
-
-          if (reviewError) throw reviewError;
-        }
-
-        // Save rating if provided
+        // Save rating first (if provided)
         if (rating > 0) {
           const { error: ratingError } = await supabase
             .from('ratings')
@@ -87,6 +74,29 @@ export function PostCreationDialog({
             });
 
           if (ratingError) throw ratingError;
+
+          // Log rating interaction for algorithm
+          await supabase
+            .from('interactions')
+            .insert({
+              user_id: user.id,
+              post_id: contentId,
+              post_type: 'rating',
+              interaction_type: 'rate',
+            });
+        }
+
+        // Save review text if provided
+        if (text.trim()) {
+          const { error: reviewError } = await supabase
+            .from('reviews')
+            .upsert({
+              user_id: user.id,
+              content_id: contentId,
+              review_text: text,
+            });
+
+          if (reviewError) throw reviewError;
         }
       } else {
         // Save thought

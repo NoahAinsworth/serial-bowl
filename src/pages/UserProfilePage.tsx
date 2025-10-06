@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
+import { FollowRequestButton } from '@/components/FollowRequestButton';
 
 export default function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -17,11 +18,12 @@ export default function UserProfilePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [followStatus, setFollowStatus] = useState<'none' | 'pending' | 'accepted'>('none');
   const [profile, setProfile] = useState({
     handle: '',
     bio: '',
     avatar_url: '',
+    is_private: false,
     showCount: 0,
     seasonCount: 0,
     episodeCount: 0,
@@ -39,7 +41,6 @@ export default function UserProfilePage() {
       }
       loadProfile();
       loadThoughts();
-      checkFollowing();
     }
   }, [userId, user]);
 
@@ -48,7 +49,7 @@ export default function UserProfilePage() {
 
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('handle, bio, avatar_url')
+      .select('handle, bio, avatar_url, is_private')
       .eq('id', userId)
       .single();
 
@@ -91,6 +92,7 @@ export default function UserProfilePage() {
       handle: profileData.handle,
       bio: profileData.bio || '',
       avatar_url: profileData.avatar_url || '',
+      is_private: profileData.is_private || false,
       showCount,
       seasonCount,
       episodeCount,
@@ -168,59 +170,6 @@ export default function UserProfilePage() {
     }
   };
 
-  const checkFollowing = async () => {
-    if (!user || !userId) return;
-
-    const { data } = await supabase
-      .from('follows')
-      .select('id')
-      .eq('follower_id', user.id)
-      .eq('following_id', userId)
-      .single();
-
-    setIsFollowing(!!data);
-  };
-
-  const handleFollow = async () => {
-    if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to follow users",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!userId) return;
-
-    if (isFollowing) {
-      const { error } = await supabase
-        .from('follows')
-        .delete()
-        .eq('follower_id', user.id)
-        .eq('following_id', userId);
-
-      if (!error) {
-        setIsFollowing(false);
-        setProfile(prev => ({ ...prev, followers: prev.followers - 1 }));
-        toast({ title: "Unfollowed" });
-      }
-    } else {
-      const { error } = await supabase
-        .from('follows')
-        .insert({
-          follower_id: user.id,
-          following_id: userId,
-        });
-
-      if (!error) {
-        setIsFollowing(true);
-        setProfile(prev => ({ ...prev, followers: prev.followers + 1 }));
-        toast({ title: "Following" });
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -247,24 +196,15 @@ export default function UserProfilePage() {
               <p className="text-muted-foreground mt-1">{profile.bio || 'TV enthusiast 📺'}</p>
             </div>
           </div>
-          {user && (
-            <Button
-              variant={isFollowing ? 'outline' : 'default'}
-              onClick={handleFollow}
-              className="btn-glow"
-            >
-              {isFollowing ? (
-                <>
-                  <UserMinus className="h-4 w-4 mr-2" />
-                  Unfollow
-                </>
-              ) : (
-                <>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Follow
-                </>
-              )}
-            </Button>
+          {user && userId && (
+            <FollowRequestButton 
+              targetUserId={userId}
+              isPrivate={profile.is_private}
+              initialFollowStatus={followStatus}
+              onStatusChange={() => {
+                loadProfile();
+              }}
+            />
           )}
         </div>
 

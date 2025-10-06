@@ -12,6 +12,7 @@ import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
 import { UserLists } from '@/components/UserLists';
 import { UserReviews } from '@/components/UserReviews';
+import { FollowRequestsList } from '@/components/FollowRequestsList';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
 import {
@@ -224,6 +225,9 @@ export default function ProfilePage() {
           Messages
         </Button>
       </div>
+
+      {/* Follow Requests List */}
+      <FollowRequestsList />
 
       {/* Header Section */}
       <Card 

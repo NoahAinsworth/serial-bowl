@@ -125,6 +125,17 @@ export default function ShowDetailPage() {
       });
     } else {
       setUserRating(rating);
+      
+      // Log rating interaction for algorithm
+      await supabase
+        .from('interactions')
+        .insert({
+          user_id: user.id,
+          post_id: contentId,
+          post_type: 'rating',
+          interaction_type: 'rate',
+        });
+
       toast({
         title: "Success",
         description: "Rating saved!",
