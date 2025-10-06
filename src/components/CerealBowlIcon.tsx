@@ -29,6 +29,9 @@ export const CerealBowlIcon = ({ size = 24, className = '', ...props }: CerealBo
         <circle cx="16" cy="9" r="1.5" fill="currentColor" />
         <circle cx="10" cy="10.5" r="1.2" fill="currentColor" />
         <circle cx="14" cy="10.5" r="1.2" fill="currentColor" />
+        {/* Spoon - positioned on the right side */}
+        <ellipse cx="19" cy="8" rx="1.2" ry="1.8" />
+        <path d="M19 9.5 L19 18" strokeWidth="1.5" />
       </svg>
       {/* Retro color stripes */}
       <div className="flex gap-0.5">

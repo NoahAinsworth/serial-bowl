@@ -31,8 +31,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <div className="container flex h-14 items-center justify-between px-4">
           <div className="text-xl font-bold neon-glow tracking-wider">SERIAL BOWL</div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI">
+            <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI" className="gap-1.5">
               <Bot className="h-5 w-5" />
+              <span className="text-xs font-semibold">AI</span>
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/activity')} title="Notifications">
               <Bell className="h-5 w-5" />
