@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings, List, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -59,8 +60,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon className="h-6 w-6" />
-              <span className="text-xs">{label}</span>
+              {label === 'Home' ? (
+                <CerealBowlIcon className="h-6 w-6" size={24} />
+              ) : (
+                <>
+                  <Icon className="h-6 w-6" />
+                  <span className="text-xs">{label}</span>
+                </>
+              )}
             </Link>
           ))}
         </div>
