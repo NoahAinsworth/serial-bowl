@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings, List, Compass, Bot } from 'lucide-react';
+import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings, List, Compass, Bot, Library } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 import { BingeBotAI } from '@/components/BingeBotAI';
@@ -17,8 +17,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: Search, label: 'Search', path: '/search' },
+    { icon: Library, label: 'Library', path: '/watchlist' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
-    { icon: Compass, label: 'Discover', path: '/discover' },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 
