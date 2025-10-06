@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Bot, Send } from "lucide-react";
+import { Loader2, Bot, Send, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -86,22 +85,33 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
     "How many episodes in season 1?",
   ];
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl h-[60vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-3">
-            <div className="relative">
-              <Bot className="h-8 w-8 text-primary" />
-              {loading && (
-                <Loader2 className="absolute -bottom-1 -right-1 h-4 w-4 text-primary animate-spin" />
-              )}
-            </div>
-            <span>Binge Bot AI</span>
-          </DialogTitle>
-        </DialogHeader>
+  if (!open) return null;
 
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+  return (
+    <div className="fixed inset-0 z-50 bg-background flex flex-col">
+      {/* Header with Bot Logo */}
+      <div className="flex items-center justify-center py-6 border-b relative">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Bot className="h-12 w-12 text-primary" />
+            {loading && (
+              <Loader2 className="absolute -bottom-1 -right-1 h-5 w-5 text-primary animate-spin" />
+            )}
+          </div>
+          <span className="text-2xl font-bold">Binge Bot AI</span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4"
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 max-w-4xl mx-auto w-full">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               <p className="mb-4">Ask me anything about shows, seasons, episodes, or actors.</p>
@@ -163,31 +173,31 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
           )}
         </div>
 
-        <div className="px-6 pb-6 pt-4 border-t">
-          <div className="flex gap-2">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask about a show, season, or actor…"
-              className="min-h-[60px] resize-none"
-              disabled={loading}
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!input.trim() || loading}
-              size="icon"
-              className="h-[60px] w-[60px]"
-            >
-              {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <Send className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
+      {/* Input Area */}
+      <div className="px-6 pb-6 pt-4 border-t max-w-4xl mx-auto w-full">
+        <div className="flex gap-2">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask about a show, season, or actor…"
+            className="min-h-[60px] resize-none"
+            disabled={loading}
+          />
+          <Button
+            onClick={handleSend}
+            disabled={!input.trim() || loading}
+            size="icon"
+            className="h-[60px] w-[60px]"
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Send className="h-5 w-5" />
+            )}
+          </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

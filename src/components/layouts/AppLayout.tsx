@@ -1,8 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings, List, Compass } from 'lucide-react';
+import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings, List, Compass, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CerealBowlIcon } from '@/components/CerealBowlIcon';
+import { BingeBotAI } from '@/components/BingeBotAI';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -11,6 +12,7 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [bingeBotOpen, setBingeBotOpen] = useState(false);
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -29,6 +31,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <div className="container flex h-14 items-center justify-between px-4">
           <div className="text-xl font-bold neon-glow tracking-wider">SERIAL BOWL</div>
           <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI">
+              <Bot className="h-5 w-5" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/activity')} title="Notifications">
               <Bell className="h-5 w-5" />
             </Button>
@@ -66,6 +71,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           ))}
         </div>
       </nav>
+
+      {/* Binge Bot AI */}
+      <BingeBotAI open={bingeBotOpen} onOpenChange={setBingeBotOpen} />
     </div>
   );
 };
