@@ -170,15 +170,34 @@ export default function EditProfilePage() {
     <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
       <h1 className="text-3xl font-bold">Edit Profile</h1>
 
-      <Card className="p-6 space-y-6">
+      <Card 
+        className="p-6 space-y-6 profile-card-grain"
+        style={{ 
+          '--banner-color': profile.bannerColor 
+        } as React.CSSProperties}
+      >
         <div className="flex flex-col items-center space-y-4">
           <ProfilePictureUpload 
             currentAvatarUrl={profile.avatar_url}
             onUploadComplete={(url) => setProfile({ ...profile, avatar_url: url })}
-            bannerColor={profile.bannerColor}
-            onBannerColorChange={(color) => setProfile({ ...profile, bannerColor: color })}
           />
-          <p className="text-sm text-muted-foreground">Click camera to change picture, pencil to change banner color</p>
+          <p className="text-sm text-muted-foreground">Click camera icon to change profile picture</p>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-2">
+          <Label htmlFor="bannerColor">Profile Background Color</Label>
+          <div className="grid grid-cols-4 gap-2">
+            {['hsl(280, 100%, 70%)', 'hsl(200, 100%, 70%)', 'hsl(340, 100%, 70%)', 'hsl(160, 100%, 70%)', 'hsl(40, 100%, 70%)', 'hsl(120, 100%, 70%)', 'hsl(0, 100%, 70%)', 'hsl(60, 100%, 70%)'].map((color) => (
+              <button
+                key={color}
+                className={`w-full h-12 rounded-lg border-2 ${profile.bannerColor === color ? 'border-foreground scale-105' : 'border-muted'} transition-all hover:scale-105`}
+                style={{ backgroundColor: color }}
+                onClick={() => setProfile({ ...profile, bannerColor: color })}
+              />
+            ))}
+          </div>
         </div>
 
         <Separator />

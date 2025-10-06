@@ -128,20 +128,12 @@ export function ProfilePictureUpload({
 
   return (
     <div className="relative inline-block">
-      {/* Polaroid Banner with Animated Grain */}
-      <div 
-        className="polaroid-banner"
-        style={{ 
-          '--banner-color': selectedColor 
-        } as React.CSSProperties}
-      >
-        <Avatar className="h-24 w-24 cursor-pointer relative z-10" onClick={handleClick}>
-          <AvatarImage src={previewUrl} alt="Profile picture" />
-          <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
-            {getInitials()}
-          </AvatarFallback>
-        </Avatar>
-      </div>
+      <Avatar className="h-24 w-24 cursor-pointer relative z-10" onClick={handleClick}>
+        <AvatarImage src={previewUrl} alt="Profile picture" />
+        <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+          {getInitials()}
+        </AvatarFallback>
+      </Avatar>
       
       {/* Avatar Camera Button */}
       <Button
@@ -157,36 +149,6 @@ export function ProfilePictureUpload({
           <Camera className="h-4 w-4" />
         )}
       </Button>
-
-      {/* Banner Color Edit Button */}
-      {onBannerColorChange && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              size="icon"
-              variant="outline"
-              className="absolute top-0 right-0 rounded-full h-7 w-7 bg-background z-20"
-            >
-              <Pencil className="h-3 w-3" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-3">
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Banner Color</p>
-              <div className="grid grid-cols-4 gap-2">
-                {BANNER_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    className="w-8 h-8 rounded-full border-2 border-background shadow-md hover:scale-110 transition-transform"
-                    style={{ backgroundColor: color }}
-                    onClick={() => handleColorChange(color)}
-                  />
-                ))}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      )}
 
       <input
         ref={fileInputRef}

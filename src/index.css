@@ -415,16 +415,14 @@ All colors MUST be HSL.
     }
   }
 
-  /* Polaroid Banner with Animated Grain */
-  .polaroid-banner {
+  /* Profile Card with Grain Background */
+  .profile-card-grain {
     position: relative;
-    padding: 1rem;
     background: var(--banner-color, hsl(280, 100%, 70%));
-    border-radius: 0.75rem;
     overflow: hidden;
   }
 
-  .polaroid-banner::before {
+  .profile-card-grain::before {
     content: '';
     position: absolute;
     top: 0;
@@ -436,15 +434,15 @@ All colors MUST be HSL.
         0deg,
         transparent,
         transparent 2px,
-        rgba(0, 0, 0, 0.03) 2px,
-        rgba(0, 0, 0, 0.03) 4px
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
       );
     pointer-events: none;
     z-index: 1;
     animation: grain-move 8s steps(10) infinite;
   }
 
-  .polaroid-banner::after {
+  .profile-card-grain::after {
     content: '';
     position: absolute;
     top: 0;
@@ -452,10 +450,15 @@ All colors MUST be HSL.
     right: 0;
     bottom: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.15;
+    opacity: 0.35;
     pointer-events: none;
     z-index: 1;
     animation: grain-move 3s steps(10) infinite alternate;
+  }
+
+  .profile-card-grain > * {
+    position: relative;
+    z-index: 2;
   }
 
   @keyframes grain-move {

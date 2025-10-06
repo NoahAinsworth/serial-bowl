@@ -223,22 +223,20 @@ export default function ProfilePage() {
       </div>
 
       {/* Header Section */}
-      <Card className="p-6 mb-6 card-enhanced">
+      <Card 
+        className="p-6 mb-6 card-enhanced profile-card-grain"
+        style={{ 
+          '--banner-color': (profile?.settings as any)?.bannerColor || 'hsl(280, 100%, 70%)' 
+        } as React.CSSProperties}
+      >
         <div className="flex items-start gap-6 mb-6">
-          {/* Avatar with Polaroid Banner */}
-          <div 
-            className="polaroid-banner"
-            style={{ 
-              '--banner-color': (profile?.settings as any)?.bannerColor || 'hsl(280, 100%, 70%)' 
-            } as React.CSSProperties}
-          >
-            <Avatar className="h-24 w-24 relative z-10">
-              <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl">
-                {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+          {/* Avatar */}
+          <Avatar className="h-24 w-24 relative z-10">
+            <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
+            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl">
+              {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
 
           {/* Profile Info */}
           <div className="flex-1">
