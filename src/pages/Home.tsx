@@ -61,7 +61,7 @@ export default function Home() {
     return (
       <div className="container max-w-2xl mx-auto py-12 px-4 text-center space-y-6">
         <div className="flex flex-col items-center gap-4">
-          <img src={cerealBowlLogo} alt="Serialcereal Logo" className="w-32 h-32 neon-glow" />
+          <img src={cerealBowlLogo} alt="Serial Bowl Logo" className="w-32 h-32 neon-glow" />
           <p className="text-xl text-muted-foreground">Your TV social network</p>
         </div>
         <p className="text-muted-foreground">
@@ -160,7 +160,7 @@ export default function Home() {
               <p className="text-muted-foreground">No trending shows yet. Be the first to rate!</p>
             </Card>
           ) : (
-            <ShowCarousel shows={trendingShows} title="Trending on Serialcereal" />
+            <ShowCarousel shows={trendingShows} title="Trending on Serial Bowl" />
           )}
         </TabsContent>
       </Tabs>

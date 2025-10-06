@@ -81,7 +81,7 @@ export default function AuthPage() {
     } else {
       toast({
         title: "Account created!",
-        description: "Welcome to Serialcereal",
+        description: "Welcome to Serial Bowl",
       });
       navigate('/');
     }
@@ -92,7 +92,7 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 neon-glow">SERIALCEREAL</h1>
+          <h1 className="text-4xl font-bold mb-2 neon-glow">SERIAL BOWL</h1>
           <p className="text-muted-foreground">Your TV social network</p>
         </div>
 
