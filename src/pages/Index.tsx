@@ -353,22 +353,22 @@ export default function Index() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
+        <TabsList className="w-full grid grid-cols-3 mb-6 bg-transparent border-0 p-0 gap-2">
           <TabsTrigger 
             value="trending" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+            className="relative overflow-hidden bg-gradient-to-r from-[#ff6b35]/10 to-[#f7931e]/10 border border-[#ff6b35]/30 data-[state=active]:border-[#ff6b35] data-[state=active]:from-[#ff6b35]/20 data-[state=active]:to-[#f7931e]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#ff6b35] before:to-[#f7931e] data-[state=active]:before:h-[3px] after:absolute after:top-0 after:left-0 after:right-0 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-[#ff6b35]/50 after:to-transparent"
           >
             Trending
           </TabsTrigger>
           <TabsTrigger 
             value="hot-takes" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+            className="relative overflow-hidden bg-gradient-to-r from-[#f7931e]/10 to-[#00d4aa]/10 border border-[#f7931e]/30 data-[state=active]:border-[#00d4aa] data-[state=active]:from-[#f7931e]/20 data-[state=active]:to-[#00d4aa]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#f7931e] before:to-[#00d4aa] data-[state=active]:before:h-[3px] after:absolute after:top-0 after:left-0 after:right-0 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-[#00d4aa]/50 after:to-transparent"
           >
             Hot Takes
           </TabsTrigger>
           <TabsTrigger 
             value="binge" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+            className="relative overflow-hidden bg-gradient-to-r from-[#00d4aa]/10 to-[#0ea5e9]/10 border border-[#00d4aa]/30 data-[state=active]:border-[#0ea5e9] data-[state=active]:from-[#00d4aa]/20 data-[state=active]:to-[#0ea5e9]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#00d4aa] before:to-[#0ea5e9] data-[state=active]:before:h-[3px] after:absolute after:top-0 after:left-0 after:right-0 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-[#0ea5e9]/50 after:to-transparent"
           >
             Binge
           </TabsTrigger>
@@ -382,16 +382,16 @@ export default function Index() {
               </div>
             ) : (
               <Tabs value={trendingSubTab} onValueChange={setTrendingSubTab} className="w-full">
-                <TabsList className="w-full grid grid-cols-2 mb-4">
+                <TabsList className="w-full grid grid-cols-2 mb-4 bg-transparent border-0 p-0 gap-2">
                   <TabsTrigger 
                     value="reviews"
-                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="relative overflow-hidden bg-gradient-to-r from-[#a855f7]/10 to-[#ec4899]/10 border border-[#a855f7]/30 data-[state=active]:border-[#ec4899] data-[state=active]:from-[#a855f7]/20 data-[state=active]:to-[#ec4899]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#a855f7] before:to-[#ec4899] data-[state=active]:before:h-[3px]"
                   >
                     Reviews
                   </TabsTrigger>
                   <TabsTrigger 
                     value="thoughts"
-                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="relative overflow-hidden bg-gradient-to-r from-[#ec4899]/10 to-[#f97316]/10 border border-[#ec4899]/30 data-[state=active]:border-[#f97316] data-[state=active]:from-[#ec4899]/20 data-[state=active]:to-[#f97316]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#ec4899] before:to-[#f97316] data-[state=active]:before:h-[3px]"
                   >
                     Thoughts
                   </TabsTrigger>
@@ -440,16 +440,16 @@ export default function Index() {
               </div>
             ) : (
               <Tabs value={hotTakesSubTab} onValueChange={setHotTakesSubTab} className="w-full">
-                <TabsList className="w-full grid grid-cols-2 mb-4">
+                <TabsList className="w-full grid grid-cols-2 mb-4 bg-transparent border-0 p-0 gap-2">
                   <TabsTrigger 
                     value="reviews"
-                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="relative overflow-hidden bg-gradient-to-r from-[#a855f7]/10 to-[#ec4899]/10 border border-[#a855f7]/30 data-[state=active]:border-[#ec4899] data-[state=active]:from-[#a855f7]/20 data-[state=active]:to-[#ec4899]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#a855f7] before:to-[#ec4899] data-[state=active]:before:h-[3px]"
                   >
                     Reviews
                   </TabsTrigger>
                   <TabsTrigger 
                     value="thoughts"
-                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="relative overflow-hidden bg-gradient-to-r from-[#ec4899]/10 to-[#f97316]/10 border border-[#ec4899]/30 data-[state=active]:border-[#f97316] data-[state=active]:from-[#ec4899]/20 data-[state=active]:to-[#f97316]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#ec4899] before:to-[#f97316] data-[state=active]:before:h-[3px]"
                   >
                     Thoughts
                   </TabsTrigger>
@@ -502,16 +502,16 @@ export default function Index() {
               </div>
             ) : (
               <Tabs value={bingeSubTab} onValueChange={setBingeSubTab} className="w-full">
-                <TabsList className="w-full grid grid-cols-2 mb-4">
+                <TabsList className="w-full grid grid-cols-2 mb-4 bg-transparent border-0 p-0 gap-2">
                   <TabsTrigger 
                     value="reviews"
-                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="relative overflow-hidden bg-gradient-to-r from-[#a855f7]/10 to-[#ec4899]/10 border border-[#a855f7]/30 data-[state=active]:border-[#ec4899] data-[state=active]:from-[#a855f7]/20 data-[state=active]:to-[#ec4899]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#a855f7] before:to-[#ec4899] data-[state=active]:before:h-[3px]"
                   >
                     Reviews
                   </TabsTrigger>
                   <TabsTrigger 
                     value="thoughts"
-                    className="transition-all data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="relative overflow-hidden bg-gradient-to-r from-[#ec4899]/10 to-[#f97316]/10 border border-[#ec4899]/30 data-[state=active]:border-[#f97316] data-[state=active]:from-[#ec4899]/20 data-[state=active]:to-[#f97316]/20 before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-[#ec4899] before:to-[#f97316] data-[state=active]:before:h-[3px]"
                   >
                     Thoughts
                   </TabsTrigger>
