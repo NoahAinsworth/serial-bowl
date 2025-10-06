@@ -502,21 +502,33 @@ export default function Index() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-4 mb-6">
-          <TabsTrigger value="trending" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
+          <TabsTrigger 
+            value="trending" 
+            className="gap-2 transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
             <Flame className="h-5 w-5" />
-            Trending
+            <span className="text-sm">Trending</span>
           </TabsTrigger>
-          <TabsTrigger value="hot-takes" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
+          <TabsTrigger 
+            value="hot-takes" 
+            className="gap-2 transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
             <Zap className="h-5 w-5" />
-            Hot Takes
+            <span className="text-sm">Hot Takes</span>
           </TabsTrigger>
-          <TabsTrigger value="reviews" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
+          <TabsTrigger 
+            value="reviews" 
+            className="gap-2 transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
             <Star className="h-5 w-5" />
-            Reviews
+            <span className="text-sm">Reviews</span>
           </TabsTrigger>
-          <TabsTrigger value="binge" className="gap-2 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] transition-all">
+          <TabsTrigger 
+            value="binge" 
+            className="gap-2 transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
             <Sparkles className="h-5 w-5" />
-            Binge
+            <span className="text-sm">Binge</span>
           </TabsTrigger>
         </TabsList>
 
