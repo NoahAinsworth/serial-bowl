@@ -3,10 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { RatingInput } from '@/components/RatingInput';
 import { EpisodeCheckbox } from '@/components/EpisodeCheckbox';
+import { ReviewsList } from '@/components/ReviewsList';
+import { ThoughtsList } from '@/components/ThoughtsList';
 import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
@@ -201,6 +204,21 @@ export default function SeasonDetailPage() {
             ))}
           </div>
       </div>
+
+      {contentId && (
+        <Tabs defaultValue="reviews" className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="reviews" className="flex-1">Reviews</TabsTrigger>
+            <TabsTrigger value="thoughts" className="flex-1">Thoughts</TabsTrigger>
+          </TabsList>
+          <TabsContent value="reviews">
+            <ReviewsList contentId={contentId} />
+          </TabsContent>
+          <TabsContent value="thoughts">
+            <ThoughtsList contentId={contentId} />
+          </TabsContent>
+        </Tabs>
+      )}
 
       {contentId && (
         <PostCreationDialog

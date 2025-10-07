@@ -7,10 +7,12 @@ import { WatchedButton } from '@/components/WatchedButton';
 import { ReviewButton } from '@/components/ReviewButton';
 import { AddToListButton } from '@/components/AddToListButton';
 import { ReviewsList } from '@/components/ReviewsList';
+import { ThoughtsList } from '@/components/ThoughtsList';
 import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
@@ -209,7 +211,20 @@ export default function ShowDetailPage() {
         </Card>
       )}
 
-      {contentId && <ReviewsList contentId={contentId} />}
+      {contentId && (
+        <Tabs defaultValue="reviews" className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="reviews" className="flex-1">Reviews</TabsTrigger>
+            <TabsTrigger value="thoughts" className="flex-1">Thoughts</TabsTrigger>
+          </TabsList>
+          <TabsContent value="reviews">
+            <ReviewsList contentId={contentId} />
+          </TabsContent>
+          <TabsContent value="thoughts">
+            <ThoughtsList contentId={contentId} />
+          </TabsContent>
+        </Tabs>
+      )}
 
         <div>
         <h2 className="text-2xl font-bold mb-4">Seasons</h2>
