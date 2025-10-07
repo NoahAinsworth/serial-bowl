@@ -83,7 +83,7 @@ export default function DiscoverPage() {
   useEffect(() => {
     if (browseObserver.current) browseObserver.current.disconnect();
 
-    if (activeTab !== 'browse') return;
+    if (activeTab !== 'browse' || browseShows.length === 0) return;
 
     browseObserver.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !browseLoading && browseHasMore) {
@@ -98,13 +98,13 @@ export default function DiscoverPage() {
     return () => {
       if (browseObserver.current) browseObserver.current.disconnect();
     };
-  }, [browseLoading, browsePage, browseShows, activeTab]);
+  }, [browseLoading, browsePage, browseShows.length, activeTab, browseHasMore]);
 
   // Set up infinite scroll for New tab
   useEffect(() => {
     if (newObserver.current) newObserver.current.disconnect();
 
-    if (activeTab !== 'new') return;
+    if (activeTab !== 'new' || newShows.length === 0) return;
 
     newObserver.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !newLoading && newHasMore) {
@@ -119,7 +119,7 @@ export default function DiscoverPage() {
     return () => {
       if (newObserver.current) newObserver.current.disconnect();
     };
-  }, [newLoading, newPage, newShows, activeTab]);
+  }, [newLoading, newPage, newShows.length, activeTab, newHasMore]);
 
   const loadBrowseShows = async (page: number) => {
     if (browseLoading || !browseHasMore) return;
