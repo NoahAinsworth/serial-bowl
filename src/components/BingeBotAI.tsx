@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Bot, Send, X, ExternalLink } from "lucide-react";
+import { Loader2, Bot, Send, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { BingeBotMessage } from "./BingeBotMessage";
 
 interface Entity {
   type: "show" | "season" | "episode";
   name: string;
   id?: string;
   externalId?: string;
+  seasonNumber?: number;
+  episodeId?: string;
 }
 
 interface Message {
@@ -136,9 +139,14 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
   };
 
   const handleEntityClick = (entity: Entity) => {
+    onOpenChange(false);
+    
     if (entity.type === "show" && entity.externalId) {
-      onOpenChange(false);
       navigate(`/show/${entity.externalId}`);
+    } else if (entity.type === "season" && entity.externalId && entity.seasonNumber) {
+      navigate(`/show/${entity.externalId}/season/${entity.seasonNumber}`);
+    } else if (entity.type === "episode" && entity.externalId && entity.seasonNumber && entity.episodeId) {
+      navigate(`/show/${entity.externalId}/season/${entity.seasonNumber}/episode/${entity.episodeId}`);
     }
   };
 
@@ -197,54 +205,40 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
             <>
               {messages.map((msg, idx) => (
                 <div key={idx} className="space-y-2">
-                  <div
-                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                        msg.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  {msg.role === "user" ? (
+                    <div className="flex justify-end">
+                      <div className="max-w-[80%] rounded-lg px-4 py-2 bg-primary text-primary-foreground">
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Entity chips */}
-                  {msg.role === "assistant" && msg.entities && msg.entities.length > 0 && (
-                    <div className="flex flex-wrap gap-2 ml-2">
-                      {msg.entities.map((entity, i) => (
-                        <Button
-                          key={i}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEntityClick(entity)}
-                          className="h-7 text-xs"
-                        >
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          {entity.name}
-                        </Button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Follow-up chips */}
-                  {msg.role === "assistant" && msg.followUps && msg.followUps.length > 0 && (
-                    <div className="flex flex-wrap gap-2 ml-2">
-                      {msg.followUps.map((followUp, i) => (
-                        <Button
-                          key={i}
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleFollowUpClick(followUp)}
-                          disabled={loading}
-                          className="h-7 text-xs"
-                        >
-                          {followUp}
-                        </Button>
-                      ))}
-                    </div>
+                  ) : (
+                    <>
+                      <BingeBotMessage
+                        content={msg.content}
+                        entities={msg.entities}
+                        sessionId={sessionId || ''}
+                        question={messages[idx - 1]?.content || ''}
+                        onEntityClick={handleEntityClick}
+                      />
+                      
+                      {/* Follow-up chips */}
+                      {msg.followUps && msg.followUps.length > 0 && (
+                        <div className="flex flex-wrap gap-2 ml-2">
+                          {msg.followUps.map((followUp, i) => (
+                            <Button
+                              key={i}
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handleFollowUpClick(followUp)}
+                              disabled={loading}
+                              className="h-7 text-xs"
+                            >
+                              {followUp}
+                            </Button>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               ))}

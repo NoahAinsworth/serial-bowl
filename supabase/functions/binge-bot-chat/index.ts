@@ -7,7 +7,48 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `You are Binge Bot AI, a TV and celebrity expert for Serial Bowl.
+// TVDB API helper
+async function searchTVDB(query: string, apiKey: string) {
+  try {
+    const loginRes = await fetch("https://api4.thetvdb.com/v4/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apikey: apiKey }),
+    });
+    const { data: { token } } = await loginRes.json();
+
+    const searchRes = await fetch(`https://api4.thetvdb.com/v4/search?query=${encodeURIComponent(query)}&type=series`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const searchData = await searchRes.json();
+    return searchData.data || [];
+  } catch (error) {
+    console.error("TVDB search error:", error);
+    return [];
+  }
+}
+
+async function getTVDBEpisodes(seriesId: number, apiKey: string) {
+  try {
+    const loginRes = await fetch("https://api4.thetvdb.com/v4/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apikey: apiKey }),
+    });
+    const { data: { token } } = await loginRes.json();
+
+    const episodesRes = await fetch(`https://api4.thetvdb.com/v4/series/${seriesId}/episodes/default`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const episodesData = await episodesRes.json();
+    return episodesData.data?.episodes || [];
+  } catch (error) {
+    console.error("TVDB episodes error:", error);
+    return [];
+  }
+}
+
+const SYSTEM_PROMPT = `You are Binge Bot AI, a friendly TV and celebrity expert for Serial Bowl.
 
 Scope:
 - Discuss television shows, episodes, seasons, actors, celebrities, characters, networks, runtimes, air dates, filmography, roles, awards, and career highlights.
@@ -15,18 +56,18 @@ Scope:
 - Politely refuse non-TV/celebrity topics (sports, politics, news unrelated to entertainment).
 
 Behavior:
-- Keep answers concise and TV-savvy; use bullet points when listing episodes or cast.
-- Format episodes as S02E05 — "Episode Title" (Aired May 3 2015) when you have that information.
-- When mentioning shows, seasons, or episodes, be specific about titles.
+- Keep answers conversational, friendly, and helpful — like chatting with a friend who loves TV.
+- Format episodes as S02E05 — "Episode Title" (Aired May 3, 2015) when you have that information.
+- When mentioning shows, seasons, or episodes, use their exact names for linking.
 - If a show title could mean multiple things, ask a short clarifying question.
 - Maintain context for follow-ups.
 
 Tone:
-Friendly, factual, concise, and confident.
+Friendly, casual, fun, and knowledgeable — NOT robotic.
 
 Boundary:
-If asked a non-TV/celebrity question, reply with:
-"I focus on TV shows and entertainment. Ask me about shows, actors, seasons, episodes, or careers!"`;
+If asked a non-TV/celebrity question, gently redirect:
+"I'm all about TV shows and entertainment! Ask me about shows, actors, seasons, episodes, or careers."`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -39,10 +80,34 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
+    const tvdbApiKey = Deno.env.get("VITE_TVDB_API_KEY")!;
     
     if (!lovableApiKey) throw new Error("LOVABLE_API_KEY not configured");
     
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Extract entities from user's last message
+    const userQuery = messages[messages.length - 1].content;
+    let tvdbContext = "";
+
+    // Search TVDB for show mentions
+    const tvdbResults = await searchTVDB(userQuery, tvdbApiKey);
+    if (tvdbResults.length > 0) {
+      const topShow = tvdbResults[0];
+      const episodes = await getTVDBEpisodes(topShow.tvdb_id, tvdbApiKey);
+      
+      tvdbContext = `\n\nVerified TVDB data for "${topShow.name}":\n` +
+        `- TVDB ID: ${topShow.tvdb_id}\n` +
+        `- First aired: ${topShow.first_air_time || 'N/A'}\n` +
+        `- Total episodes: ${episodes.length}\n`;
+      
+      if (episodes.length > 0) {
+        tvdbContext += `- Recent episodes:\n`;
+        episodes.slice(0, 3).forEach((ep: any) => {
+          tvdbContext += `  * S${String(ep.seasonNumber).padStart(2, '0')}E${String(ep.number).padStart(2, '0')} — "${ep.name}" (${ep.aired || 'N/A'})\n`;
+        });
+      }
+    }
 
     // Create session if needed
     let actualSessionId = sessionId;
@@ -62,7 +127,15 @@ serve(async (req) => {
       content: messages[messages.length - 1].content,
     });
 
-    // First call: Get the main response
+    // First call: Get the main response with TVDB context
+    const enrichedMessages = [...messages];
+    if (tvdbContext) {
+      enrichedMessages[enrichedMessages.length - 1] = {
+        ...enrichedMessages[enrichedMessages.length - 1],
+        content: `${userQuery}${tvdbContext}`
+      };
+    }
+
     const mainResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -73,7 +146,7 @@ serve(async (req) => {
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          ...messages,
+          ...enrichedMessages,
         ],
       }),
     });

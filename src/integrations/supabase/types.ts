@@ -46,6 +46,36 @@ export type Database = {
           },
         ]
       }
+      bot_feedback: {
+        Row: {
+          created_at: string | null
+          id: string
+          question: string
+          rating: number | null
+          response: string
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          question: string
+          rating?: number | null
+          response: string
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          question?: string
+          rating?: number | null
+          response?: string
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       chat_events: {
         Row: {
           created_at: string | null
