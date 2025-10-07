@@ -137,9 +137,11 @@ export default function WatchedPage() {
                   >
                     {item.content.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2 flex-1">
-                    {item.content.overview || 'No description available'}
-                  </p>
+                  {item.content.overview && (
+                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2 flex-1">
+                      {item.content.overview}
+                    </p>
+                  )}
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-xs text-muted-foreground">
                       Watched {formatDistanceToNow(new Date(item.watched_at), { addSuffix: true })}
