@@ -249,6 +249,8 @@ serve(async (req) => {
     // Resolve entities to database IDs
     const resolvedEntities = [];
     for (const entity of entities) {
+      console.log("Processing entity:", entity);
+      
       if (entity.type === "show") {
         const { data: shows } = await supabase
           .from("content")
@@ -257,6 +259,8 @@ serve(async (req) => {
           .ilike("title", `%${entity.name}%`)
           .limit(1);
         
+        console.log(`Show search for "${entity.name}":`, shows);
+        
         if (shows && shows.length > 0) {
           resolvedEntities.push({
             type: "show",
@@ -264,47 +268,76 @@ serve(async (req) => {
             id: shows[0].id,
             externalId: shows[0].external_id
           });
+        } else {
+          // If not in DB, try TVDB
+          const tvdbResults = await searchTVDB(entity.name, tvdbApiKey);
+          if (tvdbResults.length > 0) {
+            resolvedEntities.push({
+              type: "show",
+              name: entity.name,
+              externalId: tvdbResults[0].tvdb_id
+            });
+            console.log(`Found show in TVDB: ${tvdbResults[0].name} (${tvdbResults[0].tvdb_id})`);
+          }
         }
       } else if (entity.type === "episode" && entity.showName && entity.seasonNumber && entity.episodeNumber) {
-        // Find the show by name first
-        const { data: shows } = await supabase
+        // Find the show by name first in our DB
+        let { data: shows } = await supabase
           .from("content")
           .select("id, external_id, title")
           .eq("kind", "show")
           .ilike("title", `%${entity.showName}%`)
           .limit(1);
         
+        // If not in DB, search TVDB
+        if (!shows || shows.length === 0) {
+          const tvdbResults = await searchTVDB(entity.showName, tvdbApiKey);
+          if (tvdbResults.length > 0) {
+            shows = [{
+              id: null,
+              external_id: tvdbResults[0].tvdb_id,
+              title: tvdbResults[0].name
+            }];
+            console.log(`Found show in TVDB for episode: ${tvdbResults[0].name} (${tvdbResults[0].tvdb_id})`);
+          }
+        }
+        
+        console.log(`Episode show search for "${entity.showName}":`, shows);
+        
         if (shows && shows.length > 0) {
-          // Try to find the actual episode in the database
-          const { data: episodes } = await supabase
-            .from("content")
-            .select("id, external_id, metadata")
-            .eq("kind", "episode")
-            .eq("parent_id", shows[0].id)
-            .limit(100);
-          
-          // Find matching episode by season and episode number from metadata
-          const matchingEpisode = episodes?.find((ep: any) => {
-            const meta = ep.metadata as any;
-            return meta?.seasonNumber === entity.seasonNumber && meta?.number === entity.episodeNumber;
-          });
-          
           resolvedEntities.push({
             type: "episode",
             name: entity.name,
             externalId: shows[0].external_id,
             seasonNumber: entity.seasonNumber,
-            episodeId: matchingEpisode?.external_id || `${entity.seasonNumber}-${entity.episodeNumber}`
+            episodeId: entity.episodeNumber.toString()
           });
+          console.log("Added episode entity:", resolvedEntities[resolvedEntities.length - 1]);
+        } else {
+          console.log(`Could not find show "${entity.showName}" for episode`);
         }
       } else if (entity.type === "season" && entity.showName && entity.seasonNumber) {
-        // Find the show by name
-        const { data: shows } = await supabase
+        // Find the show by name in DB
+        let { data: shows } = await supabase
           .from("content")
           .select("id, external_id, title")
           .eq("kind", "show")
           .ilike("title", `%${entity.showName}%`)
           .limit(1);
+        
+        // If not in DB, search TVDB
+        if (!shows || shows.length === 0) {
+          const tvdbResults = await searchTVDB(entity.showName, tvdbApiKey);
+          if (tvdbResults.length > 0) {
+            shows = [{
+              id: null,
+              external_id: tvdbResults[0].tvdb_id,
+              title: tvdbResults[0].name
+            }];
+          }
+        }
+        
+        console.log(`Season show search for "${entity.showName}":`, shows);
         
         if (shows && shows.length > 0) {
           resolvedEntities.push({
@@ -316,6 +349,8 @@ serve(async (req) => {
         }
       }
     }
+    
+    console.log("Final resolved entities:", resolvedEntities);
 
     // Save assistant message with entities
     await supabase.from("chat_messages").insert({
