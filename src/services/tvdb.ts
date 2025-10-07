@@ -86,31 +86,37 @@ export async function searchShows(query: string) {
 }
 
 export async function fetchBrowseShows(page = 1) {
-  // Use search with popular/trending terms
-  const searchTerms = ['Breaking Bad', 'Game of Thrones', 'Stranger Things', 'The Office', 'Friends'];
-  const searchTerm = searchTerms[(page - 1) % searchTerms.length];
+  // Use a mix of popular search terms to get diverse results
+  const searchTerms = [
+    'Breaking Bad', 'Game of Thrones', 'Stranger Things', 'The Office', 
+    'Friends', 'The Walking Dead', 'The Boys', 'Wednesday', 'Succession',
+    'The Last of Us', 'House of the Dragon', 'The Witcher', 'Peaky Blinders',
+    'Better Call Saul', 'The Crown', 'Dark', 'Narcos', 'Ozark'
+  ];
   
+  const searchTerm = searchTerms[(page - 1) % searchTerms.length];
   const results = await tvdbClient.searchShows(searchTerm);
   
-  // Take different slices for pagination
-  const startIdx = ((page - 1) * 20) % Math.max(1, results.length);
-  const pageResults = results.slice(startIdx, startIdx + 20);
-  
-  return pageResults.map(normalizeShow);
+  // Take first 20 results
+  return results.slice(0, 20).map(normalizeShow);
 }
 
 export async function fetchNewShows(page = 1) {
-  // Search for recent years
+  // Search for shows from the current year
   const currentYear = new Date().getFullYear();
-  const searchYear = currentYear - ((page - 1) % 3);
+  const results = await tvdbClient.searchShows(currentYear.toString());
   
-  const results = await tvdbClient.searchShows(searchYear.toString());
+  // Filter to only shows that actually premiered recently (within last year)
+  const recentDate = new Date();
+  recentDate.setFullYear(recentDate.getFullYear() - 1);
   
-  // Filter for recent shows and take a slice
   const recentShows = results
     .filter((show: any) => {
-      const year = show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0];
-      return year && parseInt(year) >= currentYear - 2;
+      const airDate = show.first_air_time || show.firstAired;
+      if (!airDate) return false;
+      
+      const showDate = new Date(airDate);
+      return showDate >= recentDate;
     })
     .slice(0, 20);
   
