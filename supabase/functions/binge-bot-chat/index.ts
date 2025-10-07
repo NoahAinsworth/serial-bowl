@@ -132,7 +132,22 @@ serve(async (req) => {
     
     if (!lovableApiKey) throw new Error("LOVABLE_API_KEY not configured");
     
+    // Create client with service role key to bypass RLS for system operations
     const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get user from auth header
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      throw new Error("Authentication required");
+    }
+    
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+    
+    if (authError || !user) {
+      throw new Error("Invalid authentication");
+    }
 
     // Extract entities from user's last message
     const userQuery = messages[messages.length - 1].content;
@@ -160,11 +175,17 @@ serve(async (req) => {
     // Create session if needed
     let actualSessionId = sessionId;
     if (!actualSessionId) {
-      const { data: newSession } = await supabase
+      const { data: newSession, error: sessionError } = await supabase
         .from("chat_sessions")
-        .insert({})
+        .insert({ user_id: user.id })
         .select()
         .single();
+      
+      if (sessionError) {
+        console.error("Session creation error:", sessionError);
+        throw new Error("Failed to create chat session");
+      }
+      
       actualSessionId = newSession.id;
     }
 
