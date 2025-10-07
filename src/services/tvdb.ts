@@ -34,6 +34,30 @@ class TVDBClient {
     }
   }
 
+  async getTrendingShows(page = 0) {
+    await this.ensureAuthenticated();
+    const response = await this.client.get('/series/trending', {
+      params: { page },
+    });
+    return response.data.data || [];
+  }
+
+  async getPopularShows(page = 0) {
+    await this.ensureAuthenticated();
+    const response = await this.client.get('/series/popular', {
+      params: { page },
+    });
+    return response.data.data || [];
+  }
+
+  async getNewShows(page = 0) {
+    await this.ensureAuthenticated();
+    const response = await this.client.get('/series/filter', {
+      params: { sort: 'firstAired', page },
+    });
+    return response.data.data || [];
+  }
+
   async searchShows(query: string) {
     await this.ensureAuthenticated();
     const response = await this.client.get('/search', {
@@ -59,17 +83,20 @@ class TVDBClient {
     const response = await this.client.get(`/series/${seriesId}/artworks`);
     return response.data.data;
   }
-
-  async getTrending() {
-    await this.ensureAuthenticated();
-    // TVDB v4 doesn't have a direct trending endpoint
-    // Use search with popular terms instead
-    const results = await this.searchShows('popular');
-    return results;
-  }
 }
 
 export const tvdbClient = new TVDBClient();
+
+// Normalize show data
+function normalizeShow(show: any) {
+  return {
+    id: show.id || show.tvdb_id,
+    title: show.name,
+    posterUrl: show.image || show.image_url || show.artwork_32_url || show.artwork_64_url || null,
+    year: show.firstAired?.split('-')[0] || show.first_air_time?.split('-')[0] || null,
+    popularity: show.score ?? show.popularity ?? null,
+  };
+}
 
 // Export convenience functions
 export async function searchShows(query: string) {
@@ -81,6 +108,30 @@ export async function searchShows(query: string) {
     image: show.image_url || '',
     firstAired: show.first_air_time || '',
   }));
+}
+
+export async function fetchBrowseShows(page = 1) {
+  const tvdbPage = page - 1; // TVDB is 0-indexed
+  const [trending, popular] = await Promise.all([
+    tvdbClient.getTrendingShows(tvdbPage),
+    tvdbClient.getPopularShows(tvdbPage),
+  ]);
+  
+  // Combine and deduplicate
+  const combined = [...trending, ...popular]
+    .reduce((acc: any[], item: any) => {
+      if (!acc.find((s) => s.id === item.id)) acc.push(item);
+      return acc;
+    }, [])
+    .slice(0, 40);
+  
+  return combined.map(normalizeShow);
+}
+
+export async function fetchNewShows(page = 1) {
+  const tvdbPage = page - 1; // TVDB is 0-indexed
+  const recent = await tvdbClient.getNewShows(tvdbPage);
+  return recent.map(normalizeShow);
 }
 
 export async function getShow(id: number) {

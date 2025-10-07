@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,21 +9,25 @@ import { supabase } from '@/lib/supabase';
 import { useTVDB } from '@/hooks/useTVDB';
 import { BingeBotAI } from '@/components/BingeBotAI';
 import { useToast } from '@/hooks/use-toast';
+import { fetchBrowseShows, fetchNewShows } from '@/services/tvdb';
+import { getCached } from '@/lib/tvdbCache';
 
 interface TVDBShow {
   id: number;
   title: string;
   posterUrl: string | null;
   year: string | null;
+  popularity?: number | null;
 }
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { search: searchTVDB } = useTVDB();
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('browse');
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'browse');
   
   // Browse tab state
   const [browseShows, setBrowseShows] = useState<TVDBShow[]>([]);
@@ -137,28 +141,12 @@ export default function DiscoverPage() {
 
     setBrowseLoading(true);
     try {
-      const offset = (page - 1) * 20;
-      const limit = 20;
+      const cacheKey = `tvdb_browse_page_${page}`;
+      const shows = await getCached(cacheKey, () => fetchBrowseShows(page));
 
-      // Query all trending shows from database (both new and popular)
-      const { data: trendingShows, error } = await supabase
-        .from('tvdb_trending')
-        .select('*')
-        .order('position', { ascending: true })
-        .range(offset, offset + limit - 1);
-
-      if (error) throw error;
-
-      if (!trendingShows || trendingShows.length === 0) {
+      if (shows.length === 0) {
         setBrowseHasMore(false);
       } else {
-        const shows: TVDBShow[] = trendingShows.map((show: any) => ({
-          id: show.tvdb_id,
-          title: show.name,
-          posterUrl: show.image_url || null,
-          year: show.first_aired?.split('-')[0] || null,
-        }));
-
         if (page === 1) {
           setBrowseShows(shows);
         } else {
@@ -170,7 +158,7 @@ export default function DiscoverPage() {
       console.error('Error loading browse shows:', error);
       toast({
         title: "Error",
-        description: "Couldn't load shows. Please try again.",
+        description: "Couldn't load shows — pull to refresh",
         variant: "destructive",
       });
       setBrowseHasMore(false);
@@ -184,29 +172,12 @@ export default function DiscoverPage() {
 
     setNewLoading(true);
     try {
-      const offset = (page - 1) * 20;
-      const limit = 20;
+      const cacheKey = `tvdb_new_page_${page}`;
+      const shows = await getCached(cacheKey, () => fetchNewShows(page));
 
-      // Query new shows from database
-      const { data: newShowsData, error } = await supabase
-        .from('tvdb_trending')
-        .select('*')
-        .eq('category', 'new')
-        .order('position', { ascending: true })
-        .range(offset, offset + limit - 1);
-
-      if (error) throw error;
-
-      if (!newShowsData || newShowsData.length === 0) {
+      if (shows.length === 0) {
         setNewHasMore(false);
       } else {
-        const shows: TVDBShow[] = newShowsData.map((show: any) => ({
-          id: show.tvdb_id,
-          title: show.name,
-          posterUrl: show.image_url || null,
-          year: show.first_aired?.split('-')[0] || null,
-        }));
-
         if (page === 1) {
           setNewShows(shows);
         } else {
@@ -218,7 +189,7 @@ export default function DiscoverPage() {
       console.error('Error loading new shows:', error);
       toast({
         title: "Error",
-        description: "Couldn't load shows. Please try again.",
+        description: "Couldn't load shows — pull to refresh",
         variant: "destructive",
       });
       setNewHasMore(false);
@@ -280,8 +251,8 @@ export default function DiscoverPage() {
             }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-muted-foreground">No poster</span>
+          <div className="w-full h-full flex items-center justify-center p-4 text-center">
+            <span className="text-muted-foreground text-sm">{show.title}</span>
           </div>
         )}
       </div>
@@ -332,7 +303,15 @@ export default function DiscoverPage() {
         />
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(tab) => {
+          setActiveTab(tab);
+          setSearchParams({ tab });
+          setSearchQuery('');
+        }} 
+        className="w-full"
+      >
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="browse">Browse</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
