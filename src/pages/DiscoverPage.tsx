@@ -335,7 +335,7 @@ export default function DiscoverPage() {
 
               {browseShows.length === 0 && !browseLoading && (
                 <p className="text-center text-muted-foreground py-12">
-                  No shows available. Click "Update Trending" to populate data.
+                  No shows available.
                 </p>
               )}
             </div>
@@ -399,7 +399,7 @@ export default function DiscoverPage() {
 
               {newShows.length === 0 && !newLoading && (
                 <p className="text-center text-muted-foreground py-12">
-                  No new shows available. Click "Update Trending" to populate data.
+                  No new shows available.
                 </p>
               )}
             </div>
