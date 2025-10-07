@@ -11,7 +11,7 @@ import { BingeBotAI } from '@/components/BingeBotAI';
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
-  const { search: searchTVDB } = useTVDB();
+  const { search: searchTVDB, fetchShow } = useTVDB();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('browse');
@@ -44,10 +44,22 @@ export default function DiscoverPage() {
   const browseEndRef = useRef<HTMLDivElement>(null);
   const newEndRef = useRef<HTMLDivElement>(null);
 
-  // Popular show IDs for Browse tab
-  const popularShowIds = [
-    80337, 121361, 78804, 83268, 295759, 81189, 70523, 79349, 305074,
-    279121, 294940, 318408, 121404, 328437, 94605, 318644, 79460, 328271
+  // Popular/trending show IDs for Browse tab (TVDB IDs)
+  const trendingShows = [
+    { id: 153021, name: 'The Walking Dead' },
+    { id: 121361, name: 'Game of Thrones' },
+    { id: 78804, name: 'The Office' },
+    { id: 83268, name: 'Breaking Bad' },
+    { id: 295759, name: 'Stranger Things' },
+    { id: 81189, name: 'Friends' },
+    { id: 70523, name: 'How I Met Your Mother' },
+    { id: 79349, name: 'The Big Bang Theory' },
+    { id: 305074, name: 'The Boys' },
+    { id: 279121, name: 'The Witcher' },
+    { id: 294940, name: 'The Mandalorian' },
+    { id: 318408, name: 'Ted Lasso' },
+    { id: 328437, name: 'The Last of Us' },
+    { id: 94605, name: 'Arcane' },
   ];
 
   // Load initial browse shows
@@ -125,31 +137,22 @@ export default function DiscoverPage() {
     try {
       const startIdx = page * 6;
       const endIdx = startIdx + 6;
-      const showIds = popularShowIds.slice(startIdx, endIdx);
+      const showsToFetch = trendingShows.slice(startIdx, endIdx);
 
-      if (showIds.length === 0) {
+      if (showsToFetch.length === 0) {
         setBrowseLoading(false);
         return;
       }
 
-      const showPromises = showIds.map(async (id) => {
+      const showPromises = showsToFetch.map(async ({ id, name }) => {
         try {
-          const { data } = await supabase
-            .from('tvdb_shows')
-            .select('tvdb_id, name, json')
-            .eq('tvdb_id', id)
-            .maybeSingle();
-
-          if (data?.json) {
-            const jsonData = data.json as any;
-            return {
-              id: data.tvdb_id,
-              name: data.name || jsonData.name,
-              image: jsonData.image || '',
-              firstAired: jsonData.firstAired || '',
-            };
-          }
-          return null;
+          const show = await fetchShow(id);
+          return show ? {
+            id: show.id,
+            name: show.name,
+            image: show.image,
+            firstAired: show.firstAired,
+          } : null;
         } catch (error) {
           console.error(`Error loading show ${id}:`, error);
           return null;
@@ -175,30 +178,41 @@ export default function DiscoverPage() {
 
     setNewLoading(true);
     try {
-      const { data } = await supabase
-        .from('tvdb_shows')
-        .select('tvdb_id, name, json')
-        .order('updated_at', { ascending: false })
-        .range(page * 12, (page + 1) * 12 - 1);
+      // For "New" tab, we'll show recent popular shows in reverse order
+      // In a real app, this would be an API endpoint for "recently added" or "airing now"
+      const recentShows = [...trendingShows].reverse();
+      const startIdx = page * 12;
+      const endIdx = startIdx + 12;
+      const showsToFetch = recentShows.slice(startIdx, endIdx);
 
-      if (data) {
-        const shows = data.map(show => {
-          const jsonData = show.json as any;
-          return {
-            id: show.tvdb_id,
-            name: show.name || jsonData?.name,
-            image: jsonData?.image || '',
-            firstAired: jsonData?.firstAired || '',
-          };
-        });
-
-        if (page === 0) {
-          setNewShows(shows);
-        } else {
-          setNewShows(prev => [...prev, ...shows]);
-        }
-        setNewPage(page);
+      if (showsToFetch.length === 0) {
+        setNewLoading(false);
+        return;
       }
+
+      const showPromises = showsToFetch.map(async ({ id, name }) => {
+        try {
+          const show = await fetchShow(id);
+          return show ? {
+            id: show.id,
+            name: show.name,
+            image: show.image,
+            firstAired: show.firstAired,
+          } : null;
+        } catch (error) {
+          console.error(`Error loading show ${id}:`, error);
+          return null;
+        }
+      });
+
+      const shows = (await Promise.all(showPromises)).filter(Boolean);
+
+      if (page === 0) {
+        setNewShows(shows);
+      } else {
+        setNewShows(prev => [...prev, ...shows]);
+      }
+      setNewPage(page);
     } catch (error) {
       console.error('Error loading new shows:', error);
     }
