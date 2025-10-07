@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { SpoilerText } from '@/components/SpoilerText';
 
 interface ReviewCardProps {
   review: {
@@ -14,6 +15,7 @@ interface ReviewCardProps {
     };
     text: string;
     rating: number | null;
+    is_spoiler?: boolean;
     content?: {
       id: string;
       title: string;
@@ -23,10 +25,11 @@ interface ReviewCardProps {
     } | null;
     created_at: string;
   };
+  userHideSpoilers?: boolean;
   onDelete?: () => void;
 }
 
-export function ReviewCard({ review }: ReviewCardProps) {
+export function ReviewCard({ review, userHideSpoilers = true }: ReviewCardProps) {
   const navigate = useNavigate();
 
   return (
@@ -82,7 +85,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
             </div>
           )}
 
-          <p className="text-foreground break-words">{review.text}</p>
+          <SpoilerText content={review.text} isSpoiler={review.is_spoiler && userHideSpoilers} />
         </div>
       </div>
     </Card>

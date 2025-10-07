@@ -629,6 +629,7 @@ export type Database = {
           content_id: string
           created_at: string | null
           id: string
+          is_spoiler: boolean
           review_text: string
           user_id: string
         }
@@ -636,6 +637,7 @@ export type Database = {
           content_id: string
           created_at?: string | null
           id?: string
+          is_spoiler?: boolean
           review_text: string
           user_id: string
         }
@@ -643,6 +645,7 @@ export type Database = {
           content_id?: string
           created_at?: string | null
           id?: string
+          is_spoiler?: boolean
           review_text?: string
           user_id?: string
         }
@@ -668,6 +671,7 @@ export type Database = {
           content_id: string | null
           created_at: string | null
           id: string
+          is_spoiler: boolean
           moderation_status:
             | Database["public"]["Enums"]["moderation_status"]
             | null
@@ -678,6 +682,7 @@ export type Database = {
           content_id?: string | null
           created_at?: string | null
           id?: string
+          is_spoiler?: boolean
           moderation_status?:
             | Database["public"]["Enums"]["moderation_status"]
             | null
@@ -688,6 +693,7 @@ export type Database = {
           content_id?: string | null
           created_at?: string | null
           id?: string
+          is_spoiler?: boolean
           moderation_status?:
             | Database["public"]["Enums"]["moderation_status"]
             | null

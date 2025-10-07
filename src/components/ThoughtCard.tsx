@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, MessageCircle, Repeat2, Trash2 } from 'lucide-react';
+import { SpoilerText } from '@/components/SpoilerText';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,6 +30,7 @@ interface ThoughtCardProps {
       avatar_url?: string;
     };
     content: string;
+    is_spoiler?: boolean;
     show?: {
       title: string;
       external_id?: string;
@@ -50,11 +52,12 @@ interface ThoughtCardProps {
     rethinks: number;
     userReaction?: 'like' | 'dislike' | 'rethink';
   };
+  userHideSpoilers?: boolean;
   onReactionChange?: () => void;
   onDelete?: () => void;
 }
 
-export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCardProps) {
+export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange, onDelete }: ThoughtCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -205,7 +208,7 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
               </AlertDialog>
             )}
           </div>
-          <p className="text-foreground mb-2 break-words">{thought.content}</p>
+          <SpoilerText content={thought.content} isSpoiler={thought.is_spoiler && userHideSpoilers} />
           <div className="flex flex-wrap gap-2 mb-3">
             {thought.show && (
               <div 

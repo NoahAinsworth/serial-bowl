@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { RatingInput } from '@/components/RatingInput';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +31,7 @@ export function PostCreationDialog({
   const { toast } = useToast();
   const [text, setText] = useState('');
   const [rating, setRating] = useState(0);
+  const [isSpoiler, setIsSpoiler] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -99,6 +102,7 @@ export function PostCreationDialog({
               user_id: user.id,
               content_id: contentId,
               review_text: text,
+              is_spoiler: isSpoiler,
             });
 
           if (reviewError) throw reviewError;
@@ -111,6 +115,7 @@ export function PostCreationDialog({
             user_id: user.id,
             content_id: contentId,
             text_content: text,
+            is_spoiler: isSpoiler,
           });
 
         if (thoughtError) throw thoughtError;
@@ -128,6 +133,7 @@ export function PostCreationDialog({
 
       setText('');
       setRating(0);
+      setIsSpoiler(false);
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
@@ -167,6 +173,20 @@ export function PostCreationDialog({
               onChange={(e) => setText(e.target.value)}
               rows={6}
             />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="spoiler"
+              checked={isSpoiler}
+              onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
+            />
+            <Label
+              htmlFor="spoiler"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              This contains spoilers
+            </Label>
           </div>
 
           <Button
