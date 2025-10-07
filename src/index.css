@@ -107,6 +107,78 @@ All colors MUST be HSL.
     --radius: 0.25rem;
   }
 
+  .upside_down {
+    /* Upside Down - Stranger Things Vibe */
+    --background: 240 20% 2%;
+    --foreground: 0 5% 94%;
+    --card: 240 18% 5%;
+    --card-foreground: 0 5% 94%;
+    --popover: 240 20% 4%;
+    --popover-foreground: 0 5% 94%;
+    --primary: 0 100% 58%;
+    --primary-foreground: 0 5% 94%;
+    --secondary: 15 100% 55%;
+    --secondary-foreground: 0 5% 94%;
+    --muted: 240 15% 10%;
+    --muted-foreground: 0 10% 75%;
+    --accent: 15 100% 55%;
+    --accent-foreground: 0 5% 94%;
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 5% 94%;
+    --border: 240 15% 12%;
+    --input: 240 15% 12%;
+    --ring: 0 100% 58%;
+    --radius: 0.5rem;
+  }
+
+  .saturday_cartoons {
+    /* Saturday Cartoons - Bubblegum Fun */
+    --background: 320 100% 98%;
+    --foreground: 260 20% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 260 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 260 20% 12%;
+    --primary: 330 100% 67%;
+    --primary-foreground: 260 20% 12%;
+    --secondary: 48 100% 65%;
+    --secondary-foreground: 260 20% 12%;
+    --muted: 320 50% 95%;
+    --muted-foreground: 260 15% 40%;
+    --accent: 200 100% 67%;
+    --accent-foreground: 260 20% 12%;
+    --destructive: 350 85% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 320 100% 90%;
+    --input: 320 100% 90%;
+    --ring: 330 100% 67%;
+    --radius: 1.125rem;
+  }
+
+  .blue_crystal {
+    /* Blue Crystal - Breaking Bad */
+    --background: 205 60% 6%;
+    --foreground: 195 100% 95%;
+    --card: 205 55% 10%;
+    --card-foreground: 195 100% 95%;
+    --popover: 205 60% 8%;
+    --popover-foreground: 195 100% 95%;
+    --primary: 195 100% 55%;
+    --primary-foreground: 195 100% 95%;
+    --secondary: 190 100% 72%;
+    --secondary-foreground: 205 55% 10%;
+    --muted: 205 40% 14%;
+    --muted-foreground: 195 30% 72%;
+    --accent: 190 100% 72%;
+    --accent-foreground: 205 55% 10%;
+    --destructive: 350 80% 68%;
+    --destructive-foreground: 195 100% 95%;
+    --border: 205 45% 16%;
+    --input: 205 45% 16%;
+    --ring: 195 100% 55%;
+    --radius: 0.5rem;
+  }
+
   /* CRT Effects */
   .retro body::before {
     background-image: 
@@ -323,5 +395,95 @@ All colors MUST be HSL.
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: -0.02em;
+  }
+
+  /* Upside Down Theme Effects */
+  .upside_down .glow,
+  .upside_down .btn,
+  .upside_down .tab-active,
+  .upside_down .card:hover {
+    box-shadow: 0 0 0.5rem rgba(255, 43, 43, 0.35), 0 0 1.2rem rgba(255, 122, 26, 0.25);
+  }
+
+  body.upside-down-overlay::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(80vmax 60vmax at 80% 20%, rgba(255, 43, 43, 0.08), transparent 60%),
+      radial-gradient(60vmax 40vmax at 10% 80%, rgba(255, 122, 26, 0.06), transparent 60%);
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+
+  body.upside-down-overlay::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><filter id="n"><feTurbulence baseFrequency="0.8" numOctaves="2" /></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.04"/></svg>');
+    opacity: 0.5;
+  }
+
+  /* Saturday Cartoons Theme Effects */
+  .saturday_cartoons .card,
+  .saturday_cartoons .btn,
+  .saturday_cartoons .input {
+    border-radius: 18px;
+  }
+
+  .saturday_cartoons .tab {
+    border-radius: 14px;
+  }
+
+  .saturday_cartoons .tab-active {
+    background: hsl(var(--accent));
+    color: #222;
+  }
+
+  body.cartoons-bg {
+    background:
+      radial-gradient(circle at 10% 10%, rgba(255, 227, 77, 0.35) 0 6px, transparent 7px) 0 0/36px 36px,
+      radial-gradient(circle at 80% 30%, rgba(89, 185, 255, 0.25) 0 8px, transparent 9px) 0 0/64px 64px,
+      hsl(var(--background));
+  }
+
+  /* Blue Crystal Theme Effects */
+  .blue_crystal .btn-primary,
+  .blue_crystal .tab-active {
+    background: linear-gradient(180deg, rgba(25, 180, 255, 0.9), rgba(14, 34, 51, 0.9));
+    border: 1px solid #39bdf8;
+    box-shadow: inset 0 0 0.5px #aaf0ff, 0 0 12px rgba(25, 180, 255, 0.35);
+  }
+
+  body.blue-crystal-overlay::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" opacity="0.12"><g fill="%237ee3ff"><polygon points="10,40 30,10 50,40"/><polygon points="140,120 160,80 180,120"/><polygon points="80,170 95,140 110,170"/></g></svg>');
+    background-repeat: repeat;
+    background-size: 400px 400px;
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .upside_down .glow,
+    .upside_down .card:hover {
+      box-shadow: none;
+    }
+    
+    body.upside-down-overlay::before,
+    body.upside-down-overlay::after {
+      opacity: 0.2;
+    }
+    
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 }

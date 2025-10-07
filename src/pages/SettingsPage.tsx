@@ -119,6 +119,9 @@ export default function SettingsPage() {
               <SelectItem value="light">Light</SelectItem>
               <SelectItem value="dark">Dark</SelectItem>
               <SelectItem value="retro">Retro (CRT Mode)</SelectItem>
+              <SelectItem value="upside_down">Upside Down</SelectItem>
+              <SelectItem value="saturday_cartoons">Saturday Cartoons</SelectItem>
+              <SelectItem value="blue_crystal">Blue Crystal</SelectItem>
             </SelectContent>
           </Select>
         </div>

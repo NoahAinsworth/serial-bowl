@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-type ThemeMode = 'light' | 'dark' | 'retro';
+type ThemeMode = 'light' | 'dark' | 'retro' | 'upside_down' | 'saturday_cartoons' | 'blue_crystal';
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -8,14 +8,14 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'dark',
+  theme: 'light',
   setTheme: () => {},
 });
 
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setThemeState] = useState<ThemeMode>('dark');
+  const [theme, setThemeState] = useState<ThemeMode>('light');
 
   useEffect(() => {
     const stored = localStorage.getItem('theme') as ThemeMode;
@@ -28,13 +28,34 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
     
-    document.documentElement.classList.remove('light', 'dark', 'retro');
+    // Remove all theme classes
+    document.documentElement.classList.remove('light', 'dark', 'retro', 'upside_down', 'saturday_cartoons', 'blue_crystal');
     document.documentElement.classList.add(newTheme);
+    
+    // Handle body classes for overlay effects
+    document.body.classList.remove('upside-down-overlay', 'cartoons-bg', 'blue-crystal-overlay');
+    if (newTheme === 'upside_down') {
+      document.body.classList.add('upside-down-overlay');
+    } else if (newTheme === 'saturday_cartoons') {
+      document.body.classList.add('cartoons-bg');
+    } else if (newTheme === 'blue_crystal') {
+      document.body.classList.add('blue-crystal-overlay');
+    }
   };
 
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark', 'retro');
+    document.documentElement.classList.remove('light', 'dark', 'retro', 'upside_down', 'saturday_cartoons', 'blue_crystal');
     document.documentElement.classList.add(theme);
+    
+    // Handle body classes for overlay effects
+    document.body.classList.remove('upside-down-overlay', 'cartoons-bg', 'blue-crystal-overlay');
+    if (theme === 'upside_down') {
+      document.body.classList.add('upside-down-overlay');
+    } else if (theme === 'saturday_cartoons') {
+      document.body.classList.add('cartoons-bg');
+    } else if (theme === 'blue_crystal') {
+      document.body.classList.add('blue-crystal-overlay');
+    }
   }, [theme]);
 
   return (

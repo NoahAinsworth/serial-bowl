@@ -10,19 +10,38 @@ export interface TMDBShow {
 
 export async function fetchPopularShows(page = 1): Promise<TMDBShow[]> {
   try {
-    // TVDB doesn't have a direct "popular" endpoint, so we'll use their trending/popular shows
-    // We'll fetch from our cached trending data or use search with popular terms
-    const searchTerms = ['Game', 'House', 'Breaking', 'Stranger', 'The', 'Friends', 'Office'];
-    const randomTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+    // Use TVDB trending data from our database cache
+    const { supabase } = await import('@/integrations/supabase/client');
     
-    const results = await tvdbClient.searchShows(randomTerm);
+    const { data: trendingShows, error } = await supabase
+      .from('tvdb_trending')
+      .select('*')
+      .order('position', { ascending: true })
+      .range((page - 1) * 20, page * 20 - 1);
     
-    return results.slice((page - 1) * 20, page * 20).map((show: any) => ({
-      id: show.tvdb_id || show.id,
+    if (error) {
+      console.error('Error fetching trending shows:', error);
+      throw error;
+    }
+    
+    if (!trendingShows || trendingShows.length === 0) {
+      // Fallback to search if no trending data
+      const results = await tvdbClient.searchShows('popular');
+      return results.slice(0, 20).map((show: any) => ({
+        id: show.tvdb_id || show.id,
+        title: show.name,
+        posterUrl: show.image_url || show.image || null,
+        year: show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0] || null,
+        popularity: Math.random() * 1000,
+      }));
+    }
+    
+    return trendingShows.map((show: any) => ({
+      id: show.tvdb_id,
       title: show.name,
-      posterUrl: show.image_url || show.image || null,
-      year: show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0] || null,
-      popularity: Math.random() * 1000, // TVDB doesn't provide popularity scores
+      posterUrl: show.image_url || null,
+      year: show.first_aired?.split('-')[0] || null,
+      popularity: 1000 - show.position, // Higher position = lower popularity score
     }));
   } catch (error) {
     console.error('Error fetching popular shows from TVDB:', error);
