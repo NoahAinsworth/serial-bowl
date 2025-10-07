@@ -181,7 +181,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "Extract TV show entities (shows, seasons, episodes) and generate 3 contextual follow-up questions. For episodes, extract the season number and episode number separately."
+            content: "Extract TV show entities and generate 3 contextual follow-up questions. For episodes and seasons, ALWAYS include the showName field to identify which show they belong to."
           },
           {
             role: "user",
@@ -203,9 +203,10 @@ serve(async (req) => {
                       type: "object",
                       properties: {
                         type: { type: "string", enum: ["show", "season", "episode"] },
-                        name: { type: "string" },
-                        seasonNumber: { type: "number" },
-                        episodeNumber: { type: "number" }
+                        name: { type: "string", description: "The name of the show, season, or episode" },
+                        showName: { type: "string", description: "The show name (required for season/episode types)" },
+                        seasonNumber: { type: "number", description: "Season number (for season/episode types)" },
+                        episodeNumber: { type: "number", description: "Episode number (for episode type)" }
                       },
                       required: ["type", "name"]
                     }
@@ -264,21 +265,53 @@ serve(async (req) => {
             externalId: shows[0].external_id
           });
         }
-      } else if (entity.type === "episode" && entity.seasonNumber && entity.episodeNumber) {
-        // For episodes, we need to find the show first, then construct the episode info
+      } else if (entity.type === "episode" && entity.showName && entity.seasonNumber && entity.episodeNumber) {
+        // Find the show by name first
         const { data: shows } = await supabase
           .from("content")
           .select("id, external_id, title")
           .eq("kind", "show")
+          .ilike("title", `%${entity.showName}%`)
           .limit(1);
         
         if (shows && shows.length > 0) {
+          // Try to find the actual episode in the database
+          const { data: episodes } = await supabase
+            .from("content")
+            .select("id, external_id, metadata")
+            .eq("kind", "episode")
+            .eq("parent_id", shows[0].id)
+            .limit(100);
+          
+          // Find matching episode by season and episode number from metadata
+          const matchingEpisode = episodes?.find((ep: any) => {
+            const meta = ep.metadata as any;
+            return meta?.seasonNumber === entity.seasonNumber && meta?.number === entity.episodeNumber;
+          });
+          
           resolvedEntities.push({
             type: "episode",
             name: entity.name,
             externalId: shows[0].external_id,
             seasonNumber: entity.seasonNumber,
-            episodeId: `${entity.seasonNumber}-${entity.episodeNumber}`
+            episodeId: matchingEpisode?.external_id || `${entity.seasonNumber}-${entity.episodeNumber}`
+          });
+        }
+      } else if (entity.type === "season" && entity.showName && entity.seasonNumber) {
+        // Find the show by name
+        const { data: shows } = await supabase
+          .from("content")
+          .select("id, external_id, title")
+          .eq("kind", "show")
+          .ilike("title", `%${entity.showName}%`)
+          .limit(1);
+        
+        if (shows && shows.length > 0) {
+          resolvedEntities.push({
+            type: "season",
+            name: entity.name,
+            externalId: shows[0].external_id,
+            seasonNumber: entity.seasonNumber
           });
         }
       }
