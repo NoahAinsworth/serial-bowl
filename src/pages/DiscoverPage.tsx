@@ -4,12 +4,10 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Loader2, Search, RefreshCw } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useTVDB } from '@/hooks/useTVDB';
 import { BingeBotAI } from '@/components/BingeBotAI';
-import { toast } from 'sonner';
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
@@ -39,9 +37,6 @@ export default function DiscoverPage() {
   // BingeBot state
   const [showBingeBot, setShowBingeBot] = useState(false);
   const [botPrompt, setBotPrompt] = useState('');
-
-  // Populate state
-  const [isPopulating, setIsPopulating] = useState(false);
 
   // Refs for infinite scroll
   const browseObserver = useRef<IntersectionObserver | null>(null);
@@ -232,31 +227,6 @@ export default function DiscoverPage() {
     setUsersLoading(false);
   };
 
-  const populateTrendingData = async () => {
-    setIsPopulating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('update-trending-shows');
-      
-      if (error) throw error;
-      
-      toast.success('Trending shows updated successfully!');
-      
-      // Reload data
-      setBrowseShows([]);
-      setNewShows([]);
-      setBrowsePage(0);
-      setNewPage(0);
-      await loadBrowseShows(0);
-      if (activeTab === 'new') {
-        await loadNewShows(0);
-      }
-    } catch (error) {
-      console.error('Error populating trending data:', error);
-      toast.error('Failed to update trending shows');
-    }
-    setIsPopulating(false);
-  };
-
   const ShowCard = ({ show }: { show: any }) => (
     <Card 
       className="relative group overflow-hidden cursor-pointer hover:scale-105 transition-transform"
@@ -308,27 +278,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="container max-w-6xl mx-auto py-6 px-4">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-4xl font-bold">Discover</h1>
-        <Button
-          onClick={populateTrendingData}
-          disabled={isPopulating}
-          variant="outline"
-          size="sm"
-        >
-          {isPopulating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Updating...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Update Trending
-            </>
-          )}
-        </Button>
-      </div>
+      <h1 className="text-4xl font-bold mb-6">Discover</h1>
 
       {/* Search Bar */}
       <div className="mb-6 relative">
