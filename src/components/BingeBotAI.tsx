@@ -1,13 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Bot, Send, X } from "lucide-react";
+import { Loader2, Bot, Send, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+
+interface Entity {
+  type: "show" | "season" | "episode";
+  name: string;
+  id?: string;
+  externalId?: string;
+}
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  entities?: Entity[];
+  followUps?: string[];
 }
 
 interface BingeBotAIProps {
@@ -23,6 +33,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
   const [sessionId, setSessionId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (initialPrompt) {
@@ -53,7 +64,15 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       if (error) throw error;
 
       setSessionId(data.sessionId);
-      setMessages((prev) => [...prev, { role: "assistant", content: data.message }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.message,
+          entities: data.entities || [],
+          followUps: data.followUps || []
+        }
+      ]);
     } catch (error: any) {
       console.error("Chat error:", error);
       toast({
@@ -75,6 +94,52 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
 
   const handleChipClick = (prompt: string) => {
     setInput(prompt);
+  };
+
+  const handleFollowUpClick = async (followUp: string) => {
+    setInput(followUp);
+    // Auto-send the follow-up
+    setMessages((prev) => [...prev, { role: "user", content: followUp }]);
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("binge-bot-chat", {
+        body: {
+          sessionId,
+          messages: [...messages, { role: "user", content: followUp }],
+        },
+      });
+
+      if (error) throw error;
+
+      setSessionId(data.sessionId);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.message,
+          entities: data.entities || [],
+          followUps: data.followUps || []
+        }
+      ]);
+      setInput("");
+    } catch (error: any) {
+      console.error("Chat error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to get response",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEntityClick = (entity: Entity) => {
+    if (entity.type === "show" && entity.externalId) {
+      onOpenChange(false);
+      navigate(`/show/${entity.externalId}`);
+    }
   };
 
   const quickChips = [
@@ -131,19 +196,56 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
           ) : (
             <>
               {messages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+                <div key={idx} className="space-y-2">
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground"
-                    }`}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-foreground"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
                   </div>
+                  
+                  {/* Entity chips */}
+                  {msg.role === "assistant" && msg.entities && msg.entities.length > 0 && (
+                    <div className="flex flex-wrap gap-2 ml-2">
+                      {msg.entities.map((entity, i) => (
+                        <Button
+                          key={i}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEntityClick(entity)}
+                          className="h-7 text-xs"
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          {entity.name}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Follow-up chips */}
+                  {msg.role === "assistant" && msg.followUps && msg.followUps.length > 0 && (
+                    <div className="flex flex-wrap gap-2 ml-2">
+                      {msg.followUps.map((followUp, i) => (
+                        <Button
+                          key={i}
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleFollowUpClick(followUp)}
+                          disabled={loading}
+                          className="h-7 text-xs"
+                        >
+                          {followUp}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
               {loading && (

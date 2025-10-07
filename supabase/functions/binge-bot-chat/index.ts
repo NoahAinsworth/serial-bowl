@@ -7,25 +7,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `You are Binge Bot AI, a verified TV-only expert for Serialcereal.
+const SYSTEM_PROMPT = `You are Binge Bot AI, a TV and celebrity expert for Serial Bowl.
 
 Scope:
-- Only discuss television shows, episodes, seasons, actors, characters, networks, runtimes, and air dates.
-- Politely refuse anything that is not TV-related (movies, music, news, etc.).
+- Discuss television shows, episodes, seasons, actors, celebrities, characters, networks, runtimes, air dates, filmography, roles, awards, and career highlights.
+- Keep celebrity info age-appropriate and focused on their professional work (no gossip or private life details).
+- Politely refuse non-TV/celebrity topics (sports, politics, news unrelated to entertainment).
 
 Behavior:
-- Keep answers concise; use bullet points when listing episodes or cast.
+- Keep answers concise and TV-savvy; use bullet points when listing episodes or cast.
 - Format episodes as S02E05 — "Episode Title" (Aired May 3 2015) when you have that information.
-- If a show title could mean multiple things, ask a short clarifying question like "Do you mean The Office (US) or The Office (UK)?"
-- Maintain the current show context so follow-ups like "What about season 2?" make sense.
+- When mentioning shows, seasons, or episodes, be specific about titles.
+- If a show title could mean multiple things, ask a short clarifying question.
+- Maintain context for follow-ups.
 
 Tone:
-Friendly, factual, short, and confident.
-Always stay focused on TV.
+Friendly, factual, concise, and confident.
 
 Boundary:
-If asked a non-TV question, reply with:
-"I'm TV-only. Ask me about shows, seasons, episodes, air dates, runtimes, networks, or cast."`;
+If asked a non-TV/celebrity question, reply with:
+"I focus on TV shows and entertainment. Ask me about shows, actors, seasons, episodes, or careers!"`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -61,7 +62,7 @@ serve(async (req) => {
       content: messages[messages.length - 1].content,
     });
 
-    // Call Lovable AI
+    // Call Lovable AI with tool calling for entity extraction
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -74,6 +75,38 @@ serve(async (req) => {
           { role: "system", content: SYSTEM_PROMPT },
           ...messages,
         ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "extract_entities_and_followups",
+              description: "Extract show/season/episode entities mentioned in the response and generate 3 contextual follow-up questions",
+              parameters: {
+                type: "object",
+                properties: {
+                  entities: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        type: { type: "string", enum: ["show", "season", "episode"] },
+                        name: { type: "string" }
+                      },
+                      required: ["type", "name"]
+                    }
+                  },
+                  followUps: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "3 contextual follow-up questions (max 80 chars each)"
+                  }
+                },
+                required: ["entities", "followUps"]
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "extract_entities_and_followups" } }
       }),
     });
 
@@ -92,8 +125,43 @@ serve(async (req) => {
 
     const result = await response.json();
     const assistantMessage = result.choices[0].message.content;
+    const toolCalls = result.choices[0].message.tool_calls;
 
-    // Save assistant message
+    let entities = [];
+    let followUps = [];
+
+    // Extract entities and follow-ups from tool call
+    if (toolCalls && toolCalls.length > 0) {
+      const toolCall = toolCalls[0];
+      const args = JSON.parse(toolCall.function.arguments);
+      entities = args.entities || [];
+      followUps = args.followUps || [];
+    }
+
+    // Resolve entities to database IDs
+    const resolvedEntities = [];
+    for (const entity of entities) {
+      if (entity.type === "show") {
+        // Search for show in content table
+        const { data: shows } = await supabase
+          .from("content")
+          .select("id, external_id, title")
+          .eq("kind", "show")
+          .ilike("title", `%${entity.name}%`)
+          .limit(1);
+        
+        if (shows && shows.length > 0) {
+          resolvedEntities.push({
+            type: "show",
+            name: entity.name,
+            id: shows[0].id,
+            externalId: shows[0].external_id
+          });
+        }
+      }
+    }
+
+    // Save assistant message with entities
     await supabase.from("chat_messages").insert({
       session_id: actualSessionId,
       role: "assistant",
@@ -103,7 +171,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         sessionId: actualSessionId, 
-        message: assistantMessage 
+        message: assistantMessage,
+        entities: resolvedEntities,
+        followUps: followUps.slice(0, 3)
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
