@@ -150,8 +150,17 @@ export default function EditProfilePage() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+    } catch (error) {
+      console.error('Sign out exception:', error);
+    } finally {
+      // Always navigate to auth page, even if sign out failed
+      navigate('/auth');
+    }
   };
 
   if (loading) {
