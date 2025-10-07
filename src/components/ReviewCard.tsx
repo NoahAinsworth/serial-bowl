@@ -10,19 +10,20 @@ interface ReviewCardProps {
     user: {
       id: string;
       handle: string;
-      avatar_url?: string;
+      avatar_url?: string | null;
     };
-    reviewText: string;
-    rating: number;
-    content: {
+    text: string;
+    rating: number | null;
+    content?: {
       id: string;
       title: string;
       poster_url?: string;
       external_id: string;
       kind: string;
-    };
-    createdAt: string;
+    } | null;
+    created_at: string;
   };
+  onDelete?: () => void;
 }
 
 export function ReviewCard({ review }: ReviewCardProps) {
@@ -33,7 +34,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
       <div className="flex gap-3">
         <div className="profile-ring">
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.id}`)}>
-            <AvatarImage src={review.user.avatar_url} alt={review.user.handle} />
+            <AvatarImage src={review.user.avatar_url || undefined} alt={review.user.handle} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
               {review.user.handle[0]?.toUpperCase() || 'U'}
             </AvatarFallback>
@@ -46,38 +47,42 @@ export function ReviewCard({ review }: ReviewCardProps) {
             </span>
             <span className="text-muted-foreground text-sm">·</span>
             <span className="text-muted-foreground text-sm">
-              {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
+              {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
             </span>
           </div>
 
-          <div className="flex items-start gap-3 mb-3">
-            {review.content.poster_url && (
-              <div 
-                className="w-16 h-24 rounded-md overflow-hidden flex-shrink-0 cursor-pointer active:opacity-80 transition-opacity"
-                onClick={() => navigate(`/show/${review.content.external_id}`)}
-              >
-                <img 
-                  src={review.content.poster_url} 
-                  alt={review.content.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <div 
-                className="font-semibold text-foreground mb-1 cursor-pointer active:text-primary transition-colors"
-                onClick={() => navigate(`/show/${review.content.external_id}`)}
-              >
-                {review.content.title}
-              </div>
-              <div className="flex items-center gap-1 mb-2">
-                <span className="text-lg font-bold text-primary">{review.rating}</span>
-                <Star className="h-4 w-4 fill-primary text-primary" />
+          {review.content && (
+            <div className="flex items-start gap-3 mb-3">
+              {review.content.poster_url && (
+                <div 
+                  className="w-16 h-24 rounded-md overflow-hidden flex-shrink-0 cursor-pointer active:opacity-80 transition-opacity"
+                  onClick={() => navigate(`/show/${review.content.external_id}`)}
+                >
+                  <img 
+                    src={review.content.poster_url} 
+                    alt={review.content.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div 
+                  className="font-semibold text-foreground mb-1 cursor-pointer active:text-primary transition-colors"
+                  onClick={() => navigate(`/show/${review.content.external_id}`)}
+                >
+                  {review.content.title}
+                </div>
+                {review.rating && (
+                  <div className="flex items-center gap-1 mb-2">
+                    <span className="text-lg font-bold text-primary">{review.rating}</span>
+                    <Star className="h-4 w-4 fill-primary text-primary" />
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
-          <p className="text-foreground break-words">{review.reviewText}</p>
+          <p className="text-foreground break-words">{review.text}</p>
         </div>
       </div>
     </Card>

@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
         posts = scored.slice(0, limit);
       }
 
-    } else if (tab === 'hot') {
+    } else if (tab === 'hot-takes' || tab === 'hot') {
       // Controversial - rank by (dislikes - likes) * decay with minimum engagement
       const { data: popularity } = await supabase
         .from('v_post_popularity')

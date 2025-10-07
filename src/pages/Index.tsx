@@ -53,11 +53,12 @@ export default function Index() {
           review={{
             id: post.id,
             user: post.user,
-            reviewText: post.text,
-            rating: post.rating || 0,
+            text: post.text,
+            rating: post.rating,
             content: post.content,
-            createdAt: post.created_at
+            created_at: post.created_at
           }}
+          onDelete={currentFeed.refetch}
         />
       );
     } else {

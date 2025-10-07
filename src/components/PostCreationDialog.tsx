@@ -63,7 +63,7 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review') {
-        // Save rating first (if provided)
+        // ALWAYS save rating if provided
         if (rating > 0) {
           const { error: ratingError } = await supabase
             .from('ratings')
@@ -71,6 +71,8 @@ export function PostCreationDialog({
               user_id: user.id,
               content_id: contentId,
               rating,
+            }, {
+              onConflict: 'user_id,content_id'
             });
 
           if (ratingError) throw ratingError;
@@ -83,14 +85,17 @@ export function PostCreationDialog({
               post_id: contentId,
               post_type: 'rating',
               interaction_type: 'rate',
-            });
+            })
+            .select()
+            .single();
         }
 
-        // Save review text if provided
+        // Only create a review POST if text is provided
+        // Rating alone does NOT create a post
         if (text.trim()) {
           const { error: reviewError } = await supabase
             .from('reviews')
-            .upsert({
+            .insert({
               user_id: user.id,
               content_id: contentId,
               review_text: text,
@@ -111,9 +116,14 @@ export function PostCreationDialog({
         if (thoughtError) throw thoughtError;
       }
 
+      // Different success messages based on what was saved
+      const successMsg = postType === 'review' 
+        ? (text.trim() ? 'Review posted!' : 'Rating saved!')
+        : 'Thought posted!';
+
       toast({
         title: "Success",
-        description: `${postType === 'review' ? 'Review' : 'Thought'} posted!`,
+        description: successMsg,
       });
 
       setText('');
