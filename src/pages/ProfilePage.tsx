@@ -194,13 +194,23 @@ export default function ProfilePage() {
     });
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const profileUrl = `${window.location.origin}/user/${user?.id}`;
-    navigator.clipboard.writeText(profileUrl);
-    toast({
-      title: "Profile link copied!",
-      description: "Share your profile with others",
-    });
+    
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      toast({
+        title: "Profile link copied!",
+        description: "Share your profile with others",
+      });
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      toast({
+        title: "Failed to copy link",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
