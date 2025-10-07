@@ -789,6 +789,48 @@ export type Database = {
         }
         Relationships: []
       }
+      tvdb_trending: {
+        Row: {
+          category: string
+          created_at: string | null
+          first_aired: string | null
+          id: string
+          image_url: string | null
+          metadata: Json | null
+          name: string
+          overview: string | null
+          position: number
+          tvdb_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          first_aired?: string | null
+          id?: string
+          image_url?: string | null
+          metadata?: Json | null
+          name: string
+          overview?: string | null
+          position: number
+          tvdb_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          first_aired?: string | null
+          id?: string
+          image_url?: string | null
+          metadata?: Json | null
+          name?: string
+          overview?: string | null
+          position?: number
+          tvdb_id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_prefs: {
         Row: {
           genres: Json | null

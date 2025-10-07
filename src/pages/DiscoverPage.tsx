@@ -11,7 +11,7 @@ import { BingeBotAI } from '@/components/BingeBotAI';
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
-  const { search: searchTVDB, fetchShow } = useTVDB();
+  const { search: searchTVDB } = useTVDB();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('browse');
@@ -44,28 +44,17 @@ export default function DiscoverPage() {
   const browseEndRef = useRef<HTMLDivElement>(null);
   const newEndRef = useRef<HTMLDivElement>(null);
 
-  // Popular/trending show IDs for Browse tab (TVDB IDs)
-  const trendingShows = [
-    { id: 153021, name: 'The Walking Dead' },
-    { id: 121361, name: 'Game of Thrones' },
-    { id: 78804, name: 'The Office' },
-    { id: 83268, name: 'Breaking Bad' },
-    { id: 295759, name: 'Stranger Things' },
-    { id: 81189, name: 'Friends' },
-    { id: 70523, name: 'How I Met Your Mother' },
-    { id: 79349, name: 'The Big Bang Theory' },
-    { id: 305074, name: 'The Boys' },
-    { id: 279121, name: 'The Witcher' },
-    { id: 294940, name: 'The Mandalorian' },
-    { id: 318408, name: 'Ted Lasso' },
-    { id: 328437, name: 'The Last of Us' },
-    { id: 94605, name: 'Arcane' },
-  ];
-
   // Load initial browse shows
   useEffect(() => {
     loadBrowseShows(0);
   }, []);
+
+  // Load new shows when tab is activated
+  useEffect(() => {
+    if (activeTab === 'new' && newShows.length === 0) {
+      loadNewShows(0);
+    }
+  }, [activeTab]);
 
   // Search debounce
   useEffect(() => {
@@ -89,6 +78,8 @@ export default function DiscoverPage() {
   useEffect(() => {
     if (browseObserver.current) browseObserver.current.disconnect();
 
+    if (activeTab !== 'browse') return;
+
     browseObserver.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !browseLoading && browseShows.length > 0) {
         loadBrowseShows(browsePage + 1);
@@ -102,11 +93,13 @@ export default function DiscoverPage() {
     return () => {
       if (browseObserver.current) browseObserver.current.disconnect();
     };
-  }, [browseLoading, browsePage, browseShows]);
+  }, [browseLoading, browsePage, browseShows, activeTab]);
 
   // Set up infinite scroll for New tab
   useEffect(() => {
     if (newObserver.current) newObserver.current.disconnect();
+
+    if (activeTab !== 'new') return;
 
     newObserver.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !newLoading && newShows.length > 0) {
@@ -121,45 +114,32 @@ export default function DiscoverPage() {
     return () => {
       if (newObserver.current) newObserver.current.disconnect();
     };
-  }, [newLoading, newPage, newShows]);
-
-  // Load new shows when tab is activated
-  useEffect(() => {
-    if (activeTab === 'new' && newShows.length === 0) {
-      loadNewShows(0);
-    }
-  }, [activeTab]);
+  }, [newLoading, newPage, newShows, activeTab]);
 
   const loadBrowseShows = async (page: number) => {
     if (browseLoading) return;
 
     setBrowseLoading(true);
     try {
-      const startIdx = page * 6;
-      const endIdx = startIdx + 6;
-      const showsToFetch = trendingShows.slice(startIdx, endIdx);
+      const pageSize = 12;
+      const startIdx = page * pageSize;
+      const endIdx = startIdx + pageSize - 1;
 
-      if (showsToFetch.length === 0) {
-        setBrowseLoading(false);
-        return;
-      }
+      const { data, error } = await supabase
+        .from('tvdb_trending')
+        .select('tvdb_id, name, image_url, first_aired')
+        .eq('category', 'popular')
+        .order('position', { ascending: true })
+        .range(startIdx, endIdx);
 
-      const showPromises = showsToFetch.map(async ({ id, name }) => {
-        try {
-          const show = await fetchShow(id);
-          return show ? {
-            id: show.id,
-            name: show.name,
-            image: show.image,
-            firstAired: show.firstAired,
-          } : null;
-        } catch (error) {
-          console.error(`Error loading show ${id}:`, error);
-          return null;
-        }
-      });
+      if (error) throw error;
 
-      const shows = (await Promise.all(showPromises)).filter(Boolean);
+      const shows = (data || []).map((show) => ({
+        id: show.tvdb_id,
+        name: show.name,
+        image: show.image_url || '',
+        firstAired: show.first_aired || '',
+      }));
       
       if (page === 0) {
         setBrowseShows(shows);
@@ -178,34 +158,25 @@ export default function DiscoverPage() {
 
     setNewLoading(true);
     try {
-      // For "New" tab, we'll show recent popular shows in reverse order
-      // In a real app, this would be an API endpoint for "recently added" or "airing now"
-      const recentShows = [...trendingShows].reverse();
-      const startIdx = page * 12;
-      const endIdx = startIdx + 12;
-      const showsToFetch = recentShows.slice(startIdx, endIdx);
+      const pageSize = 12;
+      const startIdx = page * pageSize;
+      const endIdx = startIdx + pageSize - 1;
 
-      if (showsToFetch.length === 0) {
-        setNewLoading(false);
-        return;
-      }
+      const { data, error } = await supabase
+        .from('tvdb_trending')
+        .select('tvdb_id, name, image_url, first_aired')
+        .eq('category', 'new')
+        .order('position', { ascending: true })
+        .range(startIdx, endIdx);
 
-      const showPromises = showsToFetch.map(async ({ id, name }) => {
-        try {
-          const show = await fetchShow(id);
-          return show ? {
-            id: show.id,
-            name: show.name,
-            image: show.image,
-            firstAired: show.firstAired,
-          } : null;
-        } catch (error) {
-          console.error(`Error loading show ${id}:`, error);
-          return null;
-        }
-      });
+      if (error) throw error;
 
-      const shows = (await Promise.all(showPromises)).filter(Boolean);
+      const shows = (data || []).map((show) => ({
+        id: show.tvdb_id,
+        name: show.name,
+        image: show.image_url || '',
+        firstAired: show.first_aired || '',
+      }));
 
       if (page === 0) {
         setNewShows(shows);
