@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Send, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { commentSchema } from '@/lib/validation';
+import { z } from 'zod';
 
 interface CommentsSectionProps {
   thoughtId: string;
@@ -58,7 +60,21 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
       return;
     }
 
-    if (!newComment.trim()) return;
+    // Validate with Zod schema
+    try {
+      commentSchema.parse({
+        text_content: newComment,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.issues[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     setPosting(true);
     const { error } = await supabase

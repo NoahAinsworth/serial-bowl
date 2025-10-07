@@ -11,6 +11,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogOut } from 'lucide-react';
 import { ProfilePictureUpload } from '@/components/ProfilePictureUpload';
+import { profileSchema } from '@/lib/validation';
+import { z } from 'zod';
 
 export default function EditProfilePage() {
   const { user } = useAuth();
@@ -99,14 +101,23 @@ export default function EditProfilePage() {
   const handleSave = async () => {
     if (!user) return;
 
-    // Validate handle
-    if (!profile.handle.trim()) {
-      toast({
-        title: "Error",
-        description: "Handle cannot be empty",
-        variant: "destructive",
+    // Validate with Zod schema
+    try {
+      profileSchema.parse({
+        handle: profile.handle,
+        displayName: profile.displayName,
+        bio: profile.bio,
+        avatar_url: profile.avatar_url,
       });
-      return;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.issues[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setSaving(true);

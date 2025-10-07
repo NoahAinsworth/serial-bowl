@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { postSchema } from '@/lib/validation';
+import { z } from 'zod';
 
 interface PostCreationDialogProps {
   open: boolean;
@@ -42,6 +44,24 @@ export function PostCreationDialog({
         variant: "destructive",
       });
       return;
+    }
+
+    // Validate with Zod schema
+    try {
+      postSchema.parse({
+        content: text,
+        rating: rating > 0 ? rating : undefined,
+        isSpoiler,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.issues[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     if (!text.trim() && postType === 'thought') {
