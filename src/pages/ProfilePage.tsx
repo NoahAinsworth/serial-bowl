@@ -230,12 +230,7 @@ export default function ProfilePage() {
       <FollowRequestsList />
 
       {/* Header Section */}
-      <Card 
-        className="p-6 mb-6 banner-grain"
-        style={{ 
-          background: (profile?.settings as any)?.bannerColor || 'hsl(280, 100%, 70%)' 
-        } as React.CSSProperties}
-      >
+      <Card className="p-6 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
           {/* Avatar */}
           <Avatar className="h-24 w-24 relative z-10 flex-shrink-0">
