@@ -108,16 +108,16 @@ export default function PostPage() {
             external_id: episode.id.toString(),
             kind: 'episode',
             title: episodeTitle,
+            poster_url: episode.image,
+            air_date: episode.aired,
+            metadata: {
               overview: episode.overview,
-              poster_url: episode.image,
-              air_date: episode.aired,
-              metadata: {
-                show_id: selectedShow!.id,
-                show_name: selectedShow!.name,
-                season_number: episode.seasonNumber,
-                episode_number: episode.number,
-              }
-            })
+              show_id: selectedShow!.id,
+              show_name: selectedShow!.name,
+              season_number: episode.seasonNumber,
+              episode_number: episode.number,
+            }
+          })
           .select('id, title, kind')
           .single();
         
@@ -244,9 +244,11 @@ export default function PostPage() {
             external_id: show.id.toString(),
             kind: 'show',
             title: show.name,
-            overview: show.overview,
             poster_url: show.image,
             air_date: show.firstAired,
+            metadata: {
+              overview: show.overview
+            }
           })
           .select('id, title, kind')
           .single();

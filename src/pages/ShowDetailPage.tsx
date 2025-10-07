@@ -70,6 +70,9 @@ export default function ShowDetailPage() {
           title: showData.name,
           poster_url: showData.image,
           air_date: showData.firstAired,
+          metadata: {
+            overview: showData.overview
+          }
         })
         .select()
         .single();
