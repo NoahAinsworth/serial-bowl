@@ -47,14 +47,52 @@ export default function UserProfilePage() {
   const loadProfile = async () => {
     if (!userId) return;
 
-    const { data: profileData } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('handle, bio, avatar_url, is_private')
       .eq('id', userId)
       .single();
 
-    if (!profileData) {
+    if (profileError || !profileData) {
+      toast({
+        title: "Profile not found",
+        description: "This profile doesn't exist or you don't have permission to view it.",
+        variant: "destructive",
+      });
       navigate('/');
+      return;
+    }
+
+    // Check if this is a private profile and if current user follows them
+    let canViewPrivateContent = !profileData.is_private;
+    if (profileData.is_private && user) {
+      const { data: followData } = await supabase
+        .from('follows')
+        .select('status')
+        .eq('follower_id', user.id)
+        .eq('following_id', userId)
+        .eq('status', 'accepted')
+        .maybeSingle();
+      
+      canViewPrivateContent = !!followData;
+      setFollowStatus(followData ? 'accepted' : 'none');
+    }
+
+    // If private and can't view, show limited profile
+    if (profileData.is_private && !canViewPrivateContent) {
+      setProfile({
+        handle: profileData.handle,
+        bio: 'This account is private',
+        avatar_url: profileData.avatar_url || '',
+        is_private: true,
+        showCount: 0,
+        seasonCount: 0,
+        episodeCount: 0,
+        thoughtCount: 0,
+        followers: 0,
+        following: 0,
+      });
+      setLoading(false);
       return;
     }
 
@@ -81,12 +119,14 @@ export default function UserProfilePage() {
     const { count: followers } = await supabase
       .from('follows')
       .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId);
+      .eq('following_id', userId)
+      .eq('status', 'accepted');
 
     const { count: following } = await supabase
       .from('follows')
       .select('*', { count: 'exact', head: true })
-      .eq('follower_id', userId);
+      .eq('follower_id', userId)
+      .eq('status', 'accepted');
 
     setProfile({
       handle: profileData.handle,
@@ -227,18 +267,31 @@ export default function UserProfilePage() {
           <TabsTrigger value="seasons">Seasons ({profile.seasonCount})</TabsTrigger>
           <TabsTrigger value="episodes">Eps ({profile.episodeCount})</TabsTrigger>
         </TabsList>
-        <TabsContent value="thoughts" className="mt-4">
-          <UserThoughts userId={userId} />
-        </TabsContent>
-        <TabsContent value="shows" className="mt-4">
-          <UserRatings userId={userId} contentKind="show" />
-        </TabsContent>
-        <TabsContent value="seasons" className="mt-4">
-          <UserRatings userId={userId} contentKind="season" />
-        </TabsContent>
-        <TabsContent value="episodes" className="mt-4">
-          <UserRatings userId={userId} contentKind="episode" />
-        </TabsContent>
+        {profile.is_private && profile.bio === 'This account is private' ? (
+          <div className="mt-8 text-center">
+            <Card className="p-8">
+              <h3 className="text-xl font-semibold mb-2">This Account is Private</h3>
+              <p className="text-muted-foreground">
+                Follow this account to see their posts and activity
+              </p>
+            </Card>
+          </div>
+        ) : (
+          <>
+            <TabsContent value="thoughts" className="mt-4">
+              <UserThoughts userId={userId} />
+            </TabsContent>
+            <TabsContent value="shows" className="mt-4">
+              <UserRatings userId={userId} contentKind="show" />
+            </TabsContent>
+            <TabsContent value="seasons" className="mt-4">
+              <UserRatings userId={userId} contentKind="season" />
+            </TabsContent>
+            <TabsContent value="episodes" className="mt-4">
+              <UserRatings userId={userId} contentKind="episode" />
+            </TabsContent>
+          </>
+        )}
       </Tabs>
     </div>
   );
