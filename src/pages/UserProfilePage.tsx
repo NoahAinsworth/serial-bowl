@@ -13,12 +13,13 @@ import { UserThoughts } from '@/components/UserThoughts';
 import { FollowRequestButton } from '@/components/FollowRequestButton';
 
 export default function UserProfilePage() {
-  const { userId } = useParams<{ userId: string }>();
+  const { handle } = useParams<{ handle: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [followStatus, setFollowStatus] = useState<'none' | 'pending' | 'accepted'>('none');
+  const [userId, setUserId] = useState<string | null>(null);
   const [profile, setProfile] = useState({
     handle: '',
     bio: '',
@@ -34,23 +35,24 @@ export default function UserProfilePage() {
   const [thoughts, setThoughts] = useState<any[]>([]);
 
   useEffect(() => {
-    if (userId) {
-      if (user && userId === user.id) {
-        navigate('/profile');
-        return;
-      }
+    if (handle) {
       loadProfile();
+    }
+  }, [handle, user]);
+
+  useEffect(() => {
+    if (userId) {
       loadThoughts();
     }
-  }, [userId, user]);
+  }, [userId]);
 
   const loadProfile = async () => {
-    if (!userId) return;
+    if (!handle) return;
 
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('handle, bio, avatar_url, is_private')
-      .eq('id', userId)
+      .select('id, handle, bio, avatar_url, is_private')
+      .eq('handle', handle)
       .single();
 
     if (profileError || !profileData) {
@@ -63,6 +65,14 @@ export default function UserProfilePage() {
       return;
     }
 
+    setUserId(profileData.id);
+
+    // Redirect if viewing own profile
+    if (user && profileData.id === user.id) {
+      navigate('/profile');
+      return;
+    }
+
     // Check if this is a private profile and if current user follows them
     let canViewPrivateContent = !profileData.is_private;
     if (profileData.is_private && user) {
@@ -70,7 +80,7 @@ export default function UserProfilePage() {
         .from('follows')
         .select('status')
         .eq('follower_id', user.id)
-        .eq('following_id', userId)
+        .eq('following_id', profileData.id)
         .eq('status', 'accepted')
         .maybeSingle();
       
@@ -99,7 +109,7 @@ export default function UserProfilePage() {
     const { data: ratings } = await supabase
       .from('ratings')
       .select('content_id')
-      .eq('user_id', userId);
+      .eq('user_id', profileData.id);
 
     const { data: allContent } = await supabase
       .from('content')
@@ -114,18 +124,18 @@ export default function UserProfilePage() {
     const { count: thoughtCount } = await supabase
       .from('thoughts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId);
+      .eq('user_id', profileData.id);
 
     const { count: followers } = await supabase
       .from('follows')
       .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId)
+      .eq('following_id', profileData.id)
       .eq('status', 'accepted');
 
     const { count: following } = await supabase
       .from('follows')
       .select('*', { count: 'exact', head: true })
-      .eq('follower_id', userId)
+      .eq('follower_id', profileData.id)
       .eq('status', 'accepted');
 
     setProfile({
