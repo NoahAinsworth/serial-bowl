@@ -15,11 +15,29 @@ async function searchTVDB(query: string, apiKey: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ apikey: apiKey }),
     });
-    const { data: { token } } = await loginRes.json();
+    
+    if (!loginRes.ok) {
+      console.error("TVDB login failed:", loginRes.status, await loginRes.text());
+      return [];
+    }
+    
+    const loginData = await loginRes.json();
+    if (!loginData?.data?.token) {
+      console.error("TVDB login response missing token:", loginData);
+      return [];
+    }
+    
+    const token = loginData.data.token;
 
     const searchRes = await fetch(`https://api4.thetvdb.com/v4/search?query=${encodeURIComponent(query)}&type=series`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
+    if (!searchRes.ok) {
+      console.error("TVDB search failed:", searchRes.status);
+      return [];
+    }
+    
     const searchData = await searchRes.json();
     return searchData.data || [];
   } catch (error) {
@@ -35,11 +53,29 @@ async function getTVDBEpisodes(seriesId: number, apiKey: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ apikey: apiKey }),
     });
-    const { data: { token } } = await loginRes.json();
+    
+    if (!loginRes.ok) {
+      console.error("TVDB login failed for episodes:", loginRes.status);
+      return [];
+    }
+    
+    const loginData = await loginRes.json();
+    if (!loginData?.data?.token) {
+      console.error("TVDB login response missing token for episodes");
+      return [];
+    }
+    
+    const token = loginData.data.token;
 
     const episodesRes = await fetch(`https://api4.thetvdb.com/v4/series/${seriesId}/episodes/default`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
+    if (!episodesRes.ok) {
+      console.error("TVDB episodes fetch failed:", episodesRes.status);
+      return [];
+    }
+    
     const episodesData = await episodesRes.json();
     return episodesData.data?.episodes || [];
   } catch (error) {
@@ -47,6 +83,18 @@ async function getTVDBEpisodes(seriesId: number, apiKey: string) {
     return [];
   }
 }
+
+// Common show TVDB IDs for fallback
+const COMMON_SHOWS: Record<string, number> = {
+  "friends": 79168,
+  "one tree hill": 72158,
+  "the office": 73244,
+  "breaking bad": 81189,
+  "game of thrones": 121361,
+  "stranger things": 305288,
+  "the walking dead": 153021,
+  "the mandalorian": 361753,
+};
 
 const SYSTEM_PROMPT = `You are Binge Bot AI, a friendly TV and celebrity expert for Serial Bowl.
 
@@ -278,6 +326,17 @@ serve(async (req) => {
               externalId: tvdbResults[0].tvdb_id
             });
             console.log(`Found show in TVDB: ${tvdbResults[0].name} (${tvdbResults[0].tvdb_id})`);
+          } else {
+            // Fallback to common shows mapping
+            const commonId = COMMON_SHOWS[entity.name.toLowerCase()];
+            if (commonId) {
+              resolvedEntities.push({
+                type: "show",
+                name: entity.name,
+                externalId: commonId
+              });
+              console.log(`Using fallback ID for ${entity.name}: ${commonId}`);
+            }
           }
         }
       } else if (entity.type === "episode" && entity.showName && entity.seasonNumber && entity.episodeNumber) {
@@ -299,6 +358,17 @@ serve(async (req) => {
               title: tvdbResults[0].name
             }];
             console.log(`Found show in TVDB for episode: ${tvdbResults[0].name} (${tvdbResults[0].tvdb_id})`);
+          } else {
+            // Fallback to common shows mapping
+            const commonId = COMMON_SHOWS[entity.showName.toLowerCase()];
+            if (commonId) {
+              shows = [{
+                id: null,
+                external_id: commonId,
+                title: entity.showName
+              }];
+              console.log(`Using fallback ID for episode show ${entity.showName}: ${commonId}`);
+            }
           }
         }
         
@@ -334,6 +404,16 @@ serve(async (req) => {
               external_id: tvdbResults[0].tvdb_id,
               title: tvdbResults[0].name
             }];
+          } else {
+            // Fallback to common shows mapping
+            const commonId = COMMON_SHOWS[entity.showName.toLowerCase()];
+            if (commonId) {
+              shows = [{
+                id: null,
+                external_id: commonId,
+                title: entity.showName
+              }];
+            }
           }
         }
         
