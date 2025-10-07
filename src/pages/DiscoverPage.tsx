@@ -8,8 +8,15 @@ import { Loader2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useTVDB } from '@/hooks/useTVDB';
 import { BingeBotAI } from '@/components/BingeBotAI';
-import { fetchPopularShows, fetchNewShows, TMDBShow } from '@/services/tmdb';
+import { tvdbClient } from '@/services/tvdb';
 import { useToast } from '@/hooks/use-toast';
+
+interface TVDBShow {
+  id: number;
+  title: string;
+  posterUrl: string | null;
+  year: string | null;
+}
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
@@ -20,13 +27,13 @@ export default function DiscoverPage() {
   const [activeTab, setActiveTab] = useState('browse');
   
   // Browse tab state
-  const [browseShows, setBrowseShows] = useState<TMDBShow[]>([]);
+  const [browseShows, setBrowseShows] = useState<TVDBShow[]>([]);
   const [browseLoading, setBrowseLoading] = useState(false);
   const [browsePage, setBrowsePage] = useState(1);
   const [browseHasMore, setBrowseHasMore] = useState(true);
   
   // New tab state
-  const [newShows, setNewShows] = useState<TMDBShow[]>([]);
+  const [newShows, setNewShows] = useState<TVDBShow[]>([]);
   const [newLoading, setNewLoading] = useState(false);
   const [newPage, setNewPage] = useState(1);
   const [newHasMore, setNewHasMore] = useState(true);
@@ -127,39 +134,33 @@ export default function DiscoverPage() {
   }, [newLoading, newPage, newShows.length, activeTab, newHasMore]);
 
   const loadBrowseShows = async (page: number) => {
-    console.log('[loadBrowseShows] Called with page:', page, 'loading:', browseLoading, 'hasMore:', browseHasMore);
-    
-    if (browseLoading) {
-      console.log('[loadBrowseShows] Already loading, skipping');
-      return;
-    }
-    
-    if (!browseHasMore && page > 1) {
-      console.log('[loadBrowseShows] No more data, skipping');
-      return;
-    }
+    if (browseLoading || (!browseHasMore && page > 1)) return;
 
     setBrowseLoading(true);
     try {
-      console.log('[loadBrowseShows] Fetching page:', page);
-      const shows = await fetchPopularShows(page);
-      console.log('[loadBrowseShows] Got shows:', shows.length);
+      const trending = await tvdbClient.getTrending();
+      const startIdx = (page - 1) * 20;
+      const pageResults = trending.slice(startIdx, startIdx + 20);
       
-      if (shows.length === 0) {
-        console.log('[loadBrowseShows] No shows returned, setting hasMore to false');
+      if (pageResults.length === 0) {
         setBrowseHasMore(false);
       } else {
+        const shows: TVDBShow[] = pageResults.map((show: any) => ({
+          id: show.id || show.tvdb_id,
+          title: show.name || show.seriesName,
+          posterUrl: show.image || show.image_url || null,
+          year: show.year?.toString() || null,
+        }));
+
         if (page === 1) {
-          console.log('[loadBrowseShows] Setting initial shows');
           setBrowseShows(shows);
         } else {
-          console.log('[loadBrowseShows] Appending shows');
           setBrowseShows(prev => [...prev, ...shows]);
         }
         setBrowsePage(page);
       }
     } catch (error) {
-      console.error('[loadBrowseShows] Error loading browse shows:', error);
+      console.error('Error loading browse shows:', error);
       toast({
         title: "Error",
         description: "Couldn't load shows. Please try again.",
@@ -176,11 +177,27 @@ export default function DiscoverPage() {
 
     setNewLoading(true);
     try {
-      const shows = await fetchNewShows(page);
+      const currentYear = new Date().getFullYear();
+      const searchYear = currentYear - (page - 1);
+      const results = await tvdbClient.searchShows(searchYear.toString());
+      
+      const recentShows = results
+        .filter((show: any) => {
+          const year = show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0];
+          return year && parseInt(year) >= currentYear - 2;
+        })
+        .slice(0, 20);
 
-      if (shows.length === 0) {
+      if (recentShows.length === 0) {
         setNewHasMore(false);
       } else {
+        const shows: TVDBShow[] = recentShows.map((show: any) => ({
+          id: show.tvdb_id || show.id,
+          title: show.name,
+          posterUrl: show.image_url || show.image || null,
+          year: show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0] || null,
+        }));
+
         if (page === 1) {
           setNewShows(shows);
         } else {
@@ -237,7 +254,7 @@ export default function DiscoverPage() {
     setUsersLoading(false);
   };
 
-  const ShowCard = ({ show }: { show: TMDBShow }) => (
+  const ShowCard = ({ show }: { show: TVDBShow }) => (
     <Card 
       className="relative group overflow-hidden cursor-pointer hover:scale-105 transition-transform"
       onClick={() => navigate(`/show/${show.id}`)}
