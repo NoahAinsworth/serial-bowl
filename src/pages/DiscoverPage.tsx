@@ -140,11 +140,10 @@ export default function DiscoverPage() {
       const offset = (page - 1) * 20;
       const limit = 20;
 
-      // Query trending shows from database
+      // Query all trending shows from database (both new and popular)
       const { data: trendingShows, error } = await supabase
         .from('tvdb_trending')
         .select('*')
-        .eq('category', 'popular')
         .order('position', { ascending: true })
         .range(offset, offset + limit - 1);
 
