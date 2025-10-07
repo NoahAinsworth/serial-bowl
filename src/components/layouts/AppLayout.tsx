@@ -17,8 +17,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: Compass, label: 'Discover', path: '/discover' },
-    { icon: MessageSquare, label: 'Messages', path: '/messages' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
+    { icon: MessageSquare, label: 'Messages', path: '/messages' },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 
