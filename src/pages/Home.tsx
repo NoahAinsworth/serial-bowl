@@ -62,7 +62,7 @@ export default function Home() {
       <div className="container max-w-2xl mx-auto py-12 px-4 text-center space-y-6">
         <div className="flex flex-col items-center gap-4">
           <img src={cerealBowlLogo} alt="Serial Bowl Logo" className="w-32 h-32" />
-          <h1 className="text-3xl font-bold heading-spotify gradient-text">SERIAL BOWL</h1>
+          <h1 className="text-3xl font-bold wordmark gradient-text">SERIAL BOWL</h1>
           <p className="text-xl font-medium text-muted-foreground">Your TV social network</p>
         </div>
         <p className="text-muted-foreground">

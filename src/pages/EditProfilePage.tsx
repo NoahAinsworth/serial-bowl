@@ -171,9 +171,9 @@ export default function EditProfilePage() {
       <h1 className="text-3xl font-bold">Edit Profile</h1>
 
       <Card 
-        className="p-6 space-y-6 profile-card-grain"
+        className="p-6 space-y-6 banner-grain"
         style={{ 
-          '--banner-color': profile.bannerColor 
+          background: profile.bannerColor 
         } as React.CSSProperties}
       >
         <div className="flex flex-col items-center space-y-4">
@@ -192,7 +192,7 @@ export default function EditProfilePage() {
             {['hsl(280, 100%, 70%)', 'hsl(200, 100%, 70%)', 'hsl(340, 100%, 70%)', 'hsl(160, 100%, 70%)', 'hsl(40, 100%, 70%)', 'hsl(120, 100%, 70%)', 'hsl(0, 100%, 70%)', 'hsl(60, 100%, 70%)'].map((color) => (
               <button
                 key={color}
-                className={`w-full h-12 rounded-lg border-2 ${profile.bannerColor === color ? 'border-foreground scale-105' : 'border-muted'} transition-all hover:scale-105`}
+                className={`w-full h-12 rounded-lg transition-all hover:-translate-y-1 ${profile.bannerColor === color ? 'border-4 border-foreground scale-105' : 'border-2 border-border'}`}
                 style={{ backgroundColor: color }}
                 onClick={() => setProfile({ ...profile, bannerColor: color })}
               />
@@ -245,7 +245,7 @@ export default function EditProfilePage() {
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="w-full btn-glow"
+          className="w-full"
         >
           {saving ? (
             <>

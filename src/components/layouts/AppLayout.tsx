@@ -30,7 +30,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-black tracking-tight heading-spotify gradient-text">
+            <h1 className="text-xl font-black tracking-wide wordmark gradient-text">
               SERIAL BOWL
             </h1>
           </div>
