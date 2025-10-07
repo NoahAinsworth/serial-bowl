@@ -40,6 +40,19 @@ export const env = {
     return import.meta.env.VITE_TVDB_BASE_URL || '';
   },
 
+  // TMDB
+  get TMDB_API_KEY(): string {
+    return import.meta.env.VITE_TMDB_API_KEY || '';
+  },
+
+  get TMDB_BASE_URL(): string {
+    return 'https://api.themoviedb.org/3';
+  },
+
+  get TMDB_IMAGE_BASE_URL(): string {
+    return 'https://image.tmdb.org/t/p/w342';
+  },
+
   // Auth Redirects
   get WEB_REDIRECT(): string {
     return `${this.PUBLIC_BASE}/auth/callback`;

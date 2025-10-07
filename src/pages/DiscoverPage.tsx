@@ -8,24 +8,27 @@ import { Loader2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useTVDB } from '@/hooks/useTVDB';
 import { BingeBotAI } from '@/components/BingeBotAI';
+import { fetchPopularShows, fetchNewShows, TMDBShow } from '@/services/tmdb';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
   const { search: searchTVDB } = useTVDB();
+  const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('browse');
   
   // Browse tab state
-  const [browseShows, setBrowseShows] = useState<any[]>([]);
+  const [browseShows, setBrowseShows] = useState<TMDBShow[]>([]);
   const [browseLoading, setBrowseLoading] = useState(false);
-  const [browsePage, setBrowsePage] = useState(0);
+  const [browsePage, setBrowsePage] = useState(1);
   const [browseHasMore, setBrowseHasMore] = useState(true);
   
   // New tab state
-  const [newShows, setNewShows] = useState<any[]>([]);
+  const [newShows, setNewShows] = useState<TMDBShow[]>([]);
   const [newLoading, setNewLoading] = useState(false);
-  const [newPage, setNewPage] = useState(0);
+  const [newPage, setNewPage] = useState(1);
   const [newHasMore, setNewHasMore] = useState(true);
   
   // User search state
@@ -48,13 +51,13 @@ export default function DiscoverPage() {
 
   // Load initial browse shows
   useEffect(() => {
-    loadBrowseShows(0);
+    loadBrowseShows(1);
   }, []);
 
   // Load new shows when tab is activated
   useEffect(() => {
     if (activeTab === 'new' && newShows.length === 0) {
-      loadNewShows(0);
+      loadNewShows(1);
     }
   }, [activeTab]);
 
@@ -123,31 +126,12 @@ export default function DiscoverPage() {
 
     setBrowseLoading(true);
     try {
-      const pageSize = 12;
-      const startIdx = page * pageSize;
-      const endIdx = startIdx + pageSize - 1;
-
-      const { data, error } = await supabase
-        .from('tvdb_trending')
-        .select('tvdb_id, name, image_url, first_aired')
-        .eq('category', 'popular')
-        .order('position', { ascending: true })
-        .range(startIdx, endIdx);
-
-      if (error) throw error;
-
-      const shows = (data || []).map((show) => ({
-        id: show.tvdb_id,
-        name: show.name,
-        image: show.image_url || '',
-        firstAired: show.first_aired || '',
-      }));
+      const shows = await fetchPopularShows(page);
       
-      // Stop loading if we got no results
       if (shows.length === 0) {
         setBrowseHasMore(false);
       } else {
-        if (page === 0) {
+        if (page === 1) {
           setBrowseShows(shows);
         } else {
           setBrowseShows(prev => [...prev, ...shows]);
@@ -156,6 +140,12 @@ export default function DiscoverPage() {
       }
     } catch (error) {
       console.error('Error loading browse shows:', error);
+      toast({
+        title: "Error",
+        description: "Couldn't load shows. Please try again.",
+        variant: "destructive",
+      });
+      setBrowseHasMore(false);
     }
     setBrowseLoading(false);
   };
@@ -165,31 +155,12 @@ export default function DiscoverPage() {
 
     setNewLoading(true);
     try {
-      const pageSize = 12;
-      const startIdx = page * pageSize;
-      const endIdx = startIdx + pageSize - 1;
+      const shows = await fetchNewShows(page);
 
-      const { data, error } = await supabase
-        .from('tvdb_trending')
-        .select('tvdb_id, name, image_url, first_aired')
-        .eq('category', 'new')
-        .order('position', { ascending: true })
-        .range(startIdx, endIdx);
-
-      if (error) throw error;
-
-      const shows = (data || []).map((show) => ({
-        id: show.tvdb_id,
-        name: show.name,
-        image: show.image_url || '',
-        firstAired: show.first_aired || '',
-      }));
-
-      // Stop loading if we got no results
       if (shows.length === 0) {
         setNewHasMore(false);
       } else {
-        if (page === 0) {
+        if (page === 1) {
           setNewShows(shows);
         } else {
           setNewShows(prev => [...prev, ...shows]);
@@ -198,6 +169,12 @@ export default function DiscoverPage() {
       }
     } catch (error) {
       console.error('Error loading new shows:', error);
+      toast({
+        title: "Error",
+        description: "Couldn't load shows. Please try again.",
+        variant: "destructive",
+      });
+      setNewHasMore(false);
     }
     setNewLoading(false);
   };
@@ -239,17 +216,21 @@ export default function DiscoverPage() {
     setUsersLoading(false);
   };
 
-  const ShowCard = ({ show }: { show: any }) => (
+  const ShowCard = ({ show }: { show: TMDBShow }) => (
     <Card 
       className="relative group overflow-hidden cursor-pointer hover:scale-105 transition-transform"
       onClick={() => navigate(`/show/${show.id}`)}
     >
       <div className="aspect-[2/3] bg-muted">
-        {show.image ? (
+        {show.posterUrl ? (
           <img 
-            src={show.image} 
-            alt={show.name}
+            src={show.posterUrl} 
+            alt={show.title}
             className="w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -259,9 +240,9 @@ export default function DiscoverPage() {
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="font-bold text-white truncate">{show.name}</h3>
-          {show.firstAired && (
-            <p className="text-xs text-white/80">{new Date(show.firstAired).getFullYear()}</p>
+          <h3 className="font-bold text-white truncate">{show.title}</h3>
+          {show.year && (
+            <p className="text-xs text-white/80">{show.year}</p>
           )}
         </div>
       </div>
