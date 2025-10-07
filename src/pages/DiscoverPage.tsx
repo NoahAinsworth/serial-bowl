@@ -20,11 +20,13 @@ export default function DiscoverPage() {
   const [browseShows, setBrowseShows] = useState<any[]>([]);
   const [browseLoading, setBrowseLoading] = useState(false);
   const [browsePage, setBrowsePage] = useState(0);
+  const [browseHasMore, setBrowseHasMore] = useState(true);
   
   // New tab state
   const [newShows, setNewShows] = useState<any[]>([]);
   const [newLoading, setNewLoading] = useState(false);
   const [newPage, setNewPage] = useState(0);
+  const [newHasMore, setNewHasMore] = useState(true);
   
   // User search state
   const [users, setUsers] = useState<any[]>([]);
@@ -81,7 +83,7 @@ export default function DiscoverPage() {
     if (activeTab !== 'browse') return;
 
     browseObserver.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !browseLoading && browseShows.length > 0) {
+      if (entries[0].isIntersecting && !browseLoading && browseHasMore) {
         loadBrowseShows(browsePage + 1);
       }
     });
@@ -102,7 +104,7 @@ export default function DiscoverPage() {
     if (activeTab !== 'new') return;
 
     newObserver.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !newLoading && newShows.length > 0) {
+      if (entries[0].isIntersecting && !newLoading && newHasMore) {
         loadNewShows(newPage + 1);
       }
     });
@@ -117,7 +119,7 @@ export default function DiscoverPage() {
   }, [newLoading, newPage, newShows, activeTab]);
 
   const loadBrowseShows = async (page: number) => {
-    if (browseLoading) return;
+    if (browseLoading || !browseHasMore) return;
 
     setBrowseLoading(true);
     try {
@@ -141,12 +143,17 @@ export default function DiscoverPage() {
         firstAired: show.first_aired || '',
       }));
       
-      if (page === 0) {
-        setBrowseShows(shows);
+      // Stop loading if we got no results
+      if (shows.length === 0) {
+        setBrowseHasMore(false);
       } else {
-        setBrowseShows(prev => [...prev, ...shows]);
+        if (page === 0) {
+          setBrowseShows(shows);
+        } else {
+          setBrowseShows(prev => [...prev, ...shows]);
+        }
+        setBrowsePage(page);
       }
-      setBrowsePage(page);
     } catch (error) {
       console.error('Error loading browse shows:', error);
     }
@@ -154,7 +161,7 @@ export default function DiscoverPage() {
   };
 
   const loadNewShows = async (page: number) => {
-    if (newLoading) return;
+    if (newLoading || !newHasMore) return;
 
     setNewLoading(true);
     try {
@@ -178,12 +185,17 @@ export default function DiscoverPage() {
         firstAired: show.first_aired || '',
       }));
 
-      if (page === 0) {
-        setNewShows(shows);
+      // Stop loading if we got no results
+      if (shows.length === 0) {
+        setNewHasMore(false);
       } else {
-        setNewShows(prev => [...prev, ...shows]);
+        if (page === 0) {
+          setNewShows(shows);
+        } else {
+          setNewShows(prev => [...prev, ...shows]);
+        }
+        setNewPage(page);
       }
-      setNewPage(page);
     } catch (error) {
       console.error('Error loading new shows:', error);
     }
