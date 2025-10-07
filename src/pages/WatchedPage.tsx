@@ -15,7 +15,9 @@ interface WatchedItem {
     title: string;
     poster_url?: string;
     external_id: string;
-    overview?: string;
+    metadata?: {
+      overview?: string;
+    };
   };
   watched_at: string;
 }
@@ -46,7 +48,7 @@ export default function WatchedPage() {
           title,
           poster_url,
           external_id,
-          overview
+          metadata
         )
       `)
       .eq('user_id', user.id)
@@ -137,9 +139,9 @@ export default function WatchedPage() {
                   >
                     {item.content.title}
                   </h3>
-                  {item.content.overview && (
+                  {item.content.metadata?.overview && (
                     <p className="text-sm text-muted-foreground mb-2 line-clamp-2 flex-1">
-                      {item.content.overview}
+                      {item.content.metadata.overview}
                     </p>
                   )}
                   <div className="flex items-center justify-between mt-2">
