@@ -46,11 +46,11 @@ export default function ShowDetailPage() {
       setSeasons(seasonsData);
       
       // Check if show exists in DB and get user rating
-      await loadContentAndRating(showId.toString());
+      await loadContentAndRating(showId.toString(), showData);
     }
   };
 
-  const loadContentAndRating = async (externalId: string) => {
+  const loadContentAndRating = async (externalId: string, showData: TVShow) => {
     // Get or create content entry
     let { data: content } = await supabase
       .from('content')
@@ -60,16 +60,16 @@ export default function ShowDetailPage() {
       .eq('kind', 'show')
       .single();
 
-    if (!content && show) {
+    if (!content && showData) {
       const { data: newContent } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
           external_id: externalId,
           kind: 'show',
-          title: show.name,
-          poster_url: show.image,
-          air_date: show.firstAired,
+          title: showData.name,
+          poster_url: showData.image,
+          air_date: showData.firstAired,
         })
         .select()
         .single();
