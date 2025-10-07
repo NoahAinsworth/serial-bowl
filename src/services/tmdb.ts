@@ -10,21 +10,27 @@ export interface TMDBShow {
 
 export async function fetchPopularShows(page = 1): Promise<TMDBShow[]> {
   try {
+    console.log('[fetchPopularShows] Fetching page:', page);
+    
     // Use TVDB trending data from our database cache
     const { supabase } = await import('@/integrations/supabase/client');
     
     const { data: trendingShows, error } = await supabase
       .from('tvdb_trending')
       .select('*')
+      .eq('category', 'popular')
       .order('position', { ascending: true })
       .range((page - 1) * 20, page * 20 - 1);
     
+    console.log('[fetchPopularShows] Database result:', { trendingShows, error });
+    
     if (error) {
-      console.error('Error fetching trending shows:', error);
+      console.error('[fetchPopularShows] Error fetching trending shows:', error);
       throw error;
     }
     
     if (!trendingShows || trendingShows.length === 0) {
+      console.log('[fetchPopularShows] No trending data, using fallback search');
       // Fallback to search if no trending data
       const results = await tvdbClient.searchShows('popular');
       return results.slice(0, 20).map((show: any) => ({
@@ -36,15 +42,18 @@ export async function fetchPopularShows(page = 1): Promise<TMDBShow[]> {
       }));
     }
     
-    return trendingShows.map((show: any) => ({
+    const mappedShows = trendingShows.map((show: any) => ({
       id: show.tvdb_id,
       title: show.name,
       posterUrl: show.image_url || null,
       year: show.first_aired?.split('-')[0] || null,
-      popularity: 1000 - show.position, // Higher position = lower popularity score
+      popularity: 1000 - show.position,
     }));
+    
+    console.log('[fetchPopularShows] Returning shows:', mappedShows);
+    return mappedShows;
   } catch (error) {
-    console.error('Error fetching popular shows from TVDB:', error);
+    console.error('[fetchPopularShows] Error fetching popular shows from TVDB:', error);
     throw new Error('Failed to fetch popular shows from TVDB');
   }
 }
