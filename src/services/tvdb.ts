@@ -34,30 +34,6 @@ class TVDBClient {
     }
   }
 
-  async getTrendingShows(page = 0) {
-    await this.ensureAuthenticated();
-    const response = await this.client.get('/series/trending', {
-      params: { page },
-    });
-    return response.data.data || [];
-  }
-
-  async getPopularShows(page = 0) {
-    await this.ensureAuthenticated();
-    const response = await this.client.get('/series/popular', {
-      params: { page },
-    });
-    return response.data.data || [];
-  }
-
-  async getNewShows(page = 0) {
-    await this.ensureAuthenticated();
-    const response = await this.client.get('/series/filter', {
-      params: { sort: 'firstAired', page },
-    });
-    return response.data.data || [];
-  }
-
   async searchShows(query: string) {
     await this.ensureAuthenticated();
     const response = await this.client.get('/search', {
@@ -90,11 +66,10 @@ export const tvdbClient = new TVDBClient();
 // Normalize show data
 function normalizeShow(show: any) {
   return {
-    id: show.id || show.tvdb_id,
+    id: show.tvdb_id || show.id,
     title: show.name,
-    posterUrl: show.image || show.image_url || show.artwork_32_url || show.artwork_64_url || null,
-    year: show.firstAired?.split('-')[0] || show.first_air_time?.split('-')[0] || null,
-    popularity: show.score ?? show.popularity ?? null,
+    posterUrl: show.image_url || show.image || null,
+    year: show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0] || null,
   };
 }
 
@@ -111,27 +86,35 @@ export async function searchShows(query: string) {
 }
 
 export async function fetchBrowseShows(page = 1) {
-  const tvdbPage = page - 1; // TVDB is 0-indexed
-  const [trending, popular] = await Promise.all([
-    tvdbClient.getTrendingShows(tvdbPage),
-    tvdbClient.getPopularShows(tvdbPage),
-  ]);
+  // Use search with popular/trending terms
+  const searchTerms = ['Breaking Bad', 'Game of Thrones', 'Stranger Things', 'The Office', 'Friends'];
+  const searchTerm = searchTerms[(page - 1) % searchTerms.length];
   
-  // Combine and deduplicate
-  const combined = [...trending, ...popular]
-    .reduce((acc: any[], item: any) => {
-      if (!acc.find((s) => s.id === item.id)) acc.push(item);
-      return acc;
-    }, [])
-    .slice(0, 40);
+  const results = await tvdbClient.searchShows(searchTerm);
   
-  return combined.map(normalizeShow);
+  // Take different slices for pagination
+  const startIdx = ((page - 1) * 20) % Math.max(1, results.length);
+  const pageResults = results.slice(startIdx, startIdx + 20);
+  
+  return pageResults.map(normalizeShow);
 }
 
 export async function fetchNewShows(page = 1) {
-  const tvdbPage = page - 1; // TVDB is 0-indexed
-  const recent = await tvdbClient.getNewShows(tvdbPage);
-  return recent.map(normalizeShow);
+  // Search for recent years
+  const currentYear = new Date().getFullYear();
+  const searchYear = currentYear - ((page - 1) % 3);
+  
+  const results = await tvdbClient.searchShows(searchYear.toString());
+  
+  // Filter for recent shows and take a slice
+  const recentShows = results
+    .filter((show: any) => {
+      const year = show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0];
+      return year && parseInt(year) >= currentYear - 2;
+    })
+    .slice(0, 20);
+  
+  return recentShows.map(normalizeShow);
 }
 
 export async function getShow(id: number) {
