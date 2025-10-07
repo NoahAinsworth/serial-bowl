@@ -61,13 +61,14 @@ export default function Home() {
     return (
       <div className="container max-w-2xl mx-auto py-12 px-4 text-center space-y-6">
         <div className="flex flex-col items-center gap-4">
-          <img src={cerealBowlLogo} alt="Serial Bowl Logo" className="w-32 h-32 neon-glow" />
-          <p className="text-xl text-muted-foreground">Your TV social network</p>
+          <img src={cerealBowlLogo} alt="Serial Bowl Logo" className="w-32 h-32" />
+          <h1 className="text-3xl font-bold heading-spotify gradient-text">SERIAL BOWL</h1>
+          <p className="text-xl font-medium text-muted-foreground">Your TV social network</p>
         </div>
         <p className="text-muted-foreground">
           Rate shows, share thoughts, and connect with fellow TV enthusiasts
         </p>
-        <Button onClick={() => navigate('/auth')} size="lg" className="btn-glow">
+        <Button onClick={() => navigate('/auth')} size="lg">
           Get Started
         </Button>
       </div>
@@ -76,13 +77,13 @@ export default function Home() {
 
   const ShowCarousel = ({ shows, title }: { shows: any[], title: string }) => (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-4 px-4">{title}</h2>
+      <h2 className="text-xl font-bold mb-4 px-4 heading-spotify gradient-text">{title}</h2>
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex gap-4 px-4 pb-4">
           {shows.map((show) => (
             <Card
               key={show.id}
-              className="cursor-pointer hover:scale-105 transition-transform overflow-hidden flex-shrink-0 w-[140px]"
+              className="cursor-pointer hover-lift transition-all overflow-hidden flex-shrink-0 w-[140px]"
               onClick={() => navigate(`/show/${show.id || show.external_id}`)}
             >
               <div className="aspect-[2/3] bg-muted">

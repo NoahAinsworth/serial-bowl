@@ -85,7 +85,6 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
       variant={isWatched ? "default" : "outline"}
       onClick={toggleWatched}
       disabled={loading}
-      className="btn-glow"
     >
       {isWatched ? (
         <>

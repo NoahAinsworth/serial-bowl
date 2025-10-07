@@ -145,13 +145,13 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
 
       <div className="space-y-3">
         {users.map((profile) => (
-          <Card key={profile.id} className="p-4 card-enhanced group">
+          <Card key={profile.id} className="p-4 group">
             <div className="flex items-center justify-between gap-3">
               <div
                 className="flex items-center gap-3 flex-1 cursor-pointer"
                 onClick={() => navigate(`/user/${profile.id}`)}
               >
-                <div className="avatar-ring">
+                <div className="profile-ring">
                   <Avatar className="h-12 w-12 transition-transform active:scale-95">
                     <AvatarImage src={profile.avatar_url} alt={profile.handle} />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
@@ -176,7 +176,6 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
                       variant="outline"
                       size="sm"
                       onClick={() => handleMessage(profile.id)}
-                      className="btn-glow"
                     >
                       <MessageCircle className="h-4 w-4" />
                     </Button>
@@ -185,7 +184,6 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
                     variant={following.has(profile.id) ? 'outline' : 'default'}
                     size="sm"
                     onClick={() => handleFollow(profile.id)}
-                    className="btn-glow"
                   >
                     {following.has(profile.id) ? (
                       <>

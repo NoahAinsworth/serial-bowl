@@ -42,7 +42,7 @@ export function RatingInput({ initialRating = 0, onRate, disabled = false }: Rat
               className={cn(
                 "h-6 w-6 transition-colors",
                 rating <= displayRating
-                  ? "fill-primary text-primary neon-glow"
+                  ? "fill-primary text-primary"
                   : "text-muted-foreground"
               )}
             />

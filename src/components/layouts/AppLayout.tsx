@@ -25,18 +25,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="flex flex-col h-screen bg-background scanlines">
+    <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between px-4">
+      <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
+        <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="relative pb-2">
-              <div className="text-lg font-black tracking-wider text-foreground">
-                SERIAL BOWL
-              </div>
-              <div className="absolute -bottom-1 left-0 right-0 h-[2px] bg-gradient-to-r from-[#ff6b35] via-[#00d4aa] to-[#0ea5e9]" />
-              <div className="absolute -bottom-2 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#f7931e]/50 to-transparent" />
-            </div>
+            <h1 className="text-xl font-black tracking-tight heading-spotify gradient-text">
+              SERIAL BOWL
+            </h1>
           </div>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
@@ -62,20 +58,20 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 w-full border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="sticky bottom-0 z-40 w-full border-t-2 border-border bg-background">
         <div className="container flex h-16 items-center justify-around px-4">
           {navItems.map(({ icon: Icon, label, path }) => (
             <Link
               key={path}
               to={path}
-              className={`flex flex-col items-center gap-1 transition-colors active:scale-95 ${
+              className={`flex flex-col items-center gap-1 transition-all ${
                 isActive(path)
-                  ? 'text-primary neon-glow'
-                  : 'text-muted-foreground'
+                  ? 'text-primary font-bold'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Icon className="h-6 w-6" />
-              <span className="text-xs">{label}</span>
+              <span className="text-xs font-semibold uppercase">{label}</span>
             </Link>
           ))}
         </div>

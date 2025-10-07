@@ -99,7 +99,7 @@ export function ReviewButton({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="btn-glow">
+        <Button variant="outline">
           {existingReview ? (
             <>
               <Edit className="h-4 w-4 mr-2" />
@@ -159,7 +159,7 @@ export function ReviewButton({
           <Button 
             onClick={submitReview} 
             disabled={submitting}
-            className="w-full btn-glow"
+            className="w-full"
           >
             {submitting ? 'Saving...' : 'Submit Review'}
           </Button>

@@ -80,7 +80,7 @@ export function TrendingShows() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <TrendingUp className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-bold neon-glow">Trending This Week</h2>
+        <h2 className="text-xl font-bold heading-spotify gradient-text">Trending This Week</h2>
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

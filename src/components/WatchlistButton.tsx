@@ -84,7 +84,6 @@ export function WatchlistButton({ contentId, showTitle }: WatchlistButtonProps) 
       variant={isInWatchlist ? "default" : "outline"}
       onClick={toggleWatchlist}
       disabled={loading}
-      className="btn-glow"
     >
       {isInWatchlist ? (
         <>

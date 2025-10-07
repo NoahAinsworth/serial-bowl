@@ -95,9 +95,9 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
           </p>
         ) : (
           comments.map((comment) => (
-            <Card key={comment.id} className="p-3 animate-scale-in card-enhanced">
+            <Card key={comment.id} className="p-3 animate-scale-in">
               <div className="flex items-start gap-2">
-                <div className="avatar-ring">
+                <div className="profile-ring">
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     <AvatarImage src={comment.profiles.avatar_url} alt={comment.profiles.handle} />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-sm font-bold">
@@ -133,7 +133,7 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
             onClick={handlePostComment}
             disabled={!newComment.trim() || posting}
             size="icon"
-            className="btn-glow flex-shrink-0"
+            className="flex-shrink-0"
           >
             {posting ? (
               <Loader2 className="h-4 w-4 animate-spin" />

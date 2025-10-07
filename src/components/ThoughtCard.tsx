@@ -158,9 +158,9 @@ export function ThoughtCard({ thought, onReactionChange, onDelete }: ThoughtCard
   };
 
   return (
-    <Card className="p-4 active:border-primary/50 transition-all duration-300 animate-fade-in card-enhanced group">
+    <Card className="p-4 transition-all duration-200 animate-fade-in group">
       <div className="flex gap-3">
-        <div className="avatar-ring">
+        <div className="profile-ring">
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.id}`)}>
             <AvatarImage src={thought.user.avatar_url} alt={thought.user.handle} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
