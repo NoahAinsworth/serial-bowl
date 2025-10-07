@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { RatingInput } from '@/components/RatingInput';
+import { PercentRating } from '@/components/PercentRating';
 import { WatchlistButton } from '@/components/WatchlistButton';
 import { WatchedButton } from '@/components/WatchedButton';
 import { ReviewButton } from '@/components/ReviewButton';
@@ -189,7 +189,7 @@ export default function ShowDetailPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Rate this show</p>
-                  <RatingInput initialRating={userRating} onRate={handleRate} />
+                  <PercentRating initialRating={userRating || 50} onRate={handleRate} />
                 </div>
               </div>
             </div>

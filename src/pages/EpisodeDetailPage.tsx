@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { RatingInput } from '@/components/RatingInput';
+import { PercentRating } from '@/components/PercentRating';
 import { ReviewsList } from '@/components/ReviewsList';
 import { ThoughtsList } from '@/components/ThoughtsList';
 import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
@@ -179,7 +179,7 @@ export default function EpisodeDetailPage() {
         
             <div>
               <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
-              <RatingInput initialRating={userRating} onRate={handleRate} />
+              <PercentRating initialRating={userRating || 50} onRate={handleRate} />
             </div>
             {contentId && (
               <div>

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Star, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { PercentRating } from '@/components/PercentRating';
 
 interface ReviewButtonProps {
   contentId: string;
@@ -27,8 +27,7 @@ export function ReviewButton({
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [review, setReview] = useState(existingReview || '');
-  const [rating, setRating] = useState(existingRating || 0);
-  const [hoveredRating, setHoveredRating] = useState(0);
+  const [rating, setRating] = useState(existingRating || 50);
   const [submitting, setSubmitting] = useState(false);
 
   const submitReview = async () => {
@@ -41,7 +40,7 @@ export function ReviewButton({
       return;
     }
 
-    if (!review.trim() && rating === 0) {
+    if (!review.trim() && (!rating || rating < 1)) {
       toast({
         title: "Review required",
         description: "Please write a review or add a rating",
@@ -53,30 +52,19 @@ export function ReviewButton({
     setSubmitting(true);
 
     try {
-      // Upsert the review
+      // Upsert the review (trigger will auto-sync rating to ratings table)
       const { error: reviewError } = await supabase
         .from('reviews')
         .upsert({
           user_id: user.id,
           content_id: contentId,
           review_text: review.trim(),
-          rating: rating,
+          rating: rating > 0 ? rating : null,
+        }, {
+          onConflict: 'user_id,content_id'
         });
 
       if (reviewError) throw reviewError;
-
-      // Also update the rating table if a rating was provided
-      if (rating > 0) {
-        const { error: ratingError } = await supabase
-          .from('ratings')
-          .upsert({
-            user_id: user.id,
-            content_id: contentId,
-            rating: rating,
-          });
-
-        if (ratingError) throw ratingError;
-      }
 
       toast({
         title: "Success",
@@ -100,17 +88,7 @@ export function ReviewButton({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          {existingReview ? (
-            <>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Review
-            </>
-          ) : (
-            <>
-              <Star className="h-4 w-4 mr-2" />
-              Write Review
-            </>
-          )}
+          {existingReview ? 'Edit Review' : 'Write Review'}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
@@ -119,29 +97,14 @@ export function ReviewButton({
         </DialogHeader>
         
         <div className="space-y-4 mt-4">
-          {/* Star Rating */}
+          {/* Percentage Rating */}
           <div>
             <label className="text-sm font-medium mb-2 block">Your Rating</label>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  className="transition-all active:scale-95"
-                  onMouseEnter={() => setHoveredRating(star)}
-                  onMouseLeave={() => setHoveredRating(0)}
-                  onClick={() => setRating(star)}
-                >
-                  <Star
-                    className={`h-8 w-8 ${
-                      star <= (hoveredRating || rating)
-                        ? 'fill-yellow-500 text-yellow-500'
-                        : 'text-muted-foreground'
-                    }`}
-                  />
-                </button>
-              ))}
-            </div>
+            <PercentRating
+              initialRating={rating}
+              onRate={setRating}
+              disabled={submitting}
+            />
           </div>
 
           {/* Review Text */}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { RatingInput } from '@/components/RatingInput';
+import { PercentRating } from '@/components/PercentRating';
 import { EpisodeCheckbox } from '@/components/EpisodeCheckbox';
 import { ReviewsList } from '@/components/ReviewsList';
 import { ThoughtsList } from '@/components/ThoughtsList';
@@ -144,7 +144,7 @@ export default function SeasonDetailPage() {
         <div className="space-y-4">
           <div>
             <p className="text-sm text-muted-foreground mb-2">Rate this season</p>
-            <RatingInput initialRating={userRating} onRate={handleRate} />
+            <PercentRating initialRating={userRating || 50} onRate={handleRate} />
           </div>
           {contentId && (
             <div>

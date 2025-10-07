@@ -633,6 +633,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_spoiler: boolean
+          rating: number | null
           review_text: string
           user_id: string
         }
@@ -641,6 +642,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_spoiler?: boolean
+          rating?: number | null
           review_text: string
           user_id: string
         }
@@ -649,6 +651,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_spoiler?: boolean
+          rating?: number | null
           review_text?: string
           user_id?: string
         }

@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, PlusSquare, Bell, User, MessageSquare, Bookmark, TrendingUp, Eye, Settings, List, Compass, Bot, Library } from 'lucide-react';
+import { Home, PlusSquare, User, MessageSquare, Compass, Bot, Library, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 import { BingeBotAI } from '@/components/BingeBotAI';
@@ -16,9 +16,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
-    { icon: Search, label: 'Search', path: '/search' },
-    { icon: PlusSquare, label: 'Post', path: '/post' },
     { icon: Compass, label: 'Discover', path: '/discover' },
+    { icon: PlusSquare, label: 'Post', path: '/post' },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 
@@ -42,8 +41,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <Bot className="h-5 w-5" />
               <span className="text-xs font-semibold">AI</span>
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/activity')} title="Notifications">
-              <Bell className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate('/messages')} title="Messages">
+              <MessageSquare className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
               <Settings className="h-5 w-5" />

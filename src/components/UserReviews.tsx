@@ -1,64 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
-import { Star, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { RatingBadge } from '@/components/PercentRating';
 
 interface UserReviewsProps {
   userId?: string;
 }
 
 export function UserReviews({ userId }: UserReviewsProps) {
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (userId) {
-      loadReviews();
-    }
+    loadReviews();
   }, [userId]);
 
   const loadReviews = async () => {
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
-    const { data: reviewsData } = await supabase
+    // Get reviews
+    const { data: reviewsData, error } = await supabase
       .from('reviews')
       .select(`
         id,
         review_text,
+        rating,
         created_at,
-        content!inner (
+        content:content_id (
           id,
-          kind,
+          external_id,
           title,
           poster_url,
-          external_id
+          kind
         )
       `)
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(20);
+      .order('created_at', { ascending: false });
 
-    // Get ratings for each review
-    if (reviewsData) {
-      const reviewsWithRatings = await Promise.all(
-        reviewsData.map(async (review: any) => {
-          const { data: rating } = await supabase
-            .from('ratings')
-            .select('rating')
-            .eq('user_id', userId)
-            .eq('content_id', review.content.id)
-            .maybeSingle();
-
-          return {
-            ...review,
-            rating: rating?.rating || 0,
-          };
-        })
-      );
-
-      setReviews(reviewsWithRatings);
+    if (!error && reviewsData) {
+      setReviews(reviewsData);
     }
 
     setLoading(false);
@@ -66,55 +52,71 @@ export function UserReviews({ userId }: UserReviewsProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-12">
+      <div className="text-center py-8 text-muted-foreground">
         No reviews yet
       </div>
     );
   }
 
+  const handleClick = (content: any) => {
+    if (!content) return;
+    
+    const kind = content.kind;
+    if (kind === 'show') {
+      navigate(`/show/${content.external_id}`);
+    } else if (kind === 'season') {
+      navigate(`/season/${content.external_id}`);
+    } else if (kind === 'episode') {
+      navigate(`/episode/${content.external_id}`);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      {reviews.map((review) => (
-        <Card
-          key={review.id}
-          className="p-4 cursor-pointer active:border-primary/50 transition-all active:scale-[0.98]"
-          onClick={() => {
-            if (review.content.kind === 'show') {
-              navigate(`/show/${review.content.external_id}`);
-            }
-          }}
-        >
-          <div className="flex gap-4">
-            {review.content.poster_url && (
-              <img
-                src={review.content.poster_url}
-                alt={review.content.title}
-                className="w-20 h-28 object-cover rounded"
-              />
-            )}
-            <div className="flex-1">
-              <h3 className="font-semibold mb-1">{review.content.title}</h3>
-              <div className="flex items-center gap-1 mb-2">
-                <Star className="h-4 w-4 fill-primary text-primary" />
-                <span className="text-sm font-bold text-primary">
-                  {review.rating * 10}%
-                </span>
+      {reviews.map((review: any) => {
+        const content = review.content;
+        if (!content) return null;
+
+        return (
+          <Card
+            key={review.id}
+            className="p-4 cursor-pointer hover:border-primary transition-colors"
+            onClick={() => handleClick(content)}
+          >
+            <div className="flex gap-4">
+              {content.poster_url && (
+                <img
+                  src={content.poster_url}
+                  alt={content.title}
+                  className="w-20 h-28 object-cover rounded"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-bold text-lg truncate">{content.title}</h3>
+                  {review.rating && (
+                    <RatingBadge rating={review.rating} size="sm" />
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {review.review_text}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date(review.created_at).toLocaleDateString()}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {review.review_text}
-              </p>
             </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        );
+      })}
     </div>
   );
 }

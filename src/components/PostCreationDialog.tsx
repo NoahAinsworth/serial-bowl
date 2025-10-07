@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { RatingInput } from '@/components/RatingInput';
+import { PercentRating } from '@/components/PercentRating';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
@@ -182,7 +182,7 @@ export function PostCreationDialog({
           {postType === 'review' && (
             <div>
               <p className="text-sm text-muted-foreground mb-2">Rating</p>
-              <RatingInput initialRating={rating} onRate={setRating} />
+              <PercentRating initialRating={rating || 50} onRate={setRating} compact />
             </div>
           )}
 
