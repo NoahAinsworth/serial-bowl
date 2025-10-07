@@ -149,7 +149,7 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
             <div className="flex items-center justify-between gap-3">
               <div
                 className="flex items-center gap-3 flex-1 cursor-pointer"
-                onClick={() => navigate(`/user/${profile.id}`)}
+                onClick={() => navigate(`/user/${profile.handle}`)}
               >
                 <div className="profile-ring">
                   <Avatar className="h-12 w-12 transition-transform active:scale-95">
