@@ -62,7 +62,7 @@ serve(async (req) => {
       content: messages[messages.length - 1].content,
     });
 
-    // Call Lovable AI with tool calling for entity extraction
+    // Call Lovable AI with parallel tool calling for entity extraction
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -106,7 +106,7 @@ serve(async (req) => {
             }
           }
         ],
-        tool_choice: { type: "function", function: { name: "extract_entities_and_followups" } }
+        tool_choice: "auto"
       }),
     });
 
@@ -124,18 +124,22 @@ serve(async (req) => {
     }
 
     const result = await response.json();
-    const assistantMessage = result.choices[0].message.content;
+    const assistantMessage = result.choices[0].message.content || "";
     const toolCalls = result.choices[0].message.tool_calls;
 
     let entities = [];
     let followUps = [];
 
-    // Extract entities and follow-ups from tool call
+    // Extract entities and follow-ups from tool call if present
     if (toolCalls && toolCalls.length > 0) {
-      const toolCall = toolCalls[0];
-      const args = JSON.parse(toolCall.function.arguments);
-      entities = args.entities || [];
-      followUps = args.followUps || [];
+      try {
+        const toolCall = toolCalls[0];
+        const args = JSON.parse(toolCall.function.arguments);
+        entities = args.entities || [];
+        followUps = args.followUps || [];
+      } catch (e) {
+        console.error("Error parsing tool call:", e);
+      }
     }
 
     // Resolve entities to database IDs

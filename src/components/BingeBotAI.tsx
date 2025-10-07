@@ -257,20 +257,6 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                 </div>
               )}
               <div ref={chatEndRef} />
-              {!loading && (
-                <div className="flex flex-wrap gap-2">
-                  {quickChips.map((chip) => (
-                    <Button
-                      key={chip}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleChipClick(chip)}
-                    >
-                      {chip}
-                    </Button>
-                  ))}
-                </div>
-              )}
             </>
           )}
         </div>
