@@ -62,8 +62,8 @@ serve(async (req) => {
       content: messages[messages.length - 1].content,
     });
 
-    // Call Lovable AI with parallel tool calling for entity extraction
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // First call: Get the main response
+    const mainResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${lovableApiKey}`,
@@ -75,12 +75,52 @@ serve(async (req) => {
           { role: "system", content: SYSTEM_PROMPT },
           ...messages,
         ],
+      }),
+    });
+
+    if (!mainResponse.ok) {
+      const errorText = await mainResponse.text();
+      console.error("Lovable AI error:", mainResponse.status, errorText);
+      
+      if (mainResponse.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+      if (mainResponse.status === 402) {
+        throw new Error("Payment required. Please add credits to your Lovable AI workspace.");
+      }
+      throw new Error("AI request failed");
+    }
+
+    const mainResult = await mainResponse.json();
+    const assistantMessage = mainResult.choices[0].message.content;
+
+    console.log("Assistant message:", assistantMessage);
+
+    // Second call: Extract entities and generate follow-ups
+    const extractResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content: "Extract TV show entities and generate 3 contextual follow-up questions."
+          },
+          {
+            role: "user",
+            content: `Question: ${messages[messages.length - 1].content}\nAnswer: ${assistantMessage}`
+          }
+        ],
         tools: [
           {
             type: "function",
             function: {
               name: "extract_entities_and_followups",
-              description: "Extract show/season/episode entities mentioned in the response and generate 3 contextual follow-up questions",
+              description: "Extract show entities and generate follow-ups",
               parameters: {
                 type: "object",
                 properties: {
@@ -89,7 +129,7 @@ serve(async (req) => {
                     items: {
                       type: "object",
                       properties: {
-                        type: { type: "string", enum: ["show", "season", "episode"] },
+                        type: { type: "string", enum: ["show"] },
                         name: { type: "string" }
                       },
                       required: ["type", "name"]
@@ -98,7 +138,7 @@ serve(async (req) => {
                   followUps: {
                     type: "array",
                     items: { type: "string" },
-                    description: "3 contextual follow-up questions (max 80 chars each)"
+                    description: "3 short follow-up questions under 80 chars each"
                   }
                 },
                 required: ["entities", "followUps"]
@@ -106,39 +146,27 @@ serve(async (req) => {
             }
           }
         ],
-        tool_choice: "auto"
+        tool_choice: { type: "function", function: { name: "extract_entities_and_followups" } }
       }),
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        throw new Error("Rate limit exceeded. Please try again later.");
-      }
-      if (response.status === 402) {
-        throw new Error("Payment required. Please add credits to your Lovable AI workspace.");
-      }
-      throw new Error("AI request failed");
-    }
-
-    const result = await response.json();
-    const assistantMessage = result.choices[0].message.content || "";
-    const toolCalls = result.choices[0].message.tool_calls;
 
     let entities = [];
     let followUps = [];
 
-    // Extract entities and follow-ups from tool call if present
-    if (toolCalls && toolCalls.length > 0) {
+    if (extractResponse.ok) {
       try {
-        const toolCall = toolCalls[0];
-        const args = JSON.parse(toolCall.function.arguments);
-        entities = args.entities || [];
-        followUps = args.followUps || [];
+        const extractResult = await extractResponse.json();
+        const toolCalls = extractResult.choices[0].message.tool_calls;
+        
+        if (toolCalls && toolCalls.length > 0) {
+          const args = JSON.parse(toolCalls[0].function.arguments);
+          entities = args.entities || [];
+          followUps = args.followUps || [];
+          console.log("Extracted entities:", entities);
+          console.log("Generated follow-ups:", followUps);
+        }
       } catch (e) {
-        console.error("Error parsing tool call:", e);
+        console.error("Error extracting entities:", e);
       }
     }
 
