@@ -223,18 +223,6 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4">
-      {/* Action Buttons - Top Left */}
-      <div className="mb-4 flex gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => navigate('/dms')}
-          className="gap-2"
-        >
-          <MessageSquare className="h-4 w-4" />
-          Messages
-        </Button>
-      </div>
 
       {/* Follow Requests List */}
       <FollowRequestsList />
@@ -255,15 +243,15 @@ export default function ProfilePage() {
             <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between mb-2 gap-2">
               <div>
                 {profile?.settings?.displayName && (
-                  <h1 className="text-2xl font-bold text-white">{profile.settings.displayName}</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{profile.settings.displayName}</h1>
                 )}
-                <p className="text-white/90">{profile?.handle || 'user'}</p>
+                <p className="text-muted-foreground">{profile?.handle || 'user'}</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="ghost" size="icon" onClick={handleShare} title="Share profile" className="text-white hover:bg-white/20">
+                <Button variant="ghost" size="icon" onClick={handleShare} title="Share profile">
                   <Share2 className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile" className="text-white hover:bg-white/20">
+                <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile">
                   <Edit className="h-5 w-5" />
                 </Button>
               </div>
@@ -271,31 +259,31 @@ export default function ProfilePage() {
 
             {/* Bio */}
             {profile?.bio && (
-              <p className="text-sm mb-4 text-white/85">{profile.bio}</p>
+              <p className="text-sm mb-4 text-muted-foreground">{profile.bio}</p>
             )}
 
             {/* Counts Row */}
             <div className="flex gap-6 text-sm justify-center sm:justify-start">
               <button 
-                className="hover:underline text-white"
+                className="hover:underline"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
               >
-                <span className="font-bold">{stats.thoughtsCount}</span>{' '}
-                <span className="text-white/80">Posts</span>
+                <span className="font-bold text-foreground">{stats.thoughtsCount}</span>{' '}
+                <span className="text-muted-foreground">Posts</span>
               </button>
               <button 
-                className="hover:underline text-white"
+                className="hover:underline"
                 onClick={() => navigate('/followers')}
               >
-                <span className="font-bold">{stats.followersCount}</span>{' '}
-                <span className="text-white/80">Followers</span>
+                <span className="font-bold text-foreground">{stats.followersCount}</span>{' '}
+                <span className="text-muted-foreground">Followers</span>
               </button>
               <button 
-                className="hover:underline text-white"
+                className="hover:underline"
                 onClick={() => navigate('/following')}
               >
-                <span className="font-bold">{stats.followingCount}</span>{' '}
-                <span className="text-white/80">Following</span>
+                <span className="font-bold text-foreground">{stats.followingCount}</span>{' '}
+                <span className="text-muted-foreground">Following</span>
               </button>
             </div>
           </div>

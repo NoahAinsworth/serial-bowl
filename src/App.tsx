@@ -28,6 +28,7 @@ import StatsPage from "./pages/StatsPage";
 import PostPage from "./pages/PostPage";
 import DMsPage from "./pages/DMsPage";
 import DMThreadPage from "./pages/DMThreadPage";
+import MessagesPage from "./pages/MessagesPage";
 import FollowersPage from "./pages/FollowersPage";
 import FollowingPage from "./pages/FollowingPage";
 import BingePage from "./pages/BingePage";
@@ -68,6 +69,7 @@ function AppRouter() {
                 <Route path="/discover" element={<AppLayout><DiscoverPage /></AppLayout>} />
                 <Route path="/stats" element={<AppLayout><StatsPage /></AppLayout>} />
                 <Route path="/post" element={<AppLayout><PostPage /></AppLayout>} />
+                <Route path="/messages" element={<AppLayout><MessagesPage /></AppLayout>} />
                 <Route path="/dms" element={<AppLayout><DMsPage /></AppLayout>} />
                 <Route path="/dms/:userId" element={<AppLayout><DMThreadPage /></AppLayout>} />
                 <Route path="/followers" element={<AppLayout><FollowersPage /></AppLayout>} />

@@ -1,343 +1,399 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Loader2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
 import { useTVDB } from '@/hooks/useTVDB';
-import { Compass, TrendingUp, Loader2, ChevronRight, Star, Flame } from 'lucide-react';
 import { BingeBotAI } from '@/components/BingeBotAI';
 
-interface TrendingShow {
-  content_id: string;
-  title: string;
-  poster_url?: string;
-  external_id: string;
-  rating_count: number;
-  avg_rating?: number;
-}
-
 export default function DiscoverPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const { search } = useTVDB();
-  const [topRatedShows, setTopRatedShows] = useState<TrendingShow[]>([]);
-  const [mostRatedShows, setMostRatedShows] = useState<TrendingShow[]>([]);
+  const { search: searchTVDB } = useTVDB();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('browse');
+  
+  // Browse tab state
   const [browseShows, setBrowseShows] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(0);
-  const [bingeBotPrompt, setBingeBotPrompt] = useState<string>("");
-  const [chatOpen, setChatOpen] = useState(false);
+  const [browseLoading, setBrowseLoading] = useState(false);
+  const [browsePage, setBrowsePage] = useState(0);
+  
+  // New tab state
+  const [newShows, setNewShows] = useState<any[]>([]);
+  const [newLoading, setNewLoading] = useState(false);
+  const [newPage, setNewPage] = useState(0);
+  
+  // User search state
+  const [users, setUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  
+  // Show search state
+  const [showResults, setShowResults] = useState<any[]>([]);
+  const [showsLoading, setShowsLoading] = useState(false);
 
+  // BingeBot state
+  const [showBingeBot, setShowBingeBot] = useState(false);
+  const [botPrompt, setBotPrompt] = useState('');
+
+  // Refs for infinite scroll
+  const browseObserver = useRef<IntersectionObserver | null>(null);
+  const newObserver = useRef<IntersectionObserver | null>(null);
+  const browseEndRef = useRef<HTMLDivElement>(null);
+  const newEndRef = useRef<HTMLDivElement>(null);
+
+  // Popular show IDs for Browse tab
+  const popularShowIds = [
+    80337, 121361, 78804, 83268, 295759, 81189, 70523, 79349, 305074,
+    279121, 294940, 318408, 121404, 328437, 94605, 318644, 79460, 328271
+  ];
+
+  // Load initial browse shows
   useEffect(() => {
-    loadData();
-  }, [user]);
+    loadBrowseShows(0);
+  }, []);
 
+  // Search debounce
   useEffect(() => {
-    if (page > 0) {
-      loadMoreShows();
-    }
-  }, [page]);
-
-  const loadData = async () => {
-    setLoading(true);
-
-    // Load user-based trending data
-    if (user) {
-      // Get top rated shows (highest average rating with min 3 ratings)
-      const { data: ratingsData } = await supabase
-        .from('ratings')
-        .select(`
-          content_id,
-          rating,
-          content (
-            id,
-            title,
-            poster_url,
-            external_id,
-            kind
-          )
-        `)
-        .eq('content.kind', 'show')
-        .limit(200);
-
-      if (ratingsData) {
-        const showMap = new Map<string, TrendingShow & { total: number }>();
-        
-        ratingsData.forEach((rating: any) => {
-          if (!rating.content) return;
-          
-          const show = showMap.get(rating.content_id) || {
-            content_id: rating.content_id,
-            title: rating.content.title,
-            poster_url: rating.content.poster_url,
-            external_id: rating.content.external_id,
-            rating_count: 0,
-            avg_rating: 0,
-            total: 0,
-          };
-
-          show.rating_count++;
-          show.total += rating.rating;
-          show.avg_rating = show.total / show.rating_count;
-          showMap.set(rating.content_id, show);
-        });
-
-        // Top rated (highest avg rating with at least 3 ratings)
-        const topRated = Array.from(showMap.values())
-          .filter(show => show.rating_count >= 3)
-          .sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0))
-          .slice(0, 10);
-
-        setTopRatedShows(topRated);
-
-        // Most rated (most number of ratings)
-        const mostRated = Array.from(showMap.values())
-          .sort((a, b) => b.rating_count - a.rating_count)
-          .slice(0, 10);
-
-        setMostRatedShows(mostRated);
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        if (activeTab === 'users') {
+          searchUsers(searchQuery);
+        } else {
+          searchShows(searchQuery);
+        }
+      } else {
+        setShowResults([]);
+        setUsers([]);
       }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, activeTab]);
+
+  // Set up infinite scroll for Browse tab
+  useEffect(() => {
+    if (browseObserver.current) browseObserver.current.disconnect();
+
+    browseObserver.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !browseLoading && browseShows.length > 0) {
+        loadBrowseShows(browsePage + 1);
+      }
+    });
+
+    if (browseEndRef.current) {
+      browseObserver.current.observe(browseEndRef.current);
     }
 
-    // Load initial browse shows
-    await loadInitialBrowseShows();
+    return () => {
+      if (browseObserver.current) browseObserver.current.disconnect();
+    };
+  }, [browseLoading, browsePage, browseShows]);
 
-    setLoading(false);
-  };
+  // Set up infinite scroll for New tab
+  useEffect(() => {
+    if (newObserver.current) newObserver.current.disconnect();
 
-  const loadInitialBrowseShows = async () => {
+    newObserver.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !newLoading && newShows.length > 0) {
+        loadNewShows(newPage + 1);
+      }
+    });
+
+    if (newEndRef.current) {
+      newObserver.current.observe(newEndRef.current);
+    }
+
+    return () => {
+      if (newObserver.current) newObserver.current.disconnect();
+    };
+  }, [newLoading, newPage, newShows]);
+
+  // Load new shows when tab is activated
+  useEffect(() => {
+    if (activeTab === 'new' && newShows.length === 0) {
+      loadNewShows(0);
+    }
+  }, [activeTab]);
+
+  const loadBrowseShows = async (page: number) => {
+    if (browseLoading) return;
+
+    setBrowseLoading(true);
     try {
-      const queries = [
-        'Breaking Bad', 'Game of Thrones', 'Succession', 'Ted Lasso', 
-        'Severance', 'The Bear', 'The Last of Us', 'Fallout', 
-        'Shōgun', 'The Penguin', 'Baby Reindeer', '3 Body Problem',
-        'True Detective', 'Fargo', 'The Wire', 'The Sopranos',
-        'Better Call Saul', 'Stranger Things', 'The Boys', 'The Mandalorian'
-      ];
+      const startIdx = page * 6;
+      const endIdx = startIdx + 6;
+      const showIds = popularShowIds.slice(startIdx, endIdx);
+
+      if (showIds.length === 0) {
+        setBrowseLoading(false);
+        return;
+      }
+
+      const showPromises = showIds.map(async (id) => {
+        try {
+          const { data } = await supabase
+            .from('tvdb_shows')
+            .select('tvdb_id, name, json')
+            .eq('tvdb_id', id)
+            .maybeSingle();
+
+          if (data?.json) {
+            const jsonData = data.json as any;
+            return {
+              id: data.tvdb_id,
+              name: data.name || jsonData.name,
+              image: jsonData.image || '',
+              firstAired: jsonData.firstAired || '',
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error(`Error loading show ${id}:`, error);
+          return null;
+        }
+      });
+
+      const shows = (await Promise.all(showPromises)).filter(Boolean);
       
-      const promises = queries.map(q => search(q));
-      const resultsArrays = await Promise.all(promises);
-      
-      const results = resultsArrays
-        .map(results => results[0])
-        .filter(Boolean);
-      
-      setBrowseShows(results.sort(() => Math.random() - 0.5));
+      if (page === 0) {
+        setBrowseShows(shows);
+      } else {
+        setBrowseShows(prev => [...prev, ...shows]);
+      }
+      setBrowsePage(page);
     } catch (error) {
       console.error('Error loading browse shows:', error);
     }
+    setBrowseLoading(false);
   };
 
-  const loadMoreShows = async () => {
-    setLoadingMore(true);
+  const loadNewShows = async (page: number) => {
+    if (newLoading) return;
+
+    setNewLoading(true);
     try {
-      const moreQueries = [
-        'House of the Dragon', 'Loki', 'Wednesday', 'The Witcher',
-        'Westworld', 'Ozark', 'The Crown', 'Peaky Blinders',
-        'Dark', 'Chernobyl', 'Band of Brothers', 'The Office',
-        'Parks and Recreation', 'Community', 'Atlanta', 'Barry',
-        'Euphoria', 'The White Lotus', 'Only Murders in the Building', 'Poker Face'
-      ];
-      
-      const startIndex = page * 10;
-      const endIndex = startIndex + 10;
-      const queriesForPage = moreQueries.slice(startIndex, endIndex);
-      
-      if (queriesForPage.length > 0) {
-        const promises = queriesForPage.map(q => search(q));
-        const resultsArrays = await Promise.all(promises);
-        
-        const results = resultsArrays
-          .map(results => results[0])
-          .filter(Boolean);
-        
-        setBrowseShows(prev => [...prev, ...results]);
+      const { data } = await supabase
+        .from('tvdb_shows')
+        .select('tvdb_id, name, json')
+        .order('updated_at', { ascending: false })
+        .range(page * 12, (page + 1) * 12 - 1);
+
+      if (data) {
+        const shows = data.map(show => {
+          const jsonData = show.json as any;
+          return {
+            id: show.tvdb_id,
+            name: show.name || jsonData?.name,
+            image: jsonData?.image || '',
+            firstAired: jsonData?.firstAired || '',
+          };
+        });
+
+        if (page === 0) {
+          setNewShows(shows);
+        } else {
+          setNewShows(prev => [...prev, ...shows]);
+        }
+        setNewPage(page);
       }
     } catch (error) {
-      console.error('Error loading more shows:', error);
+      console.error('Error loading new shows:', error);
     }
-    setLoadingMore(false);
+    setNewLoading(false);
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const scrollPosition = target.scrollTop + target.clientHeight;
-    const scrollHeight = target.scrollHeight;
-    
-    // Load more when scrolled to 80% of the content
-    if (scrollPosition >= scrollHeight * 0.8 && !loadingMore && page < 5) {
-      setPage(prev => prev + 1);
+  const searchShows = async (query: string) => {
+    if (!query.trim()) {
+      setShowResults([]);
+      return;
     }
+
+    setShowsLoading(true);
+    try {
+      const results = await searchTVDB(query);
+      setShowResults(results);
+    } catch (error) {
+      console.error('Error searching shows:', error);
+    }
+    setShowsLoading(false);
   };
 
-  const handleAskBingeBot = (showName: string, tvdbId: string) => {
-    setBingeBotPrompt(`Tell me about ${showName} (TVDB:${tvdbId}).`);
-    setChatOpen(true);
+  const searchUsers = async (query: string) => {
+    if (!query.trim()) {
+      setUsers([]);
+      return;
+    }
+
+    setUsersLoading(true);
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, handle, avatar_url, settings')
+        .or(`handle.ilike.%${query}%,settings->>displayName.ilike.%${query}%`)
+        .limit(20);
+
+      setUsers(data || []);
+    } catch (error) {
+      console.error('Error searching users:', error);
+    }
+    setUsersLoading(false);
   };
 
-  const ShowPoster = ({ show, onClick, onAskBot }: { show: any, onClick: () => void, onAskBot?: () => void }) => (
-    <div className="cursor-pointer hover-scale transition-transform flex-shrink-0 w-[140px] relative group">
-      <div onClick={onClick}>
-        <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
-          {show.poster_url ? (
-            <img 
-              src={show.poster_url} 
-              alt={show.title} 
-              className="w-full h-full object-cover" 
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
-              {show.title}
-            </div>
+  const ShowCard = ({ show }: { show: any }) => (
+    <Card 
+      className="relative group overflow-hidden cursor-pointer hover:scale-105 transition-transform"
+      onClick={() => navigate(`/show/${show.id}`)}
+    >
+      <div className="aspect-[2/3] bg-muted">
+        {show.image ? (
+          <img 
+            src={show.image} 
+            alt={show.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-muted-foreground">No poster</span>
+          </div>
+        )}
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="font-bold text-white truncate">{show.name}</h3>
+          {show.firstAired && (
+            <p className="text-xs text-white/80">{new Date(show.firstAired).getFullYear()}</p>
           )}
         </div>
       </div>
-      {onAskBot && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAskBot();
-          }}
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium hover:bg-primary/90"
-        >
-          Ask Bot
-        </button>
-      )}
-    </div>
+    </Card>
   );
 
-  return (
-    <div className="container max-w-6xl mx-auto py-6 space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between px-4">
-        <div className="flex items-center gap-3">
-          <Compass className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold neon-glow">Discover</h1>
+  const UserCard = ({ user }: { user: any }) => {
+    const displayName = user.settings?.displayName || user.handle;
+    
+    return (
+      <Card 
+        className="p-4 flex items-center gap-3 cursor-pointer hover:border-primary transition-colors"
+        onClick={() => navigate(`/user/${user.handle}`)}
+      >
+        <Avatar className="h-12 w-12">
+          <AvatarImage src={user.avatar_url} />
+          <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold truncate">{displayName}</p>
+          <p className="text-sm text-muted-foreground truncate">@{user.handle}</p>
         </div>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="container max-w-6xl mx-auto py-6 px-4">
+      <h1 className="text-4xl font-bold mb-6">Discover</h1>
+
+      {/* Search Bar */}
+      <div className="mb-6 relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder={activeTab === 'users' ? 'Search users...' : 'Search shows...'}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : (
-        <Tabs defaultValue={user ? "trending" : "browse"} className="w-full">
-          <TabsList className="w-full justify-start mb-6 px-4">
-            {user && <TabsTrigger value="trending">Trending</TabsTrigger>}
-            <TabsTrigger value="browse">Browse</TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="browse">Browse</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="new">New</TabsTrigger>
+        </TabsList>
 
-          {user && (
-            <TabsContent value="trending" className="space-y-6 mt-0">
-              {/* Top Rated Shows */}
-              {topRatedShows.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-4 px-4">
-                    <div className="flex items-center gap-2">
-                      <Star className="h-5 w-5 text-primary" />
-                      <h2 className="text-xl font-bold neon-glow">Top Rated</h2>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex gap-3 px-4 pb-4">
-                      {topRatedShows.map((show) => (
-                        <ShowPoster 
-                          key={show.content_id}
-                          show={show}
-                          onClick={() => navigate(`/show/${show.external_id}`)}
-                          onAskBot={() => handleAskBingeBot(show.title, show.external_id)}
-                        />
-                      ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                  </ScrollArea>
+        {/* Browse Tab */}
+        <TabsContent value="browse">
+          {searchQuery.trim() ? (
+            <div>
+              {showsLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
-              )}
-
-              {/* Most Rated Shows */}
-              {mostRatedShows.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-4 px-4">
-                    <div className="flex items-center gap-2">
-                      <Flame className="h-5 w-5 text-primary" />
-                      <h2 className="text-xl font-bold neon-glow">Most Rated</h2>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex gap-3 px-4 pb-4">
-                      {mostRatedShows.map((show) => (
-                        <ShowPoster 
-                          key={show.content_id}
-                          show={show}
-                          onClick={() => navigate(`/show/${show.external_id}`)}
-                          onAskBot={() => handleAskBingeBot(show.title, show.external_id)}
-                        />
-                      ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                  </ScrollArea>
+              ) : showResults.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {showResults.map((show) => (
+                    <ShowCard key={show.id} show={show} />
+                  ))}
                 </div>
-              )}
-            </TabsContent>
-          )}
-
-          <TabsContent value="browse" className="mt-0">
-            <div 
-              className="px-4 max-h-[calc(100vh-250px)] overflow-y-auto"
-              onScroll={handleScroll}
-            >
-              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3 pb-4">
-                {browseShows.map((show, index) => (
-                  <div
-                    key={`${show.id}-${index}`}
-                    className="cursor-pointer hover-scale transition-transform relative group"
-                  >
-                    <div onClick={() => navigate(`/show/${show.id || show.external_id}`)}>
-                      <div className="aspect-[2/3] bg-muted rounded-md overflow-hidden border border-border">
-                        {(show.poster_url || show.image) ? (
-                          <img 
-                            src={show.poster_url || show.image} 
-                            alt={show.title || show.name} 
-                            className="w-full h-full object-cover" 
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs p-2 text-center">
-                            {show.title || show.name}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAskBingeBot(show.title || show.name, show.id || show.external_id);
-                      }}
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium hover:bg-primary/90"
-                    >
-                      Ask Bot
-                    </button>
-                  </div>
-                ))}
-              </div>
-              {loadingMore && (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-12">No shows found</p>
               )}
             </div>
-          </TabsContent>
-        </Tabs>
-      )}
+          ) : (
+            <div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                {browseShows.map((show) => (
+                  <ShowCard key={show.id} show={show} />
+                ))}
+              </div>
+              
+              <div ref={browseEndRef} className="py-8">
+                {browseLoading && (
+                  <div className="flex justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </TabsContent>
 
-      {/* Binge Bot Modal */}
+        {/* Users Tab */}
+        <TabsContent value="users">
+          {usersLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : users.length > 0 ? (
+            <div className="grid gap-3 max-w-2xl mx-auto">
+              {users.map((user) => (
+                <UserCard key={user.id} user={user} />
+              ))}
+            </div>
+          ) : searchQuery.trim() ? (
+            <p className="text-center text-muted-foreground py-12">No users found</p>
+          ) : (
+            <p className="text-center text-muted-foreground py-12">
+              Search for people to follow
+            </p>
+          )}
+        </TabsContent>
+
+        {/* New Tab */}
+        <TabsContent value="new">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {newShows.map((show) => (
+              <ShowCard key={show.id} show={show} />
+            ))}
+          </div>
+          
+          <div ref={newEndRef} className="py-8">
+            {newLoading && (
+              <div className="flex justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+
       <BingeBotAI 
-        open={chatOpen} 
-        onOpenChange={setChatOpen} 
-        initialPrompt={bingeBotPrompt} 
+        open={showBingeBot} 
+        onOpenChange={setShowBingeBot}
+        initialPrompt={botPrompt}
       />
     </div>
   );

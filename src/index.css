@@ -82,6 +82,53 @@ All colors MUST be HSL.
     --cyan: 191 85% 68%;
     --pink: 315 75% 70%;
   }
+
+  .retro {
+    /* CRT Mode - Classic Green Terminal */
+    --background: 0 0% 8%;
+    --foreground: 120 100% 85%;
+    --card: 0 0% 12%;
+    --card-foreground: 120 100% 85%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 120 100% 85%;
+    --primary: 120 100% 50%;
+    --primary-foreground: 0 0% 8%;
+    --secondary: 120 100% 35%;
+    --secondary-foreground: 120 100% 85%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 120 50% 60%;
+    --accent: 120 100% 40%;
+    --accent-foreground: 120 100% 95%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 120 50% 25%;
+    --input: 120 50% 25%;
+    --ring: 120 100% 50%;
+    --radius: 0.25rem;
+  }
+
+  /* CRT Effects */
+  .retro body::before {
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 0, 0.03) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 255, 0, 0.03) 3px
+      );
+    opacity: 0.8;
+  }
+
+  .retro * {
+    text-shadow: 0 0 2px rgba(0, 255, 0, 0.3);
+  }
+
+  /* Hide Lovable Badge */
+  #lovable-badge,
+  .lovable-edit-tab {
+    display: none !important;
+  }
 }
 
 @layer base {
