@@ -10,21 +10,17 @@ export interface TMDBShow {
 
 export async function fetchPopularShows(page = 1): Promise<TMDBShow[]> {
   try {
-    // Search for trending shows - using years like the New tab does
-    const searchTerms = ['trending', 'popular', '2024', '2023', '2022'];
-    const searchTerm = searchTerms[page % searchTerms.length];
-    
-    const results = await tvdbClient.searchShows(searchTerm);
+    const trending = await tvdbClient.getTrending();
     
     // Get a slice based on the page
-    const startIdx = ((page - 1) * 20) % results.length;
-    const pageResults = results.slice(startIdx, startIdx + 20);
+    const startIdx = (page - 1) * 20;
+    const pageResults = trending.slice(startIdx, startIdx + 20);
     
     return pageResults.map((show: any) => ({
-      id: show.tvdb_id || show.id,
-      title: show.name,
-      posterUrl: show.image_url || show.image || null,
-      year: show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0] || null,
+      id: show.id || show.tvdb_id,
+      title: show.name || show.seriesName,
+      posterUrl: show.image || show.image_url || null,
+      year: show.year?.toString() || null,
       popularity: Math.random() * 1000,
     }));
   } catch (error) {

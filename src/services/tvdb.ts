@@ -59,6 +59,14 @@ class TVDBClient {
     const response = await this.client.get(`/series/${seriesId}/artworks`);
     return response.data.data;
   }
+
+  async getTrending() {
+    await this.ensureAuthenticated();
+    const response = await this.client.get('/movies/updates', {
+      params: { since: Math.floor(Date.now() / 1000) - 7 * 24 * 60 * 60 } // Last 7 days
+    });
+    return response.data.data;
+  }
 }
 
 export const tvdbClient = new TVDBClient();
