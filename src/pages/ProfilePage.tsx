@@ -231,14 +231,14 @@ export default function ProfilePage() {
 
       {/* Header Section */}
       <Card 
-        className="p-6 mb-6 card-enhanced profile-card-grain"
+        className="p-6 mb-6 banner-grain"
         style={{ 
-          '--banner-color': (profile?.settings as any)?.bannerColor || 'hsl(280, 100%, 70%)' 
+          background: (profile?.settings as any)?.bannerColor || 'hsl(280, 100%, 70%)' 
         } as React.CSSProperties}
       >
-        <div className="flex items-start gap-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
           {/* Avatar */}
-          <Avatar className="h-24 w-24 relative z-10">
+          <Avatar className="h-24 w-24 relative z-10 flex-shrink-0">
             <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl">
               {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
@@ -246,13 +246,13 @@ export default function ProfilePage() {
           </Avatar>
 
           {/* Profile Info */}
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-2">
+          <div className="flex-1 text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between mb-2 gap-2">
               <div>
                 {profile?.settings?.displayName && (
-                  <h1 className="text-2xl font-bold text-white drop-shadow-lg">{profile.settings.displayName}</h1>
+                  <h1 className="text-2xl font-bold text-white">{profile.settings.displayName}</h1>
                 )}
-                <p className="text-white/90 drop-shadow-md">{profile?.handle || 'user'}</p>
+                <p className="text-white/90">{profile?.handle || 'user'}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon" onClick={handleShare} title="Share profile" className="text-white hover:bg-white/20">
@@ -266,27 +266,27 @@ export default function ProfilePage() {
 
             {/* Bio */}
             {profile?.bio && (
-              <p className="text-sm mb-4 text-white/85 drop-shadow-md">{profile.bio}</p>
+              <p className="text-sm mb-4 text-white/85">{profile.bio}</p>
             )}
 
             {/* Counts Row */}
-            <div className="flex gap-6 text-sm">
+            <div className="flex gap-6 text-sm justify-center sm:justify-start">
               <button 
-                className="hover:underline text-white drop-shadow-md"
+                className="hover:underline text-white"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
               >
                 <span className="font-bold">{stats.thoughtsCount}</span>{' '}
                 <span className="text-white/80">Posts</span>
               </button>
               <button 
-                className="hover:underline text-white drop-shadow-md"
+                className="hover:underline text-white"
                 onClick={() => navigate('/followers')}
               >
                 <span className="font-bold">{stats.followersCount}</span>{' '}
                 <span className="text-white/80">Followers</span>
               </button>
               <button 
-                className="hover:underline text-white drop-shadow-md"
+                className="hover:underline text-white"
                 onClick={() => navigate('/following')}
               >
                 <span className="font-bold">{stats.followingCount}</span>{' '}
