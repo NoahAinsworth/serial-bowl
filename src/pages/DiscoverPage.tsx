@@ -8,7 +8,6 @@ import { Loader2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useTVDB } from '@/hooks/useTVDB';
 import { BingeBotAI } from '@/components/BingeBotAI';
-import { tvdbClient } from '@/services/tvdb';
 import { useToast } from '@/hooks/use-toast';
 
 interface TVDBShow {
@@ -138,18 +137,27 @@ export default function DiscoverPage() {
 
     setBrowseLoading(true);
     try {
-      const trending = await tvdbClient.getTrending();
-      const startIdx = (page - 1) * 20;
-      const pageResults = trending.slice(startIdx, startIdx + 20);
-      
-      if (pageResults.length === 0) {
+      const offset = (page - 1) * 20;
+      const limit = 20;
+
+      // Query trending shows from database
+      const { data: trendingShows, error } = await supabase
+        .from('tvdb_trending')
+        .select('*')
+        .eq('category', 'popular')
+        .order('position', { ascending: true })
+        .range(offset, offset + limit - 1);
+
+      if (error) throw error;
+
+      if (!trendingShows || trendingShows.length === 0) {
         setBrowseHasMore(false);
       } else {
-        const shows: TVDBShow[] = pageResults.map((show: any) => ({
-          id: show.id || show.tvdb_id,
-          title: show.name || show.seriesName,
-          posterUrl: show.image || show.image_url || null,
-          year: show.year?.toString() || null,
+        const shows: TVDBShow[] = trendingShows.map((show: any) => ({
+          id: show.tvdb_id,
+          title: show.name,
+          posterUrl: show.image_url || null,
+          year: show.first_aired?.split('-')[0] || null,
         }));
 
         if (page === 1) {
@@ -177,25 +185,27 @@ export default function DiscoverPage() {
 
     setNewLoading(true);
     try {
-      const currentYear = new Date().getFullYear();
-      const searchYear = currentYear - (page - 1);
-      const results = await tvdbClient.searchShows(searchYear.toString());
-      
-      const recentShows = results
-        .filter((show: any) => {
-          const year = show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0];
-          return year && parseInt(year) >= currentYear - 2;
-        })
-        .slice(0, 20);
+      const offset = (page - 1) * 20;
+      const limit = 20;
 
-      if (recentShows.length === 0) {
+      // Query new shows from database
+      const { data: newShowsData, error } = await supabase
+        .from('tvdb_trending')
+        .select('*')
+        .eq('category', 'new')
+        .order('position', { ascending: true })
+        .range(offset, offset + limit - 1);
+
+      if (error) throw error;
+
+      if (!newShowsData || newShowsData.length === 0) {
         setNewHasMore(false);
       } else {
-        const shows: TVDBShow[] = recentShows.map((show: any) => ({
-          id: show.tvdb_id || show.id,
+        const shows: TVDBShow[] = newShowsData.map((show: any) => ({
+          id: show.tvdb_id,
           title: show.name,
-          posterUrl: show.image_url || show.image || null,
-          year: show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0] || null,
+          posterUrl: show.image_url || null,
+          year: show.first_aired?.split('-')[0] || null,
         }));
 
         if (page === 1) {
