@@ -62,10 +62,10 @@ class TVDBClient {
 
   async getTrending() {
     await this.ensureAuthenticated();
-    const response = await this.client.get('/movies/updates', {
-      params: { since: Math.floor(Date.now() / 1000) - 7 * 24 * 60 * 60 } // Last 7 days
-    });
-    return response.data.data;
+    // TVDB v4 doesn't have a direct trending endpoint
+    // Use search with popular terms instead
+    const results = await this.searchShows('popular');
+    return results;
   }
 }
 
