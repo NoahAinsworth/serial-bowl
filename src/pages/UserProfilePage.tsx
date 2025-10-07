@@ -231,9 +231,9 @@ export default function UserProfilePage() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4 animate-fade-in">
       <Card className="p-6 mb-6 card-enhanced">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex gap-4">
-            <div className="avatar-ring">
+        <div className="flex flex-col sm:flex-row items-start gap-4 mb-4">
+          <div className="flex gap-4 flex-1 min-w-0">
+            <div className="avatar-ring flex-shrink-0">
               <Avatar className="h-20 w-20">
                 <AvatarImage src={profile.avatar_url} alt={profile.handle} />
                 <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
@@ -241,21 +241,23 @@ export default function UserProfilePage() {
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold">{profile.handle}</h2>
+            <div className="flex flex-col min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-2xl font-bold">@{profile.handle}</h2>
+                {user && userId && (
+                  <FollowRequestButton 
+                    targetUserId={userId}
+                    isPrivate={profile.is_private}
+                    initialFollowStatus={followStatus}
+                    onStatusChange={() => {
+                      loadProfile();
+                    }}
+                  />
+                )}
+              </div>
               <p className="text-muted-foreground mt-1">{profile.bio || 'TV enthusiast 📺'}</p>
             </div>
           </div>
-          {user && userId && (
-            <FollowRequestButton 
-              targetUserId={userId}
-              isPrivate={profile.is_private}
-              initialFollowStatus={followStatus}
-              onStatusChange={() => {
-                loadProfile();
-              }}
-            />
-          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-6">
