@@ -49,10 +49,15 @@ export default function DiscoverPage() {
   const browseEndRef = useRef<HTMLDivElement>(null);
   const newEndRef = useRef<HTMLDivElement>(null);
 
-  // Load initial browse shows
+  // Load initial browse shows - only once
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  
   useEffect(() => {
-    loadBrowseShows(1);
-  }, []);
+    if (!initialLoadDone) {
+      loadBrowseShows(1);
+      setInitialLoadDone(true);
+    }
+  }, [initialLoadDone]);
 
   // Load new shows when tab is activated
   useEffect(() => {
@@ -122,32 +127,48 @@ export default function DiscoverPage() {
   }, [newLoading, newPage, newShows.length, activeTab, newHasMore]);
 
   const loadBrowseShows = async (page: number) => {
-    if (browseLoading || !browseHasMore) return;
+    console.log('[loadBrowseShows] Called with page:', page, 'loading:', browseLoading, 'hasMore:', browseHasMore);
+    
+    if (browseLoading) {
+      console.log('[loadBrowseShows] Already loading, skipping');
+      return;
+    }
+    
+    if (!browseHasMore && page > 1) {
+      console.log('[loadBrowseShows] No more data, skipping');
+      return;
+    }
 
     setBrowseLoading(true);
     try {
+      console.log('[loadBrowseShows] Fetching page:', page);
       const shows = await fetchPopularShows(page);
+      console.log('[loadBrowseShows] Got shows:', shows.length);
       
       if (shows.length === 0) {
+        console.log('[loadBrowseShows] No shows returned, setting hasMore to false');
         setBrowseHasMore(false);
       } else {
         if (page === 1) {
+          console.log('[loadBrowseShows] Setting initial shows');
           setBrowseShows(shows);
         } else {
+          console.log('[loadBrowseShows] Appending shows');
           setBrowseShows(prev => [...prev, ...shows]);
         }
         setBrowsePage(page);
       }
     } catch (error) {
-      console.error('Error loading browse shows:', error);
+      console.error('[loadBrowseShows] Error loading browse shows:', error);
       toast({
         title: "Error",
         description: "Couldn't load shows. Please try again.",
         variant: "destructive",
       });
       setBrowseHasMore(false);
+    } finally {
+      setBrowseLoading(false);
     }
-    setBrowseLoading(false);
   };
 
   const loadNewShows = async (page: number) => {

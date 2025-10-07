@@ -10,36 +10,37 @@ export interface TMDBShow {
 
 export async function fetchPopularShows(page = 1): Promise<TMDBShow[]> {
   try {
-    console.log('[fetchPopularShows] Fetching page:', page);
+    console.log('[fetchPopularShows] Starting fetch for page:', page);
     
     // Use TVDB trending data from our database cache
     const { supabase } = await import('@/integrations/supabase/client');
+    
+    const offset = (page - 1) * 20;
+    const limit = 20;
+    
+    console.log('[fetchPopularShows] Query params:', { offset, limit, page });
     
     const { data: trendingShows, error } = await supabase
       .from('tvdb_trending')
       .select('*')
       .eq('category', 'popular')
       .order('position', { ascending: true })
-      .range((page - 1) * 20, page * 20 - 1);
+      .range(offset, offset + limit - 1);
     
-    console.log('[fetchPopularShows] Database result:', { trendingShows, error });
+    console.log('[fetchPopularShows] Database result:', { 
+      count: trendingShows?.length || 0, 
+      error,
+      firstShow: trendingShows?.[0]?.name 
+    });
     
     if (error) {
-      console.error('[fetchPopularShows] Error fetching trending shows:', error);
+      console.error('[fetchPopularShows] Database error:', error);
       throw error;
     }
     
     if (!trendingShows || trendingShows.length === 0) {
-      console.log('[fetchPopularShows] No trending data, using fallback search');
-      // Fallback to search if no trending data
-      const results = await tvdbClient.searchShows('popular');
-      return results.slice(0, 20).map((show: any) => ({
-        id: show.tvdb_id || show.id,
-        title: show.name,
-        posterUrl: show.image_url || show.image || null,
-        year: show.first_air_time?.split('-')[0] || show.firstAired?.split('-')[0] || null,
-        popularity: Math.random() * 1000,
-      }));
+      console.log('[fetchPopularShows] No trending data found');
+      return [];
     }
     
     const mappedShows = trendingShows.map((show: any) => ({
@@ -50,10 +51,10 @@ export async function fetchPopularShows(page = 1): Promise<TMDBShow[]> {
       popularity: 1000 - show.position,
     }));
     
-    console.log('[fetchPopularShows] Returning shows:', mappedShows);
+    console.log('[fetchPopularShows] Returning', mappedShows.length, 'shows');
     return mappedShows;
   } catch (error) {
-    console.error('[fetchPopularShows] Error fetching popular shows from TVDB:', error);
+    console.error('[fetchPopularShows] Fatal error:', error);
     throw new Error('Failed to fetch popular shows from TVDB');
   }
 }
