@@ -114,46 +114,80 @@ Deno.serve(async (req) => {
     } else if (tab === 'binge') {
       // Personalized feed
       if (!userId) {
-        // Not logged in - fallback to trending
-        return Response.redirect(`${url.origin}/api/feed?tab=trending&limit=${limit}`);
-      }
+        // Not logged in - use trending instead
+        const { data: trending } = await supabase
+          .from('v_post_popularity')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100);
 
-      // Check if we have recent scores (< 10 minutes old)
-      const { data: recentScores } = await supabase
-        .from('feed_scores')
-        .select('*')
-        .eq('user_id', userId)
-        .gte('computed_at', new Date(Date.now() - 10 * 60 * 1000).toISOString())
-        .order('score', { ascending: false })
-        .limit(limit);
+        if (trending) {
+          const now = new Date();
+          const scored = trending.map(p => {
+            const createdAt = new Date(p.created_at);
+            const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+            const base = 3 * p.likes + 4 * p.comments + 5 * p.reshares + 0.25 * p.views - 6 * p.dislikes;
+            const decay = Math.exp(-ageHours / 36);
+            return {
+              ...p,
+              score: base * decay
+            };
+          });
 
-      if (recentScores && recentScores.length >= 10) {
-        // Use cached scores
-        posts = recentScores;
+          scored.sort((a, b) => b.score - a.score);
+          posts = scored.slice(0, limit);
+        }
       } else {
-        // Trigger async refresh
-        const refreshPromise = fetch(`${supabaseUrl}/functions/v1/compute-feed-scores`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ userId })
-        }).catch(err => console.error('Background refresh failed:', err));
+        // Check if we have recent scores (< 10 minutes old)
+        const { data: recentScores } = await supabase
+          .from('feed_scores')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('computed_at', new Date(Date.now() - 10 * 60 * 1000).toISOString())
+          .order('score', { ascending: false })
+          .limit(limit);
 
-        // Return current cache or trending
-        if (recentScores && recentScores.length > 0) {
+        if (recentScores && recentScores.length >= 10) {
+          // Use cached scores
           posts = recentScores;
         } else {
-          // Cold start - blend trending
-          const { data: trending } = await supabase
-            .from('v_post_popularity')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(limit);
-          
-          if (trending) {
-            posts = trending;
+          // Trigger async refresh
+          fetch(`${supabaseUrl}/functions/v1/compute-feed-scores`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId })
+          }).catch(err => console.error('Background refresh failed:', err));
+
+          // Return current cache or fallback to trending
+          if (recentScores && recentScores.length > 0) {
+            posts = recentScores;
+          } else {
+            // No personalized content yet - use trending
+            const { data: trending } = await supabase
+              .from('v_post_popularity')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(100);
+            
+            if (trending) {
+              const now = new Date();
+              const scored = trending.map(p => {
+                const createdAt = new Date(p.created_at);
+                const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+                const base = 3 * p.likes + 4 * p.comments + 5 * p.reshares + 0.25 * p.views - 6 * p.dislikes;
+                const decay = Math.exp(-ageHours / 36);
+                return {
+                  ...p,
+                  score: base * decay
+                };
+              });
+
+              scored.sort((a, b) => b.score - a.score);
+              posts = scored.slice(0, limit);
+            }
           }
         }
       }
