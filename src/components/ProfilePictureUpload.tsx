@@ -10,33 +10,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 interface ProfilePictureUploadProps {
   currentAvatarUrl?: string;
   onUploadComplete?: (url: string) => void;
-  bannerColor?: string;
-  onBannerColorChange?: (color: string) => void;
 }
-
-const BANNER_COLORS = [
-  'hsl(280, 100%, 70%)', // Purple
-  'hsl(200, 100%, 70%)', // Blue
-  'hsl(340, 100%, 70%)', // Pink
-  'hsl(160, 100%, 70%)', // Teal
-  'hsl(40, 100%, 70%)',  // Orange
-  'hsl(120, 100%, 70%)', // Green
-  'hsl(0, 100%, 70%)',   // Red
-  'hsl(60, 100%, 70%)',  // Yellow
-];
 
 export function ProfilePictureUpload({ 
   currentAvatarUrl, 
   onUploadComplete,
-  bannerColor = 'hsl(280, 100%, 70%)',
-  onBannerColorChange 
 }: ProfilePictureUploadProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(currentAvatarUrl);
-  const [selectedColor, setSelectedColor] = useState(bannerColor);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -119,11 +103,6 @@ export function ProfilePictureUpload({
   const getInitials = () => {
     if (!user?.email) return 'U';
     return user.email[0].toUpperCase();
-  };
-
-  const handleColorChange = (color: string) => {
-    setSelectedColor(color);
-    onBannerColorChange?.(color);
   };
 
   return (

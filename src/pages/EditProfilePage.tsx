@@ -24,7 +24,6 @@ export default function EditProfilePage() {
     bio: '',
     avatar_url: '',
     displayName: '',
-    bannerColor: 'hsl(280, 100%, 70%)',
   });
 
   useEffect(() => {
@@ -62,7 +61,6 @@ export default function EditProfilePage() {
         bio: data.bio || '',
         avatar_url: data.avatar_url || '',
         displayName: settings?.displayName || '',
-        bannerColor: settings?.bannerColor || 'hsl(280, 100%, 70%)',
       });
     } else {
       // Create profile if it doesn't exist
@@ -87,7 +85,6 @@ export default function EditProfilePage() {
           bio: '',
           avatar_url: '',
           displayName: '',
-          bannerColor: 'hsl(280, 100%, 70%)',
         });
         // Also create user role
         await supabase.from('user_roles').insert({
@@ -131,7 +128,6 @@ export default function EditProfilePage() {
         settings: {
           ...currentSettings,
           displayName: profile.displayName.trim(),
-          bannerColor: profile.bannerColor,
         },
       })
       .eq('id', user.id);
@@ -170,34 +166,13 @@ export default function EditProfilePage() {
     <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6">
       <h1 className="text-3xl font-bold">Edit Profile</h1>
 
-      <Card 
-        className="p-6 space-y-6 banner-grain"
-        style={{ 
-          background: profile.bannerColor 
-        } as React.CSSProperties}
-      >
+      <Card className="p-6 space-y-6">
         <div className="flex flex-col items-center space-y-4">
           <ProfilePictureUpload 
             currentAvatarUrl={profile.avatar_url}
             onUploadComplete={(url) => setProfile({ ...profile, avatar_url: url })}
           />
           <p className="text-sm text-muted-foreground">Click camera icon to change profile picture</p>
-        </div>
-
-        <Separator />
-
-        <div className="space-y-2">
-          <Label htmlFor="bannerColor">Profile Background Color</Label>
-          <div className="grid grid-cols-4 gap-2">
-            {['hsl(280, 100%, 70%)', 'hsl(200, 100%, 70%)', 'hsl(340, 100%, 70%)', 'hsl(160, 100%, 70%)', 'hsl(40, 100%, 70%)', 'hsl(120, 100%, 70%)', 'hsl(0, 100%, 70%)', 'hsl(60, 100%, 70%)'].map((color) => (
-              <button
-                key={color}
-                className={`w-full h-12 rounded-lg transition-all hover:-translate-y-1 ${profile.bannerColor === color ? 'border-4 border-foreground scale-105' : 'border-2 border-border'}`}
-                style={{ backgroundColor: color }}
-                onClick={() => setProfile({ ...profile, bannerColor: color })}
-              />
-            ))}
-          </div>
         </div>
 
         <Separator />
