@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +28,7 @@ export default function PostPage() {
   const [posting, setPosting] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [isSpoiler, setIsSpoiler] = useState(false);
   
   // For hierarchical selection
   const [selectedShow, setSelectedShow] = useState<any | null>(null);
@@ -368,6 +370,7 @@ export default function PostPage() {
           user_id: user.id,
           content_id: selectedContent?.id || null,
           text_content: content.trim(),
+          is_spoiler: isSpoiler,
           moderation_status: 'approved',
         } as any);
 
@@ -385,6 +388,7 @@ export default function PostPage() {
         });
         setContent('');
         setSelectedContent(null);
+        setIsSpoiler(false);
         navigate('/');
       }
     } else {
@@ -395,6 +399,7 @@ export default function PostPage() {
           user_id: user.id,
           content_id: selectedContent!.id,
           review_text: content.trim(),
+          is_spoiler: isSpoiler,
         });
 
       if (reviewError) {
@@ -434,6 +439,7 @@ export default function PostPage() {
         setContent('');
         setSelectedContent(null);
         setRating(0);
+        setIsSpoiler(false);
         navigate('/');
       }
     }
@@ -466,6 +472,20 @@ export default function PostPage() {
                   {content.length} / 500
                 </span>
               </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="spoiler-thought"
+                checked={isSpoiler}
+                onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
+              />
+              <Label
+                htmlFor="spoiler-thought"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                This contains spoilers
+              </Label>
             </div>
           </TabsContent>
 
@@ -511,6 +531,20 @@ export default function PostPage() {
                   {content.length} / 500
                 </span>
               </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="spoiler-review"
+                checked={isSpoiler}
+                onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
+              />
+              <Label
+                htmlFor="spoiler-review"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                This contains spoilers
+              </Label>
             </div>
           </TabsContent>
         </Tabs>

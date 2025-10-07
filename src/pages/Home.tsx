@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { TrendingUp, Flame, Sparkles, Loader2 } from 'lucide-react';
 import { useFeed } from '@/hooks/useFeed';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
+import { supabase } from '@/lib/supabase';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 
 export default function Home() {
@@ -15,6 +16,23 @@ export default function Home() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('trending');
   const { posts, loading, refetch } = useFeed(activeTab);
+  const [userHideSpoilers, setUserHideSpoilers] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('settings')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)) {
+            const settings = data.settings as any;
+            setUserHideSpoilers(settings?.safety?.hide_spoilers ?? true);
+          }
+        });
+    }
+  }, [user]);
 
   if (!user) {
     return (
@@ -64,9 +82,9 @@ export default function Home() {
           ) : (
             posts.map((post) => 
               post.type === 'thought' ? (
-                <ThoughtCard key={post.id} thought={post} onReactionChange={refetch} onDelete={refetch} />
+                <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
               ) : (
-                <ReviewCard key={post.id} review={post} onDelete={refetch} />
+                <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
               )
             )
           )}
@@ -84,9 +102,9 @@ export default function Home() {
           ) : (
             posts.map((post) => 
               post.type === 'thought' ? (
-                <ThoughtCard key={post.id} thought={post} onReactionChange={refetch} onDelete={refetch} />
+                <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
               ) : (
-                <ReviewCard key={post.id} review={post} onDelete={refetch} />
+                <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
               )
             )
           )}
@@ -106,9 +124,9 @@ export default function Home() {
           ) : (
             posts.map((post) => 
               post.type === 'thought' ? (
-                <ThoughtCard key={post.id} thought={post} onReactionChange={refetch} onDelete={refetch} />
+                <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
               ) : (
-                <ReviewCard key={post.id} review={post} onDelete={refetch} />
+                <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
               )
             )
           )}
