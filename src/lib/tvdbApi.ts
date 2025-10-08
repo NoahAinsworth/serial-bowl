@@ -38,15 +38,25 @@ async function ensureToken(): Promise<string> {
 
 async function fetchTVDB(endpoint: string): Promise<any[]> {
   const token = await ensureToken();
-  const res = await fetch(`${BASE}${endpoint}`, {
+  const url = `${BASE}${endpoint}`;
+  
+  console.log('[fetchTVDB] Fetching:', url);
+  
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
   
+  console.log('[fetchTVDB] Response status:', res.status);
+  
   if (!res.ok) {
-    throw new Error(`TVDB API error: ${res.status}`);
+    const errorText = await res.text();
+    console.error('[fetchTVDB] Error response:', errorText);
+    throw new Error(`TVDB API error: ${res.status} - ${errorText}`);
   }
   
   const data = await res.json();
+  console.log('[fetchTVDB] Response data:', data);
+  
   return data.data ?? [];
 }
 

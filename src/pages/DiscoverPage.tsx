@@ -59,6 +59,8 @@ export default function DiscoverPage() {
 
   // Load initial browse shows
   useEffect(() => {
+    // Clear all caches on mount to ensure fresh data
+    localStorage.clear();
     loadBrowseShows(1);
   }, []);
 
