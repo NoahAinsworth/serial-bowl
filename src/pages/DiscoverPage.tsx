@@ -6,10 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useTVDB } from '@/hooks/useTVDB';
 import { BingeBotAI } from '@/components/BingeBotAI';
 import { useToast } from '@/hooks/use-toast';
-import { fetchBrowseShows, fetchNewShows } from '@/services/tvdb';
+import { fetchBrowseShows, fetchNewShows, searchShows } from '@/lib/tvdbApi';
 import { getCached } from '@/lib/tvdbCache';
 
 interface TVDBShow {
@@ -23,7 +22,6 @@ interface TVDBShow {
 export default function DiscoverPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { search: searchTVDB } = useTVDB();
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,7 +44,7 @@ export default function DiscoverPage() {
   const [usersLoading, setUsersLoading] = useState(false);
   
   // Show search state
-  const [showResults, setShowResults] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState<TVDBShow[]>([]);
   const [showsLoading, setShowsLoading] = useState(false);
 
   // BingeBot state
@@ -59,18 +57,10 @@ export default function DiscoverPage() {
   const browseEndRef = useRef<HTMLDivElement>(null);
   const newEndRef = useRef<HTMLDivElement>(null);
 
-  // Load initial browse shows - only once
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
-  
+  // Load initial browse shows
   useEffect(() => {
-    if (!initialLoadDone) {
-      // Clear cache on initial load to ensure fresh data
-      localStorage.removeItem('tvdb_browse_page_1');
-      localStorage.removeItem('tvdb_browse_page_1_stamp');
-      loadBrowseShows(1);
-      setInitialLoadDone(true);
-    }
-  }, [initialLoadDone]);
+    loadBrowseShows(1);
+  }, []);
 
   // Load new shows when tab is activated
   useEffect(() => {
@@ -86,7 +76,7 @@ export default function DiscoverPage() {
         if (activeTab === 'users') {
           searchUsers(searchQuery);
         } else {
-          searchShows(searchQuery);
+          searchShowsHandler(searchQuery);
         }
       } else {
         setShowResults([]);
@@ -101,7 +91,7 @@ export default function DiscoverPage() {
   useEffect(() => {
     if (browseObserver.current) browseObserver.current.disconnect();
 
-    if (activeTab !== 'browse' || browseShows.length === 0) return;
+    if (activeTab !== 'browse' || browseShows.length === 0 || searchQuery.trim()) return;
 
     browseObserver.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !browseLoading && browseHasMore) {
@@ -116,13 +106,13 @@ export default function DiscoverPage() {
     return () => {
       if (browseObserver.current) browseObserver.current.disconnect();
     };
-  }, [browseLoading, browsePage, browseShows.length, activeTab, browseHasMore]);
+  }, [browseLoading, browsePage, browseShows.length, activeTab, browseHasMore, searchQuery]);
 
   // Set up infinite scroll for New tab
   useEffect(() => {
     if (newObserver.current) newObserver.current.disconnect();
 
-    if (activeTab !== 'new' || newShows.length === 0) return;
+    if (activeTab !== 'new' || newShows.length === 0 || searchQuery.trim()) return;
 
     newObserver.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !newLoading && newHasMore) {
@@ -137,7 +127,7 @@ export default function DiscoverPage() {
     return () => {
       if (newObserver.current) newObserver.current.disconnect();
     };
-  }, [newLoading, newPage, newShows.length, activeTab, newHasMore]);
+  }, [newLoading, newPage, newShows.length, activeTab, newHasMore, searchQuery]);
 
   const loadBrowseShows = async (page: number) => {
     if (browseLoading || (!browseHasMore && page > 1)) return;
@@ -171,7 +161,7 @@ export default function DiscoverPage() {
   };
 
   const loadNewShows = async (page: number) => {
-    if (newLoading || !newHasMore) return;
+    if (newLoading || (!newHasMore && page > 1)) return;
 
     setNewLoading(true);
     try {
@@ -196,11 +186,12 @@ export default function DiscoverPage() {
         variant: "destructive",
       });
       setNewHasMore(false);
+    } finally {
+      setNewLoading(false);
     }
-    setNewLoading(false);
   };
 
-  const searchShows = async (query: string) => {
+  const searchShowsHandler = async (query: string) => {
     if (!query.trim()) {
       setShowResults([]);
       return;
@@ -208,12 +199,18 @@ export default function DiscoverPage() {
 
     setShowsLoading(true);
     try {
-      const results = await searchTVDB(query);
+      const results = await searchShows(query);
       setShowResults(results);
     } catch (error) {
       console.error('Error searching shows:', error);
+      toast({
+        title: "Error",
+        description: "Search failed. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setShowsLoading(false);
     }
-    setShowsLoading(false);
   };
 
   const searchUsers = async (query: string) => {
@@ -233,8 +230,17 @@ export default function DiscoverPage() {
       setUsers(data || []);
     } catch (error) {
       console.error('Error searching users:', error);
+    } finally {
+      setUsersLoading(false);
     }
-    setUsersLoading(false);
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+    setSearchQuery('');
+    setShowResults([]);
+    setUsers([]);
   };
 
   const ShowCard = ({ show }: { show: TVDBShow }) => (
@@ -255,7 +261,7 @@ export default function DiscoverPage() {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center p-4 text-center">
-            <span className="text-muted-foreground text-sm">{show.title}</span>
+            <span className="text-muted-foreground text-sm font-medium">{show.title}</span>
           </div>
         )}
       </div>
@@ -290,6 +296,14 @@ export default function DiscoverPage() {
     );
   };
 
+  const LoadingSkeleton = () => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="aspect-[2/3] bg-muted animate-pulse rounded-lg" />
+      ))}
+    </div>
+  );
+
   return (
     <div className="container max-w-6xl mx-auto py-6 px-4">
       <h1 className="text-4xl font-bold mb-6">Discover</h1>
@@ -306,15 +320,7 @@ export default function DiscoverPage() {
         />
       </div>
 
-      <Tabs 
-        value={activeTab} 
-        onValueChange={(tab) => {
-          setActiveTab(tab);
-          setSearchParams({ tab });
-          setSearchQuery('');
-        }} 
-        className="w-full"
-      >
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="browse">Browse</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
@@ -326,11 +332,9 @@ export default function DiscoverPage() {
           {searchQuery.trim() ? (
             <div>
               {showsLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
+                <LoadingSkeleton />
               ) : showResults.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {showResults.map((show) => (
                     <ShowCard key={show.id} show={show} />
                   ))}
@@ -341,24 +345,30 @@ export default function DiscoverPage() {
             </div>
           ) : (
             <div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                {browseShows.map((show) => (
-                  <ShowCard key={show.id} show={show} />
-                ))}
-              </div>
-              
-              <div ref={browseEndRef} className="py-8">
-                {browseLoading && (
-                  <div className="flex justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              {browseShows.length === 0 && browseLoading ? (
+                <LoadingSkeleton />
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                    {browseShows.map((show) => (
+                      <ShowCard key={show.id} show={show} />
+                    ))}
                   </div>
-                )}
-              </div>
+                  
+                  <div ref={browseEndRef} className="py-8">
+                    {browseLoading && (
+                      <div className="flex justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
 
-              {browseShows.length === 0 && !browseLoading && (
-                <p className="text-center text-muted-foreground py-12">
-                  No shows available.
-                </p>
+                  {browseShows.length === 0 && !browseLoading && (
+                    <p className="text-center text-muted-foreground py-12">
+                      No shows available.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -390,11 +400,9 @@ export default function DiscoverPage() {
           {searchQuery.trim() ? (
             <div>
               {showsLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
+                <LoadingSkeleton />
               ) : showResults.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {showResults.map((show) => (
                     <ShowCard key={show.id} show={show} />
                   ))}
@@ -405,24 +413,30 @@ export default function DiscoverPage() {
             </div>
           ) : (
             <div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                {newShows.map((show) => (
-                  <ShowCard key={show.id} show={show} />
-                ))}
-              </div>
-              
-              <div ref={newEndRef} className="py-8">
-                {newLoading && (
-                  <div className="flex justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              {newShows.length === 0 && newLoading ? (
+                <LoadingSkeleton />
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                    {newShows.map((show) => (
+                      <ShowCard key={show.id} show={show} />
+                    ))}
                   </div>
-                )}
-              </div>
+                  
+                  <div ref={newEndRef} className="py-8">
+                    {newLoading && (
+                      <div className="flex justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
 
-              {newShows.length === 0 && !newLoading && (
-                <p className="text-center text-muted-foreground py-12">
-                  No new shows available.
-                </p>
+                  {newShows.length === 0 && !newLoading && (
+                    <p className="text-center text-muted-foreground py-12">
+                      No new shows available.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
