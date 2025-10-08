@@ -58,8 +58,10 @@ export default function EditProfilePage() {
 
     if (data) {
       const settings = data.settings as any;
+      // Strip @ symbol from handle if present
+      const cleanHandle = data.handle?.startsWith('@') ? data.handle.slice(1) : (data.handle || '');
       setProfile({
-        handle: data.handle || '',
+        handle: cleanHandle,
         bio: data.bio || '',
         avatar_url: data.avatar_url || '',
         displayName: settings?.displayName || '',
@@ -227,12 +229,20 @@ export default function EditProfilePage() {
 
         <div className="space-y-2">
           <Label htmlFor="handle">Username</Label>
-          <Input
-            id="handle"
-            value={profile.handle}
-            onChange={(e) => setProfile({ ...profile, handle: e.target.value })}
-            placeholder="@yourhandle"
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
+            <Input
+              id="handle"
+              value={profile.handle}
+              onChange={(e) => {
+                // Strip @ symbol if user types it
+                const value = e.target.value.replace(/^@/, '');
+                setProfile({ ...profile, handle: value });
+              }}
+              placeholder="yourhandle"
+              className="pl-7"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
