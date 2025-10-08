@@ -95,10 +95,18 @@ export async function fetchBrowseShows(page = 1) {
   ];
   
   const searchTerm = searchTerms[(page - 1) % searchTerms.length];
+  console.log('[fetchBrowseShows] Page:', page, 'Searching for:', searchTerm);
+  
   const results = await tvdbClient.searchShows(searchTerm);
+  console.log('[fetchBrowseShows] Raw results:', results.length, 'shows');
+  console.log('[fetchBrowseShows] First result:', results[0]);
   
   // Take first 20 results
-  return results.slice(0, 20).map(normalizeShow);
+  const normalized = results.slice(0, 20).map(normalizeShow);
+  console.log('[fetchBrowseShows] Normalized:', normalized.length, 'shows');
+  console.log('[fetchBrowseShows] First normalized:', normalized[0]);
+  
+  return normalized;
 }
 
 export async function fetchNewShows(page = 1) {

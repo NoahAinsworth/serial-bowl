@@ -64,6 +64,9 @@ export default function DiscoverPage() {
   
   useEffect(() => {
     if (!initialLoadDone) {
+      // Clear cache on initial load to ensure fresh data
+      localStorage.removeItem('tvdb_browse_page_1');
+      localStorage.removeItem('tvdb_browse_page_1_stamp');
       loadBrowseShows(1);
       setInitialLoadDone(true);
     }
