@@ -79,10 +79,13 @@ export default function DiscoverPage() {
     
     setLoading(true);
     try {
-      const results = await fetchBrowseShows(page);
+      // Use TVDB's discover endpoint for popular shows
+      const results = await tvdbFetch(`/discover?page=${page - 1}`);
+      const showsData = Array.isArray(results) ? results : [];
+      const normalized = showsData.map(normalizeSeries);
       
       setPopularShows((prev) => {
-        const combined = [...prev, ...results];
+        const combined = [...prev, ...normalized];
         // Remove duplicates by id
         const seen = new Set();
         return combined.filter((show: any) => {
@@ -92,7 +95,7 @@ export default function DiscoverPage() {
         });
       });
       
-      if (results.length < 20) {
+      if (normalized.length < 20) {
         setHasMore(false);
       }
     } catch (error) {
