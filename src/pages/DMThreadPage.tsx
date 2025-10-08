@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -25,7 +26,7 @@ export default function DMThreadPage() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [otherUser, setOtherUser] = useState<{ handle: string } | null>(null);
+  const [otherUser, setOtherUser] = useState<{ handle: string; avatar_url: string | null } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,9 +80,9 @@ export default function DMThreadPage() {
     
     const { data } = await supabase
       .from('profiles')
-      .select('handle')
+      .select('handle, avatar_url')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     
     if (data) {
       setOtherUser(data);
@@ -157,12 +158,20 @@ export default function DMThreadPage() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4 flex flex-col h-[calc(100vh-200px)] animate-fade-in">
       {otherUser && (
-        <h1 
-          className="text-2xl font-bold mb-4 cursor-pointer hover:text-primary transition-colors"
+        <div 
+          className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate(`/user/${otherUser.handle}`)}
         >
-          {otherUser.handle}
-        </h1>
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={otherUser.avatar_url || ''} alt={otherUser.handle} />
+            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-primary-foreground">
+              {otherUser.handle[0].toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <h1 className="text-2xl font-bold">
+            {otherUser.handle}
+          </h1>
+        </div>
       )}
       
       <Card className="flex-1 p-4 mb-4 overflow-y-auto">
