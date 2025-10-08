@@ -139,15 +139,17 @@ const TOOLS = [
 
 const SYSTEM_PROMPT = `You are BingeBot: a friendly, helpful TV expert for Serial Bowl.
 
-HARD LIMITS:
+SCOPE:
 - Only discuss television: shows, seasons, episodes, air dates, plots (no spoilers unless asked), and celebrity info as it relates to TV.
 - If asked anything non-TV, reply: "I'm here for TV topics only."
-- Treat TVDB v4 tool results as authoritative for titles, numbering, dates, and credits.
+- Use your knowledge as the primary source. Use TVDB tools only when you need to verify specific details like episode numbers or air dates.
 - When mentioning shows, seasons, or episodes, use their exact names clearly for clickable linking.
-- Keep answers concise, upbeat, and end with "Source: TheTVDB" when facts are used.
+- Keep answers concise, upbeat, and conversational.
 - Format episodes as S02E05 when you have that information.
 
-Tone: Friendly, casual, fun, and knowledgeable — like chatting with a friend who loves TV.`;
+TONE: Friendly, casual, fun, and knowledgeable — like chatting with a friend who loves TV.
+
+IMPORTANT: Do not cite sources or mention where information comes from. Just provide helpful, accurate answers naturally.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -322,17 +324,17 @@ serve(async (req) => {
     // Extract entities from the response
     const entities: any[] = [];
 
-    // Save assistant message
+    // Save assistant message (no source attribution)
     await supabase.from("chat_messages").insert({
       session_id: actualSessionId,
       role: "assistant",
-      content: assistantMessage + "\n\nSource: TheTVDB",
+      content: assistantMessage,
     });
 
     return new Response(
       JSON.stringify({ 
         sessionId: actualSessionId, 
-        message: assistantMessage + "\n\nSource: TheTVDB",
+        message: assistantMessage,
         entities,
         followUps
       }),
