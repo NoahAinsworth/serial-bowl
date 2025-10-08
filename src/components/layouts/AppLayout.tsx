@@ -89,49 +89,26 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Theme Overlay */}
       <div className="app-overlay" aria-hidden="true"></div>
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-black tracking-wide wordmark gradient-text">
-              SERIAL BOWL
-            </h1>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
-              <Library className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI" className="gap-1.5">
-              <Bot className="h-5 w-5" />
-              <span className="text-xs font-semibold">AI</span>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
-              <Settings className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 w-full border-t-2 border-border bg-background">
-        <div className="container flex h-16 items-center justify-around px-4">
+      {/* Bottom Navigation - Always Visible */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="flex h-16 items-center justify-around px-4 max-w-2xl mx-auto">
           {navItems.map(({ icon: Icon, label, path, showBadge, isProfile }) => (
             <Link
               key={path}
               to={path}
-              className={`flex flex-col items-center gap-1 transition-all relative ${
+              className={`flex flex-col items-center gap-0.5 transition-all relative active:scale-95 ${
                 isActive(path)
-                  ? 'text-primary font-bold'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'text-primary'
+                  : 'text-muted-foreground'
               }`}
             >
               {isProfile && avatarUrl ? (
-                <Avatar className="h-6 w-6">
+                <Avatar className="h-7 w-7">
                   <AvatarImage src={avatarUrl} alt="Profile" />
                   <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xs">
                     <Icon className="h-4 w-4" />
@@ -141,9 +118,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <Icon className="h-6 w-6" />
               )}
               {showBadge && (
-                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
+                <div className="absolute top-0 right-1/4 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
               )}
-              <span className="text-xs font-semibold uppercase">{label}</span>
+              <span className="text-[10px] font-medium">{label}</span>
             </Link>
           ))}
         </div>

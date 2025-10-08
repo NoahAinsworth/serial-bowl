@@ -137,7 +137,7 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <>
       {thoughts.map((thought) => (
         <ThoughtCard
           key={thought.id}
@@ -146,6 +146,6 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
           onDelete={loadThoughts}
         />
       ))}
-    </div>
+    </>
   );
 }

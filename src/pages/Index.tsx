@@ -1,43 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import serialBowlLogo from '@/assets/serial-bowl-logo.png';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
-import { CerealBowlIcon } from '@/components/CerealBowlIcon';
 import { useFeed } from '@/hooks/useFeed';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('trending');
+  const [feedType, setFeedType] = useState<'for-you' | 'following'>('for-you');
   const [postType, setPostType] = useState<'all' | 'thoughts' | 'reviews'>('all');
   
-  // Use the feed hook for each tab
-  const trendingFeed = useFeed('trending');
-  const hotTakesFeed = useFeed('hot');
+  // Use the feed hook based on feed type
+  const forYouFeed = useFeed('trending');
   const followingFeed = useFeed('following');
-
-  // Map tab to appropriate feed
-  const getFeedForTab = () => {
-    switch (activeTab) {
-      case 'trending':
-        return trendingFeed;
-      case 'hot-takes':
-        return hotTakesFeed;
-      case 'following':
-        return followingFeed;
-      default:
-        return trendingFeed;
-    }
+  
+  const currentFeed = feedType === 'for-you' ? forYouFeed : followingFeed;
+  
+  const toggleFeedType = () => {
+    setFeedType(prev => prev === 'for-you' ? 'following' : 'for-you');
   };
-
-  const currentFeed = getFeedForTab();
   
   // Pull to refresh for current feed
   const { isRefreshing } = usePullToRefresh({ 
@@ -96,40 +82,6 @@ export default function Index() {
     return posts;
   };
 
-  const renderFeedContent = (feed: any) => {
-    const filteredPosts = getFilteredPosts(feed.posts);
-    
-    if (feed.loading) {
-      return (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      );
-    }
-    
-    if (feed.error) {
-      return (
-        <div className="text-center text-red-500 py-12">
-          {feed.error}
-        </div>
-      );
-    }
-    
-    if (filteredPosts.length === 0) {
-      return (
-        <div className="text-center text-muted-foreground py-12">
-          No {postType === 'all' ? 'posts' : postType} yet
-        </div>
-      );
-    }
-    
-    return (
-      <div className="space-y-4">
-        {filteredPosts.map(renderPost)}
-      </div>
-    );
-  };
-
 
   if (!user) {
     return (
@@ -148,81 +100,79 @@ export default function Index() {
     );
   }
 
+  const filteredPosts = getFilteredPosts(currentFeed.posts);
+
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4">
-      {isRefreshing && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-          <RefreshCw className="h-4 w-4 animate-spin" />
-          <span className="text-sm">Refreshing...</span>
-        </div>
-      )}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
-          <TabsTrigger 
-            value="trending" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-          >
-            Trending
-          </TabsTrigger>
-          <TabsTrigger 
-            value="hot-takes" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-          >
-            Hot Takes
-          </TabsTrigger>
-          <TabsTrigger 
-            value="following" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-          >
-            Following
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="max-h-[calc(100vh-240px)] overflow-y-auto">
-          {/* Secondary Filter Tabs */}
-          <div className="mb-4">
-            <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full">
-              <button
-                onClick={() => setPostType('all')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'all' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setPostType('thoughts')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'thoughts' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                Posts
-              </button>
-              <button
-                onClick={() => setPostType('reviews')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'reviews' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                Reviews
-              </button>
-            </div>
+    <div className="max-w-2xl mx-auto">
+      {/* Logo Header - Clickable to toggle feeds */}
+      <div 
+        className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b"
+        onClick={toggleFeedType}
+      >
+        <div className="flex items-center justify-center py-3 px-4 cursor-pointer active:scale-95 transition-transform">
+          <img src={serialBowlLogo} alt="Serial Bowl" className="h-8" />
+          <div className="ml-3 text-sm text-muted-foreground">
+            {feedType === 'for-you' ? 'For You' : 'Following'}
           </div>
-
-          <TabsContent value="trending" className="mt-0">
-            {renderFeedContent(currentFeed)}
-          </TabsContent>
-
-          <TabsContent value="hot-takes" className="mt-0">
-            {renderFeedContent(hotTakesFeed)}
-          </TabsContent>
-
-          <TabsContent value="following" className="mt-0">
-            {renderFeedContent(followingFeed)}
-          </TabsContent>
         </div>
+      </div>
 
-      </Tabs>
+      {/* Filter Pills */}
+      <div className="sticky top-[57px] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 py-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          <button
+            onClick={() => setPostType('all')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              postType === 'all' 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setPostType('thoughts')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              postType === 'thoughts' 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            Posts
+          </button>
+          <button
+            onClick={() => setPostType('reviews')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              postType === 'reviews' 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            Reviews
+          </button>
+        </div>
+      </div>
+
+      {/* Feed Content */}
+      <div className="pb-20">
+        {currentFeed.loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : currentFeed.error ? (
+          <div className="text-center text-destructive py-12 px-4">
+            {currentFeed.error}
+          </div>
+        ) : filteredPosts.length === 0 ? (
+          <div className="text-center text-muted-foreground py-12 px-4">
+            No {postType === 'all' ? 'posts' : postType} yet
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {filteredPosts.map(renderPost)}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

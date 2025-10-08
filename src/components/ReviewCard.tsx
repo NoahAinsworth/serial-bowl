@@ -151,7 +151,7 @@ export function ReviewCard({ review, userHideSpoilers = true, onDelete }: Review
   };
 
   return (
-    <Card className="p-4 transition-all duration-200 animate-fade-in group">
+    <div className="p-4 transition-all duration-200">
       <div className="flex gap-3">
         <div className="profile-ring">
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.id}`)}>
@@ -228,6 +228,6 @@ export function ReviewCard({ review, userHideSpoilers = true, onDelete }: Review
           )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

@@ -291,9 +291,9 @@ export default function ProfilePage() {
       </Card>
 
       {/* Top 3 Shows Section */}
-      <Card className="p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Top 3 Shows</h2>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4 px-2">
+          <h2 className="text-lg font-semibold">Top 3 Shows</h2>
           {top3Shows.length < 3 && (
             <Dialog open={showTop3Dialog} onOpenChange={setShowTop3Dialog}>
               <DialogTrigger asChild>
@@ -343,110 +343,89 @@ export default function ProfilePage() {
             </Dialog>
           )}
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="flex gap-3 px-2 overflow-x-auto scrollbar-hide pb-2">
           {top3Shows.map((show, index) => (
-            <div key={show.id} className="text-center relative group">
+            <div key={show.id} className="flex-shrink-0 w-28 relative group">
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80"
+                className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 h-6 w-6"
                 onClick={() => removeFromTop3(show.id)}
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3" />
               </Button>
               <div 
-                className="aspect-[2/3] bg-muted rounded-lg mb-2 overflow-hidden cursor-pointer"
+                className="aspect-[2/3] bg-muted rounded-lg mb-1 overflow-hidden cursor-pointer active:opacity-80 transition-opacity"
                 onClick={() => navigate(`/show/${show.external_id}`)}
               >
                 {show.poster_url ? (
                   <img src={show.poster_url} alt={show.title} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-muted-foreground">#{index + 1}</span>
+                    <span className="text-muted-foreground text-xs">#{index + 1}</span>
                   </div>
                 )}
               </div>
-              <p className="text-xs font-medium truncate">{show.title}</p>
+              <p className="text-xs font-medium truncate text-center">{show.title}</p>
             </div>
           ))}
           {[...Array(3 - top3Shows.length)].map((_, i) => (
-            <div key={`empty-${i}`} className="text-center">
-              <div className="aspect-[2/3] bg-muted rounded-lg mb-2 flex items-center justify-center">
-                <span className="text-muted-foreground">#{top3Shows.length + i + 1}</span>
+            <div key={`empty-${i}`} className="flex-shrink-0 w-28">
+              <div className="aspect-[2/3] bg-muted rounded-lg mb-1 flex items-center justify-center">
+                <span className="text-muted-foreground text-xs">#{top3Shows.length + i + 1}</span>
               </div>
-              <p className="text-xs text-muted-foreground">Empty Slot</p>
+              <p className="text-xs text-muted-foreground text-center">Empty</p>
             </div>
           ))}
         </div>
-      </Card>
+      </div>
 
-      {/* Tabs Section */}
-      <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="w-full grid grid-cols-5">
-          <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="shows">Shows</TabsTrigger>
-          <TabsTrigger value="seasons">Seasons</TabsTrigger>
-          <TabsTrigger value="episodes">Episodes</TabsTrigger>
-          <TabsTrigger value="lists">Lists</TabsTrigger>
-        </TabsList>
+      {/* Posts Feed Section */}
+      <div className="mb-4">
+        <div className="flex gap-2 px-2 overflow-x-auto scrollbar-hide border-b">
+          <button
+            onClick={() => setPostType('all')}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              postType === 'all' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setPostType('thoughts')}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              postType === 'thoughts' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Posts
+          </button>
+          <button
+            onClick={() => setPostType('reviews')}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              postType === 'reviews' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Reviews
+          </button>
+        </div>
+      </div>
 
-        <TabsContent value="posts" className="mt-6">
-          {/* Secondary Filter Tabs */}
-          <div className="mb-4">
-            <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full">
-              <button
-                onClick={() => setPostType('all')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'all' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setPostType('thoughts')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'thoughts' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                Posts
-              </button>
-              <button
-                onClick={() => setPostType('reviews')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'reviews' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                Reviews
-              </button>
-            </div>
-          </div>
-
-          {postType === 'all' && (
-            <div className="space-y-6">
-              <UserThoughts userId={user!.id} />
-              <UserReviews userId={user!.id} />
-            </div>
-          )}
-          {postType === 'thoughts' && <UserThoughts userId={user!.id} />}
-          {postType === 'reviews' && <UserReviews userId={user!.id} />}
-        </TabsContent>
-
-        <TabsContent value="shows" className="mt-6">
-          <UserRatings userId={user!.id} contentKind="show" />
-        </TabsContent>
-
-        <TabsContent value="seasons" className="mt-6">
-          <UserRatings userId={user!.id} contentKind="season" />
-        </TabsContent>
-
-        <TabsContent value="episodes" className="mt-6">
-          <UserRatings userId={user!.id} contentKind="episode" />
-        </TabsContent>
-
-        <TabsContent value="lists" className="mt-6">
-          <UserLists />
-        </TabsContent>
-      </Tabs>
+      <div className="divide-y divide-border">
+        {postType === 'all' && (
+          <>
+            <UserThoughts userId={user!.id} />
+            <UserReviews userId={user!.id} />
+          </>
+        )}
+        {postType === 'thoughts' && <UserThoughts userId={user!.id} />}
+        {postType === 'reviews' && <UserReviews userId={user!.id} />}
+      </div>
 
     </div>
   );
