@@ -64,21 +64,24 @@ export function ProfilePictureUpload({
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
+      // Get public URL with timestamp to prevent caching
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
+      // Add cache-busting parameter
+      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
       // Update profile with new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: avatarUrl })
         .eq('id', user.id);
 
       if (updateError) throw updateError;
 
-      setPreviewUrl(publicUrl);
-      onUploadComplete?.(publicUrl);
+      setPreviewUrl(avatarUrl);
+      onUploadComplete?.(avatarUrl);
 
       toast({
         title: "Success",
