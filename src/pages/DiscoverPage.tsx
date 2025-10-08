@@ -1,109 +1,71 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
-import { fetchPopularShows, fetchNewShows } from "@/lib/discoverData";
-import { getDaily } from "@/lib/dailyCache";
-import { ShowCard } from "@/lib/shows";
+import { tvdbFetch } from "@/lib/tvdb";
+import { normalizeSeries, ShowCard } from "@/lib/shows";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("browse");
   
-  const [popularShows, setPopularShows] = useState<ShowCard[]>([]);
-  const [newShows, setNewShows] = useState<ShowCard[]>([]);
+  const [shows, setShows] = useState<ShowCard[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  
-  const observerTarget = useRef<HTMLDivElement>(null);
 
-  // Load initial data when tab changes
+  // Search shows when query changes and on Browse tab
   useEffect(() => {
-    setPage(1);
-    setHasMore(true);
-    if (activeTab === "browse") {
-      loadPopularShows(true);
-    } else if (activeTab === "new") {
-      loadNewShows(true);
+    if (activeTab === "browse" && searchQuery.trim()) {
+      searchShows();
+    } else if (activeTab === "browse") {
+      setShows([]);
     }
-  }, [activeTab]);
+  }, [searchQuery, activeTab]);
 
-  // Infinite scroll observer
+  // Search users when query changes and on Users tab
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          setPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+    if (activeTab === "users" && searchQuery.trim()) {
+      searchUsers();
+    } else if (activeTab === "users") {
+      setUsers([]);
     }
+  }, [searchQuery, activeTab]);
 
-    return () => observer.disconnect();
-  }, [hasMore, loading]);
-
-  // Load more when page changes
-  useEffect(() => {
-    if (page > 1) {
-      if (activeTab === "browse") {
-        loadPopularShows(false);
-      } else if (activeTab === "new") {
-        loadNewShows(false);
-      }
-    }
-  }, [page]);
-
-  async function loadPopularShows(reset: boolean) {
+  async function searchShows() {
     setLoading(true);
     try {
-      const data = await getDaily(`tvdb:popular`, () => 
-        fetchPopularShows()
-      );
-      
-      if (reset) {
-        setPopularShows(data);
-      } else {
-        setPopularShows((prev) => [...prev, ...data]);
-      }
-      
-      // Disable infinite scroll for now since we get all data at once
-      setHasMore(false);
+      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20`);
+      const showsData = Array.isArray(results) ? results : [];
+      setShows(showsData.map(normalizeSeries));
     } catch (error) {
-      console.error("Error loading popular shows:", error);
-      toast.error("Failed to load shows");
+      console.error("Error searching shows:", error);
+      toast.error("Failed to search shows");
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadNewShows(reset: boolean) {
+  async function searchUsers() {
     setLoading(true);
     try {
-      const data = await getDaily(`tvdb:new`, () => 
-        fetchNewShows()
-      );
-      
-      if (reset) {
-        setNewShows(data);
-      } else {
-        setNewShows((prev) => [...prev, ...data]);
-      }
-      
-      // Disable infinite scroll for now since we get all data at once
-      setHasMore(false);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, handle, avatar_url, bio")
+        .ilike("handle", `%${searchQuery}%`)
+        .limit(20);
+
+      if (error) throw error;
+      setUsers(data || []);
     } catch (error) {
-      console.error("Error loading new shows:", error);
-      toast.error("Failed to load shows");
+      console.error("Error searching users:", error);
+      toast.error("Failed to search users");
     } finally {
       setLoading(false);
     }
@@ -116,7 +78,7 @@ export default function DiscoverPage() {
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search shows or users..."
+          placeholder={activeTab === "browse" ? "Search shows..." : "Search users..."}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
@@ -127,49 +89,81 @@ export default function DiscoverPage() {
         <TabsList className="mb-6">
           <TabsTrigger value="browse">Browse</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="new">New</TabsTrigger>
         </TabsList>
 
         <TabsContent value="browse">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {popularShows.map((show) => (
-              <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
-            ))}
-          </div>
+          {!searchQuery.trim() && (
+            <div className="text-center py-12 text-muted-foreground">
+              Search for shows to get started
+            </div>
+          )}
+          
+          {searchQuery.trim() && !loading && shows.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              No shows found
+            </div>
+          )}
+
+          {shows.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {shows.map((show) => (
+                <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
+              ))}
+            </div>
+          )}
           
           {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {[...Array(10)].map((_, i) => (
                 <Skeleton key={i} className="aspect-[2/3]" />
               ))}
             </div>
           )}
-          
-          <div ref={observerTarget} className="h-4" />
         </TabsContent>
 
         <TabsContent value="users">
-          <div className="text-center py-12 text-muted-foreground">
-            User search coming soon
-          </div>
-        </TabsContent>
-
-        <TabsContent value="new">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {newShows.map((show) => (
-              <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
-            ))}
-          </div>
+          {!searchQuery.trim() && (
+            <div className="text-center py-12 text-muted-foreground">
+              Search for users to get started
+            </div>
+          )}
           
-          {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-              {[...Array(10)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[2/3]" />
+          {searchQuery.trim() && !loading && users.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              No users found
+            </div>
+          )}
+
+          {users.length > 0 && (
+            <div className="space-y-4">
+              {users.map((user) => (
+                <Card
+                  key={user.id}
+                  className="p-4 cursor-pointer hover:bg-accent transition-colors"
+                  onClick={() => navigate(`/user/${user.handle}`)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={user.avatar_url || undefined} />
+                      <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold">@{user.handle}</p>
+                      {user.bio && <p className="text-sm text-muted-foreground line-clamp-1">{user.bio}</p>}
+                    </div>
+                  </div>
+                </Card>
               ))}
             </div>
           )}
           
-          <div ref={observerTarget} className="h-4" />
+          {loading && (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
