@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ export default function DMThreadPage() {
   const { userId } = useParams<{ userId: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [otherUser, setOtherUser] = useState<{ handle: string } | null>(null);
@@ -156,7 +157,12 @@ export default function DMThreadPage() {
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4 flex flex-col h-[calc(100vh-200px)] animate-fade-in">
       {otherUser && (
-        <h1 className="text-2xl font-bold mb-4">{otherUser.handle}</h1>
+        <h1 
+          className="text-2xl font-bold mb-4 cursor-pointer hover:text-primary transition-colors"
+          onClick={() => navigate(`/user/${otherUser.handle}`)}
+        >
+          {otherUser.handle}
+        </h1>
       )}
       
       <Card className="flex-1 p-4 mb-4 overflow-y-auto">

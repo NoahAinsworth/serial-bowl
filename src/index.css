@@ -180,27 +180,32 @@ All colors MUST be HSL.
   }
 
   .saturday_cartoons {
-    /* Saturday Cartoons - Bubblegum Fun */
-    --background: 320 100% 98%;
-    --foreground: 260 20% 12%;
+    /* Saturday Cartoons - Retro Palette */
+    --background: 37 100% 97%;
+    --foreground: 248 62% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 260 20% 12%;
+    --card-foreground: 248 62% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 260 20% 12%;
-    --primary: 330 100% 67%;
-    --primary-foreground: 260 20% 12%;
-    --secondary: 48 100% 65%;
-    --secondary-foreground: 260 20% 12%;
-    --muted: 320 50% 95%;
-    --muted-foreground: 260 15% 40%;
-    --accent: 200 100% 67%;
-    --accent-foreground: 260 20% 12%;
-    --destructive: 350 85% 65%;
+    --popover-foreground: 248 62% 12%;
+    --primary: 335 97% 72%;
+    --primary-foreground: 248 62% 12%;
+    --secondary: 39 100% 70%;
+    --secondary-foreground: 248 62% 12%;
+    --muted: 37 100% 94%;
+    --muted-foreground: 248 35% 40%;
+    --accent: 196 98% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 7 99% 63%;
     --destructive-foreground: 0 0% 100%;
-    --border: 320 100% 90%;
-    --input: 320 100% 90%;
-    --ring: 330 100% 67%;
+    --border: 37 100% 88%;
+    --input: 37 100% 88%;
+    --ring: 335 97% 72%;
     --radius: 1.125rem;
+
+    /* Extended Palette */
+    --cereal-orange: 7 99% 63%;
+    --toy-purple: 258 61% 44%;
+    --box-green: 162 100% 30%;
 
     /* Expressive Tokens */
     --font-display: 'Fredoka', 'Montserrat', sans-serif;
@@ -213,11 +218,11 @@ All colors MUST be HSL.
     --tab-shape: 16px;
     --stroke-width: 2.5px;
     --stroke-style: solid;
-    --shadow-1: 0 6px 0 rgba(0,0,0,.1), 0 10px 24px rgba(0,0,0,.08);
-    --shadow-2: 0 10px 0 rgba(0,0,0,.12), 0 18px 32px rgba(0,0,0,.12);
-    --active-underline: linear-gradient(90deg,hsl(330 100% 67%),hsl(48 100% 65%),hsl(200 100% 67%));
-    --img-filter: saturate(1.15) contrast(1.02);
-    --fx-overlay: radial-gradient(circle at 12% 18%, rgba(255,227,77,.25) 0 18%, transparent 19%) 0 0/240px 240px, radial-gradient(circle at 82% 30%, rgba(89,185,255,.22) 0 20%, transparent 21%) 0 0/360px 360px;
+    --shadow-1: 0 6px 0 rgba(0,0,0,.08), 0 12px 22px rgba(0,0,0,.10);
+    --shadow-2: 0 10px 0 rgba(0,0,0,.10), 0 20px 36px rgba(0,0,0,.12);
+    --active-underline: linear-gradient(90deg,hsl(335 97% 72%),hsl(39 100% 70%),hsl(196 98% 42%));
+    --img-filter: saturate(1.12) contrast(1.02);
+    --fx-overlay: radial-gradient(circle at 12% 18%, rgba(255,197,103,.20) 0 18%, transparent 19%) 0 0/240px 240px, radial-gradient(circle at 82% 30%, rgba(5,140,215,.18) 0 20%, transparent 21%) 0 0/360px 360px;
   }
 
   .blue_crystal {
@@ -309,6 +314,12 @@ All colors MUST be HSL.
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  /* Upside Down Wordmark */
+  .upside_down .wordmark {
+    transform: rotate(180deg);
+    display: inline-block;
   }
   
   /* Touch-friendly tap targets */
@@ -536,14 +547,14 @@ All colors MUST be HSL.
 
   /* Saturday Cartoons Theme Specific Effects */
   .saturday_cartoons .card {
-    border: var(--stroke-width) var(--stroke-style) rgba(255, 216, 240, 1);
+    border: var(--stroke-width) var(--stroke-style) hsl(var(--border));
     box-shadow: var(--shadow-2);
   }
 
   .saturday_cartoons .btn-primary,
   .saturday_cartoons button[class*="bg-primary"] {
     border-radius: 24px;
-    background: linear-gradient(180deg, hsl(var(--accent)), hsl(48, 100%, 65%));
+    background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--secondary)));
     border: 2px solid rgba(25, 23, 38, 0.1);
     box-shadow: 0 6px 0 rgba(25, 23, 38, 0.2), 0 14px 30px rgba(0, 0, 0, 0.18);
   }
@@ -553,6 +564,25 @@ All colors MUST be HSL.
     border: 3px solid hsl(var(--foreground));
     border-radius: 18px;
     padding: 0.25rem 0.5rem;
+  }
+
+  /* Saturday Morning Wavy Background */
+  .sat-am-waves {
+    position: relative;
+    z-index: 0;
+    height: 140px;
+    margin: 0 -16px 8px;
+    border-radius: 20px;
+    background-color: hsl(var(--background));
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 200' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='%23fff8f1'/%3E%3Cpath d='M0,25 C70,5 140,45 210,25 C280,5 350,45 390,25' fill='none' stroke='%23FB7DA8' stroke-width='22' stroke-linecap='round' opacity='0.95'/%3E%3Cpath d='M0,25 C70,5 140,45 210,25 C280,5 350,45 390,25' fill='none' stroke='%23ffa6c8' stroke-width='10' stroke-linecap='round' opacity='0.95'/%3E%3Cpath d='M-10,95 C60,75 130,115 200,95 C270,75 340,115 400,95' fill='none' stroke='%23FD5A46' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M-10,95 C60,75 130,115 200,95 C270,75 340,115 400,95' fill='none' stroke='%23ff8a78' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M-10,155 C60,135 130,175 200,155 C270,135 340,175 400,155' fill='none' stroke='%2300995E' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M-10,155 C60,135 130,175 200,155 C270,135 340,175 400,155' fill='none' stroke='%2374d1a9' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M0,185 C70,165 140,205 210,185 C280,165 350,205 390,185' fill='none' stroke='%23058CD7' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M0,185 C70,165 140,205 210,185 C280,165 350,205 390,185' fill='none' stroke='%2397d8ff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-1);
+    display: none;
+  }
+
+  .saturday_cartoons .sat-am-waves {
+    display: block;
   }
 
   /* Blue Crystal Theme Specific Effects */

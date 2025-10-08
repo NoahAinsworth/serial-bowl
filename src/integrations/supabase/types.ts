@@ -591,6 +591,42 @@ export type Database = {
           },
         ]
       }
+      review_dislikes: {
+        Row: {
+          created_at: string
+          id: string
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_dislikes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_dislikes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_likes: {
         Row: {
           created_at: string | null
@@ -665,6 +701,42 @@ export type Database = {
           },
           {
             foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      thought_dislikes: {
+        Row: {
+          created_at: string
+          id: string
+          thought_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          thought_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          thought_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thought_dislikes_thought_id_fkey"
+            columns: ["thought_id"]
+            isOneToOne: false
+            referencedRelation: "thoughts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thought_dislikes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

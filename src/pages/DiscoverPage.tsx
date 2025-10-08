@@ -160,6 +160,9 @@ export default function DiscoverPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Saturday Morning Wavy Background */}
+        <div className="sat-am-waves" aria-hidden="true" />
+        
         <TabsList className="mb-6">
           <TabsTrigger value="browse">Browse</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>

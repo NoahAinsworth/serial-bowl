@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Repeat2, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, Trash2, ThumbsDown } from 'lucide-react';
 import { SpoilerText } from '@/components/SpoilerText';
 import {
   AlertDialog,
@@ -70,7 +70,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
   
   const isOwner = user?.id === thought.user.id;
 
-  const handleReaction = async (type: 'like' | 'dislike' | 'rethink') => {
+  const handleReaction = async (type: 'like' | 'rethink') => {
     if (!user) {
       toast({
         title: "Sign in required",
@@ -90,7 +90,6 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
           .eq('reaction_type', type);
 
         if (type === 'like') setLocalLikes(prev => prev - 1);
-        if (type === 'dislike') setLocalDislikes(prev => prev - 1);
         if (type === 'rethink') setLocalRethinks(prev => prev - 1);
         setLocalReaction(undefined);
       } else {
@@ -103,7 +102,6 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
             .eq('reaction_type', localReaction);
 
           if (localReaction === 'like') setLocalLikes(prev => prev - 1);
-          if (localReaction === 'dislike') setLocalDislikes(prev => prev - 1);
           if (localReaction === 'rethink') setLocalRethinks(prev => prev - 1);
         }
 
@@ -116,9 +114,64 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
           });
 
         if (type === 'like') setLocalLikes(prev => prev + 1);
-        if (type === 'dislike') setLocalDislikes(prev => prev + 1);
         if (type === 'rethink') setLocalRethinks(prev => prev + 1);
         setLocalReaction(type);
+      }
+
+      onReactionChange?.();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update reaction",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDislike = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to react to thoughts",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const isDisliked = localReaction === 'dislike';
+
+      if (isDisliked) {
+        await supabase
+          .from('thought_dislikes')
+          .delete()
+          .eq('thought_id', thought.id)
+          .eq('user_id', user.id);
+
+        setLocalDislikes(prev => prev - 1);
+        setLocalReaction(undefined);
+      } else {
+        if (localReaction) {
+          await supabase
+            .from('reactions')
+            .delete()
+            .eq('thought_id', thought.id)
+            .eq('user_id', user.id)
+            .eq('reaction_type', localReaction);
+
+          if (localReaction === 'like') setLocalLikes(prev => prev - 1);
+          if (localReaction === 'rethink') setLocalRethinks(prev => prev - 1);
+        }
+
+        await supabase
+          .from('thought_dislikes')
+          .insert({
+            thought_id: thought.id,
+            user_id: user.id,
+          });
+
+        setLocalDislikes(prev => prev + 1);
+        setLocalReaction('dislike');
       }
 
       onReactionChange?.();
@@ -253,6 +306,15 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
             >
               <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
               <span className="text-sm">{localLikes}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDislike}
+              className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
+            >
+              <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
+              <span className="text-sm">{localDislikes}</span>
             </Button>
             <Button
               variant="ghost"
