@@ -25,19 +25,38 @@ interface Following {
 
 export default function FollowingPage() {
   const navigate = useNavigate();
-  const { userId } = useParams();
+  const { userId: handleParam } = useParams();
   const { user } = useAuth();
   const [following, setFollowing] = useState<Following[]>([]);
   const [filteredFollowing, setFilteredFollowing] = useState<Following[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [targetUserId, setTargetUserId] = useState<string | null>(null);
+  const [profileHandle, setProfileHandle] = useState<string>('');
 
   useEffect(() => {
-    const targetUserId = userId || user?.id;
-    if (targetUserId) {
-      loadFollowing(targetUserId);
-    }
-  }, [userId, user]);
+    const loadUserAndFollowing = async () => {
+      if (handleParam) {
+        // Load user by handle
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, handle')
+          .eq('handle', handleParam)
+          .single();
+        
+        if (data) {
+          setTargetUserId(data.id);
+          setProfileHandle(data.handle);
+          loadFollowing(data.id);
+        }
+      } else if (user) {
+        setTargetUserId(user.id);
+        loadFollowing(user.id);
+      }
+    };
+    
+    loadUserAndFollowing();
+  }, [handleParam, user]);
 
   useEffect(() => {
     if (searchQuery) {
@@ -81,7 +100,7 @@ export default function FollowingPage() {
     <div className="container max-w-2xl mx-auto py-6 px-4">
       <Button
         variant="ghost"
-        onClick={() => navigate(userId ? `/user/${userId}` : '/profile')}
+        onClick={() => navigate(handleParam ? `/user/${handleParam}` : '/profile')}
         className="mb-6"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -147,12 +166,12 @@ export default function FollowingPage() {
                       )}
                     </div>
                   </div>
-                  {user?.id === (userId || user?.id) && (
+                  {user && targetUserId && user.id === targetUserId && (
                     <FollowRequestButton
                       targetUserId={following_id}
                       isPrivate={followingUser.is_private}
                       initialFollowStatus={status as 'pending' | 'accepted'}
-                      onStatusChange={() => loadFollowing(userId || user.id)}
+                      onStatusChange={() => targetUserId && loadFollowing(targetUserId)}
                     />
                   )}
                 </div>

@@ -73,9 +73,9 @@ function AppRouter() {
                 <Route path="/dms" element={<AppLayout><DMsPage /></AppLayout>} />
                 <Route path="/dms/:userId" element={<AppLayout><DMThreadPage /></AppLayout>} />
                 <Route path="/followers" element={<AppLayout><FollowersPage /></AppLayout>} />
-                <Route path="/followers/:userId" element={<AppLayout><FollowersPage /></AppLayout>} />
+                <Route path="/user/:userId/followers" element={<AppLayout><FollowersPage /></AppLayout>} />
                 <Route path="/following" element={<AppLayout><FollowingPage /></AppLayout>} />
-                <Route path="/following/:userId" element={<AppLayout><FollowingPage /></AppLayout>} />
+                <Route path="/user/:userId/following" element={<AppLayout><FollowingPage /></AppLayout>} />
                 <Route path="/binge" element={<AppLayout><BingePage /></AppLayout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

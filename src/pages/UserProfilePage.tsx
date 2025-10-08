@@ -243,9 +243,9 @@ export default function UserProfilePage() {
             </div>
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-2xl font-bold">@{profile.handle}</h2>
+                <h2 className="text-2xl font-bold">{profile.handle}</h2>
                 {user && userId && (
-                  <FollowRequestButton 
+                  <FollowRequestButton
                     targetUserId={userId}
                     isPrivate={profile.is_private}
                     initialFollowStatus={followStatus}
@@ -261,11 +261,17 @@ export default function UserProfilePage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-6">
-          <div className="text-center">
+          <div 
+            className="text-center cursor-pointer hover:bg-muted/50 rounded-lg p-2 transition-colors"
+            onClick={() => navigate(`/user/${handle}/followers`)}
+          >
             <div className="text-2xl font-bold text-primary">{profile.followers}</div>
             <div className="text-sm text-muted-foreground">Followers</div>
           </div>
-          <div className="text-center">
+          <div 
+            className="text-center cursor-pointer hover:bg-muted/50 rounded-lg p-2 transition-colors"
+            onClick={() => navigate(`/user/${handle}/following`)}
+          >
             <div className="text-2xl font-bold text-primary">{profile.following}</div>
             <div className="text-sm text-muted-foreground">Following</div>
           </div>

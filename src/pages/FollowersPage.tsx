@@ -25,21 +25,45 @@ interface Follower {
 
 export default function FollowersPage() {
   const navigate = useNavigate();
-  const { userId } = useParams();
+  const { userId: handleParam } = useParams();
   const { user } = useAuth();
   const [followers, setFollowers] = useState<Follower[]>([]);
   const [filteredFollowers, setFilteredFollowers] = useState<Follower[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [followStatuses, setFollowStatuses] = useState<Record<string, 'none' | 'pending' | 'accepted'>>({});
+  const [targetUserId, setTargetUserId] = useState<string | null>(null);
+  const [profileHandle, setProfileHandle] = useState<string>('');
 
   useEffect(() => {
-    const targetUserId = userId || user?.id;
-    if (targetUserId) {
-      loadFollowers(targetUserId);
-      if (user) loadFollowStatuses();
+    const loadUserAndFollowers = async () => {
+      if (handleParam) {
+        // Load user by handle
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, handle')
+          .eq('handle', handleParam)
+          .single();
+        
+        if (data) {
+          setTargetUserId(data.id);
+          setProfileHandle(data.handle);
+          loadFollowers(data.id);
+        }
+      } else if (user) {
+        setTargetUserId(user.id);
+        loadFollowers(user.id);
+      }
+    };
+    
+    loadUserAndFollowers();
+  }, [handleParam, user]);
+
+  useEffect(() => {
+    if (user && followers.length > 0) {
+      loadFollowStatuses();
     }
-  }, [userId, user]);
+  }, [followers, user]);
 
   useEffect(() => {
     if (searchQuery) {
@@ -105,7 +129,7 @@ export default function FollowersPage() {
     <div className="container max-w-2xl mx-auto py-6 px-4">
       <Button
         variant="ghost"
-        onClick={() => navigate(userId ? `/user/${userId}` : '/profile')}
+        onClick={() => navigate(handleParam ? `/user/${handleParam}` : '/profile')}
         className="mb-6"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
