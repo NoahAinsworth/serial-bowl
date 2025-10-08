@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Heart, MessageCircle } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { RatingBadge } from '@/components/PercentRating';
 
 interface Review {
   id: string;
@@ -138,16 +139,7 @@ export function ReviewsList({ contentId }: ReviewsListProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-semibold">{review.user.handle}</span>
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className={star <= review.rating ? 'text-yellow-500' : 'text-muted-foreground'}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
+                <RatingBadge rating={review.rating} size="sm" />
               </div>
               
               <p className="text-foreground mb-2">{review.review_text}</p>

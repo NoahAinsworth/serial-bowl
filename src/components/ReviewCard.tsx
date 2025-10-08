@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { SpoilerText } from '@/components/SpoilerText';
+import { RatingBadge } from '@/components/PercentRating';
 
 interface ReviewCardProps {
   review: {
@@ -76,9 +76,8 @@ export function ReviewCard({ review, userHideSpoilers = true }: ReviewCardProps)
                   {review.content.title}
                 </div>
                 {review.rating && (
-                  <div className="flex items-center gap-1 mb-2">
-                    <span className="text-lg font-bold text-primary">{review.rating}</span>
-                    <Star className="h-4 w-4 fill-primary text-primary" />
+                  <div className="mb-2">
+                    <RatingBadge rating={review.rating} size="sm" />
                   </div>
                 )}
               </div>
