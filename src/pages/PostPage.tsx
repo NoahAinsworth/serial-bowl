@@ -11,7 +11,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB, TVSeason, TVEpisode } from '@/hooks/useTVDB';
-import { X, Loader2, Star } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
+import { PercentRating } from '@/components/PercentRating';
 
 export default function PostPage() {
   const navigate = useNavigate();
@@ -27,7 +28,6 @@ export default function PostPage() {
   const [searching, setSearching] = useState(false);
   const [posting, setPosting] = useState(false);
   const [rating, setRating] = useState(0);
-  const [hoveredRating, setHoveredRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
   
   // For hierarchical selection
@@ -492,29 +492,7 @@ export default function PostPage() {
           <TabsContent value="review" className="space-y-4">
             <div>
               <Label className="mb-2 block">Rating *</Label>
-              <div className="flex gap-1 mb-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRating(star)}
-                    onMouseEnter={() => setHoveredRating(star)}
-                    onMouseLeave={() => setHoveredRating(0)}
-                    className="transition-all"
-                  >
-                    <Star
-                      className={`h-6 w-6 ${
-                        star <= (hoveredRating || rating)
-                          ? 'fill-primary text-primary'
-                          : 'text-muted-foreground'
-                      }`}
-                    />
-                  </button>
-                ))}
-                {rating > 0 && (
-                  <span className="ml-2 text-lg font-bold text-primary">{rating}</span>
-                )}
-              </div>
+              <PercentRating initialRating={rating || 50} onRate={setRating} compact />
             </div>
 
             <div>
