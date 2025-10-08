@@ -1,455 +1,284 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Search } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { Search } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { fetchTrendingShows, fetchPopularShows, fetchNewShows } from '@/lib/discoverData';
+import { getDaily } from '@/lib/dailyCache';
+import { ShowCard } from '@/lib/shows';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 import { BingeBotAI } from '@/components/BingeBotAI';
-import { useToast } from '@/hooks/use-toast';
-import { fetchBrowseShows, fetchNewShows, searchShows } from '@/lib/tvdbApi';
-import { getCached } from '@/lib/tvdbCache';
 
-interface TVDBShow {
-  id: number;
-  title: string;
-  posterUrl: string | null;
-  year: string | null;
-  popularity?: number | null;
+interface UserResult {
+  id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
 }
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { toast } = useToast();
+  const activeTab = searchParams.get('tab') || 'browse';
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'browse');
-  
-  // Browse tab state
-  const [browseShows, setBrowseShows] = useState<TVDBShow[]>([]);
-  const [browseLoading, setBrowseLoading] = useState(false);
-  const [browsePage, setBrowsePage] = useState(1);
-  const [browseHasMore, setBrowseHasMore] = useState(true);
-  
-  // New tab state
-  const [newShows, setNewShows] = useState<TVDBShow[]>([]);
-  const [newLoading, setNewLoading] = useState(false);
-  const [newPage, setNewPage] = useState(1);
-  const [newHasMore, setNewHasMore] = useState(true);
-  
-  // User search state
-  const [users, setUsers] = useState<any[]>([]);
-  const [usersLoading, setUsersLoading] = useState(false);
-  
-  // Show search state
-  const [showResults, setShowResults] = useState<TVDBShow[]>([]);
-  const [showsLoading, setShowsLoading] = useState(false);
+  const [trending, setTrending] = useState<ShowCard[]>([]);
+  const [popular, setPopular] = useState<ShowCard[]>([]);
+  const [newShows, setNewShows] = useState<ShowCard[]>([]);
+  const [userResults, setUserResults] = useState<UserResult[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // BingeBot state
-  const [showBingeBot, setShowBingeBot] = useState(false);
-  const [botPrompt, setBotPrompt] = useState('');
-
-  // Refs for infinite scroll
-  const browseObserver = useRef<IntersectionObserver | null>(null);
-  const newObserver = useRef<IntersectionObserver | null>(null);
-  const browseEndRef = useRef<HTMLDivElement>(null);
-  const newEndRef = useRef<HTMLDivElement>(null);
-
-  // Load initial browse shows
+  // Load Browse data (Trending + Popular)
   useEffect(() => {
-    // Clear all caches on mount to ensure fresh data
-    localStorage.clear();
-    loadBrowseShows(1);
-  }, []);
-
-  // Load new shows when tab is activated
-  useEffect(() => {
-    if (activeTab === 'new' && newShows.length === 0) {
-      loadNewShows(1);
+    if (activeTab === 'browse' && !searchQuery) {
+      loadBrowseData();
     }
-  }, [activeTab]);
+  }, [activeTab, searchQuery]);
 
-  // Search debounce
+  // Load New data
   useEffect(() => {
+    if (activeTab === 'new' && !searchQuery) {
+      loadNewData();
+    }
+  }, [activeTab, searchQuery]);
+
+  // Search handler
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setUserResults([]);
+      return;
+    }
+
     const timer = setTimeout(() => {
-      if (searchQuery.trim()) {
-        if (activeTab === 'users') {
-          searchUsers(searchQuery);
-        } else {
-          searchShowsHandler(searchQuery);
-        }
-      } else {
-        setShowResults([]);
-        setUsers([]);
+      if (activeTab === 'users') {
+        searchUsers(searchQuery);
       }
     }, 300);
 
     return () => clearTimeout(timer);
   }, [searchQuery, activeTab]);
 
-  // Set up infinite scroll for Browse tab
-  useEffect(() => {
-    if (browseObserver.current) browseObserver.current.disconnect();
-
-    if (activeTab !== 'browse' || browseShows.length === 0 || searchQuery.trim()) return;
-
-    browseObserver.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !browseLoading && browseHasMore) {
-        loadBrowseShows(browsePage + 1);
-      }
-    });
-
-    if (browseEndRef.current) {
-      browseObserver.current.observe(browseEndRef.current);
-    }
-
-    return () => {
-      if (browseObserver.current) browseObserver.current.disconnect();
-    };
-  }, [browseLoading, browsePage, browseShows.length, activeTab, browseHasMore, searchQuery]);
-
-  // Set up infinite scroll for New tab
-  useEffect(() => {
-    if (newObserver.current) newObserver.current.disconnect();
-
-    if (activeTab !== 'new' || newShows.length === 0 || searchQuery.trim()) return;
-
-    newObserver.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !newLoading && newHasMore) {
-        loadNewShows(newPage + 1);
-      }
-    });
-
-    if (newEndRef.current) {
-      newObserver.current.observe(newEndRef.current);
-    }
-
-    return () => {
-      if (newObserver.current) newObserver.current.disconnect();
-    };
-  }, [newLoading, newPage, newShows.length, activeTab, newHasMore, searchQuery]);
-
-  const loadBrowseShows = async (page: number) => {
-    if (browseLoading || (!browseHasMore && page > 1)) return;
-
-    setBrowseLoading(true);
+  async function loadBrowseData() {
+    setLoading(true);
     try {
-      const cacheKey = `tvdb_browse_page_${page}`;
-      const shows = await getCached(cacheKey, () => fetchBrowseShows(page));
-
-      if (shows.length === 0) {
-        setBrowseHasMore(false);
-      } else {
-        if (page === 1) {
-          setBrowseShows(shows);
-        } else {
-          setBrowseShows(prev => [...prev, ...shows]);
-        }
-        setBrowsePage(page);
-      }
+      const [trendingData, popularData] = await Promise.all([
+        getDaily('tvdb:trending', () => fetchTrendingShows()),
+        getDaily('tvdb:popular', () => fetchPopularShows({ pages: 2 }))
+      ]);
+      setTrending(trendingData);
+      setPopular(popularData);
     } catch (error) {
-      console.error('Error loading browse shows:', error);
-      toast({
-        title: "Error",
-        description: "Couldn't load shows — pull to refresh",
-        variant: "destructive",
-      });
-      setBrowseHasMore(false);
+      console.error('Error loading browse data:', error);
+      toast.error('Failed to load shows');
     } finally {
-      setBrowseLoading(false);
+      setLoading(false);
     }
-  };
+  }
 
-  const loadNewShows = async (page: number) => {
-    if (newLoading || (!newHasMore && page > 1)) return;
-
-    setNewLoading(true);
+  async function loadNewData() {
+    setLoading(true);
     try {
-      const cacheKey = `tvdb_new_page_${page}`;
-      const shows = await getCached(cacheKey, () => fetchNewShows(page));
-
-      if (shows.length === 0) {
-        setNewHasMore(false);
-      } else {
-        if (page === 1) {
-          setNewShows(shows);
-        } else {
-          setNewShows(prev => [...prev, ...shows]);
-        }
-        setNewPage(page);
-      }
+      const data = await getDaily('tvdb:new', () => fetchNewShows());
+      setNewShows(data);
     } catch (error) {
       console.error('Error loading new shows:', error);
-      toast({
-        title: "Error",
-        description: "Couldn't load shows — pull to refresh",
-        variant: "destructive",
-      });
-      setNewHasMore(false);
+      toast.error('Failed to load new shows');
     } finally {
-      setNewLoading(false);
+      setLoading(false);
     }
-  };
+  }
 
-  const searchShowsHandler = async (query: string) => {
-    if (!query.trim()) {
-      setShowResults([]);
-      return;
-    }
-
-    setShowsLoading(true);
+  async function searchUsers(query: string) {
+    setLoading(true);
     try {
-      const results = await searchShows(query);
-      setShowResults(results);
-    } catch (error) {
-      console.error('Error searching shows:', error);
-      toast({
-        title: "Error",
-        description: "Search failed. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setShowsLoading(false);
-    }
-  };
-
-  const searchUsers = async (query: string) => {
-    if (!query.trim()) {
-      setUsers([]);
-      return;
-    }
-
-    setUsersLoading(true);
-    try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .select('id, handle, avatar_url, settings')
-        .or(`handle.ilike.%${query}%,settings->>displayName.ilike.%${query}%`)
+        .select('id, handle, bio, avatar_url')
+        .ilike('handle', `%${query}%`)
         .limit(20);
 
-      setUsers(data || []);
+      if (error) throw error;
+      const results: UserResult[] = (data || []).map(profile => ({
+        id: profile.id,
+        username: profile.handle,
+        display_name: profile.bio || profile.handle,
+        avatar_url: profile.avatar_url
+      }));
+      setUserResults(results);
     } catch (error) {
       console.error('Error searching users:', error);
+      toast.error('Failed to search users');
     } finally {
-      setUsersLoading(false);
+      setLoading(false);
     }
-  };
+  }
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setSearchParams({ tab });
+  function handleTabChange(value: string) {
+    setSearchParams({ tab: value });
     setSearchQuery('');
-    setShowResults([]);
-    setUsers([]);
-  };
+  }
 
-  const ShowCard = ({ show }: { show: TVDBShow }) => (
-    <Card 
-      className="relative group overflow-hidden cursor-pointer hover:scale-105 transition-transform"
-      onClick={() => navigate(`/show/${show.id}`)}
-    >
-      <div className="aspect-[2/3] bg-muted">
-        {show.posterUrl ? (
-          <img 
-            src={show.posterUrl} 
-            alt={show.title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder.svg';
-            }}
+  return (
+    <div className="min-h-screen bg-background pb-20">
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
+        <h1 className="text-4xl font-bold mb-6">Discover</h1>
+
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder={activeTab === 'users' ? 'Search users...' : 'Search shows...'}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center p-4 text-center">
-            <span className="text-muted-foreground text-sm font-medium">{show.title}</span>
-          </div>
-        )}
+        </div>
+
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="browse">Browse</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="new">New</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="browse">
+            {searchQuery ? (
+              <div className="text-center text-muted-foreground py-12">
+                Search is only available in Users tab
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {/* Trending Section */}
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">Trending</h2>
+                  {loading ? (
+                    <LoadingSkeleton />
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      {trending.map((show) => (
+                        <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Popular Section */}
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">Popular</h2>
+                  {loading ? (
+                    <LoadingSkeleton />
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      {popular.map((show) => (
+                        <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="users">
+            {!searchQuery ? (
+              <div className="text-center text-muted-foreground py-12">
+                Start typing to search for users
+              </div>
+            ) : loading ? (
+              <LoadingSkeleton />
+            ) : userResults.length === 0 ? (
+              <div className="text-center text-muted-foreground py-12">
+                No users found
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {userResults.map((user) => (
+                  <UserCardComponent key={user.id} user={user} onClick={() => navigate(`/user/${user.username}`)} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="new">
+            {searchQuery ? (
+              <div className="text-center text-muted-foreground py-12">
+                Search is only available in Users tab
+              </div>
+            ) : loading ? (
+              <LoadingSkeleton />
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {newShows.map((show) => (
+                  <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="font-bold text-white truncate">{show.title}</h3>
-          {show.year && (
-            <p className="text-xs text-white/80">{show.year}</p>
-          )}
+
+      <BingeBotAI open={false} onOpenChange={() => {}} />
+    </div>
+  );
+}
+
+function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => void }) {
+  return (
+    <Card
+      className="cursor-pointer overflow-hidden group"
+      onClick={onClick}
+    >
+      <div className="aspect-[2/3] relative">
+        <img
+          src={show.posterUrl || '/placeholder.svg'}
+          alt={show.title}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = '/placeholder.svg';
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute bottom-0 left-0 right-0 p-3">
+            <h3 className="font-semibold text-white text-sm line-clamp-2">{show.title}</h3>
+            {show.year && <p className="text-xs text-white/80">{show.year}</p>}
+          </div>
         </div>
       </div>
     </Card>
   );
+}
 
-  const UserCard = ({ user }: { user: any }) => {
-    const displayName = user.settings?.displayName || user.handle;
-    
-    return (
-      <Card 
-        className="p-4 flex items-center gap-3 cursor-pointer hover:border-primary transition-colors"
-        onClick={() => navigate(`/user/${user.handle}`)}
-      >
+function UserCardComponent({ user, onClick }: { user: UserResult; onClick: () => void }) {
+  return (
+    <Card
+      className="p-4 cursor-pointer hover:border-primary transition-colors"
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12">
-          <AvatarImage src={user.avatar_url} />
-          <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
+          <AvatarImage src={user.avatar_url || undefined} alt={user.username} />
+          <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold truncate">{displayName}</p>
-          <p className="text-sm text-muted-foreground truncate">@{user.handle}</p>
+          <p className="font-semibold truncate">{user.display_name || user.username}</p>
+          <p className="text-sm text-muted-foreground truncate">@{user.username}</p>
         </div>
-      </Card>
-    );
-  };
-
-  const LoadingSkeleton = () => (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="aspect-[2/3] bg-muted animate-pulse rounded-lg" />
-      ))}
-    </div>
-  );
-
-  return (
-    <div className="container max-w-6xl mx-auto py-6 px-4">
-      <h1 className="text-4xl font-bold mb-6">Discover</h1>
-
-      {/* Search Bar */}
-      <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder={activeTab === 'users' ? 'Search users...' : 'Search shows...'}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
       </div>
+    </Card>
+  );
+}
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="browse">Browse</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="new">New</TabsTrigger>
-        </TabsList>
-
-        {/* Browse Tab */}
-        <TabsContent value="browse">
-          {searchQuery.trim() ? (
-            <div>
-              {showsLoading ? (
-                <LoadingSkeleton />
-              ) : showResults.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                  {showResults.map((show) => (
-                    <ShowCard key={show.id} show={show} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-12">No shows found</p>
-              )}
-            </div>
-          ) : (
-            <div>
-              {browseShows.length === 0 && browseLoading ? (
-                <LoadingSkeleton />
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                    {browseShows.map((show) => (
-                      <ShowCard key={show.id} show={show} />
-                    ))}
-                  </div>
-                  
-                  <div ref={browseEndRef} className="py-8">
-                    {browseLoading && (
-                      <div className="flex justify-center">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      </div>
-                    )}
-                  </div>
-
-                  {browseShows.length === 0 && !browseLoading && (
-                    <p className="text-center text-muted-foreground py-12">
-                      No shows available.
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* Users Tab */}
-        <TabsContent value="users">
-          {usersLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : users.length > 0 ? (
-            <div className="grid gap-3 max-w-2xl mx-auto">
-              {users.map((user) => (
-                <UserCard key={user.id} user={user} />
-              ))}
-            </div>
-          ) : searchQuery.trim() ? (
-            <p className="text-center text-muted-foreground py-12">No users found</p>
-          ) : (
-            <p className="text-center text-muted-foreground py-12">
-              Search for people to follow
-            </p>
-          )}
-        </TabsContent>
-
-        {/* New Tab */}
-        <TabsContent value="new">
-          {searchQuery.trim() ? (
-            <div>
-              {showsLoading ? (
-                <LoadingSkeleton />
-              ) : showResults.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                  {showResults.map((show) => (
-                    <ShowCard key={show.id} show={show} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-12">No shows found</p>
-              )}
-            </div>
-          ) : (
-            <div>
-              {newShows.length === 0 && newLoading ? (
-                <LoadingSkeleton />
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                    {newShows.map((show) => (
-                      <ShowCard key={show.id} show={show} />
-                    ))}
-                  </div>
-                  
-                  <div ref={newEndRef} className="py-8">
-                    {newLoading && (
-                      <div className="flex justify-center">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      </div>
-                    )}
-                  </div>
-
-                  {newShows.length === 0 && !newLoading && (
-                    <p className="text-center text-muted-foreground py-12">
-                      No new shows available.
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-
-      <BingeBotAI 
-        open={showBingeBot} 
-        onOpenChange={setShowBingeBot}
-        initialPrompt={botPrompt}
-      />
+function LoadingSkeleton() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {[...Array(10)].map((_, i) => (
+        <Skeleton key={i} className="aspect-[2/3]" />
+      ))}
     </div>
   );
 }
