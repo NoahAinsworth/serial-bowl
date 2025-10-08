@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
 import { tvdbFetch } from "@/lib/tvdb";
 import { normalizeSeries, ShowCard } from "@/lib/shows";
-import { fetchBrowseShows } from "@/services/tvdb";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,10 +20,16 @@ export default function DiscoverPage() {
   const [popularShows, setPopularShows] = useState<ShowCard[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   
   const observerTarget = useRef<HTMLDivElement>(null);
+  
+  // Popular search terms to rotate through for diverse content
+  const popularSearchTerms = [
+    'breaking', 'game', 'stranger', 'office', 'friends', 'walking', 
+    'house', 'last', 'dragon', 'witcher', 'dark', 'crown', 'boys'
+  ];
 
   // Load popular shows when Browse tab is active and no search
   useEffect(() => {
@@ -53,7 +58,7 @@ export default function DiscoverPage() {
 
   // Load more when page changes
   useEffect(() => {
-    if (page > 1 && !searchQuery.trim() && activeTab === "browse") {
+    if (page > 0 && !searchQuery.trim() && activeTab === "browse") {
       loadPopularShows();
     }
   }, [page]);
@@ -79,8 +84,9 @@ export default function DiscoverPage() {
     
     setLoading(true);
     try {
-      // Use TVDB's discover endpoint for popular shows
-      const results = await tvdbFetch(`/discover?page=${page - 1}`);
+      // Use rotating popular search terms
+      const searchTerm = popularSearchTerms[page % popularSearchTerms.length];
+      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchTerm)}&type=series&limit=20`);
       const showsData = Array.isArray(results) ? results : [];
       const normalized = showsData.map(normalizeSeries);
       
@@ -101,6 +107,7 @@ export default function DiscoverPage() {
     } catch (error) {
       console.error("Error loading popular shows:", error);
       toast.error("Failed to load shows");
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
