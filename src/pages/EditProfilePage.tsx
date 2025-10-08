@@ -145,22 +145,32 @@ export default function EditProfilePage() {
 
     if (error) {
       console.error('Save error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile",
-        variant: "destructive",
-      });
+      
+      // Check for unique constraint violation
+      if (error.message.includes('duplicate') || error.code === '23505') {
+        toast({
+          title: "Username taken",
+          description: "This username is already in use. Please choose another.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update profile",
+          variant: "destructive",
+        });
+      }
       setSaving(false);
     } else {
       toast({
-        title: "Success",
-        description: "Profile updated successfully",
+        title: "✓ Saved!",
+        description: "Your profile has been updated successfully",
       });
       setSaving(false);
       // Wait a moment to show the toast before navigating
       setTimeout(() => {
         navigate('/profile');
-      }, 500);
+      }, 800);
     }
   };
 

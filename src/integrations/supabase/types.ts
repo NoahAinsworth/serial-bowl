@@ -663,6 +663,30 @@ export type Database = {
           },
         ]
       }
+      reshares: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          post_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          post_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          post_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       review_dislikes: {
         Row: {
           created_at: string
