@@ -38,6 +38,7 @@ export default function ProfilePage() {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [showTop3Dialog, setShowTop3Dialog] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [top3Shows, setTop3Shows] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchingShows, setSearchingShows] = useState(false);
@@ -124,21 +125,13 @@ export default function ProfilePage() {
     setSearchingShows(false);
   };
 
-  const addToTop3 = async (show: any) => {
-    if (top3Shows.length >= 3) {
-      toast({
-        title: "Maximum reached",
-        description: "You can only have 3 shows in your top 3",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check if show already exists in top 3
-    if (top3Shows.some(s => s.id === show.id)) {
+  const addToTop3 = async (show: any, slotIndex: number) => {
+    // Check if show already exists in a different slot
+    const existingIndex = top3Shows.findIndex(s => s && s.id === show.id.toString());
+    if (existingIndex !== -1 && existingIndex !== slotIndex) {
       toast({
         title: "Already added",
-        description: "This show is already in your top 3",
+        description: "This show is already in another slot",
         variant: "destructive",
       });
       return;
@@ -151,7 +144,15 @@ export default function ProfilePage() {
       poster_url: show.image || '',
     };
 
-    const newTop3 = [...top3Shows, showData];
+    // Create a new array with 3 slots, preserving existing shows
+    const newTop3 = [...top3Shows];
+    // Ensure array has 3 slots
+    while (newTop3.length < 3) {
+      newTop3.push(null);
+    }
+    // Place the show in the selected slot
+    newTop3[slotIndex] = showData;
+
     setTop3Shows(newTop3);
 
     await supabase
@@ -166,16 +167,18 @@ export default function ProfilePage() {
 
     toast({
       title: "Added to Top 3",
-      description: `${show.name} added to your top 3 shows`,
+      description: `${show.name} added to slot #${slotIndex + 1}`,
     });
 
     setShowTop3Dialog(false);
+    setSelectedSlot(null);
     setSearchQuery('');
     setSearchResults([]);
   };
 
-  const removeFromTop3 = async (showId: string) => {
-    const newTop3 = top3Shows.filter(show => show.id !== showId);
+  const removeFromTop3 = async (slotIndex: number) => {
+    const newTop3 = [...top3Shows];
+    newTop3[slotIndex] = null;
     setTop3Shows(newTop3);
 
     await supabase
@@ -190,8 +193,13 @@ export default function ProfilePage() {
 
     toast({
       title: "Removed from Top 3",
-      description: "Show removed from your top 3",
+      description: `Show removed from slot #${slotIndex + 1}`,
     });
+  };
+
+  const openSlotDialog = (slotIndex: number) => {
+    setSelectedSlot(slotIndex);
+    setShowTop3Dialog(true);
   };
 
   const handleShare = async () => {
@@ -293,102 +301,104 @@ export default function ProfilePage() {
       {/* Top 3 Shows Section */}
       <Card className="p-6 mb-6">
         <h2 className="text-xl font-bold text-center mb-4">Top 3</h2>
-        <div className="flex items-center justify-between mb-4">
-          {top3Shows.length < 3 && (
-            <Dialog open={showTop3Dialog} onOpenChange={setShowTop3Dialog}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Show
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add to Top 3</DialogTitle>
-                  <DialogDescription>Search and add a show to your top 3</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Input
-                    placeholder="Search for a show..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <div className="max-h-[300px] overflow-y-auto space-y-2">
-                    {searchingShows ? (
-                      <div className="text-center py-4">
-                        <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+        <Dialog open={showTop3Dialog} onOpenChange={(open) => {
+          setShowTop3Dialog(open);
+          if (!open) {
+            setSelectedSlot(null);
+            setSearchQuery('');
+            setSearchResults([]);
+          }
+        }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {selectedSlot !== null ? `Edit Slot #${selectedSlot + 1}` : 'Add to Top 3'}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedSlot !== null 
+                  ? `Select a show for position #${selectedSlot + 1}` 
+                  : 'Search and add a show to your top 3'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Search for a show..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="max-h-[300px] overflow-y-auto space-y-2">
+                {searchingShows ? (
+                  <div className="text-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                  </div>
+                ) : (
+                  searchResults.map((show) => (
+                    <Card
+                      key={show.id}
+                      className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted"
+                      onClick={() => selectedSlot !== null && addToTop3(show, selectedSlot)}
+                    >
+                      {show.image && (
+                        <img src={show.image} alt={show.name} className="w-12 h-16 object-cover rounded" />
+                      )}
+                      <div className="flex-1">
+                        <p className="font-semibold">{show.name}</p>
+                        {show.firstAired && (
+                          <p className="text-xs text-muted-foreground">{new Date(show.firstAired).getFullYear()}</p>
+                        )}
                       </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <div className="grid grid-cols-3 gap-4">
+          {[0, 1, 2].map((slotIndex) => {
+            const show = top3Shows[slotIndex];
+            return (
+              <div key={slotIndex} className="text-center relative group">
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
+                    onClick={() => openSlotDialog(slotIndex)}
+                    title={show ? "Edit show" : "Add show"}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  {show && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 left-2 z-10 bg-background/80 hover:bg-background"
+                      onClick={() => removeFromTop3(slotIndex)}
+                      title="Remove show"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <div 
+                    className="aspect-[2/3] bg-muted rounded-lg mb-2 overflow-hidden cursor-pointer"
+                    onClick={() => show ? navigate(`/show/${show.external_id}`) : openSlotDialog(slotIndex)}
+                  >
+                    {show?.poster_url ? (
+                      <img src={show.poster_url} alt={show.title} className="w-full h-full object-cover" />
                     ) : (
-                      searchResults.map((show) => (
-                        <Card
-                          key={show.id}
-                          className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted"
-                          onClick={() => addToTop3(show)}
-                        >
-                          {show.image && (
-                            <img src={show.image} alt={show.name} className="w-12 h-16 object-cover rounded" />
-                          )}
-                          <div className="flex-1">
-                            <p className="font-semibold">{show.name}</p>
-                            {show.firstAired && (
-                              <p className="text-xs text-muted-foreground">{new Date(show.firstAired).getFullYear()}</p>
-                            )}
-                          </div>
-                        </Card>
-                      ))
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-muted-foreground">#{slotIndex + 1}</span>
+                      </div>
                     )}
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          {top3Shows.map((show, index) => (
-            <div key={show.id} className="text-center relative group">
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
-                  onClick={() => removeFromTop3(show.id)}
-                  title="Edit show"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <div 
-                  className="aspect-[2/3] bg-muted rounded-lg mb-2 overflow-hidden cursor-pointer"
-                  onClick={() => navigate(`/show/${show.external_id}`)}
-                >
-                  {show.poster_url ? (
-                    <img src={show.poster_url} alt={show.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-muted-foreground">#{index + 1}</span>
-                    </div>
-                  )}
-                </div>
+                <p className="text-xs font-medium truncate">
+                  {show?.title || 'Empty Slot'}
+                </p>
               </div>
-              <p className="text-xs font-medium truncate">{show.title}</p>
-            </div>
-          ))}
-          {[...Array(3 - top3Shows.length)].map((_, i) => (
-            <div key={`empty-${i}`} className="text-center relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
-                onClick={() => setShowTop3Dialog(true)}
-                title="Add show"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <div className="aspect-[2/3] bg-muted rounded-lg mb-2 flex items-center justify-center">
-                <span className="text-muted-foreground">#{top3Shows.length + i + 1}</span>
-              </div>
-              <p className="text-xs text-muted-foreground">Empty Slot</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
 
