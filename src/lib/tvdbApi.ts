@@ -72,20 +72,19 @@ function normalizeShow(show: any) {
 
 export async function fetchBrowseShows(page = 1): Promise<any[]> {
   try {
-    const [trending, popular] = await Promise.all([
-      fetchTVDB(`/series/trending?page=${page}`),
-      fetchTVDB(`/series/popular?page=${page}`),
-    ]);
+    // TVDB v4 doesn't have trending/popular endpoints
+    // Use search with popular show terms to get good results
+    const popularTerms = [
+      'Breaking Bad', 'Game of Thrones', 'The Office', 'Friends', 
+      'Stranger Things', 'The Walking Dead', 'Better Call Saul',
+      'House of the Dragon', 'The Last of Us', 'Wednesday'
+    ];
     
-    // Combine and deduplicate
-    const combined = [...trending, ...popular]
-      .reduce((acc: any[], item: any) => {
-        if (!acc.find((s) => s.id === item.id)) acc.push(item);
-        return acc;
-      }, [])
-      .slice(0, 40);
+    const term = popularTerms[(page - 1) % popularTerms.length];
+    const results = await fetchTVDB(`/search?query=${encodeURIComponent(term)}&type=series`);
     
-    return combined.map(normalizeShow);
+    // Take first 20 results
+    return results.slice(0, 20).map(normalizeShow);
   } catch (error) {
     console.error('[fetchBrowseShows] Error:', error);
     throw error;
@@ -94,8 +93,29 @@ export async function fetchBrowseShows(page = 1): Promise<any[]> {
 
 export async function fetchNewShows(page = 1): Promise<any[]> {
   try {
-    const recent = await fetchTVDB(`/series/filter?sort=firstAired&page=${page}`);
-    return recent.map(normalizeShow);
+    // Search for current year to get new shows
+    const currentYear = new Date().getFullYear();
+    const results = await fetchTVDB(`/search?query=${currentYear}&type=series`);
+    
+    // Filter to shows that actually premiered in the last year
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    
+    const recentShows = results
+      .filter((show: any) => {
+        if (!show.firstAired) return false;
+        const airDate = new Date(show.firstAired);
+        return airDate >= oneYearAgo;
+      })
+      .sort((a: any, b: any) => {
+        // Sort by most recent first
+        const dateA = new Date(a.firstAired || 0);
+        const dateB = new Date(b.firstAired || 0);
+        return dateB.getTime() - dateA.getTime();
+      })
+      .slice(0, 20);
+    
+    return recentShows.map(normalizeShow);
   } catch (error) {
     console.error('[fetchNewShows] Error:', error);
     throw error;
