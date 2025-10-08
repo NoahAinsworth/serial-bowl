@@ -159,10 +159,10 @@ serve(async (req) => {
     
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const openaiApiKey = Deno.env.get("OPENAI_API_KEY")!;
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
     const tvdbApiKey = Deno.env.get("TVDB_API_KEY")!;
     
-    if (!openaiApiKey) throw new Error("OPENAI_API_KEY not configured");
+    if (!lovableApiKey) throw new Error("LOVABLE_API_KEY not configured");
     if (!tvdbApiKey) throw new Error("TVDB_API_KEY not configured");
     
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -223,38 +223,44 @@ serve(async (req) => {
       content: userQuery,
     });
 
-    // Call OpenAI with tools
-    const openaiMessages = [
+    // Call Lovable AI (Gemini) with tools
+    const geminiMessages = [
       { role: "system", content: SYSTEM_PROMPT },
       ...messages
     ];
 
-    let aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+    let aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${openaiApiKey}`,
+        Authorization: `Bearer ${lovableApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-5-2025-08-07",
-        messages: openaiMessages,
+        model: "google/gemini-2.5-flash",
+        messages: geminiMessages,
         tools: TOOLS,
-        max_completion_tokens: 1000,
       }),
     });
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error("OpenAI error:", aiResponse.status, errorText);
+      console.error("Lovable AI (Gemini) error:", aiResponse.status, errorText);
+      
+      if (aiResponse.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+      if (aiResponse.status === 402) {
+        throw new Error("Payment required. Please add credits to your Lovable AI workspace.");
+      }
       throw new Error("AI request failed");
     }
 
     let result = await aiResponse.json();
     let toolCalls = result.choices[0].message.tool_calls;
 
-    // Handle tool calls
+    // Handle tool calls if Gemini made any
     if (toolCalls && toolCalls.length > 0) {
-      const toolMessages = [...openaiMessages, result.choices[0].message];
+      const toolMessages = [...geminiMessages, result.choices[0].message];
       
       for (const toolCall of toolCalls) {
         const fname = toolCall.function.name;
@@ -289,17 +295,16 @@ serve(async (req) => {
         }
       }
 
-      // Second call with tool results
-      const followUpResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      // Second call with tool results to Gemini
+      const followUpResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${openaiApiKey}`,
+          Authorization: `Bearer ${lovableApiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gpt-5-2025-08-07",
+          model: "google/gemini-2.5-flash",
           messages: toolMessages,
-          max_completion_tokens: 1000,
         }),
       });
 
