@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Repeat2, Trash2, ThumbsDown } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, ThumbsDown } from 'lucide-react';
 import { SpoilerText } from '@/components/SpoilerText';
 import {
   AlertDialog,
@@ -49,8 +49,8 @@ interface ThoughtCardProps {
     likes: number;
     dislikes: number;
     comments: number;
-    rethinks: number;
-    userReaction?: 'like' | 'dislike' | 'rethink';
+    rethinks?: number;
+    userReaction?: 'like' | 'dislike';
   };
   userHideSpoilers?: boolean;
   onReactionChange?: () => void;
@@ -61,16 +61,15 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [localReaction, setLocalReaction] = useState(thought.userReaction);
+  const [localReaction, setLocalReaction] = useState<'like' | 'dislike' | undefined>(thought.userReaction);
   const [localLikes, setLocalLikes] = useState(thought.likes);
   const [localDislikes, setLocalDislikes] = useState(thought.dislikes);
-  const [localRethinks, setLocalRethinks] = useState(thought.rethinks);
   const [showComments, setShowComments] = useState(false);
   const [deleting, setDeleting] = useState(false);
   
   const isOwner = user?.id === thought.user.id;
 
-  const handleReaction = async (type: 'like' | 'rethink') => {
+  const handleReaction = async (type: 'like') => {
     if (!user) {
       toast({
         title: "Sign in required",
@@ -90,19 +89,16 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
           .eq('reaction_type', type);
 
         if (type === 'like') setLocalLikes(prev => prev - 1);
-        if (type === 'rethink') setLocalRethinks(prev => prev - 1);
         setLocalReaction(undefined);
       } else {
-        if (localReaction) {
+        if (localReaction === 'dislike') {
           await supabase
-            .from('reactions')
+            .from('thought_dislikes')
             .delete()
             .eq('thought_id', thought.id)
-            .eq('user_id', user.id)
-            .eq('reaction_type', localReaction);
+            .eq('user_id', user.id);
 
-          if (localReaction === 'like') setLocalLikes(prev => prev - 1);
-          if (localReaction === 'rethink') setLocalRethinks(prev => prev - 1);
+          setLocalDislikes(prev => prev - 1);
         }
 
         await supabase
@@ -114,7 +110,6 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
           });
 
         if (type === 'like') setLocalLikes(prev => prev + 1);
-        if (type === 'rethink') setLocalRethinks(prev => prev + 1);
         setLocalReaction(type);
       }
 
@@ -151,16 +146,15 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
         setLocalDislikes(prev => prev - 1);
         setLocalReaction(undefined);
       } else {
-        if (localReaction) {
+        if (localReaction === 'like') {
           await supabase
             .from('reactions')
             .delete()
             .eq('thought_id', thought.id)
             .eq('user_id', user.id)
-            .eq('reaction_type', localReaction);
+            .eq('reaction_type', 'like');
 
-          if (localReaction === 'like') setLocalLikes(prev => prev - 1);
-          if (localReaction === 'rethink') setLocalRethinks(prev => prev - 1);
+          setLocalLikes(prev => prev - 1);
         }
 
         await supabase
@@ -217,7 +211,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
     <Card className="p-4 transition-all duration-200 animate-fade-in group">
       <div className="flex gap-3">
         <div className="profile-ring">
-          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.id}`)}>
+          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.handle}`)}>
             <AvatarImage src={thought.user.avatar_url} alt={thought.user.handle} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
               {thought.user.handle[0]?.toUpperCase() || 'U'}
@@ -226,7 +220,10 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="font-semibold text-foreground truncate">
+            <span 
+              className="font-semibold text-foreground truncate cursor-pointer hover:text-primary transition-colors"
+              onClick={() => navigate(`/user/${thought.user.handle}`)}
+            >
               {thought.user.handle}
             </span>
             {isOwner && (
@@ -324,15 +321,6 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
             >
               <MessageCircle className="h-4 w-4 mr-1" />
               <span className="text-sm">{thought.comments}</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleReaction('rethink')}
-              className={`transition-all duration-200 ${localReaction === 'rethink' ? 'text-secondary' : ''}`}
-            >
-              <Repeat2 className="h-4 w-4 mr-1" />
-              <span className="text-sm">{localRethinks}</span>
             </Button>
           </div>
 

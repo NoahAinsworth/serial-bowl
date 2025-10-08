@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
-import { UserReshares } from '@/components/UserReshares';
 import { FollowRequestButton } from '@/components/FollowRequestButton';
 
 export default function UserProfilePage() {
@@ -280,9 +279,8 @@ export default function UserProfilePage() {
       </Card>
 
       <Tabs defaultValue="thoughts" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="thoughts">Thoughts ({profile.thoughtCount})</TabsTrigger>
-          <TabsTrigger value="reshares">Reshares</TabsTrigger>
           <TabsTrigger value="shows">Shows ({profile.showCount})</TabsTrigger>
           <TabsTrigger value="seasons">Seasons ({profile.seasonCount})</TabsTrigger>
           <TabsTrigger value="episodes">Eps ({profile.episodeCount})</TabsTrigger>
@@ -300,9 +298,6 @@ export default function UserProfilePage() {
           <>
             <TabsContent value="thoughts" className="mt-4">
               <UserThoughts userId={userId} />
-            </TabsContent>
-            <TabsContent value="reshares" className="mt-4">
-              <UserReshares userId={userId!} />
             </TabsContent>
             <TabsContent value="shows" className="mt-4">
               <UserRatings userId={userId} contentKind="show" />

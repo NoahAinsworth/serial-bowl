@@ -129,17 +129,29 @@ export default function ActivityPage() {
   };
 
   const getMessage = (notif: any) => {
+    const userLink = (
+      <span 
+        className="font-semibold cursor-pointer hover:text-primary transition-colors"
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/user/${notif.user}`);
+        }}
+      >
+        @{notif.user}
+      </span>
+    );
+
     switch (notif.type) {
       case 'like':
-        return `${notif.user} liked your thought`;
+        return <>{userLink} liked your thought</>;
       case 'dislike':
-        return `${notif.user} reacted to your thought`;
+        return <>{userLink} reacted to your thought</>;
       case 'comment':
-        return `${notif.user} commented: "${notif.comment}"`;
+        return <>{userLink} commented: "{notif.comment}"</>;
       case 'rethink':
-        return `${notif.user} rethought your thought`;
+        return <>{userLink} rethought your thought</>;
       case 'follow':
-        return `${notif.user} started following you`;
+        return <>{userLink} started following you</>;
       default:
         return '';
     }
