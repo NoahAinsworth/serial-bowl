@@ -80,15 +80,15 @@ export function UserReviews({ userId }: UserReviewsProps) {
   };
 
   return (
-    <>
+    <div className="space-y-4">
       {reviews.map((review: any) => {
         const content = review.content;
         if (!content) return null;
 
         return (
-          <div
+          <Card
             key={review.id}
-            className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+            className="p-4 cursor-pointer hover:border-primary transition-colors"
             onClick={() => handleClick(content)}
           >
             <div className="flex gap-4">
@@ -114,9 +114,9 @@ export function UserReviews({ userId }: UserReviewsProps) {
                 </p>
               </div>
             </div>
-          </div>
+          </Card>
         );
       })}
-    </>
+    </div>
   );
 }
