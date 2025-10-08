@@ -150,14 +150,18 @@ export default function EditProfilePage() {
         description: error.message || "Failed to update profile",
         variant: "destructive",
       });
+      setSaving(false);
     } else {
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
-      navigate('/profile');
+      setSaving(false);
+      // Wait a moment to show the toast before navigating
+      setTimeout(() => {
+        navigate('/profile');
+      }, 500);
     }
-    setSaving(false);
   };
 
   const handleSignOut = async () => {
