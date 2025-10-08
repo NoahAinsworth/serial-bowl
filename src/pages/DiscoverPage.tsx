@@ -66,8 +66,8 @@ export default function DiscoverPage() {
   async function loadPopularShows(reset: boolean) {
     setLoading(true);
     try {
-      const data = await getDaily(`tvdb:popular:${page}`, () => 
-        fetchPopularShows({ pages: page })
+      const data = await getDaily(`tvdb:popular`, () => 
+        fetchPopularShows()
       );
       
       if (reset) {
@@ -76,9 +76,8 @@ export default function DiscoverPage() {
         setPopularShows((prev) => [...prev, ...data]);
       }
       
-      if (data.length < 40) {
-        setHasMore(false);
-      }
+      // Disable infinite scroll for now since we get all data at once
+      setHasMore(false);
     } catch (error) {
       console.error("Error loading popular shows:", error);
       toast.error("Failed to load shows");
@@ -90,7 +89,7 @@ export default function DiscoverPage() {
   async function loadNewShows(reset: boolean) {
     setLoading(true);
     try {
-      const data = await getDaily(`tvdb:new:${page}`, () => 
+      const data = await getDaily(`tvdb:new`, () => 
         fetchNewShows()
       );
       
@@ -100,9 +99,8 @@ export default function DiscoverPage() {
         setNewShows((prev) => [...prev, ...data]);
       }
       
-      if (data.length < 40) {
-        setHasMore(false);
-      }
+      // Disable infinite scroll for now since we get all data at once
+      setHasMore(false);
     } catch (error) {
       console.error("Error loading new shows:", error);
       toast.error("Failed to load shows");
