@@ -12,18 +12,29 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [feedType, setFeedType] = useState<'for-you' | 'following'>('for-you');
+  const [activeTab, setActiveTab] = useState('trending');
   const [postType, setPostType] = useState<'all' | 'thoughts' | 'reviews'>('all');
   
-  // Use the feed hook based on feed type
-  const forYouFeed = useFeed('trending');
+  // Use the feed hook for each tab
+  const trendingFeed = useFeed('trending');
+  const hotTakesFeed = useFeed('hot');
   const followingFeed = useFeed('following');
-  
-  const currentFeed = feedType === 'for-you' ? forYouFeed : followingFeed;
-  
-  const toggleFeedType = () => {
-    setFeedType(prev => prev === 'for-you' ? 'following' : 'for-you');
+
+  // Map tab to appropriate feed
+  const getFeedForTab = () => {
+    switch (activeTab) {
+      case 'trending':
+        return trendingFeed;
+      case 'hot-takes':
+        return hotTakesFeed;
+      case 'following':
+        return followingFeed;
+      default:
+        return trendingFeed;
+    }
   };
+
+  const currentFeed = getFeedForTab();
   
   // Pull to refresh for current feed
   const { isRefreshing } = usePullToRefresh({ 
@@ -104,21 +115,51 @@ export default function Index() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Logo Header - Clickable to toggle feeds */}
-      <div 
-        className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b"
-        onClick={toggleFeedType}
-      >
-        <div className="flex items-center justify-center py-3 px-4 cursor-pointer active:scale-95 transition-transform">
+      {/* Logo Header */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="flex items-center justify-center py-3 px-4">
           <img src={serialBowlLogo} alt="Serial Bowl" className="h-8" />
-          <div className="ml-3 text-sm text-muted-foreground">
-            {feedType === 'for-you' ? 'For You' : 'Following'}
-          </div>
+        </div>
+      </div>
+
+      {/* Feed Tabs */}
+      <div className="sticky top-[57px] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab('trending')}
+            className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
+              activeTab === 'trending'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Trending
+          </button>
+          <button
+            onClick={() => setActiveTab('hot-takes')}
+            className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
+              activeTab === 'hot-takes'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Hot Takes
+          </button>
+          <button
+            onClick={() => setActiveTab('following')}
+            className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
+              activeTab === 'following'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Following
+          </button>
         </div>
       </div>
 
       {/* Filter Pills */}
-      <div className="sticky top-[57px] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 py-2">
+      <div className="sticky top-[109px] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 py-2">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setPostType('all')}
