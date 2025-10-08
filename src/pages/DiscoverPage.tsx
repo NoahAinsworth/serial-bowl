@@ -84,9 +84,8 @@ export default function DiscoverPage() {
     
     setLoading(true);
     try {
-      // Use rotating popular search terms
-      const searchTerm = popularSearchTerms[page % popularSearchTerms.length];
-      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchTerm)}&type=series&limit=20`);
+      // Use TVDB's filter endpoint to get series sorted by score
+      const results = await tvdbFetch(`/series?page=${page}`);
       const showsData = Array.isArray(results) ? results : [];
       const normalized = showsData.map(normalizeSeries);
       
