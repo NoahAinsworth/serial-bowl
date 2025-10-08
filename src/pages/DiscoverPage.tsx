@@ -84,9 +84,9 @@ export default function DiscoverPage() {
     
     setLoading(true);
     try {
-      // Use TVDB's filter endpoint to get series sorted by score
-      const results = await tvdbFetch(`/series?page=${page}`);
-      const showsData = Array.isArray(results) ? results : [];
+      // Use TVDB's filter endpoint to get popular series sorted by score
+      const response = await tvdbFetch(`/series/filter?page=${page}&sort=score&sortType=desc`);
+      const showsData = Array.isArray(response) ? response : [];
       const normalized = showsData.map(normalizeSeries);
       
       setPopularShows((prev) => {
