@@ -5,13 +5,8 @@
 import { tvdbFetch } from "./tvdb";
 import { normalizeSeries, ShowCard } from "./shows";
 
-async function getSeriesPage(page = 0): Promise<any[]> {
-  const data = await tvdbFetch(`/series?page=${page}`);
-  return Array.isArray(data) ? data : data?.series ?? [];
-}
-
 async function getSeriesById(id: number): Promise<any> {
-  return tvdbFetch(`/series/${id}`);
+  return tvdbFetch(`/series/${id}/extended`);
 }
 
 function uniqueById<T extends { id: number }>(arr: T[]) {
@@ -20,65 +15,99 @@ function uniqueById<T extends { id: number }>(arr: T[]) {
 }
 
 export async function fetchPopularShows({ pages = 2 } = {}): Promise<ShowCard[]> {
-  // Grab a couple of pages and sort by score
-  const batches = await Promise.all([...Array(pages)].map((_, i) => getSeriesPage(i)));
-  const flat = batches.flat().filter(Boolean);
-  const sorted = flat.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  return uniqueById(sorted).slice(0, 40).map(normalizeSeries);
+  console.log('[fetchPopularShows] Starting...');
+  
+  // Use /updates to get recent activity, then hydrate
+  const since = Math.floor((Date.now() - 30 * 24 * 3600 * 1000) / 1000);
+  const updates = await tvdbFetch(`/updates?since=${since}&type=series&action=update`);
+  console.log('[fetchPopularShows] Updates received:', updates);
+  
+  const seriesIds: number[] = (Array.isArray(updates) ? updates : updates?.series ?? [])
+    .slice(0, 100)
+    .map((u: any) => u?.recordId ?? u?.seriesId ?? u?.id)
+    .filter(Boolean);
+
+  console.log('[fetchPopularShows] Series IDs:', seriesIds.slice(0, 10));
+
+  // Hydrate with concurrency cap
+  const limit = 10;
+  const out: any[] = [];
+  for (let i = 0; i < Math.min(seriesIds.length, 40) && out.length < 40; i += limit) {
+    const chunk = seriesIds.slice(i, i + limit);
+    const got = await Promise.allSettled(chunk.map((id) => getSeriesById(id)));
+    out.push(...got.filter(r => r.status === "fulfilled").map((r: any) => r.value?.data ?? r.value));
+  }
+  
+  console.log('[fetchPopularShows] Hydrated shows:', out.length);
+  const scored = out.filter(Boolean).sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const result = uniqueById(scored).slice(0, 40).map(normalizeSeries);
+  console.log('[fetchPopularShows] Final result:', result.length);
+  return result;
 }
 
 export async function fetchTrendingShows(): Promise<ShowCard[]> {
+  console.log('[fetchTrendingShows] Starting...');
+  
   // Trending = recently updated series (7d) ranked by score
   const since = Math.floor((Date.now() - 7 * 24 * 3600 * 1000) / 1000);
-  const updates = await tvdbFetch(`/updates?since=${since}`);
-  const seriesIds: number[] = (Array.isArray(updates) ? updates : updates?.records ?? [])
-    .filter((u: any) => (u?.recordType ?? u?.type) === "series")
-    .map((u: any) => u?.recordId ?? u?.id)
+  const updates = await tvdbFetch(`/updates?since=${since}&type=series`);
+  console.log('[fetchTrendingShows] Updates received:', updates);
+  
+  const seriesIds: number[] = (Array.isArray(updates) ? updates : updates?.series ?? [])
+    .slice(0, 60)
+    .map((u: any) => u?.recordId ?? u?.seriesId ?? u?.id)
     .filter(Boolean);
 
+  console.log('[fetchTrendingShows] Series IDs:', seriesIds.slice(0, 10));
+
   // Hydrate with concurrency cap
-  const limit = 12;
+  const limit = 10;
   const out: any[] = [];
-  for (let i = 0; i < seriesIds.length && out.length < 60; i += limit) {
+  for (let i = 0; i < Math.min(seriesIds.length, 40) && out.length < 40; i += limit) {
     const chunk = seriesIds.slice(i, i + limit);
     const got = await Promise.allSettled(chunk.map((id) => getSeriesById(id)));
-    out.push(...got.filter(r => r.status === "fulfilled").map((r: any) => r.value));
+    out.push(...got.filter(r => r.status === "fulfilled").map((r: any) => r.value?.data ?? r.value));
   }
-  const scored = out.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  return uniqueById(scored).slice(0, 40).map(normalizeSeries);
+  
+  console.log('[fetchTrendingShows] Hydrated shows:', out.length);
+  const scored = out.filter(Boolean).sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const result = uniqueById(scored).slice(0, 40).map(normalizeSeries);
+  console.log('[fetchTrendingShows] Final result:', result.length);
+  return result;
 }
 
 export async function fetchNewShows(): Promise<ShowCard[]> {
-  // Try series/filter by firstAired desc (if it 4xx/5xx, fallback)
-  try {
-    const filtered = await tvdbFetch(`/series/filter?sort=firstAired&order=desc&page=0`);
-    const arr = Array.isArray(filtered) ? filtered : filtered?.series ?? [];
-    const normalized = arr.map(normalizeSeries)
-      .filter(s => s.firstAired)
-      .sort((a, b) => (b.firstAired! > a.firstAired! ? 1 : -1));
-    if (normalized.length) return normalized.slice(0, 40);
-  } catch (_) {
-    // Fall through to fallback
-  }
-
-  // Fallback: use updates over the last ~180 days and filter by firstAired desc
-  const since = Math.floor((Date.now() - 180 * 24 * 3600 * 1000) / 1000);
-  const updates = await tvdbFetch(`/updates?since=${since}`);
-  const seriesIds: number[] = (Array.isArray(updates) ? updates : updates?.records ?? [])
-    .filter((u: any) => (u?.recordType ?? u?.type) === "series")
-    .map((u: any) => u?.recordId ?? u?.id)
+  console.log('[fetchNewShows] Starting...');
+  
+  // Use updates over the last ~90 days and filter by firstAired
+  const since = Math.floor((Date.now() - 90 * 24 * 3600 * 1000) / 1000);
+  const updates = await tvdbFetch(`/updates?since=${since}&type=series&action=update`);
+  console.log('[fetchNewShows] Updates received:', updates);
+  
+  const seriesIds: number[] = (Array.isArray(updates) ? updates : updates?.series ?? [])
+    .slice(0, 120)
+    .map((u: any) => u?.recordId ?? u?.seriesId ?? u?.id)
     .filter(Boolean);
 
-  const limit = 12;
+  console.log('[fetchNewShows] Series IDs:', seriesIds.slice(0, 10));
+
+  const limit = 10;
   const hydrated: any[] = [];
-  for (let i = 0; i < seriesIds.length && hydrated.length < 120; i += limit) {
+  for (let i = 0; i < Math.min(seriesIds.length, 80) && hydrated.length < 80; i += limit) {
     const chunk = seriesIds.slice(i, i + limit);
     const got = await Promise.allSettled(chunk.map((id) => getSeriesById(id)));
-    hydrated.push(...got.filter(r => r.status === "fulfilled").map((r: any) => r.value));
+    hydrated.push(...got.filter(r => r.status === "fulfilled").map((r: any) => r.value?.data ?? r.value));
   }
+  
+  console.log('[fetchNewShows] Hydrated shows:', hydrated.length);
   const recent = hydrated
+    .filter(Boolean)
     .map(normalizeSeries)
     .filter(s => s.firstAired)
     .sort((a, b) => (b.firstAired! > a.firstAired! ? 1 : -1));
-  return uniqueById(recent).slice(0, 40);
+  
+  const result = uniqueById(recent).slice(0, 40);
+  console.log('[fetchNewShows] Final result:', result.length);
+  return result;
 }
+
