@@ -26,6 +26,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div className="flex flex-col h-screen bg-background">
+      {/* Theme Overlay */}
+      <div className="app-overlay" aria-hidden="true"></div>
+
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
         <div className="container flex h-16 items-center justify-between px-4">

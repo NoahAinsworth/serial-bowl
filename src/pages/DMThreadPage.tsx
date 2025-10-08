@@ -193,7 +193,6 @@ export default function DMThreadPage() {
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          maxLength={1000}
         />
         <Button onClick={handleSend} disabled={!newMessage.trim()} className="btn-glow">
           <Send className="h-4 w-4" />

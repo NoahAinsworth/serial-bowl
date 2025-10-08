@@ -51,6 +51,39 @@ All colors MUST be HSL.
     --blue: 210 95% 62%;
     --cyan: 191 85% 68%;
     --pink: 315 75% 70%;
+
+    /* Typography Tokens */
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-display: 'Montserrat', 'Inter', sans-serif;
+    --font-weight-ui: 500;
+    --font-weight-display: 800;
+    --letter-ui: 0;
+    --letter-display: -0.01em;
+
+    /* Shape Tokens */
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --stroke-width: 2px;
+    --stroke-style: solid;
+    --tab-shape: 12px;
+    --btn-shape: 12px;
+
+    /* Elevation Tokens */
+    --shadow-1: 0 2px 10px rgba(0,0,0,.08);
+    --shadow-2: 0 6px 24px rgba(0,0,0,.12);
+    --inner-glow: inset 0 0 0 transparent;
+
+    /* Motion Tokens */
+    --ease-ui: cubic-bezier(.2,.8,.2,1);
+    --dur-fast: 120ms;
+    --dur-med: 220ms;
+    --dur-slow: 420ms;
+
+    /* FX Tokens */
+    --fx-overlay: none;
+    --img-filter: none;
+    --active-underline: none;
   }
 
   .dark {
@@ -129,6 +162,21 @@ All colors MUST be HSL.
     --input: 240 15% 12%;
     --ring: 0 100% 58%;
     --radius: 0.5rem;
+
+    /* Expressive Tokens */
+    --font-display: 'Impact', 'Montserrat', sans-serif;
+    --letter-display: 0.02em;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --btn-shape: 8px;
+    --tab-shape: 8px;
+    --shadow-1: 0 4px 18px rgba(255,43,43,.18);
+    --shadow-2: 0 8px 36px rgba(255,122,26,.22);
+    --inner-glow: inset 0 0 18px rgba(255,43,43,.12);
+    --active-underline: linear-gradient(90deg,hsl(0 100% 58%),hsl(15 100% 55%));
+    --img-filter: contrast(1.05) saturate(1.05) drop-shadow(0 0 8px rgba(255,43,43,.15));
+    --fx-overlay: radial-gradient(80vmax 60vmax at 80% 20%, rgba(255,43,43,.07), transparent 60%), radial-gradient(60vmax 40vmax at 10% 80%, rgba(255,122,26,.06), transparent 60%);
   }
 
   .saturday_cartoons {
@@ -153,6 +201,23 @@ All colors MUST be HSL.
     --input: 320 100% 90%;
     --ring: 330 100% 67%;
     --radius: 1.125rem;
+
+    /* Expressive Tokens */
+    --font-display: 'Fredoka', 'Montserrat', sans-serif;
+    --font-weight-display: 800;
+    --letter-display: 0.015em;
+    --radius-sm: 14px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
+    --btn-shape: 20px;
+    --tab-shape: 16px;
+    --stroke-width: 2.5px;
+    --stroke-style: solid;
+    --shadow-1: 0 6px 0 rgba(0,0,0,.1), 0 10px 24px rgba(0,0,0,.08);
+    --shadow-2: 0 10px 0 rgba(0,0,0,.12), 0 18px 32px rgba(0,0,0,.12);
+    --active-underline: linear-gradient(90deg,hsl(330 100% 67%),hsl(48 100% 65%),hsl(200 100% 67%));
+    --img-filter: saturate(1.15) contrast(1.02);
+    --fx-overlay: radial-gradient(circle at 12% 18%, rgba(255,227,77,.25) 0 18%, transparent 19%) 0 0/240px 240px, radial-gradient(circle at 82% 30%, rgba(89,185,255,.22) 0 20%, transparent 21%) 0 0/360px 360px;
   }
 
   .blue_crystal {
@@ -177,6 +242,21 @@ All colors MUST be HSL.
     --input: 205 45% 16%;
     --ring: 195 100% 55%;
     --radius: 0.5rem;
+
+    /* Expressive Tokens */
+    --font-display: 'Inter', sans-serif;
+    --letter-display: 0.005em;
+    --radius-sm: 12px;
+    --radius-md: 14px;
+    --radius-lg: 16px;
+    --btn-shape: 14px;
+    --tab-shape: 14px;
+    --shadow-1: 0 6px 24px rgba(25,180,255,.14);
+    --shadow-2: 0 12px 48px rgba(25,180,255,.18);
+    --inner-glow: inset 0 0 1px hsl(190 100% 72%);
+    --active-underline: linear-gradient(90deg,hsl(195 100% 55%),hsl(190 100% 72%));
+    --img-filter: contrast(1.05) saturate(1.08);
+    --fx-overlay: radial-gradient(60vmax 40vmax at 10% 20%, rgba(25,180,255,.10), transparent 60%);
   }
 
   /* CRT Effects */
@@ -210,15 +290,16 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: var(--font-ui);
+    letter-spacing: var(--letter-ui);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', 'Inter', sans-serif;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    letter-spacing: var(--letter-display);
+    font-weight: var(--font-weight-display);
     text-transform: uppercase;
   }
 
@@ -397,93 +478,145 @@ All colors MUST be HSL.
     letter-spacing: -0.02em;
   }
 
-  /* Upside Down Theme Effects */
-  .upside_down .glow,
-  .upside_down .btn,
-  .upside_down .tab-active,
-  .upside_down .card:hover {
-    box-shadow: 0 0 0.5rem rgba(255, 43, 43, 0.35), 0 0 1.2rem rgba(255, 122, 26, 0.25);
+  /* Expressive Theme Component Styling */
+  .card {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-1);
+    transition: all var(--dur-med) var(--ease-ui);
   }
 
-  body.upside-down-overlay::before {
+  .btn {
+    border-radius: var(--btn-shape);
+    transition: all var(--dur-med) var(--ease-ui);
+  }
+
+  .tab {
+    border-radius: var(--tab-shape);
+    position: relative;
+  }
+
+  .tab-active::after {
     content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: -2px;
+    height: 3px;
+    background: var(--active-underline);
+    border-radius: 3px;
+  }
+
+  .poster img {
+    filter: var(--img-filter);
+  }
+
+  .app-overlay {
+    pointer-events: none;
     position: fixed;
     inset: 0;
-    pointer-events: none;
     z-index: 0;
-    background:
-      radial-gradient(80vmax 60vmax at 80% 20%, rgba(255, 43, 43, 0.08), transparent 60%),
-      radial-gradient(60vmax 40vmax at 10% 80%, rgba(255, 122, 26, 0.06), transparent 60%);
-    mix-blend-mode: screen;
-    opacity: 0.9;
+    background: var(--fx-overlay);
   }
 
-  body.upside-down-overlay::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><filter id="n"><feTurbulence baseFrequency="0.8" numOctaves="2" /></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.04"/></svg>');
-    opacity: 0.5;
+  /* Upside Down Theme Specific Effects */
+  .upside_down .card {
+    box-shadow: var(--shadow-2), var(--inner-glow);
   }
 
-  /* Saturday Cartoons Theme Effects */
-  .saturday_cartoons .card,
-  .saturday_cartoons .btn,
-  .saturday_cartoons .input {
+  .upside_down .btn-primary,
+  .upside_down button[class*="bg-primary"] {
+    background: linear-gradient(180deg, rgba(255, 43, 43, 0.85), rgba(255, 122, 26, 0.85));
+    border: 1px solid rgba(255, 122, 26, 0.55);
+    box-shadow: 0 0 12px rgba(255, 43, 43, 0.25);
+  }
+
+  .upside_down .tab-active {
+    text-shadow: 0 0 8px rgba(255, 43, 43, 0.5);
+  }
+
+  /* Saturday Cartoons Theme Specific Effects */
+  .saturday_cartoons .card {
+    border: var(--stroke-width) var(--stroke-style) rgba(255, 216, 240, 1);
+    box-shadow: var(--shadow-2);
+  }
+
+  .saturday_cartoons .btn-primary,
+  .saturday_cartoons button[class*="bg-primary"] {
+    border-radius: 24px;
+    background: linear-gradient(180deg, hsl(var(--accent)), hsl(48, 100%, 65%));
+    border: 2px solid rgba(25, 23, 38, 0.1);
+    box-shadow: 0 6px 0 rgba(25, 23, 38, 0.2), 0 14px 30px rgba(0, 0, 0, 0.18);
+  }
+
+  .saturday_cartoons .badge {
+    background: #fff;
+    border: 3px solid hsl(var(--foreground));
     border-radius: 18px;
+    padding: 0.25rem 0.5rem;
   }
 
-  .saturday_cartoons .tab {
-    border-radius: 14px;
+  /* Blue Crystal Theme Specific Effects */
+  .blue_crystal .card {
+    background: linear-gradient(180deg, rgba(14, 34, 51, 0.65), rgba(14, 34, 51, 0.85));
+    backdrop-filter: blur(9px) saturate(1.1);
+    border: 1px solid hsl(205 45% 16%);
+    box-shadow: var(--shadow-1), var(--inner-glow);
   }
 
-  .saturday_cartoons .tab-active {
-    background: hsl(var(--accent));
-    color: #222;
-  }
-
-  body.cartoons-bg {
-    background:
-      radial-gradient(circle at 10% 10%, rgba(255, 227, 77, 0.35) 0 6px, transparent 7px) 0 0/36px 36px,
-      radial-gradient(circle at 80% 30%, rgba(89, 185, 255, 0.25) 0 8px, transparent 9px) 0 0/64px 64px,
-      hsl(var(--background));
-  }
-
-  /* Blue Crystal Theme Effects */
   .blue_crystal .btn-primary,
-  .blue_crystal .tab-active {
-    background: linear-gradient(180deg, rgba(25, 180, 255, 0.9), rgba(14, 34, 51, 0.9));
-    border: 1px solid #39bdf8;
-    box-shadow: inset 0 0 0.5px #aaf0ff, 0 0 12px rgba(25, 180, 255, 0.35);
+  .blue_crystal button[class*="bg-primary"] {
+    background: linear-gradient(180deg, rgba(25, 180, 255, 0.95), rgba(14, 34, 51, 0.95));
+    border: 1px solid hsl(195 100% 55%);
+    box-shadow: inset 0 0 0.5px hsl(190 100% 72%), 0 0 12px rgba(25, 180, 255, 0.35);
   }
 
-  body.blue-crystal-overlay::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" opacity="0.12"><g fill="%237ee3ff"><polygon points="10,40 30,10 50,40"/><polygon points="140,120 160,80 180,120"/><polygon points="80,170 95,140 110,170"/></g></svg>');
-    background-repeat: repeat;
-    background-size: 400px 400px;
+  /* Theme-specific hover animations */
+  @media (prefers-reduced-motion: no-preference) {
+    .upside_down .btn-primary:hover,
+    .upside_down button[class*="bg-primary"]:hover {
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    .saturday_cartoons .btn-primary:hover,
+    .saturday_cartoons button[class*="bg-primary"]:hover {
+      transform: translateY(-2px);
+    }
+
+    .saturday_cartoons .tab-active {
+      animation: pop 0.28s var(--ease-ui);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.94); }
+      100% { transform: scale(1); }
+    }
+
+    .blue_crystal .btn-primary:hover,
+    .blue_crystal button[class*="bg-primary"]:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .blue_crystal .tab-active {
+      box-shadow: 0 0 10px rgba(25, 180, 255, 0.35);
+    }
   }
 
   /* Reduced Motion */
   @media (prefers-reduced-motion: reduce) {
-    .upside_down .glow,
-    .upside_down .card:hover {
-      box-shadow: none;
-    }
-    
-    body.upside-down-overlay::before,
-    body.upside-down-overlay::after {
-      opacity: 0.2;
-    }
-    
     * {
       animation: none !important;
       transition: none !important;
     }
+    
+    .app-overlay {
+      opacity: 0.3;
+    }
+  }
+
+  /* Focus Visibility */
+  :focus-visible {
+    outline: 2px solid hsl(var(--accent));
+    outline-offset: 2px;
   }
 }

@@ -166,8 +166,8 @@ export default function DMsPage() {
                   </p>
                 </div>
                 {thread.unreadCount > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs text-white font-bold neon-glow">
-                    {thread.unreadCount}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
                   </div>
                 )}
               </div>
