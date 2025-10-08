@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -16,16 +16,56 @@ export default function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("browse");
   
-  const [shows, setShows] = useState<ShowCard[]>([]);
+  const [searchResults, setSearchResults] = useState<ShowCard[]>([]);
+  const [popularShows, setPopularShows] = useState<ShowCard[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const observerTarget = useRef<HTMLDivElement>(null);
+  
+  const popularSearchTerms = [
+    'star', 'house', 'game', 'the', 'breaking', 'stranger', 'office', 
+    'friends', 'walking', 'boys', 'last', 'dragon', 'witcher', 'dark'
+  ];
+
+  // Load popular shows when Browse tab is active and no search
+  useEffect(() => {
+    if (activeTab === "browse" && !searchQuery.trim()) {
+      loadPopularShows();
+    }
+  }, [activeTab]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !searchQuery.trim() && activeTab === "browse") {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, loading, searchQuery, activeTab]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 0 && !searchQuery.trim() && activeTab === "browse") {
+      loadPopularShows();
+    }
+  }, [page]);
 
   // Search shows when query changes and on Browse tab
   useEffect(() => {
     if (activeTab === "browse" && searchQuery.trim()) {
       searchShows();
-    } else if (activeTab === "browse") {
-      setShows([]);
     }
   }, [searchQuery, activeTab]);
 
@@ -38,12 +78,44 @@ export default function DiscoverPage() {
     }
   }, [searchQuery, activeTab]);
 
+  async function loadPopularShows() {
+    if (loading) return;
+    
+    setLoading(true);
+    try {
+      const searchTerm = popularSearchTerms[page % popularSearchTerms.length];
+      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchTerm)}&type=series&limit=20`);
+      const showsData = Array.isArray(results) ? results : [];
+      const normalized = showsData.map(normalizeSeries);
+      
+      setPopularShows((prev) => {
+        const combined = [...prev, ...normalized];
+        // Remove duplicates by id
+        const seen = new Set();
+        return combined.filter((show) => {
+          if (seen.has(show.id)) return false;
+          seen.add(show.id);
+          return true;
+        });
+      });
+      
+      if (normalized.length < 20) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Error loading popular shows:", error);
+      toast.error("Failed to load shows");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function searchShows() {
     setLoading(true);
     try {
       const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20`);
       const showsData = Array.isArray(results) ? results : [];
-      setShows(showsData.map(normalizeSeries));
+      setSearchResults(showsData.map(normalizeSeries));
     } catch (error) {
       console.error("Error searching shows:", error);
       toast.error("Failed to search shows");
@@ -92,28 +164,40 @@ export default function DiscoverPage() {
         </TabsList>
 
         <TabsContent value="browse">
-          {!searchQuery.trim() && (
-            <div className="text-center py-12 text-muted-foreground">
-              Search for shows to get started
-            </div>
-          )}
-          
-          {searchQuery.trim() && !loading && shows.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              No shows found
-            </div>
-          )}
+          {searchQuery.trim() ? (
+            // Show search results
+            <>
+              {!loading && searchResults.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  No shows found
+                </div>
+              )}
 
-          {shows.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {shows.map((show) => (
-                <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
-              ))}
-            </div>
+              {searchResults.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {searchResults.map((show) => (
+                    <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            // Show popular shows
+            <>
+              {popularShows.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {popularShows.map((show) => (
+                    <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                  ))}
+                </div>
+              )}
+              
+              <div ref={observerTarget} className="h-4 mt-4" />
+            </>
           )}
           
           {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
               {[...Array(10)].map((_, i) => (
                 <Skeleton key={i} className="aspect-[2/3]" />
               ))}
