@@ -111,6 +111,60 @@ Deno.serve(async (req) => {
         posts = scored.slice(0, limit);
       }
 
+    } else if (tab === 'following') {
+      // Following feed - posts from users you follow
+      if (!userId) {
+        // Not logged in - return empty
+        posts = [];
+      } else {
+        // Get list of users the current user follows
+        const { data: follows } = await supabase
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', userId)
+          .eq('status', 'accepted');
+
+        if (follows && follows.length > 0) {
+          const followingIds = follows.map(f => f.following_id);
+          
+          // Get thoughts from followed users
+          const { data: thoughts } = await supabase
+            .from('v_posts')
+            .select('*')
+            .in('author_id', followingIds)
+            .order('created_at', { ascending: false })
+            .limit(50);
+
+          // Get post IDs to fetch popularity data
+          const postIds = thoughts?.map(t => t.id) || [];
+          
+          const { data: popularity } = await supabase
+            .from('v_post_popularity')
+            .select('*')
+            .in('post_id', postIds)
+            .order('created_at', { ascending: false });
+
+          if (popularity) {
+            const now = new Date();
+            const scored = popularity.map(p => {
+              const createdAt = new Date(p.created_at);
+              const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+              const base = 3 * p.likes + 4 * p.comments + 5 * p.reshares + 0.25 * p.views - 6 * p.dislikes;
+              const decay = Math.exp(-ageHours / 48);
+              return {
+                ...p,
+                score: base * decay
+              };
+            });
+
+            scored.sort((a, b) => b.score - a.score);
+            posts = scored.slice(0, limit);
+          }
+        } else {
+          // Not following anyone yet - return empty
+          posts = [];
+        }
+      }
     } else if (tab === 'binge') {
       // Personalized feed
       if (!userId) {

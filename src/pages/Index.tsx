@@ -21,7 +21,7 @@ export default function Index() {
   // Use the feed hook for each tab
   const trendingFeed = useFeed('trending');
   const hotTakesFeed = useFeed('hot');
-  const bingeFeed = useFeed('binge');
+  const followingFeed = useFeed('following');
 
   // Map tab to appropriate feed
   const getFeedForTab = () => {
@@ -30,8 +30,8 @@ export default function Index() {
         return trendingFeed;
       case 'hot-takes':
         return hotTakesFeed;
-      case 'binge':
-        return bingeFeed;
+      case 'following':
+        return followingFeed;
       default:
         return trendingFeed;
     }
@@ -171,10 +171,10 @@ export default function Index() {
             Hot Takes
           </TabsTrigger>
           <TabsTrigger 
-            value="binge" 
+            value="following" 
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
           >
-            Binge
+            Following
           </TabsTrigger>
         </TabsList>
 
@@ -217,8 +217,8 @@ export default function Index() {
             {renderFeedContent(hotTakesFeed)}
           </TabsContent>
 
-          <TabsContent value="binge" className="mt-0">
-            {renderFeedContent(bingeFeed)}
+          <TabsContent value="following" className="mt-0">
+            {renderFeedContent(followingFeed)}
           </TabsContent>
         </div>
 
