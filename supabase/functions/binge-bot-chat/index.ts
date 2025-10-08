@@ -171,16 +171,19 @@ serve(async (req) => {
     
     // Get user from auth header
     const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      throw new Error("Authentication required");
+    const token = authHeader?.replace("Bearer ", "");
+    
+    let user = null;
+    if (token) {
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
+      if (!authError && authUser) {
+        user = authUser;
+      }
     }
     
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-    
-    if (authError || !user) {
-      throw new Error("Invalid authentication");
+    // If no valid user, continue anyway for now (can make it required later)
+    if (!user) {
+      console.warn("No authenticated user, proceeding without user context");
     }
 
     // Check for out-of-scope topics
@@ -201,9 +204,9 @@ serve(async (req) => {
       );
     }
 
-    // Create session if needed
+    // Create session if needed (only if user is authenticated)
     let actualSessionId = sessionId;
-    if (!actualSessionId) {
+    if (!actualSessionId && user) {
       const { data: newSession, error: sessionError } = await supabase
         .from("chat_sessions")
         .insert({ user_id: user.id })
@@ -218,12 +221,14 @@ serve(async (req) => {
       actualSessionId = newSession.id;
     }
 
-    // Save user message
-    await supabase.from("chat_messages").insert({
-      session_id: actualSessionId,
-      role: "user",
-      content: userQuery,
-    });
+    // Save user message (only if we have a session)
+    if (actualSessionId) {
+      await supabase.from("chat_messages").insert({
+        session_id: actualSessionId,
+        role: "user",
+        content: userQuery,
+      });
+    }
 
     // Call Lovable AI (Gemini) with tools
     const geminiMessages = [
@@ -324,12 +329,14 @@ serve(async (req) => {
     // Extract entities from the response
     const entities: any[] = [];
 
-    // Save assistant message (no source attribution)
-    await supabase.from("chat_messages").insert({
-      session_id: actualSessionId,
-      role: "assistant",
-      content: assistantMessage,
-    });
+    // Save assistant message (no source attribution, only if we have a session)
+    if (actualSessionId) {
+      await supabase.from("chat_messages").insert({
+        session_id: actualSessionId,
+        role: "assistant",
+        content: assistantMessage,
+      });
+    }
 
     return new Response(
       JSON.stringify({ 
