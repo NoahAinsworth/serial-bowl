@@ -290,7 +290,7 @@ export default function UserProfilePage() {
             <Card className="p-8">
               <h3 className="text-xl font-semibold mb-2">This Account is Private</h3>
               <p className="text-muted-foreground">
-                Follow this account to see their posts and activity
+                Follow this account to see their thoughts and activity
               </p>
             </Card>
           </div>

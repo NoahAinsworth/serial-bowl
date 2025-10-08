@@ -77,7 +77,7 @@ export default function Home() {
             </div>
           ) : posts.length === 0 ? (
             <Card className="p-12 text-center">
-              <p className="text-muted-foreground">No trending posts yet. Be the first to create!</p>
+              <p className="text-muted-foreground">No trending thoughts yet. Be the first to create!</p>
             </Card>
           ) : (
             posts.map((post) => 

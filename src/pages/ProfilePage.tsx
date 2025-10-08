@@ -269,7 +269,7 @@ export default function ProfilePage() {
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
               >
                 <span className="font-bold text-foreground">{stats.thoughtsCount}</span>{' '}
-                <span className="text-muted-foreground">Posts</span>
+                <span className="text-muted-foreground">Thoughts</span>
               </button>
               <button 
                 className="hover:underline"
@@ -292,8 +292,8 @@ export default function ProfilePage() {
 
       {/* Top 3 Shows Section */}
       <Card className="p-6 mb-6">
+        <h2 className="text-xl font-bold text-center mb-4">Top 3</h2>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Top 3 Shows</h2>
           {top3Shows.length < 3 && (
             <Dialog open={showTop3Dialog} onOpenChange={setShowTop3Dialog}>
               <DialogTrigger asChild>
@@ -346,31 +346,43 @@ export default function ProfilePage() {
         <div className="grid grid-cols-3 gap-4">
           {top3Shows.map((show, index) => (
             <div key={show.id} className="text-center relative group">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80"
-                onClick={() => removeFromTop3(show.id)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              <div 
-                className="aspect-[2/3] bg-muted rounded-lg mb-2 overflow-hidden cursor-pointer"
-                onClick={() => navigate(`/show/${show.external_id}`)}
-              >
-                {show.poster_url ? (
-                  <img src={show.poster_url} alt={show.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-muted-foreground">#{index + 1}</span>
-                  </div>
-                )}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
+                  onClick={() => removeFromTop3(show.id)}
+                  title="Edit show"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <div 
+                  className="aspect-[2/3] bg-muted rounded-lg mb-2 overflow-hidden cursor-pointer"
+                  onClick={() => navigate(`/show/${show.external_id}`)}
+                >
+                  {show.poster_url ? (
+                    <img src={show.poster_url} alt={show.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-muted-foreground">#{index + 1}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               <p className="text-xs font-medium truncate">{show.title}</p>
             </div>
           ))}
           {[...Array(3 - top3Shows.length)].map((_, i) => (
-            <div key={`empty-${i}`} className="text-center">
+            <div key={`empty-${i}`} className="text-center relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
+                onClick={() => setShowTop3Dialog(true)}
+                title="Add show"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
               <div className="aspect-[2/3] bg-muted rounded-lg mb-2 flex items-center justify-center">
                 <span className="text-muted-foreground">#{top3Shows.length + i + 1}</span>
               </div>
@@ -383,7 +395,7 @@ export default function ProfilePage() {
       {/* Tabs Section */}
       <Tabs defaultValue="posts" className="w-full">
         <TabsList className="w-full grid grid-cols-5">
-          <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="posts">Thoughts</TabsTrigger>
           <TabsTrigger value="shows">Shows</TabsTrigger>
           <TabsTrigger value="seasons">Seasons</TabsTrigger>
           <TabsTrigger value="episodes">Episodes</TabsTrigger>
@@ -408,7 +420,7 @@ export default function ProfilePage() {
                   postType === 'thoughts' ? 'bg-background text-foreground shadow-sm' : ''
                 }`}
               >
-                Posts
+                Thoughts
               </button>
               <button
                 onClick={() => setPostType('reviews')}

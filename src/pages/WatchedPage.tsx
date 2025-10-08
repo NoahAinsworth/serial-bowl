@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Eye, Trash2 } from 'lucide-react';
+import { Loader2, Eye, Trash2, Search, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
+import { useTVDB } from '@/hooks/useTVDB';
 
 interface WatchedItem {
   id: string;
@@ -26,14 +28,30 @@ export default function WatchedPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { search: searchTVDB } = useTVDB();
   const [items, setItems] = useState<WatchedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchingShows, setSearchingShows] = useState(false);
 
   useEffect(() => {
     if (user) {
       loadWatched();
     }
   }, [user]);
+
+  useEffect(() => {
+    const delaySearch = setTimeout(() => {
+      if (searchQuery.trim()) {
+        searchShows(searchQuery);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delaySearch);
+  }, [searchQuery]);
 
   const loadWatched = async () => {
     if (!user) return;
@@ -59,6 +77,87 @@ export default function WatchedPage() {
     }
 
     setLoading(false);
+  };
+
+  const searchShows = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchingShows(true);
+    try {
+      const results = await searchTVDB(query);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error searching shows:', error);
+    }
+    setSearchingShows(false);
+  };
+
+  const addToWatched = async (show: any) => {
+    if (!user) return;
+
+    try {
+      const { data: existingContent } = await supabase
+        .from('content')
+        .select('id')
+        .eq('external_id', show.id.toString())
+        .eq('kind', 'show')
+        .maybeSingle();
+
+      let contentId = existingContent?.id;
+
+      if (!contentId) {
+        const { data: newContent, error: contentError } = await supabase
+          .from('content')
+          .insert({
+            external_id: show.id.toString(),
+            kind: 'show',
+            title: show.name,
+            poster_url: show.image,
+            metadata: { overview: show.overview },
+          })
+          .select('id')
+          .single();
+
+        if (contentError) throw contentError;
+        contentId = newContent.id;
+      }
+
+      const { error } = await supabase
+        .from('watched')
+        .insert({
+          user_id: user.id,
+          content_id: contentId,
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already marked as watched",
+            description: `${show.name} is already in your watched list`,
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Marked as watched",
+          description: `${show.name} has been added`,
+        });
+        loadWatched();
+        setSearchQuery('');
+        setSearchResults([]);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add show",
+        variant: "destructive",
+      });
+    }
   };
 
   const removeFromWatched = async (id: string, title: string) => {
@@ -98,6 +197,55 @@ export default function WatchedPage() {
         <Eye className="h-8 w-8 text-primary" />
         <h1 className="text-3xl font-bold neon-glow">Watched Shows</h1>
       </div>
+
+      {/* Search Bar */}
+      <div className="flex gap-2">
+        <Input
+          type="text"
+          placeholder="Search and add shows to watched..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {/* Search Results */}
+      {searchingShows ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : searchResults.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {searchResults.map((show) => (
+            <Card
+              key={show.id}
+              className="overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
+              onClick={() => addToWatched(show)}
+            >
+              {show.image ? (
+                <img
+                  src={show.image}
+                  alt={show.name}
+                  className="w-full aspect-[2/3] object-cover"
+                />
+              ) : (
+                <div className="w-full aspect-[2/3] bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
+                  <span className="text-white font-bold text-center text-sm">
+                    {show.name}
+                  </span>
+                </div>
+              )}
+              <div className="p-3">
+                <h3 className="font-semibold text-sm line-clamp-2">
+                  {show.name}
+                </h3>
+                {show.year && (
+                  <p className="text-xs text-muted-foreground mt-1">{show.year}</p>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : null}
 
       {items.length === 0 ? (
         <Card className="p-12 text-center">

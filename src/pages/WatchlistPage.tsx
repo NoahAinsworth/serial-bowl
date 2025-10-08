@@ -137,6 +137,18 @@ export default function WatchlistPage() {
     }
   };
 
+  useEffect(() => {
+    const delaySearch = setTimeout(() => {
+      if (searchQuery.trim()) {
+        handleSearch();
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delaySearch);
+  }, [searchQuery]);
+
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     
@@ -313,6 +325,55 @@ export default function WatchlistPage() {
         </TabsList>
 
         <TabsContent value="watchlist" className="mt-6">
+          {/* Search Bar for Watchlist */}
+          <div className="flex gap-2 mb-6">
+            <Input
+              type="text"
+              placeholder="Search and add shows to watchlist..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Search Results */}
+          {searchLoading && searchQuery.trim() ? (
+            <div className="flex items-center justify-center py-8 mb-6">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : searchResults.length > 0 && searchQuery.trim() ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {searchResults.map((show) => (
+                <Card
+                  key={show.tvdb_id}
+                  className="overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
+                  onClick={() => addToWatchlist(show)}
+                >
+                  {show.image_url ? (
+                    <img
+                      src={show.image_url}
+                      alt={show.name}
+                      className="w-full aspect-[2/3] object-cover"
+                    />
+                  ) : (
+                    <div className="w-full aspect-[2/3] bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
+                      <span className="text-white font-bold text-center text-sm">
+                        {show.name}
+                      </span>
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm line-clamp-2">
+                      {show.name}
+                    </h3>
+                    {show.year && (
+                      <p className="text-xs text-muted-foreground mt-1">{show.year}</p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : null}
+
           {watchlistItems.length === 0 ? (
             <Card className="p-12 text-center">
               <p className="text-muted-foreground mb-4">Your watchlist is empty</p>
@@ -377,6 +438,55 @@ export default function WatchlistPage() {
         </TabsContent>
 
         <TabsContent value="watched" className="mt-6">
+          {/* Search Bar for Watched */}
+          <div className="flex gap-2 mb-6">
+            <Input
+              type="text"
+              placeholder="Search and add shows to watched..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Search Results */}
+          {searchLoading && searchQuery.trim() ? (
+            <div className="flex items-center justify-center py-8 mb-6">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : searchResults.length > 0 && searchQuery.trim() ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {searchResults.map((show) => (
+                <Card
+                  key={show.tvdb_id}
+                  className="overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
+                  onClick={() => addToWatched(show)}
+                >
+                  {show.image_url ? (
+                    <img
+                      src={show.image_url}
+                      alt={show.name}
+                      className="w-full aspect-[2/3] object-cover"
+                    />
+                  ) : (
+                    <div className="w-full aspect-[2/3] bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
+                      <span className="text-white font-bold text-center text-sm">
+                        {show.name}
+                      </span>
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm line-clamp-2">
+                      {show.name}
+                    </h3>
+                    {show.year && (
+                      <p className="text-xs text-muted-foreground mt-1">{show.year}</p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : null}
+
           {watchedItems.length === 0 ? (
             <Card className="p-12 text-center">
               <p className="text-muted-foreground mb-4">You haven't marked anything as watched yet</p>

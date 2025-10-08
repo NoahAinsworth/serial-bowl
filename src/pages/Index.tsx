@@ -118,7 +118,7 @@ export default function Index() {
     if (filteredPosts.length === 0) {
       return (
         <div className="text-center text-muted-foreground py-12">
-          No {postType === 'all' ? 'posts' : postType} yet
+          No {postType === 'all' ? 'thoughts' : postType} yet
         </div>
       );
     }
@@ -196,7 +196,7 @@ export default function Index() {
                   postType === 'thoughts' ? 'bg-background text-foreground shadow-sm' : ''
                 }`}
               >
-                Posts
+                Thoughts
               </button>
               <button
                 onClick={() => setPostType('reviews')}
