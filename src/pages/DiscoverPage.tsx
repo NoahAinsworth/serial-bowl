@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
 import { tvdbFetch } from "@/lib/tvdb";
 import { normalizeSeries, ShowCard } from "@/lib/shows";
+import { fetchBrowseShows } from "@/services/tvdb";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,15 +21,10 @@ export default function DiscoverPage() {
   const [popularShows, setPopularShows] = useState<ShowCard[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   
   const observerTarget = useRef<HTMLDivElement>(null);
-  
-  const popularSearchTerms = [
-    'star', 'house', 'game', 'the', 'breaking', 'stranger', 'office', 
-    'friends', 'walking', 'boys', 'last', 'dragon', 'witcher', 'dark'
-  ];
 
   // Load popular shows when Browse tab is active and no search
   useEffect(() => {
@@ -57,7 +53,7 @@ export default function DiscoverPage() {
 
   // Load more when page changes
   useEffect(() => {
-    if (page > 0 && !searchQuery.trim() && activeTab === "browse") {
+    if (page > 1 && !searchQuery.trim() && activeTab === "browse") {
       loadPopularShows();
     }
   }, [page]);
@@ -83,23 +79,20 @@ export default function DiscoverPage() {
     
     setLoading(true);
     try {
-      const searchTerm = popularSearchTerms[page % popularSearchTerms.length];
-      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchTerm)}&type=series&limit=20`);
-      const showsData = Array.isArray(results) ? results : [];
-      const normalized = showsData.map(normalizeSeries);
+      const results = await fetchBrowseShows(page);
       
       setPopularShows((prev) => {
-        const combined = [...prev, ...normalized];
+        const combined = [...prev, ...results];
         // Remove duplicates by id
         const seen = new Set();
-        return combined.filter((show) => {
+        return combined.filter((show: any) => {
           if (seen.has(show.id)) return false;
           seen.add(show.id);
           return true;
         });
       });
       
-      if (normalized.length < 20) {
+      if (results.length < 20) {
         setHasMore(false);
       }
     } catch (error) {
