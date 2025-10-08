@@ -137,7 +137,7 @@ export default function ActivityPage() {
           navigate(`/user/${notif.user}`);
         }}
       >
-        @{notif.user}
+        {notif.user}
       </span>
     );
 

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Bookmark, Trash2, Search } from 'lucide-react';
+import { Loader2, Bookmark, Trash2, Search, Plus, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB } from '@/hooks/useTVDB';
 
@@ -142,6 +142,144 @@ export default function WatchlistPage() {
     
     const results = await search(searchQuery);
     setSearchResults(results);
+  };
+
+  const addToWatchlist = async (show: any) => {
+    if (!user) return;
+
+    try {
+      // First, ensure the content exists in our database
+      const { data: existingContent } = await supabase
+        .from('content')
+        .select('id')
+        .eq('external_id', show.tvdb_id.toString())
+        .eq('kind', 'show')
+        .maybeSingle();
+
+      let contentId = existingContent?.id;
+
+      if (!contentId) {
+        const { data: newContent, error: contentError } = await supabase
+          .from('content')
+          .insert({
+            external_id: show.tvdb_id.toString(),
+            kind: 'show',
+            title: show.name,
+            poster_url: show.image_url,
+            metadata: { overview: show.overview, year: show.year },
+          })
+          .select('id')
+          .single();
+
+        if (contentError) throw contentError;
+        contentId = newContent.id;
+      }
+
+      // Add to watchlist
+      const { error } = await supabase
+        .from('watchlist')
+        .insert({
+          user_id: user.id,
+          content_id: contentId,
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already in watchlist",
+            description: `${show.name} is already in your watchlist`,
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Added to watchlist",
+          description: `${show.name} has been added to your watchlist`,
+        });
+        loadWatchlist();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add to watchlist",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const addToWatched = async (show: any) => {
+    if (!user) return;
+
+    try {
+      // First, ensure the content exists in our database
+      const { data: existingContent } = await supabase
+        .from('content')
+        .select('id')
+        .eq('external_id', show.tvdb_id.toString())
+        .eq('kind', 'show')
+        .maybeSingle();
+
+      let contentId = existingContent?.id;
+
+      if (!contentId) {
+        const { data: newContent, error: contentError } = await supabase
+          .from('content')
+          .insert({
+            external_id: show.tvdb_id.toString(),
+            kind: 'show',
+            title: show.name,
+            poster_url: show.image_url,
+            metadata: { overview: show.overview, year: show.year },
+          })
+          .select('id')
+          .single();
+
+        if (contentError) throw contentError;
+        contentId = newContent.id;
+      }
+
+      // Add to watched
+      const { error } = await supabase
+        .from('watched')
+        .insert({
+          user_id: user.id,
+          content_id: contentId,
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already marked as watched",
+            description: `${show.name} is already in your watched list`,
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Marked as watched",
+          description: `${show.name} has been added to your watched list`,
+        });
+        loadWatched();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to mark as watched",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isInWatchlist = (showId: number) => {
+    return watchlistItems.some(item => item.content.external_id === showId.toString());
+  };
+
+  const isInWatched = (showId: number) => {
+    return watchedItems.some(item => item.content.external_id === showId.toString());
   };
 
   if (!user) {
@@ -327,27 +465,70 @@ export default function WatchlistPage() {
                 {searchResults.map((show) => (
                   <Card
                     key={show.tvdb_id}
-                    className="overflow-hidden cursor-pointer hover:border-primary/50 transition-all hover-scale"
-                    onClick={() => navigate(`/show/${show.tvdb_id}`)}
+                    className="overflow-hidden hover:border-primary/50 transition-all"
                   >
-                    {show.image_url ? (
-                      <img
-                        src={show.image_url}
-                        alt={show.name}
-                        className="w-full aspect-[2/3] object-cover"
-                      />
-                    ) : (
-                      <div className="w-full aspect-[2/3] bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
-                        <span className="text-white font-bold text-center text-sm">
-                          {show.name}
-                        </span>
-                      </div>
-                    )}
-                    <div className="p-3">
-                      <h3 className="font-semibold text-sm line-clamp-2">{show.name}</h3>
-                      {show.year && (
-                        <p className="text-xs text-muted-foreground mt-1">{show.year}</p>
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/show/${show.tvdb_id}`)}
+                    >
+                      {show.image_url ? (
+                        <img
+                          src={show.image_url}
+                          alt={show.name}
+                          className="w-full aspect-[2/3] object-cover"
+                        />
+                      ) : (
+                        <div className="w-full aspect-[2/3] bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
+                          <span className="text-white font-bold text-center text-sm">
+                            {show.name}
+                          </span>
+                        </div>
                       )}
+                    </div>
+                    <div className="p-3">
+                      <h3 
+                        className="font-semibold text-sm line-clamp-2 mb-2 cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => navigate(`/show/${show.tvdb_id}`)}
+                      >
+                        {show.name}
+                      </h3>
+                      {show.year && (
+                        <p className="text-xs text-muted-foreground mb-2">{show.year}</p>
+                      )}
+                      <div className="flex gap-2">
+                        <Button
+                          variant={isInWatchlist(show.tvdb_id) ? "secondary" : "outline"}
+                          size="sm"
+                          className="flex-1 h-8 text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToWatchlist(show);
+                          }}
+                          disabled={isInWatchlist(show.tvdb_id)}
+                        >
+                          {isInWatchlist(show.tvdb_id) ? (
+                            <><Check className="h-3 w-3 mr-1" /> Listed</>
+                          ) : (
+                            <><Plus className="h-3 w-3 mr-1" /> List</>
+                          )}
+                        </Button>
+                        <Button
+                          variant={isInWatched(show.tvdb_id) ? "secondary" : "outline"}
+                          size="sm"
+                          className="flex-1 h-8 text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToWatched(show);
+                          }}
+                          disabled={isInWatched(show.tvdb_id)}
+                        >
+                          {isInWatched(show.tvdb_id) ? (
+                            <><Check className="h-3 w-3 mr-1" /> Watched</>
+                          ) : (
+                            <><Plus className="h-3 w-3 mr-1" /> Watch</>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </Card>
                 ))}
