@@ -10,74 +10,77 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Iridescent Metal - Futuristic Y2K Cinema */
-    --background: 0 0% 98%;         /* Soft White #FAFAFA */
-    --foreground: 0 0% 4%;          /* Near Black #0A0A0A */
-    --card: 0 0% 100%;              /* Pure White */
-    --card-foreground: 0 0% 4%;
+    /* Premium Neo-Y2K Editorial */
+    --background: 0 0% 100%;         /* Pure White #FFFFFF */
+    --foreground: 0 0% 7%;           /* Near Black #111111 */
+    --card: 0 0% 97%;                /* Light Grey #F7F7F7 */
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
-    --primary: 150 100% 50%;        /* Neon Green #00FF85 */
+    --popover-foreground: 0 0% 7%;
+    --primary: 152 100% 40%;         /* Emerald #10C974 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 14 100% 62%;       /* Hot Orange #FF6A3D */
+    --secondary: 14 100% 62%;        /* Hot Orange #FF6A3D */
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 95%;              /* Light Grey #F2F2F2 */
-    --muted-foreground: 0 0% 36%;   /* Text Secondary #5C5C5C */
-    --accent: 351 100% 77%;         /* Coral #FF8FA3 */
-    --accent-foreground: 0 0% 4%;
+    --muted: 0 0% 97%;               /* Light Grey #F7F7F7 */
+    --muted-foreground: 0 0% 40%;    /* Text Secondary #666666 */
+    --accent: 152 100% 40%;          /* Emerald Accent */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.08;       /* Thin border rgba(0,0,0,0.08) */
+    --border: 0 0% 0% / 0.12;        /* Black border rgba(0,0,0,0.12) */
     --input: 0 0% 100%;
-    --ring: 150 100% 50%;
-    --radius: 1.25rem;
+    --ring: 152 100% 40%;
+    --radius: 1.125rem;
 
-    /* Extended Iridescent Palette */
-    --neon-green: 150 100% 50%;     /* #00FF85 */
-    --hot-orange: 14 100% 62%;      /* #FF6A3D */
-    --soft-coral: 351 100% 77%;     /* #FF8FA3 */
-    --violet-tint: 258 100% 77%;    /* #B58BFF */
-    --electric-lime: 150 100% 50%;  /* #00FF85 */
+    /* Dynamic Show Accent System */
+    --show-accent: 152 100% 40%;     /* Default to emerald, dynamically updated per show */
+    
+    /* Extended Premium Palette */
+    --emerald: 152 100% 40%;         /* #10C974 */
+    --hot-orange: 14 100% 62%;       /* #FF6A3D */
+    --text-primary: 0 0% 7%;         /* #111111 */
+    --text-secondary: 0 0% 40%;      /* #666666 */
+    --surface: 0 0% 97%;             /* #F7F7F7 */
 
-    /* Typography - Sleek Futuristic */
-    --font-ui: 'Inter', system-ui, sans-serif;
-    --font-display: 'Satoshi', 'DM Sans', sans-serif;
-    --font-label: 'Space Grotesk', sans-serif;
+    /* Typography - Modern Editorial */
+    --font-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
+    --font-display: 'DM Sans', sans-serif;
+    --font-accent: 'Orbitron', 'Space Grotesk', sans-serif;
     --font-weight-ui: 500;
     --font-weight-display: 700;
-    --font-weight-label: 600;
-    --letter-ui: 0.01em;
-    --letter-display: 0.1em;
+    --font-weight-accent: 600;
+    --letter-ui: 0.005em;
+    --letter-display: 0.01em;
+    --letter-accent: 0.1em;
 
-    /* Shape Tokens - Cinematic Rounded */
-    --radius-sm: 12px;
-    --radius-md: 16px;
-    --radius-lg: 20px;
-    --stroke-width: 1.5px;
+    /* Shape Tokens - Clean & Modern */
+    --radius-sm: 14px;
+    --radius-md: 18px;
+    --radius-lg: 18px;
+    --stroke-width: 1.25px;
     --stroke-style: solid;
-    --tab-shape: 16px;
-    --btn-shape: 20px;
+    --tab-shape: 18px;
+    --btn-shape: 14px;
 
-    /* Elevation - Holographic Glow */
-    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.05);
-    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 0 25px rgba(0, 255, 133, 0.25);
-    --inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    /* Elevation - Minimal Outlines */
+    --shadow-1: none;
+    --shadow-2: none;
+    --shadow-hover: 0 0 0 2px rgba(0, 0, 0, 0.2);
+    --inner-glow: none;
 
-    /* Motion - Fluid & Electronic */
+    /* Motion - Smooth Editorial */
     --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
     --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --dur-fast: 150ms;
     --dur-med: 300ms;
     --dur-slow: 500ms;
 
-    /* Effects - Holographic Iridescence */
-    --fx-overlay: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 133, 0.02) 2px, rgba(0, 255, 133, 0.02) 4px);
-    --img-filter: saturate(1.05) brightness(1.02);
-    --active-underline: linear-gradient(90deg, hsl(var(--neon-green)), hsl(var(--hot-orange)), hsl(var(--soft-coral)));
-    --gradient-chrome: linear-gradient(90deg, hsl(var(--soft-coral)) 0%, hsl(var(--hot-orange)) 40%, hsl(var(--neon-green)) 80%);
-    --glow-lime: rgba(0, 255, 133, 0.25);
-    --glow-orange: rgba(255, 106, 61, 0.25);
+    /* Effects - Subtle Grain Texture */
+    --fx-overlay: none;
+    --img-filter: saturate(1) brightness(1);
+    --active-underline: 2px solid hsl(var(--show-accent));
+    --gradient-vignette: radial-gradient(90vw 50vh at 50% 50%, hsl(0 0% 95%) 0%, transparent 100%);
+    --grain-opacity: 0.06;
   }
 
   .dark {
@@ -503,12 +506,26 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    background: hsl(var(--background));
+    background: var(--gradient-vignette), hsl(var(--background));
     min-height: 100vh;
     font-family: var(--font-ui);
     letter-spacing: var(--letter-ui);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    position: relative;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: var(--grain-opacity);
+    pointer-events: none;
+    z-index: 9999;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -518,13 +535,25 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Wordmark - Cereal Social Premium Typography */
+  /* Wordmark - Premium Neo-Y2K Editorial */
   .wordmark {
-    font-family: var(--font-display);
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: 0.1em;
+    font-family: var(--font-accent);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: var(--letter-accent);
     color: hsl(var(--foreground));
+    position: relative;
+    display: inline-block;
+  }
+  
+  .wordmark::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background: hsl(var(--show-accent));
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
@@ -641,10 +670,10 @@ All colors MUST be HSL.
     transform: translateY(-2px);
   }
 
-  /* Cereal Card - Soft & Premium */
+  /* Premium Editorial Card */
   .card-flat {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    border: 1.25px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-1);
     transition: all var(--dur-med) var(--ease-ui);
