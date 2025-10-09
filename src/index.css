@@ -11,7 +11,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Modern Minimal Theme - Instagram/Threads Inspired */
-    --background: 0 0% 94%;         /* Lighter grey */
+    --background: 0 0% 92%;         /* Darker grey */
     --foreground: 0 0% 10%;         /* Near black #1A1A1A */
     --card: 0 0% 100%;              /* White cards */
     --card-foreground: 0 0% 10%;
