@@ -69,6 +69,7 @@ export default {
         display: ['Poppins', 'Rubik', 'system-ui', 'sans-serif'],
         horror: ['Bebas Neue', 'Impact', 'Montserrat', 'sans-serif'],
         retro: ['Inter', 'Rubik', 'sans-serif'],
+        chemistry: ['Oswald', 'Bebas Neue', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",

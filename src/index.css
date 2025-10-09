@@ -224,41 +224,56 @@ All colors MUST be HSL.
 
   .blue_crystal {
     /* Blue Crystal - Breaking Bad */
-    --background: 205 60% 6%;
-    --foreground: 195 100% 95%;
-    --card: 205 55% 10%;
-    --card-foreground: 195 100% 95%;
-    --popover: 205 60% 8%;
-    --popover-foreground: 195 100% 95%;
-    --primary: 195 100% 55%;
-    --primary-foreground: 195 100% 95%;
-    --secondary: 190 100% 72%;
-    --secondary-foreground: 205 55% 10%;
-    --muted: 205 40% 14%;
-    --muted-foreground: 195 30% 72%;
-    --accent: 190 100% 72%;
-    --accent-foreground: 205 55% 10%;
-    --destructive: 350 80% 68%;
-    --destructive-foreground: 195 100% 95%;
-    --border: 205 45% 16%;
-    --input: 205 45% 16%;
-    --ring: 195 100% 55%;
-    --radius: 0.5rem;
+    --background: 195 100% 7%;        /* Deep navy #001A23 */
+    --foreground: 0 0% 95%;           /* White smoke #F2F2F2 */
+    --card: 0 0% 12%;                 /* Charcoal #1E1E1E */
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 190 87% 63%;           /* Crystal blue #4ED9F3 */
+    --primary-foreground: 0 0% 0%;    /* Black text on crystal blue */
+    --secondary: 188 99% 28%;         /* Teal #017E90 */
+    --secondary-foreground: 0 0% 95%;
+    --muted: 195 100% 10%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 69 100% 64%;            /* Acid yellow #E3FF47 */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 190 87% 63%;            /* Crystal blue borders */
+    --input: 0 0% 15%;
+    --ring: 190 87% 63%;
+    --radius: 0.25rem;
 
-    /* Expressive Tokens */
-    --font-display: 'Inter', sans-serif;
-    --letter-display: 0.005em;
-    --radius-sm: 12px;
-    --radius-md: 14px;
-    --radius-lg: 16px;
-    --btn-shape: 14px;
-    --tab-shape: 14px;
-    --shadow-1: 0 6px 24px rgba(25,180,255,.14);
-    --shadow-2: 0 12px 48px rgba(25,180,255,.18);
-    --inner-glow: inset 0 0 1px hsl(190 100% 72%);
-    --active-underline: linear-gradient(90deg,hsl(195 100% 55%),hsl(190 100% 72%));
-    --img-filter: contrast(1.05) saturate(1.08);
-    --fx-overlay: radial-gradient(60vmax 40vmax at 10% 20%, rgba(25,180,255,.10), transparent 60%);
+    /* Extended Palette */
+    --crystal-blue: 190 87% 63%;
+    --teal-dark: 188 99% 28%;
+    --acid-yellow: 69 100% 64%;
+    --desert-sand: 36 29% 64%;
+
+    /* Typography - Chemical Lab Style */
+    --font-display: 'Oswald', 'Bebas Neue', sans-serif;
+    --font-ui: 'Inter', 'Rubik', sans-serif;
+    --letter-display: 0.08em;
+    --font-weight-display: 700;
+    
+    /* Shapes - Sharp Crystal Edges */
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --btn-shape: 2px;
+    --tab-shape: 0px;
+    --stroke-width: 1px;
+    
+    /* Effects - Chemical Glow */
+    --shadow-1: 0 0 20px rgba(78, 217, 243, 0.15);
+    --shadow-2: 0 0 40px rgba(78, 217, 243, 0.25);
+    --inner-glow: inset 0 0 1px hsl(190 87% 63%);
+    --active-underline: linear-gradient(90deg, hsl(190 87% 63%), hsl(188 99% 28%));
+    --img-filter: contrast(1.08) saturate(1.15) brightness(0.95);
+    --fx-overlay: 
+      repeating-linear-gradient(0deg, rgba(78, 217, 243, 0.02) 0px, transparent 1px, transparent 3px),
+      repeating-linear-gradient(90deg, rgba(78, 217, 243, 0.02) 0px, transparent 1px, transparent 3px);
   }
 
   /* CRT Effects */
@@ -309,6 +324,23 @@ All colors MUST be HSL.
   @keyframes flicker {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.8; }
+  }
+
+  @keyframes smoke-drift {
+    0% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.15;
+    }
+    80% {
+      opacity: 0.1;
+    }
+    100% {
+      transform: translateY(-100vh) translateX(20px);
+      opacity: 0;
+    }
   }
 
   /* Hide Lovable Badge */
@@ -372,6 +404,34 @@ All colors MUST be HSL.
   
   .upside_down .wordmark::after {
     bottom: -8px;
+  }
+
+  /* Blue Crystal Wordmark - Breaking Bad Style */
+  .blue_crystal .wordmark {
+    font-family: 'Oswald', 'Bebas Neue', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .blue_crystal .wordmark .element-box {
+    display: inline-block;
+    position: relative;
+    padding: 2px 6px;
+    margin: 0 2px;
+    border: 2px solid hsl(var(--crystal-blue));
+    background: hsl(var(--card));
+    box-shadow: 0 0 10px rgba(78, 217, 243, 0.3);
+  }
+
+  .blue_crystal .wordmark .element-box::before {
+    content: attr(data-number);
+    position: absolute;
+    top: -8px;
+    left: 4px;
+    font-size: 0.6em;
+    color: hsl(var(--crystal-blue));
+    font-weight: 400;
   }
   
   /* Touch-friendly tap targets */
@@ -617,18 +677,81 @@ All colors MUST be HSL.
   }
 
   /* Blue Crystal Theme Specific Effects */
+  .blue_crystal body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: 
+      radial-gradient(ellipse at 20% 80%, rgba(78, 217, 243, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(1, 126, 144, 0.06) 0%, transparent 50%);
+  }
+
+  .blue_crystal body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+    background: 
+      radial-gradient(circle at 10% 90%, rgba(78, 217, 243, 0.15), transparent 30%),
+      radial-gradient(circle at 50% 100%, rgba(78, 217, 243, 0.1), transparent 40%),
+      radial-gradient(circle at 90% 95%, rgba(78, 217, 243, 0.12), transparent 35%);
+    animation: smoke-drift 20s ease-in-out infinite;
+  }
+
   .blue_crystal .card {
-    background: linear-gradient(180deg, rgba(14, 34, 51, 0.65), rgba(14, 34, 51, 0.85));
-    backdrop-filter: blur(9px) saturate(1.1);
-    border: 1px solid hsl(205 45% 16%);
+    background: rgba(30, 30, 30, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--crystal-blue));
     box-shadow: var(--shadow-1), var(--inner-glow);
   }
 
   .blue_crystal .btn-primary,
   .blue_crystal button[class*="bg-primary"] {
-    background: linear-gradient(180deg, rgba(25, 180, 255, 0.95), rgba(14, 34, 51, 0.95));
-    border: 1px solid hsl(195 100% 55%);
-    box-shadow: inset 0 0 0.5px hsl(190 100% 72%), 0 0 12px rgba(25, 180, 255, 0.35);
+    background: hsl(var(--crystal-blue));
+    color: #000000;
+    border: 1px solid hsl(var(--crystal-blue));
+    box-shadow: 0 0 15px rgba(78, 217, 243, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .blue_crystal .btn-primary:hover,
+  .blue_crystal button[class*="bg-primary"]:hover {
+    background: #000000;
+    color: hsl(var(--crystal-blue));
+    border: 1px solid hsl(var(--crystal-blue));
+    box-shadow: 0 0 25px rgba(78, 217, 243, 0.5);
+  }
+
+  .blue_crystal .tab-active {
+    background: transparent;
+    color: hsl(var(--foreground));
+    border-bottom: 3px solid hsl(var(--crystal-blue));
+    box-shadow: 0 3px 15px rgba(78, 217, 243, 0.4);
+  }
+
+  .blue_crystal input:focus,
+  .blue_crystal textarea:focus {
+    border-color: hsl(var(--crystal-blue));
+    box-shadow: 0 0 0 1px hsl(var(--crystal-blue)), 0 0 15px rgba(78, 217, 243, 0.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { 
+      box-shadow: 0 0 0 1px hsl(var(--crystal-blue)), 0 0 15px rgba(78, 217, 243, 0.2);
+    }
+    50% { 
+      box-shadow: 0 0 0 1px hsl(var(--crystal-blue)), 0 0 20px rgba(78, 217, 243, 0.4);
+    }
   }
 
   /* Theme-specific hover animations */
@@ -658,12 +781,12 @@ All colors MUST be HSL.
 
     .blue_crystal .btn-primary:hover,
     .blue_crystal button[class*="bg-primary"]:hover {
-      filter: brightness(1.06);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(78, 217, 243, 0.6);
     }
 
-    .blue_crystal .tab-active {
-      box-shadow: 0 0 10px rgba(25, 180, 255, 0.35);
+    .blue_crystal .card:hover {
+      box-shadow: 0 0 25px rgba(78, 217, 243, 0.25), var(--inner-glow);
     }
   }
 
