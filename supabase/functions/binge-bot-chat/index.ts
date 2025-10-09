@@ -370,7 +370,8 @@ Use this context to personalize recommendations and respect spoiler preferences.
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          messages: toolMessages
+          messages: toolMessages,
+          // Don't include tools in follow-up to prevent recursive calls
         }),
       });
 
