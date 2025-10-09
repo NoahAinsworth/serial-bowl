@@ -73,11 +73,11 @@ function isOutOfScope(text: string): boolean {
 
 const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant. Current date: October 9, 2025.
 
-CRITICAL - ACCURACY REQUIREMENTS:
-- ALWAYS use web search to verify release dates, episode air dates, and current information
-- If you cannot find verified information via search, say "I don't have confirmed information about that" instead of guessing
-- Never state specific dates unless you've verified them through search
-- For upcoming content, clearly indicate it's not yet released if search shows no release date
+CRITICAL - DATA SOURCES:
+- TVDB Database: You will receive verified show data from TVDB when available - ALWAYS prioritize this data over other sources
+- If TVDB data is provided, use it for release dates, episode counts, cast, and other factual information
+- Only use web search for supplemental context or when TVDB data is not available
+- Never contradict TVDB data with guessed information
 
 IMPORTANT - When mentioning shows, seasons, or episodes, ALWAYS wrap them in [brackets]:
 - Shows: [Peacemaker]
@@ -177,8 +177,20 @@ serve(async (req) => {
       );
     }
 
+    // Try to extract show names and fetch TVDB data
+    let tvdbContext = "";
+    try {
+      const showData = await fetchTVDBContextForQuery(userQuery);
+      if (showData) {
+        tvdbContext = `\n\nVERIFIED TVDB DATA:\n${showData}\n\nIMPORTANT: Use this TVDB data as your primary source of truth. Only supplement with web search if needed.`;
+      }
+    } catch (err) {
+      console.error("TVDB context fetch error:", err);
+      // Continue without TVDB data
+    }
+
     // Add user context to system prompt if available
-    let contextualPrompt = SYSTEM_PROMPT;
+    let contextualPrompt = SYSTEM_PROMPT + tvdbContext;
     if (userProfile) {
       contextualPrompt += `\n\nUSER CONTEXT:
 - Spoiler protection: ${userProfile.hide_spoilers ? 'ENABLED - Be very careful about spoilers!' : 'DISABLED - User is okay with spoilers'}
@@ -288,6 +300,83 @@ Use this context to personalize recommendations and respect spoiler preferences.
     );
   }
 });
+
+// Extract potential show names from user query and fetch TVDB data
+async function fetchTVDBContextForQuery(query: string): Promise<string | null> {
+  // Look for show names in quotes or common patterns
+  const quotedMatch = query.match(/"([^"]+)"|'([^']+)'/);
+  const showName = quotedMatch ? (quotedMatch[1] || quotedMatch[2]) : null;
+  
+  // Common question patterns
+  const patterns = [
+    /(?:about|for|of|watch|watching|seen|see)\s+([A-Z][A-Za-z\s&]+?)(?:\?|$|,|\s+season|\s+episode)/i,
+    /^([A-Z][A-Za-z\s&]+?)\s+(?:season|episode|premiered|air|release)/i,
+  ];
+  
+  let extractedShow = showName;
+  if (!extractedShow) {
+    for (const pattern of patterns) {
+      const match = query.match(pattern);
+      if (match && match[1]) {
+        extractedShow = match[1].trim();
+        break;
+      }
+    }
+  }
+  
+  if (!extractedShow) return null;
+  
+  try {
+    // Search TVDB for the show
+    const searchResults = await tvdbFetch(`/search?query=${encodeURIComponent(extractedShow)}&type=series`);
+    if (!searchResults || searchResults.length === 0) return null;
+    
+    const show = searchResults[0];
+    const showId = show.tvdb_id || show.id;
+    
+    // Fetch detailed show info
+    const details = await tvdbFetch(`/series/${showId}/extended`);
+    
+    let context = `Show: ${details.name}\n`;
+    if (details.firstAired) context += `First Aired: ${details.firstAired}\n`;
+    if (details.overview) context += `Overview: ${details.overview}\n`;
+    if (details.status) context += `Status: ${details.status}\n`;
+    if (details.originalNetwork) context += `Network: ${details.originalNetwork}\n`;
+    
+    // Get season/episode info if available
+    if (details.seasons && details.seasons.length > 0) {
+      context += `\nSeasons (${details.seasons.length} total):\n`;
+      for (const season of details.seasons.slice(0, 5)) { // Limit to avoid token overflow
+        context += `- Season ${season.number}: ${season.name || 'Unnamed'}`;
+        if (season.type) context += ` (${season.type.name})`;
+        context += `\n`;
+      }
+    }
+    
+    // Get latest episodes if query is about recent/new episodes
+    if (/latest|new|recent|aired|episode/i.test(query) && details.latestSeason) {
+      try {
+        const episodes = await tvdbFetch(`/series/${showId}/episodes/default?season=${details.latestSeason}`);
+        if (episodes?.episodes && episodes.episodes.length > 0) {
+          context += `\nLatest Season ${details.latestSeason} Episodes:\n`;
+          const recentEps = episodes.episodes.slice(-5); // Last 5 episodes
+          for (const ep of recentEps) {
+            context += `- S${String(details.latestSeason).padStart(2, '0')}E${String(ep.number).padStart(2, '0')}: ${ep.name}`;
+            if (ep.aired) context += ` (Aired: ${ep.aired})`;
+            context += `\n`;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch episodes:", err);
+      }
+    }
+    
+    return context;
+  } catch (err) {
+    console.error("TVDB context fetch error:", err);
+    return null;
+  }
+}
 
 // Extract [bracketed] show names and look them up in TVDB for deep linking
 async function resolveEntitiesWithTVDB(message: string): Promise<any[]> {
