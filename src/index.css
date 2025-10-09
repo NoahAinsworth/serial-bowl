@@ -10,65 +10,63 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Y2K Flat Cartoon Theme */
-    --background: 45 100% 96%;  /* Cream #FFF9E8 */
-    --foreground: 0 0% 0%;      /* Black #000000 */
-    --card: 0 0% 100%;          /* White */
-    --card-foreground: 0 0% 0%; /* Black */
-    --popover: 0 0% 100%;       /* White */
-    --popover-foreground: 0 0% 0%;
-    --primary: 45 100% 69%;     /* Yellow #FFD75E */
-    --primary-foreground: 0 0% 0%;
-    --secondary: 4 100% 69%;    /* Coral #FF6F61 */
-    --secondary-foreground: 0 0% 0%;
-    --muted: 45 100% 92%;       /* Light Cream */
-    --muted-foreground: 0 0% 40%;
-    --accent: 160 100% 85%;     /* Mint #B8FFDA */
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 100% 60%;  /* Red */
+    /* Modern Minimal Theme - Instagram/Threads Inspired */
+    --background: 0 0% 98%;         /* Light grey #FAFAFA */
+    --foreground: 0 0% 10%;         /* Near black #1A1A1A */
+    --card: 0 0% 100%;              /* White cards */
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 330 81% 60%;         /* Pink #E4405F (Instagram pink) */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 100% 50%;       /* Orange #FF6600 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 96%;              /* Very light grey */
+    --muted-foreground: 0 0% 45%;   /* Medium grey */
+    --accent: 214 89% 52%;          /* Blue #3897F0 (Instagram blue) */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0%;          /* Black borders */
-    --input: 0 0% 100%;         /* White */
-    --ring: 45 100% 69%;        /* Yellow */
-    --radius: 1.5rem;
+    --border: 0 0% 93%;             /* Subtle grey border */
+    --input: 0 0% 96%;
+    --ring: 330 81% 60%;
+    --radius: 0.75rem;
 
-    /* Extended Y2K Palette */
-    --yellow: 45 100% 69%;      /* #FFD75E */
-    --coral: 4 100% 69%;        /* #FF6F61 */
-    --lavender: 270 100% 86%;   /* #D7B8FF */
-    --mint: 160 100% 85%;       /* #B8FFDA */
-    --baby-blue: 198 100% 83%;  /* #A6E1FF */
-    --hot-pink: 320 100% 76%;   /* #FF84D0 */
+    /* Extended Modern Palette */
+    --instagram-pink: 330 81% 60%;  /* #E4405F */
+    --vibrant-orange: 24 100% 50%;  /* #FF6600 */
+    --sky-blue: 214 89% 52%;        /* #3897F0 */
+    --soft-grey: 0 0% 96%;          /* #F5F5F5 */
 
-    /* Typography Tokens */
-    --font-ui: 'Nunito Sans', -apple-system, sans-serif;
-    --font-display: 'Poppins', 'Rubik', sans-serif;
-    --font-weight-ui: 600;
-    --font-weight-display: 700;
-    --letter-ui: 0;
-    --letter-display: 0;
+    /* Typography - Clean & Modern */
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    --font-weight-ui: 400;
+    --font-weight-display: 600;
+    --letter-ui: -0.01em;
+    --letter-display: -0.02em;
 
-    /* Shape Tokens - Flat & Rounded */
-    --radius-sm: 20px;
-    --radius-md: 25px;
-    --radius-lg: 30px;
-    --stroke-width: 3px;        /* Thick outlines */
-    --stroke-style: solid;
-    --tab-shape: 25px;
-    --btn-shape: 25px;
+    /* Shape Tokens - Minimal & Clean */
+    --radius-sm: 12px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --stroke-width: 0px;            /* NO borders on cards */
+    --stroke-style: none;
+    --tab-shape: 8px;
+    --btn-shape: 8px;
 
-    /* Elevation Tokens - NO SHADOWS */
-    --shadow-1: none;
-    --shadow-2: none;
+    /* Elevation - Subtle shadows only */
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.08);
     --inner-glow: none;
 
-    /* Motion Tokens */
-    --ease-ui: cubic-bezier(.4,0,.2,1);
+    /* Motion */
+    --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
     --dur-fast: 150ms;
-    --dur-med: 250ms;
-    --dur-slow: 400ms;
+    --dur-med: 200ms;
+    --dur-slow: 300ms;
 
-    /* FX Tokens - Flat Design */
+    /* Effects - Clean minimal */
     --fx-overlay: none;
     --img-filter: none;
     --active-underline: none;
@@ -561,7 +559,7 @@ All colors MUST be HSL.
     font-family: var(--font-display);
     letter-spacing: var(--letter-display);
     font-weight: var(--font-weight-display);
-    text-transform: uppercase;
+    text-transform: none;
   }
 
   /* Wordmark - Bold Geometric Typography */
