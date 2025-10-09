@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// TVDB v4 API client with token
+// TVDB v4 API client
 const TVDB_BASE = "https://api4.thetvdb.com/v4";
 
 async function tvdbFetch(path: string, token: string) {
@@ -54,7 +54,7 @@ async function getSeriesPeople(tvdbId: number, token: string) {
   return data.data || {};
 }
 
-// Scope check for TV-only topics
+// Scope check
 const NON_TV_HINTS = [
   "stocks", "politics", "weather", "sports", "recipe", "medical", "math",
   "programming", "crypto", "finance", "cars", "travel", "news", "history",
@@ -66,7 +66,7 @@ function isOutOfScope(text: string): boolean {
   return NON_TV_HINTS.some(word => lower.includes(word));
 }
 
-// OpenAI Tools for TVDB
+// OpenAI Tools for TVDB + Web Search
 const TOOLS = [
   {
     type: "function",
@@ -84,7 +84,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getShowDetails",
-      description: "Get series details by TVDB id",
+      description: "Get series details by TVDB id - includes air dates, status, genres, network",
       parameters: {
         type: "object",
         properties: { tvdb_id: { type: "integer" } },
@@ -96,7 +96,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getSeasonEpisodes",
-      description: "Get episodes for a season",
+      description: "Get all episodes for a specific season with air dates",
       parameters: {
         type: "object",
         properties: {
@@ -137,19 +137,79 @@ const TOOLS = [
   },
 ];
 
-const SYSTEM_PROMPT = `You are BingeBot: a friendly, helpful TV expert for Serial Bowl.
+const SYSTEM_PROMPT = `You are BingeBotAI, a smart TV show assistant for SerialBowl.
+
+CORE GOALS:
+- Help users discover shows, seasons, episodes, and people
+- Detect entities (show, season, episode, person) and resolve them with TVDB
+- Always wrap entity names in [brackets] for clickable deep-links
+- Provide 3-6 contextual follow-up suggestions as tappable chips
+
+SOURCES & PRIORITY:
+1. Primary: Your knowledge + TVDB for canonical data (IDs, air dates, episode lists)
+2. Cross-check facts; if sources disagree, trust TVDB but mention the discrepancy
+
+SPOILER POLICY (CRITICAL):
+- ALWAYS check user's hide_spoilers setting before answering
+- If hide_spoilers=true:
+  • Redact plot-critical details beyond user's tracked progress
+  • Wrap spoiler content in [SPOILER: content] tags
+  • Never reveal events after user's last_seen_episode
+- If user explicitly asks for spoilers, show them but wrap in [SPOILER: ] tags
+
+SEASON STATUS DETECTION:
+When asked if a season is "out" or "released":
+1. Use getShowDetails + getSeasonEpisodes to check air dates
+2. Determine status based on episode air dates:
+   - "airing" = first episode aired BUT finale hasn't aired yet
+   - "released" = all episodes have aired
+   - "upcoming" = first episode hasn't aired yet
+3. Always include: premiere date, finale date (if known), total episodes, network
+
+TONE & FORMAT:
+- Friendly, concise, helpful (max 5 sentences before follow-ups)
+- Use short sections with bolded micro-headings when needed
+- Wrap every show/season/episode/person name in [brackets] for clickable links
+- Example: "**[Peacemaker]** Season 2 is airing now. Premiered Aug 21, 2025 on Max; finale Oct 9, 2025."
+
+ENTITY LINKING (CRITICAL):
+- Always wrap entity names in brackets: [ShowName], [Season 2], [Episode Title]
+- The UI will convert these to deep links automatically
+- Link format examples:
+  • Show → [One Tree Hill]
+  • Season → [One Tree Hill - Season 2]
+  • Episode → [One Tree Hill - S01E01]
+  • Person → [Chad Michael Murray]
+
+FOLLOW-UP CHIPS:
+- Generate 3-6 contextual next questions after each answer
+- Always include at least one navigational chip ("Open [Show]")
+- Examples:
+  • "Who played Brooke Davis?"
+  • "What season did Lucas leave?"
+  • "Open [One Tree Hill]"
+  • "Best Lucas episodes"
+
+PERSONALIZATION:
+- Use user's favorites, watchlist, and genre preferences when recommending
+- If user has tracked progress, acknowledge it: "Based on your watchlist..."
+- Prioritize shows matching their taste profile
+
+GUARDRAILS:
+- If no TVDB results, ask clarification + show disambiguation chips
+- If TVDB is down, answer from knowledge but mark entities as "unverified"
+- If sources conflict, be transparent: "Based on TVDB and recent coverage..."
+- Never make up air dates or episode counts
 
 SCOPE:
-- Only discuss television: shows, seasons, episodes, air dates, plots (no spoilers unless asked), and celebrity info as it relates to TV.
-- If asked anything non-TV, reply: "I'm here for TV topics only."
-- Use your knowledge as the primary source. Use TVDB tools only when you need to verify specific details like episode numbers or air dates.
-- When mentioning shows, seasons, or episodes, use their exact names clearly for clickable linking.
-- Keep answers concise, upbeat, and conversational.
-- Format episodes as S02E05 when you have that information.
+✓ TV shows, seasons, episodes, actors, streaming platforms
+✓ "What to watch", recommendations, episode guides
+✓ Release dates, cast info, episode summaries
+✓ User's watchlist, favorites, progress tracking
+✗ Movies (redirect to TV equivalent if possible)
+✗ Non-TV topics (politely decline and redirect to TV)
 
-TONE: Friendly, casual, fun, and knowledgeable — like chatting with a friend who loves TV.
-
-IMPORTANT: Do not cite sources or mention where information comes from. Just provide helpful, accurate answers naturally.`;
+Always extract entities from your response so the UI can make them clickable.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -169,21 +229,45 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Get user from auth header
+    // Get user from auth header & fetch profile
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.replace("Bearer ", "");
     
     let user = null;
+    let userProfile: any = null;
+    
     if (token) {
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
       if (!authError && authUser) {
         user = authUser;
+        
+        // Fetch user profile with settings and preferences
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('settings')
+          .eq('id', user.id)
+          .single();
+        
+        const { data: prefs } = await supabase
+          .from('user_prefs')
+          .select('genres, shows')
+          .eq('user_id', user.id)
+          .single();
+        
+        const { data: progress } = await supabase
+          .from('watched')
+          .select('content_id, watched_at')
+          .eq('user_id', user.id)
+          .order('watched_at', { ascending: false })
+          .limit(10);
+        
+        userProfile = {
+          hide_spoilers: profile?.settings?.hide_spoilers ?? true,
+          favorite_genres: prefs?.genres ?? [],
+          favorite_shows: prefs?.shows ?? [],
+          recent_progress: progress ?? []
+        };
       }
-    }
-    
-    // If no valid user, continue anyway for now (can make it required later)
-    if (!user) {
-      console.warn("No authenticated user, proceeding without user context");
     }
 
     // Check for out-of-scope topics
@@ -202,6 +286,18 @@ serve(async (req) => {
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Add user context to system prompt if available
+    let contextualPrompt = SYSTEM_PROMPT;
+    if (userProfile) {
+      contextualPrompt += `\n\nUSER CONTEXT:
+- Spoiler protection: ${userProfile.hide_spoilers ? 'ENABLED - Be very careful about spoilers!' : 'DISABLED - User is okay with spoilers'}
+- Favorite genres: ${userProfile.favorite_genres.join(', ') || 'None set'}
+- Favorite shows: ${userProfile.favorite_shows.join(', ') || 'None set'}
+- Recent activity: User has tracked ${userProfile.recent_progress.length} items recently
+
+Use this context to personalize recommendations and respect spoiler preferences.`;
     }
 
     // Create session if needed (only if user is authenticated)
@@ -232,7 +328,7 @@ serve(async (req) => {
 
     // Call Lovable AI (Gemini) with tools
     const geminiMessages = [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: contextualPrompt },
       ...messages
     ];
 
@@ -323,13 +419,13 @@ serve(async (req) => {
     const assistantMessage = result.choices[0].message.content;
     console.log("Assistant message:", assistantMessage);
 
-    // Generate follow-up suggestions based on user question
-    const followUps = generateFollowUps(userQuery);
+    // Generate follow-up suggestions based on user question and context
+    const followUps = generateFollowUps(userQuery, assistantMessage);
 
-    // Extract entities from the response
-    const entities: any[] = [];
+    // Extract entities from the response (parse [brackets])
+    const entities = extractEntities(assistantMessage);
 
-    // Save assistant message (no source attribution, only if we have a session)
+    // Save assistant message (only if we have a session)
     if (actualSessionId) {
       await supabase.from("chat_messages").insert({
         session_id: actualSessionId,
@@ -356,35 +452,100 @@ serve(async (req) => {
   }
 });
 
+// Helper to extract entities from [bracketed] text
+function extractEntities(message: string): any[] {
+  const entities: any[] = [];
+  const bracketRegex = /\[([^\]]+)\]/g;
+  const matches = [...message.matchAll(bracketRegex)];
+  
+  matches.forEach(match => {
+    const entityName = match[1];
+    
+    // Determine type based on patterns
+    let type: "show" | "season" | "episode" | "person" = "show";
+    
+    if (/S\d{2}E\d{2}/i.test(entityName)) {
+      type = "episode";
+    } else if (/Season \d+/i.test(entityName)) {
+      type = "season";
+    } else if (/\s-\s/.test(entityName) && entityName.split(' - ').length === 2) {
+      // Could be "ShowName - Season X" or "ShowName - S01E01"
+      if (/Season \d+/i.test(entityName.split(' - ')[1])) {
+        type = "season";
+      } else if (/S\d{2}E\d{2}/i.test(entityName.split(' - ')[1])) {
+        type = "episode";
+      }
+    }
+    
+    entities.push({
+      type,
+      name: entityName,
+      // In a full implementation, we'd look these up from TVDB
+      // For now, we'll rely on the frontend handling navigation
+    });
+  });
+  
+  return entities;
+}
+
 // Helper to generate contextual follow-ups
-function generateFollowUps(lastQ: string): string[] {
+function generateFollowUps(lastQ: string, assistantMsg: string): string[] {
   const lower = lastQ.toLowerCase();
+  const msgLower = assistantMsg.toLowerCase();
+  
+  // Extract show names from brackets in the response
+  const showMatches = [...assistantMsg.matchAll(/\[([^\]]+)\]/g)];
+  const firstShow = showMatches.length > 0 ? showMatches[0][1] : null;
   
   if (/who played|actor|actress|cast/i.test(lower)) {
     return [
       "Who else was in that show?",
-      "When did they first appear?",
-      "What other shows were they in?"
+      firstShow ? `Open [${firstShow}]` : "Tell me more about the show",
+      "What other shows were they in?",
+      "Best episodes featuring this character"
     ];
   }
+  
   if (/(what|which) episode|episode where/i.test(lower)) {
     return [
       "List all season episodes",
       "Give a spoiler-free summary",
-      "Who guest-starred in that episode?"
+      "Who guest-starred in that episode?",
+      firstShow ? `Open [${firstShow}]` : "Tell me about the show"
     ];
   }
+  
   if (/season/i.test(lower)) {
     return [
       "How many episodes in that season?",
       "When did that season air?",
-      "Who joined the cast in that season?"
+      "Who joined the cast in that season?",
+      firstShow ? `Open [${firstShow}]` : "List all seasons"
+    ];
+  }
+  
+  if (/is.*out|release|premiere|airing/i.test(lower)) {
+    return [
+      "List all episodes",
+      "When does the finale air?",
+      firstShow ? `Open [${firstShow}]` : "Tell me more",
+      "Set a reminder for new episodes"
+    ];
+  }
+  
+  if (firstShow) {
+    return [
+      `Open [${firstShow}]`,
+      `Who's in [${firstShow}]?`,
+      `Best episodes of [${firstShow}]`,
+      `When did [${firstShow}] premiere?`
     ];
   }
   
   return [
     "Search for a TV show",
-    "Tell me about <show name>",
+    "What's trending right now?",
+    "Recommend a thriller series",
     "Who played <character>?"
   ];
 }

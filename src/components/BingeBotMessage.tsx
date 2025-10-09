@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown, AlertTriangle, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface Entity {
-  type: "show" | "season" | "episode";
+  type: "show" | "season" | "episode" | "person";
   name: string;
   id?: string;
   externalId?: string;
@@ -51,87 +51,83 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
   };
 
   const renderContentWithLinks = () => {
-    if (!entities || entities.length === 0) {
-      return <p className="text-sm whitespace-pre-wrap">{content}</p>;
-    }
-
+    // Parse content with [brackets] for entity links and [SPOILER: text] for spoilers
     let processedContent = content;
-    const links: { text: string; entity: Entity; start: number; end: number }[] = [];
-
-    // Find all entity mentions in the content
-    entities.forEach((entity) => {
-      // For episodes, match patterns like "S06E24", "**S06E24 - 'Title'**", etc.
-      if (entity.type === "episode" && entity.name.match(/S\d{2}E\d{2}/i)) {
-        const episodeCode = entity.name.match(/S\d{2}E\d{2}/i)?.[0];
-        if (episodeCode) {
-          // Match the episode code with optional markdown and title
-          const episodeRegex = new RegExp(`\\*{0,2}(${episodeCode}[^*]*?)\\*{0,2}(?=\\s|$|\\()`, 'gi');
-          let match;
-          while ((match = episodeRegex.exec(processedContent)) !== null) {
-            links.push({
-              text: match[1],
-              entity,
-              start: match.index,
-              end: match.index + match[1].length,
-            });
-          }
-        }
-      } else {
-        // For shows and other entities, match the name (strip markdown)
-        const cleanName = entity.name.replace(/\*/g, '');
-        const regex = new RegExp(`\\*{0,2}\\b${cleanName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b\\*{0,2}`, 'gi');
-        let match;
-        while ((match = regex.exec(processedContent)) !== null) {
-          links.push({
-            text: match[0].replace(/\*/g, ''),
-            entity,
-            start: match.index,
-            end: match.index + match[0].length,
-          });
-        }
-      }
-    });
-
-    // Remove overlapping links (keep longer ones)
-    const filteredLinks = links.filter((link, i) => {
-      return !links.some((other, j) => {
-        if (i === j) return false;
-        return other.start <= link.start && other.end >= link.end && (other.end - other.start) > (link.end - link.start);
-      });
-    });
-
-    // Sort by position (reverse) to replace from end to start
-    filteredLinks.sort((a, b) => b.start - a.start);
-
-    if (filteredLinks.length === 0) {
-      return <p className="text-sm whitespace-pre-wrap">{content}</p>;
-    }
-
-    // Split content into parts with clickable links
     const parts: (string | JSX.Element)[] = [];
-    let lastIndex = processedContent.length;
-
-    filteredLinks.forEach((link, i) => {
-      // Add text after this link
-      parts.unshift(processedContent.substring(link.end, lastIndex));
+    let lastIndex = 0;
+    let keyCounter = 0;
+    
+    // Combined regex for both brackets and spoilers
+    const combinedRegex = /(\[SPOILER:\s*([^\]]+)\])|(\[([^\]]+)\])/g;
+    let match;
+    
+    while ((match = combinedRegex.exec(content)) !== null) {
+      // Add text before this match
+      if (match.index > lastIndex) {
+        parts.push(content.substring(lastIndex, match.index));
+      }
       
-      // Add clickable link
-      parts.unshift(
-        <button
-          key={`link-${i}`}
-          onClick={() => onEntityClick(link.entity)}
-          className="text-primary underline hover:text-primary/80 font-medium cursor-pointer"
-        >
-          {link.text}
-        </button>
-      );
+      if (match[1]) {
+        // Spoiler match
+        const spoilerText = match[2];
+        const SpoilerReveal = () => {
+          const [revealed, setRevealed] = useState(false);
+          
+          return (
+            <span className="inline-flex items-center">
+              {!revealed ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 text-xs px-2 mx-1"
+                  onClick={() => setRevealed(true)}
+                >
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  Tap to reveal spoiler
+                </Button>
+              ) : (
+                <span className="text-foreground bg-muted px-2 py-0.5 rounded mx-1">
+                  {spoilerText}
+                </span>
+              )}
+            </span>
+          );
+        };
+        
+        parts.push(<SpoilerReveal key={`spoiler-${keyCounter++}`} />);
+      } else if (match[3]) {
+        // Entity link match
+        const entityName = match[4];
+        
+        // Try to find matching entity
+        const matchingEntity = entities?.find(e => 
+          e.name === entityName
+        ) || {
+          type: "show" as const,
+          name: entityName
+        };
+        
+        parts.push(
+          <Button
+            key={`entity-${keyCounter++}`}
+            variant="link"
+            className="inline-flex items-center gap-1 p-0 h-auto font-semibold text-primary hover:underline"
+            onClick={() => onEntityClick(matchingEntity)}
+          >
+            {entityName}
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        );
+      }
       
-      lastIndex = link.start;
-    });
-
-    // Add remaining text before first link
-    parts.unshift(processedContent.substring(0, lastIndex));
-
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push(content.substring(lastIndex));
+    }
+    
     return <p className="text-sm whitespace-pre-wrap">{parts}</p>;
   };
 
