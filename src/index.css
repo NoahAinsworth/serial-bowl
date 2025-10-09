@@ -825,9 +825,17 @@ All colors MUST be HSL.
       transform: translateY(-1px);
     }
     
-    .upside_down .card:hover {
-      box-shadow: none;
-    }
+  .upside_down .card:hover {
+    box-shadow: none;
+  }
+  
+  /* Thicker red outline for show cards in upside down mode */
+  .upside_down img,
+  .upside_down [class*="aspect-ratio"],
+  .upside_down .card {
+    outline: 3px solid #C00000;
+    outline-offset: -3px;
+  }
   }
 
   /* Reduced motion preference */
