@@ -39,10 +39,10 @@ export default function Index() {
 
   const currentFeed = getFeedForTab();
   
-  // Pull to refresh for current feed
+  // Pull to refresh for current feed - temporarily disabled
   const { isRefreshing } = usePullToRefresh({ 
     onRefresh: async () => currentFeed.refetch(),
-    disabled: currentFeed.loading,
+    disabled: true, // Disabled to fix hook error
   });
 
   const renderPost = (post: any) => {
