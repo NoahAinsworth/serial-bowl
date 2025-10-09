@@ -71,6 +71,9 @@ export default {
         "neon-green": "hsl(var(--neon-green))",
         "electric-lime": "hsl(var(--electric-lime))",
         "button-highlight": "hsl(var(--button-highlight))",
+        "cereal-orange": "hsl(var(--cereal-orange))",
+        "soft-red": "hsl(var(--soft-red))",
+        "light-teal": "hsl(var(--light-teal))",
       },
       fontFamily: {
         sans: ['Inter', 'Nunito Sans', 'system-ui', 'sans-serif'],
@@ -79,6 +82,7 @@ export default {
         cartoon: ['Baloo 2', 'Fredoka One', 'cursive'],
         cyber: ['Orbitron', 'Satoshi', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
+        label: ['Space Grotesk', 'Inter', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",
@@ -155,6 +159,15 @@ export default {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
+        "holographic-shimmer": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "reaction-pulse": {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.15)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -168,6 +181,8 @@ export default {
         "logo-shimmer": "logo-shimmer 3s ease-in-out infinite",
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
         "holographic-rotate": "holographic-rotate 4s linear infinite",
+        "holographic-shimmer": "holographic-shimmer 3s ease-in-out infinite",
+        "reaction-pulse": "reaction-pulse 0.3s ease-out",
       },
     },
   },

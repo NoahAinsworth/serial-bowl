@@ -10,72 +10,72 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Cereal Social Theme - Premium Nostalgic UX */
-    --background: 36 100% 98%;      /* Cream White #FFF9F2 */
-    --foreground: 0 0% 12%;         /* Text Primary #1E1E1E */
-    --card: 0 0% 100%;              /* White cards */
-    --card-foreground: 0 0% 12%;
+    /* Default - Premium Hybrid (Apple × Y2K × Cereal) */
+    --background: 0 0% 97%;          /* Soft light grey #F7F7F7 */
+    --foreground: 0 0% 10%;          /* Text Primary #1A1A1A */
+    --card: 0 0% 100%;               /* Pure white #FFFFFF */
+    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 12%;
-    --primary: 30 100% 63%;         /* Cereal Orange #FF9F40 */
-    --primary-foreground: 0 0% 12%;
-    --secondary: 48 100% 76%;       /* Pastel Yellow #FFE785 */
-    --secondary-foreground: 0 0% 12%;
-    --muted: 36 100% 98%;           /* Cream background */
-    --muted-foreground: 0 0% 42%;   /* Text Secondary #6B6B6B */
-    --accent: 198 100% 84%;         /* Baby Blue #AEE6FF */
-    --accent-foreground: 0 0% 12%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 18 100% 58%;          /* Cereal Orange #FF7B29 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 10 100% 77%;        /* Soft Red #FF9B8A */
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 97%;
+    --muted-foreground: 0 0% 42%;    /* Text Secondary #6A6A6A */
+    --accent: 158 100% 50%;          /* Electric Lime #00FF85 */
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.06;       /* Soft border rgba(0,0,0,0.06) */
+    --border: 0 0% 0% / 0.05;        /* rgba(0,0,0,0.05) */
     --input: 0 0% 100%;
-    --ring: 30 100% 63%;
-    --radius: 1.5rem;
+    --ring: 18 100% 58%;
+    --radius: 1.125rem;
 
-    /* Extended Cereal Palette */
-    --cereal-orange: 30 100% 63%;   /* #FF9F40 */
-    --pastel-yellow: 48 100% 76%;   /* #FFE785 */
-    --baby-blue: 198 100% 84%;      /* #AEE6FF */
-    --strawberry-pink: 343 100% 83%;/* #FFA6C1 */
-    --mint-green: 148 100% 86%;     /* #B8FFD9 */
+    /* Extended Premium Palette */
+    --cereal-orange: 18 100% 58%;    /* #FF7B29 */
+    --soft-red: 10 100% 77%;         /* #FF9B8A */
+    --electric-lime: 158 100% 50%;   /* #00FF85 */
+    --light-teal: 162 100% 89%;      /* #C6FFF2 */
+    --neon-glow: 158 100% 50% / 0.15;
 
-    /* Typography - Cinematic & Premium */
-    --font-ui: 'Inter', 'Nunito Sans', -apple-system, sans-serif;
-    --font-display: 'DM Sans', 'Poppins', -apple-system, sans-serif;
-    --font-button: 'Poppins', sans-serif;
-    --font-weight-ui: 400;
-    --font-weight-display: 600;
-    --font-weight-button: 500;
+    /* Typography - Premium & Clean */
+    --font-ui: 'Inter', 'Poppins', -apple-system, sans-serif;
+    --font-display: 'DM Sans', 'Satoshi', -apple-system, sans-serif;
+    --font-label: 'Space Grotesk', 'Inter', sans-serif;
+    --font-weight-ui: 500;
+    --font-weight-display: 700;
+    --font-weight-label: 500;
     --letter-ui: 0em;
-    --letter-display: 0.1em;
+    --letter-display: 0.02em;
 
-    /* Shape Tokens - Rounded & Soft */
-    --radius-sm: 15px;
-    --radius-md: 25px;
-    --radius-lg: 30px;
+    /* Shape Tokens - Clean Geometry */
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
     --stroke-width: 1px;
     --stroke-style: solid;
-    --tab-shape: 50px;              /* Pill tabs */
-    --btn-shape: 20px;
+    --tab-shape: 18px;
+    --btn-shape: 12px;
 
-    /* Elevation - Soft Shadows */
+    /* Elevation - Soft & Premium */
     --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.04);
     --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 8px 24px rgba(255, 159, 64, 0.15);
-    --inner-glow: none;
+    --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 255, 133, 0.2);
+    --inner-glow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
 
-    /* Motion - Smooth & Organic */
+    /* Motion - Smooth & Cinematic */
     --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --dur-fast: 100ms;
-    --dur-med: 200ms;
-    --dur-slow: 300ms;
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-fast: 150ms;
+    --dur-med: 250ms;
+    --dur-slow: 400ms;
 
-    /* Effects - Premium & Subtle */
-    --fx-overlay: none;
-    --img-filter: none;
-    --active-underline: none;
-    --gradient-pastel: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--mint-green)));
+    /* Effects - Subtle Futurism */
+    --fx-overlay: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
+    --img-filter: saturate(1.02) contrast(1.01);
+    --active-underline: linear-gradient(90deg, transparent, hsl(var(--electric-lime)), transparent);
+    --gradient-premium: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--soft-red)));
   }
 
   .dark {
@@ -516,13 +516,27 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Wordmark - Cereal Social Premium Typography */
+  /* Wordmark - Premium Default Typography */
   .wordmark {
     font-family: var(--font-display);
     font-weight: 700;
     text-transform: none;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.02em;
     color: hsl(var(--foreground));
+    position: relative;
+  }
+
+  /* Orange dot accent on "i" */
+  .wordmark::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: hsl(var(--cereal-orange));
+    border-radius: 50%;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
@@ -639,41 +653,55 @@ All colors MUST be HSL.
     transform: translateY(-2px);
   }
 
-  /* Cereal Card - Soft & Premium */
+  /* Premium Default Card */
   .card-flat {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-1), var(--inner-glow);
     transition: all var(--dur-med) var(--ease-ui);
   }
 
   .card-flat:hover {
     transform: translateY(-2px) scale(1.01);
     box-shadow: var(--shadow-hover);
+    border-color: hsl(var(--electric-lime) / 0.3);
   }
 
-  /* Pill Tabs - Cereal Social */
+  /* Premium Default Tabs */
   .tab-active {
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
+    background: var(--gradient-premium);
+    color: white;
     border-radius: var(--tab-shape);
     box-shadow: var(--shadow-1);
-    font-family: var(--font-button);
-    font-weight: var(--font-weight-button);
+    font-family: var(--font-label);
+    font-weight: var(--font-weight-label);
+    position: relative;
+  }
+
+  .tab-active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: var(--active-underline);
+    border-radius: 2px;
   }
 
   .tab-inactive {
-    background: hsl(var(--card));
+    background: transparent;
     color: hsl(var(--muted-foreground));
     border: 1px solid hsl(var(--border));
     border-radius: var(--tab-shape);
-    font-family: var(--font-button);
-    font-weight: var(--font-weight-button);
+    font-family: var(--font-label);
+    font-weight: var(--font-weight-label);
   }
 
   .tab-inactive:hover {
     background: hsl(var(--muted));
+    border-color: hsl(var(--cereal-orange) / 0.3);
     color: hsl(var(--foreground));
   }
 
@@ -688,21 +716,22 @@ All colors MUST be HSL.
 
   /* No gradient text - solid colors only */
 
-  /* Cereal Button - Soft & Rounded */
+  /* Premium Default Button */
   .btn-flat {
     transition: all var(--dur-med) var(--ease-ui);
     border-radius: var(--btn-shape);
-    font-family: var(--font-button);
-    font-weight: var(--font-weight-button);
+    font-family: var(--font-label);
+    font-weight: var(--font-weight-label);
   }
 
   .btn-flat:hover {
-    transform: scale(1.05);
-    box-shadow: var(--shadow-2);
+    transform: scale(1.02);
+    box-shadow: var(--shadow-2), 0 0 0 1px hsl(var(--electric-lime) / 0.2);
   }
 
   .btn-flat:active {
-    transform: scale(1.02);
+    transform: scale(0.98);
+    box-shadow: var(--inner-glow);
   }
 
   /* Pill Shape */
@@ -742,10 +771,10 @@ All colors MUST be HSL.
     letter-spacing: -0.02em;
   }
 
-  /* Cereal Social Component Styling */
+  /* Premium Default Component Styling */
   .card {
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-1), var(--inner-glow);
     border: 1px solid hsl(var(--border));
     transition: all var(--dur-med) var(--ease-ui);
   }
@@ -1055,8 +1084,73 @@ All colors MUST be HSL.
     }
     50% { 
       box-shadow: 0 0 15px rgba(0, 255, 133, 0.6), 0 0 25px rgba(0, 255, 133, 0.3);
+  }
+
+  /* Default Theme - Category Borders */
+  :root [data-type="thought"] {
+    border-left: 3px solid hsl(var(--electric-lime));
+  }
+
+  :root [data-type="review"] {
+    border-left: 3px solid hsl(var(--cereal-orange));
+  }
+
+  :root [data-type="trending"] {
+    border-left: 3px solid hsl(var(--soft-red));
+  }
+
+  /* Default Theme - Profile Ring Gradient */
+  :root .profile-ring {
+    border: 2px solid transparent;
+    background: 
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--electric-lime))) border-box;
+    box-shadow: 0 0 12px rgba(255, 123, 41, 0.15);
+  }
+
+  /* Default Theme - Holographic Shimmer */
+  @keyframes holographic-shimmer {
+    0%, 100% { 
+      background-position: 0% 50%;
+    }
+    50% { 
+      background-position: 100% 50%;
     }
   }
+
+  :root .shimmer-effect {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0, 255, 133, 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: holographic-shimmer 3s ease-in-out infinite;
+  }
+
+  /* Default Theme - Premium Input Focus */
+  :root input:focus,
+  :root textarea:focus {
+    border-color: hsl(var(--electric-lime) / 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+  }
+
+  /* Default Theme - Reaction Pulse */
+  :root button[aria-label*="like"]:active,
+  :root button[aria-label*="comment"]:active {
+    animation: reaction-pulse 0.3s ease-out;
+  }
+
+  @keyframes reaction-pulse {
+    0% { transform: scale(1); }
+    50% { 
+      transform: scale(1.15);
+      box-shadow: 0 0 15px rgba(255, 123, 41, 0.3), 0 0 25px rgba(0, 255, 133, 0.2);
+    }
+    100% { transform: scale(1); }
+  }
+}
 
   @keyframes wireframe-dissolve {
     0% { opacity: 0; transform: scale(0.95); }
