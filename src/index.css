@@ -553,7 +553,24 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Wordmark - Premium Neo-Y2K Editorial */
+  /* Cinematic wordmark styling - only for main themes */
+  :root .wordmark,
+  .dark .wordmark {
+    font-family: var(--font-accent);
+    font-weight: 700;
+    text-transform: lowercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--foreground));
+    position: relative;
+    display: inline-block;
+  }
+  
+  :root .wordmark::after,
+  .dark .wordmark::after {
+    display: none;
+  }
+
+  /* Generic wordmark for other themes */
   .wordmark {
     font-family: var(--font-accent);
     font-weight: 800;
