@@ -13,10 +13,10 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
+import { extractDominantColor } from '@/lib/colorExtractor';
 
 export default function ShowDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +31,7 @@ export default function ShowDetailPage() {
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
+  const [accentColor, setAccentColor] = useState('152 100% 40%'); // Default emerald
 
   useEffect(() => {
     if (id) {
@@ -42,6 +43,18 @@ export default function ShowDetailPage() {
     const showData = await fetchShow(showId);
     if (showData) {
       setShow(showData);
+      
+      // Extract dominant color from poster
+      if (showData.image) {
+        try {
+          const color = await extractDominantColor(showData.image);
+          setAccentColor(color);
+          // Set CSS variable for dynamic theming
+          document.documentElement.style.setProperty('--show-accent', color);
+        } catch (error) {
+          console.error('Failed to extract color:', error);
+        }
+      }
       
       // Fetch seasons
       const seasonsData = await fetchSeasons(showId);
@@ -165,17 +178,31 @@ export default function ShowDetailPage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
-      <Card className="p-6">
+      <Card 
+        className="p-6 transition-all duration-500"
+        style={{
+          background: `linear-gradient(135deg, hsl(var(--card)) 0%, hsl(${accentColor} / 0.08) 100%)`,
+          borderColor: `hsl(${accentColor} / 0.2)`,
+        }}
+      >
         <div className="flex flex-col md:flex-row gap-6">
           {show.image && (
             <img
               src={show.image}
               alt={show.name}
               className="w-full md:w-48 h-auto md:h-72 object-cover rounded-lg"
+              style={{
+                boxShadow: `0 4px 20px hsl(${accentColor} / 0.3)`,
+              }}
             />
           )}
             <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2 neon-glow">{show.name}</h1>
+              <h1 
+                className="text-3xl font-bold mb-2"
+                style={{ color: `hsl(${accentColor})` }}
+              >
+                {show.name}
+              </h1>
               <p className="text-muted-foreground mb-4">{show.overview}</p>
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-2">
@@ -197,7 +224,13 @@ export default function ShowDetailPage() {
       </Card>
 
       {contentId && (
-        <Card className="p-6">
+        <Card 
+          className="p-6 transition-all duration-500"
+          style={{
+            background: `linear-gradient(135deg, hsl(var(--card)) 0%, hsl(${accentColor} / 0.05) 100%)`,
+            borderColor: `hsl(${accentColor} / 0.15)`,
+          }}
+        >
           <PostTypeSelector 
             onReviewClick={() => {
               setPostType('review');
@@ -232,7 +265,16 @@ export default function ShowDetailPage() {
           {seasons.filter(season => season.number !== 0).map((season) => (
             <Card
               key={season.id}
-              className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
+              className="p-4 cursor-pointer transition-all hover-scale"
+              style={{
+                borderColor: `hsl(${accentColor} / 0.15)`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = `hsl(${accentColor} / 0.5)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = `hsl(${accentColor} / 0.15)`;
+              }}
               onClick={() => navigate(`/show/${id}/season/${season.number}`)}
             >
               <h3 className="font-semibold text-center">{season.name}</h3>
