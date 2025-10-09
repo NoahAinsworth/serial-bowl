@@ -5,12 +5,12 @@ import { PercentRating } from '@/components/PercentRating';
 import { EpisodeCheckbox } from '@/components/EpisodeCheckbox';
 import { ReviewsList } from '@/components/ReviewsList';
 import { ThoughtsList } from '@/components/ThoughtsList';
-import { useTVDB, TVEpisode, TVShow } from '@/hooks/useTVDB';
+import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useLiveAccentLighting } from '@/hooks/useLiveAccentLighting';
+
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
@@ -20,31 +20,19 @@ export default function SeasonDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { loading, fetchEpisodes, fetchShow } = useTVDB();
+  const { loading, fetchEpisodes } = useTVDB();
   
-  const [show, setShow] = useState<TVShow | null>(null);
   const [episodes, setEpisodes] = useState<TVEpisode[]>([]);
   const [userRating, setUserRating] = useState(0);
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
-  
-  // Enable Live Accent Lighting based on show poster
-  useLiveAccentLighting(show?.image, !!show);
 
   useEffect(() => {
     if (showId && seasonNumber) {
-      loadShow(parseInt(showId));
       loadEpisodes(parseInt(showId), parseInt(seasonNumber));
     }
   }, [showId, seasonNumber]);
-  
-  const loadShow = async (seriesId: number) => {
-    const showData = await fetchShow(seriesId);
-    if (showData) {
-      setShow(showData);
-    }
-  };
 
   const loadEpisodes = async (seriesId: number, season: number) => {
     const episodesData = await fetchEpisodes(seriesId, season);
