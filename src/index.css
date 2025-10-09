@@ -218,8 +218,8 @@ All colors MUST be HSL.
     --radius-lg: 24px;
     --btn-shape: 20px;
     --tab-shape: 16px;
-    --stroke-width: 2.5px;
-    --stroke-style: solid;
+    --stroke-width: 0px;
+    --stroke-style: none;
     --shadow-1: 0 6px 0 rgba(0,0,0,.08), 0 12px 22px rgba(0,0,0,.10);
     --shadow-2: 0 10px 0 rgba(0,0,0,.10), 0 20px 36px rgba(0,0,0,.12);
     --active-underline: linear-gradient(90deg,hsl(335 97% 72%),hsl(39 100% 70%),hsl(196 98% 42%));
@@ -268,7 +268,7 @@ All colors MUST be HSL.
     --radius-lg: 6px;
     --btn-shape: 2px;
     --tab-shape: 0px;
-    --stroke-width: 1px;
+    --stroke-width: 0px;
     
     /* Effects - Chemical Glow */
     --shadow-1: 0 0 20px rgba(78, 217, 243, 0.15);
@@ -327,7 +327,7 @@ All colors MUST be HSL.
     --radius-lg: 30px;
     --btn-shape: 25px;
     --tab-shape: 25px;
-    --stroke-width: 2px;
+    --stroke-width: 0px;
     
     /* Effects - Clean without glow */
     --shadow-1: 0 4px 16px rgba(0, 0, 0, 0.2);
