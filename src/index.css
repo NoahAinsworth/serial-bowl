@@ -11,9 +11,9 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Y2K Flat Cartoon Theme */
-    --background: 45 100% 96%;  /* Cream #FFF9E8 */
+    --background: 0 0% 100%;    /* White */
     --foreground: 0 0% 0%;      /* Black #000000 */
-    --card: 0 0% 100%;          /* White */
+    --card: 0 0% 98%;           /* Off-white */
     --card-foreground: 0 0% 0%; /* Black */
     --popover: 0 0% 100%;       /* White */
     --popover-foreground: 0 0% 0%;
@@ -21,7 +21,7 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 0%;
     --secondary: 4 100% 69%;    /* Coral #FF6F61 */
     --secondary-foreground: 0 0% 0%;
-    --muted: 45 100% 92%;       /* Light Cream */
+    --muted: 0 0% 96%;          /* Light gray */
     --muted-foreground: 0 0% 40%;
     --accent: 160 100% 85%;     /* Mint #B8FFDA */
     --accent-foreground: 0 0% 0%;
@@ -38,7 +38,7 @@ All colors MUST be HSL.
     --lavender: 270 100% 86%;   /* #D7B8FF */
     --mint: 160 100% 85%;       /* #B8FFDA */
     --baby-blue: 198 100% 83%;  /* #A6E1FF */
-    --hot-pink: 320 100% 76%;   /* #FF84D0 */
+    --hot-pink: 270 70% 60%;    /* Purple #A855F7 */
 
     /* Typography Tokens */
     --font-ui: 'Nunito Sans', -apple-system, sans-serif;
