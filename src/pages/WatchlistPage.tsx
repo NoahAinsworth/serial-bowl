@@ -637,7 +637,7 @@ export default function WatchlistPage() {
                           {isInWatched(show.id || show.tvdb_id) ? (
                             <><Check className="h-3 w-3 mr-1" /> Watched</>
                           ) : (
-                            <><Plus className="h-3 w-3 mr-1" /> Watch</>
+                            <><Plus className="h-3 w-3 mr-1" /> Watched</>
                           )}
                         </Button>
                       </div>
