@@ -324,10 +324,10 @@ All colors MUST be HSL.
     --tab-shape: 25px;
     --stroke-width: 2px;
     
-    /* Effects - Glassmorphism with neon glow */
-    --shadow-1: 0 8px 32px rgba(78, 217, 243, 0.15);
-    --shadow-2: 0 12px 48px rgba(78, 217, 243, 0.25);
-    --inner-glow: inset 0 0 20px rgba(190, 100, 67, 0.1);
+    /* Effects - Clean without glow */
+    --shadow-1: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.3);
+    --inner-glow: none;
     --glass-blur: blur(16px);
     --active-underline: linear-gradient(90deg, hsl(325 100% 85%), hsl(190 100% 67%), hsl(265 100% 86%));
     --img-filter: saturate(1.1) contrast(1.05);
@@ -577,7 +577,6 @@ All colors MUST be HSL.
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 20px rgba(255, 184, 232, 0.4);
     position: relative;
   }
 
@@ -922,7 +921,7 @@ All colors MUST be HSL.
 
   .neo_y2k .card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-2), 0 0 40px rgba(255, 184, 232, 0.15);
+    box-shadow: var(--shadow-2);
     border-color: hsl(var(--neo-pink) / 0.5);
   }
 
@@ -931,7 +930,7 @@ All colors MUST be HSL.
     background: hsl(var(--neo-electric));
     color: hsl(var(--background));
     border: none;
-    box-shadow: 0 4px 20px rgba(78, 217, 243, 0.3);
+    box-shadow: none;
     transition: all 0.3s ease;
   }
 
@@ -939,20 +938,20 @@ All colors MUST be HSL.
   .neo_y2k button[class*="bg-primary"]:hover {
     background: hsl(var(--neo-pink));
     color: hsl(var(--background));
-    box-shadow: 0 6px 30px rgba(255, 184, 232, 0.4);
+    box-shadow: none;
     transform: translateY(-2px);
   }
 
   .neo_y2k .tab-active {
     background: hsl(var(--neo-pink));
     color: hsl(var(--background));
-    box-shadow: 0 0 20px rgba(255, 184, 232, 0.4);
+    box-shadow: none;
   }
 
   .neo_y2k input:focus,
   .neo_y2k textarea:focus {
     border-color: hsl(var(--neo-electric));
-    box-shadow: 0 0 0 2px hsl(var(--neo-electric) / 0.2), 0 0 20px rgba(78, 217, 243, 0.2);
+    box-shadow: 0 0 0 2px hsl(var(--neo-electric) / 0.2);
   }
 
   /* Neo Y2K Floating Effect */
@@ -967,7 +966,7 @@ All colors MUST be HSL.
 
   .neo_y2k .avatar,
   .neo_y2k .profile-picture {
-    box-shadow: 0 0 30px rgba(255, 184, 232, 0.3);
+    box-shadow: none;
     border: 3px solid hsl(var(--neo-pink) / 0.5);
   }
 
