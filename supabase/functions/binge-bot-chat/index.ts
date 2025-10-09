@@ -75,15 +75,17 @@ const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant. Current d
 
 Use your knowledge and web search to answer questions about TV shows accurately.
 
-When mentioning shows, seasons, or episodes, wrap them in [brackets] so they become clickable links:
+IMPORTANT - When mentioning shows, seasons, or episodes, ALWAYS wrap them in [brackets]:
 - Shows: [Peacemaker]
 - Seasons: [Peacemaker Season 2]
-- Episodes: [Peacemaker S02E01]
+- Episodes: [Peacemaker S02E01] or [Peacemaker S02E05 - Monkey Dory]
+
+This makes them clickable so users can navigate to those pages in the app.
 
 Keep responses concise (2-4 sentences) and provide 3-5 relevant follow-up suggestions.
 
 Example:
-"Yes! [Peacemaker] Season 2 premiered on August 21, 2025 on Max. The season has 8 episodes and features John Cena returning as Christopher Smith."
+"Yes! [Peacemaker] Season 2 premiered on August 21, 2025 on Max. Episode 1 [Peacemaker S02E01] sets up a great arc. The season has 8 episodes total."
 
 Follow-ups: ["Who's in the cast?", "Episode guide", "When's the finale?", "Open [Peacemaker]"]`;
 
@@ -297,14 +299,16 @@ async function resolveEntitiesWithTVDB(message: string): Promise<any[]> {
     let seasonNum: number | undefined;
     let episodeNum: number | undefined;
     
-    // Check for patterns like "Show S02E01" or "Show Season 2"
+    // Check for patterns like "Show S02E01", "Show S02E01 - Title", or "Show Season 2"
+    const seasonEpisodeWithTitleMatch = entityName.match(/^(.+?)\s+S(\d+)E(\d+)\s*(?:-\s*.+)?$/i);
     const seasonEpisodeMatch = entityName.match(/^(.+?)\s+S(\d+)E(\d+)$/i);
     const seasonMatch = entityName.match(/^(.+?)\s+Season\s+(\d+)$/i);
     
-    if (seasonEpisodeMatch) {
-      showName = seasonEpisodeMatch[1];
-      seasonNum = parseInt(seasonEpisodeMatch[2]);
-      episodeNum = parseInt(seasonEpisodeMatch[3]);
+    if (seasonEpisodeWithTitleMatch || seasonEpisodeMatch) {
+      const match = (seasonEpisodeWithTitleMatch || seasonEpisodeMatch)!;
+      showName = match[1];
+      seasonNum = parseInt(match[2]);
+      episodeNum = parseInt(match[3]);
     } else if (seasonMatch) {
       showName = seasonMatch[1];
       seasonNum = parseInt(seasonMatch[2]);
