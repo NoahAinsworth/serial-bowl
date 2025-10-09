@@ -11,31 +11,31 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Modern Minimal Theme - Instagram/Threads Inspired */
-    --background: 0 0% 92%;         /* Darker grey */
+    --background: 0 0% 85%;         /* Medium grey for gradient start */
     --foreground: 0 0% 10%;         /* Near black #1A1A1A */
-    --card: 0 0% 100%;              /* White cards */
+    --card: 25 100% 95%;            /* Light orange #FFF4E6 */
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 214 89% 52%;         /* Blue #4DA6FF */
+    --primary: 210 100% 70%;        /* Lighter blue #66B3FF */
     --primary-foreground: 0 0% 100%;
-    --secondary: 214 89% 52%;       /* Blue #4DA6FF */
+    --secondary: 210 100% 70%;      /* Lighter blue #66B3FF */
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 96%;              /* Very light grey */
     --muted-foreground: 0 0% 45%;   /* Medium grey */
-    --accent: 214 89% 52%;          /* Blue #3897F0 (Instagram blue) */
+    --accent: 210 100% 70%;         /* Lighter blue */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 93%;             /* Subtle grey border */
+    --border: 0 0% 88%;             /* Subtle grey border */
     --input: 0 0% 96%;
-    --ring: 214 89% 52%;
+    --ring: 210 100% 70%;
     --radius: 0.75rem;
 
     /* Extended Modern Palette */
     --instagram-pink: 330 81% 60%;  /* #E4405F */
     --vibrant-orange: 24 100% 50%;  /* #FF6600 */
-    --sky-blue: 214 89% 52%;        /* #3897F0 */
+    --sky-blue: 210 100% 70%;       /* #66B3FF */
     --soft-grey: 0 0% 96%;          /* #F5F5F5 */
 
     /* Typography - Clean & Modern */
@@ -344,7 +344,9 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: linear-gradient(180deg, hsl(0 0% 75%) 0%, hsl(0 0% 95%) 100%);
+    min-height: 100vh;
     font-family: var(--font-ui);
     letter-spacing: var(--letter-ui);
     -webkit-font-smoothing: antialiased;
