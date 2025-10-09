@@ -2,58 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ========================
-   Y2K WIREFRAME THEME
-   ======================== */
-
-:root {
-  /* Brand Colors */
-  --sb-brand-green: 138 213 122;    /* #12D57A in HSL */
-  --sb-brand-green-dark: 135 186 106; /* #0FB86A in HSL */
-  --sb-brand-orange: 16 100 58;     /* #FF7A26 in HSL */
-  
-  /* Text & Base */
-  --sb-text: 0 0 4%;
-  --sb-text-weak: 0 0 40%;
-  --sb-card: 0 0 100%;
-  --sb-border: 0 0 0% / 0.1;
-  
-  /* Live Accent (changes per page) */
-  --sb-accent: var(--sb-brand-green);
-  --sb-bg-strong: 138 30% 98%;      /* subtle green tint */
-  --sb-glow: var(--sb-accent) / 0.25;
-  
-  /* Motion */
-  --sb-fast: 140ms ease-out;
-  --sb-slow: 820ms cubic-bezier(0.4, 0.0, 0.2, 1);
-}
-
-/* Dynamic route themes */
-body[data-theme="home"] {
-  --sb-accent: var(--sb-brand-green);
-  --sb-bg-strong: 138 30% 98%;
-}
-
-body[data-theme="discover"] {
-  --sb-accent: var(--sb-brand-orange);
-  --sb-bg-strong: 16 100% 97%;
-}
-
-body[data-theme="messages"] {
-  --sb-accent: 225 100 71;  /* #6F8BFF */
-  --sb-bg-strong: 225 100% 98%;
-}
-
-body[data-theme="ai"] {
-  --sb-accent: 274 100 68;  /* #B058FF */
-  --sb-bg-strong: 274 100% 98%;
-}
-
-body[data-theme="show"] {
-  --sb-accent: var(--sb-brand-green);
-  --sb-bg-strong: 138 30% 98%;
-}
-
 /* No film grain for flat Y2K aesthetic */
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -62,36 +10,49 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Iridescent Metal - Futuristic Y2K Cinema */
-    --background: 0 0% 98%;         /* Soft White #FAFAFA */
-    --foreground: 0 0% 4%;          /* Near Black #0A0A0A */
-    --card: 0 0% 100%;              /* Pure White */
-    --card-foreground: 0 0% 4%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
-    --primary: 150 100% 50%;        /* Neon Green #00FF85 */
+    /* Serial Bowl Core - Unified Theme Tokens */
+    --sb-accent: 23 100% 58%;           /* Brand Orange #FF7A26 */
+    --sb-accent-2: 150 100% 50%;        /* Lime Helper #00FF85 */
+    --sb-text: 0 0% 4%;                 /* Near Black #0A0A0A */
+    --sb-text-weak: 0 0% 37%;           /* Grey #5F5F5F */
+    
+    --sb-bg: 0 0% 98%;                  /* Base White #FAFAFA */
+    --sb-bg-tint: 0 0% 98%;             /* Blended white+tint per show */
+    --sb-card: 0 0% 100%;               /* Pure White */
+    --sb-border: 0 0% 0% / 0.08;        /* Subtle Border */
+    --sb-shadow: 0 0% 0% / 0.08;        /* Soft Shadow */
+    --sb-glow: 23 100% 58% / 0.22;      /* Accent Glow */
+    
+    /* Legacy compatibility - mapped to new system */
+    --background: var(--sb-bg);
+    --foreground: var(--sb-text);
+    --card: var(--sb-card);
+    --card-foreground: var(--sb-text);
+    --popover: var(--sb-card);
+    --popover-foreground: var(--sb-text);
+    --primary: var(--sb-accent);
     --primary-foreground: 0 0% 100%;
-    --secondary: 14 100% 62%;       /* Hot Orange #FF6A3D */
+    --secondary: var(--sb-accent);
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 95%;              /* Light Grey #F2F2F2 */
-    --muted-foreground: 0 0% 36%;   /* Text Secondary #5C5C5C */
-    --accent: 351 100% 77%;         /* Coral #FF8FA3 */
-    --accent-foreground: 0 0% 4%;
+    --muted: 0 0% 95%;
+    --muted-foreground: var(--sb-text-weak);
+    --accent: var(--sb-accent);
+    --accent-foreground: var(--sb-text);
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.08;       /* Thin border rgba(0,0,0,0.08) */
+    --border: var(--sb-border);
     --input: 0 0% 100%;
-    --ring: 150 100% 50%;
+    --ring: var(--sb-accent);
     --radius: 1.25rem;
 
-    /* Extended Iridescent Palette */
-    --neon-green: 150 100% 50%;     /* #00FF85 */
-    --hot-orange: 14 100% 62%;      /* #FF6A3D */
-    --soft-coral: 351 100% 77%;     /* #FF8FA3 */
-    --violet-tint: 258 100% 77%;    /* #B58BFF */
-    --electric-lime: 150 100% 50%;  /* #00FF85 */
+    /* Extended Palette */
+    --neon-green: 150 100% 50%;
+    --hot-orange: 14 100% 62%;
+    --soft-coral: 351 100% 77%;
+    --violet-tint: 258 100% 77%;
+    --electric-lime: 150 100% 50%;
 
-    /* Typography - Sleek Futuristic */
+    /* Typography */
     --font-ui: 'Inter', system-ui, sans-serif;
     --font-display: 'Satoshi', 'DM Sans', sans-serif;
     --font-label: 'Space Grotesk', sans-serif;
@@ -101,35 +62,45 @@ All colors MUST be HSL.
     --letter-ui: 0.01em;
     --letter-display: 0.1em;
 
-    /* Shape Tokens - Cinematic Rounded */
+    /* Shape Tokens */
     --radius-sm: 12px;
     --radius-md: 16px;
     --radius-lg: 20px;
     --stroke-width: 1.5px;
     --stroke-style: solid;
     --tab-shape: 16px;
-    --btn-shape: 20px;
+    --btn-shape: 16px;
 
-    /* Elevation - Holographic Glow */
-    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.05);
-    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 0 25px rgba(0, 255, 133, 0.25);
+    /* Elevation */
+    --shadow-1: 0 1px 3px hsl(var(--sb-shadow));
+    --shadow-2: 0 2px 8px hsl(var(--sb-shadow));
+    --shadow-hover: 0 0 25px hsl(var(--sb-glow));
     --inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
-    /* Motion - Fluid & Electronic */
+    /* Motion */
+    --sb-trans-fast: 120ms ease-out;
+    --sb-trans-slow: 800ms cubic-bezier(0.4, 0.0, 0.2, 1);
     --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
     --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --dur-fast: 150ms;
     --dur-med: 300ms;
     --dur-slow: 500ms;
 
-    /* Effects - Holographic Iridescence */
+    /* Effects */
     --fx-overlay: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 133, 0.02) 2px, rgba(0, 255, 133, 0.02) 4px);
     --img-filter: saturate(1.05) brightness(1.02);
     --active-underline: linear-gradient(90deg, hsl(var(--neon-green)), hsl(var(--hot-orange)), hsl(var(--soft-coral)));
     --gradient-chrome: linear-gradient(90deg, hsl(var(--soft-coral)) 0%, hsl(var(--hot-orange)) 40%, hsl(var(--neon-green)) 80%);
-    --glow-lime: rgba(0, 255, 133, 0.25);
-    --glow-orange: rgba(255, 106, 61, 0.25);
+    
+    /* Sidebar (legacy) */
+    --sidebar-background: var(--sb-card);
+    --sidebar-foreground: var(--sb-text);
+    --sidebar-primary: var(--sb-accent);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: var(--sb-text);
+    --sidebar-border: var(--sb-border);
+    --sidebar-ring: var(--sb-accent);
   }
 
   .dark {
@@ -552,57 +523,108 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
+  
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: hsl(var(--sb-text));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: 0.01em;
+    
+    /* Dynamic background with subtle show tint and radial glow */
+    background:
+      radial-gradient(60vw 30vh at 50% 85%,
+        hsl(var(--sb-accent) / 0.06),
+        transparent),
+      linear-gradient(180deg, hsl(var(--sb-bg)) 0%, hsl(var(--sb-bg-tint)) 100%);
+    transition: background var(--sb-trans-slow);
+  }
+  
+  /* Live Accent Lighting Transition */
+  .live-accent-transition,
+  .live-accent-transition * {
+    transition: 
+      background-color var(--sb-trans-slow),
+      border-color var(--sb-trans-slow),
+      box-shadow var(--sb-trans-slow),
+      color var(--sb-trans-slow);
+  }
+  
+  /* Button Variants - Full Color System */
+  .btn--primary {
+    background: hsl(var(--sb-accent));
+    color: #FFFFFF;
+    border: 1px solid hsl(var(--sb-accent) / 0.9);
+    border-radius: var(--btn-shape);
+    box-shadow: 0 6px 18px hsl(var(--sb-accent) / 0.22);
+    transition: transform var(--sb-trans-fast), box-shadow var(--sb-trans-fast), background var(--sb-trans-fast);
+    font-weight: 600;
+  }
+  
+  .btn--primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px hsl(var(--sb-accent) / 0.28);
+  }
+  
+  .btn--primary:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px hsl(var(--sb-accent) / 0.18);
+  }
+  
+  .btn--primary:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px hsl(var(--sb-glow)), 0 8px 22px hsl(var(--sb-accent) / 0.26);
+  }
+  
+  .btn--secondary {
+    background: hsl(var(--sb-accent) / 0.12);
+    color: hsl(var(--sb-text));
+    border: 1px solid hsl(var(--sb-accent) / 0.25);
+    border-radius: var(--btn-shape);
+    transition: background var(--sb-trans-fast), border-color var(--sb-trans-fast);
+    font-weight: 600;
+  }
+  
+  .btn--secondary:hover {
+    background: hsl(var(--sb-accent) / 0.18);
+    border-color: hsl(var(--sb-accent) / 0.35);
+  }
+  
+  .btn--tertiary {
+    background: #FFFFFF;
+    color: hsl(var(--sb-text));
+    border: 1px solid hsl(var(--sb-accent) / 0.22);
+    border-radius: var(--btn-shape);
+    transition: border-color var(--sb-trans-fast), box-shadow var(--sb-trans-fast);
+    font-weight: 600;
+  }
+  
+  .btn--tertiary:hover {
+    border-color: hsl(var(--sb-accent) / 0.40);
+    box-shadow: 0 0 0 2px hsl(var(--sb-accent) / 0.20);
+  }
+  
+  /* Card System */
+  .card-accent {
+    background: hsl(var(--sb-card));
+    border: 1px solid hsl(var(--sb-accent) / 0.10);
+    box-shadow: 0 8px 24px hsl(var(--sb-shadow));
+    transition: outline var(--sb-trans-fast), box-shadow var(--sb-trans-fast);
+  }
+  
+  .card-accent:hover {
+    outline: 2px solid hsl(var(--sb-accent) / 0.25);
+    outline-offset: 0px;
+  }
 
   body {
-    @apply text-foreground;
-    background: 
-      radial-gradient(60vw 35vh at 50% 85%, hsl(var(--sb-accent) / 0.1), transparent),
-      linear-gradient(180deg, #FFFFFF 0%, hsl(var(--sb-bg-strong)) 100%) !important;
-    transition: background var(--sb-slow);
-    position: relative;
-    overflow-x: hidden;
+    @apply bg-background text-foreground;
+    background: hsl(var(--background));
     min-height: 100vh;
     font-family: var(--font-ui);
     letter-spacing: var(--letter-ui);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-  
-  /* Wireframe grid overlay */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background:
-      linear-gradient(transparent 97%, hsl(var(--sb-accent) / 0.12) 97%) 0 0/100% 18px,
-      linear-gradient(90deg, transparent 97%, hsl(var(--sb-accent) / 0.12) 97%) 0 0/18px 100%;
-    mix-blend-mode: multiply;
-    opacity: 0.18;
-    z-index: 1;
-  }
-  
-  /* Scanline shimmer */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(0deg, transparent, hsl(var(--sb-accent) / 0.08), transparent);
-    opacity: 0.12;
-    pointer-events: none;
-    animation: sb-scan 6s linear infinite;
-    z-index: 1;
-  }
-  
-  @keyframes sb-scan {
-    from { transform: translateY(-100%); }
-    to { transform: translateY(100%); }
-  }
-  
-  /* Ensure content is above overlays */
-  #root {
-    position: relative;
-    z-index: 2;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -612,26 +634,13 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Y2K Wordmark */
+  /* Wordmark - Cereal Social Premium Typography */
   .wordmark {
-    font-family: "Satoshi", "DM Sans", system-ui, sans-serif;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    font-size: 24px;
+    font-family: var(--font-display);
+    font-weight: 700;
     text-transform: none;
-    color: hsl(var(--sb-text));
-    position: relative;
-  }
-
-  .wordmark::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -4px;
-    height: 2px;
-    background: linear-gradient(90deg, hsl(var(--sb-accent)), hsl(16 100 70), hsl(var(--sb-accent)));
-    opacity: 0.35;
+    letter-spacing: 0.1em;
+    color: hsl(var(--foreground));
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
@@ -1328,28 +1337,5 @@ All colors MUST be HSL.
     animation: cereal-pop 0.3s ease-in-out;
     color: hsl(var(--neon-green));
     text-shadow: 0 0 8px rgba(0, 255, 133, 0.5);
-  }
-
-  /* Y2K Button Shimmer */
-  .btn-shimmer {
-    background-image: linear-gradient(
-      90deg,
-      hsl(var(--sb-accent)),
-      hsl(var(--sb-accent) / 0.8)
-    );
-    background-size: 200% 100%;
-    animation: sb-sheen 5s ease-in-out infinite;
-  }
-  
-  @keyframes sb-sheen {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  
-  /* Focus ring with accent glow */
-  .focus-accent:focus-visible {
-    outline: 3px solid hsl(var(--sb-glow));
-    outline-offset: 2px;
   }
 }
