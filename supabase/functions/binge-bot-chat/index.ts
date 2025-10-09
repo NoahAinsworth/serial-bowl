@@ -322,7 +322,9 @@ Use this context to personalize recommendations and respect spoiler preferences.
     }
 
     let result = await aiResponse.json();
-    let toolCalls = result.choices[0].message.tool_calls;
+    console.log("Initial AI response:", JSON.stringify(result).substring(0, 500));
+    
+    let toolCalls = result.choices?.[0]?.message?.tool_calls;
 
     // Handle tool calls if Gemini made any
     if (toolCalls && toolCalls.length > 0) {
@@ -351,54 +353,52 @@ Use this context to personalize recommendations and respect spoiler preferences.
           } else if (fname === "getSeriesPeople") {
             toolResult = await tvdbFetch(`/series/${args.tvdb_id}/people`);
           } else if (fname === "webSearch") {
-            // Gemini has built-in web search, we just acknowledge the call
-            // The actual search happens in Gemini's context
             toolResult = { 
-              note: "Web search will be performed by Gemini",
-              query: args.query,
-              instruction: "Use Google Search grounding to find this information"
+              note: "Search query received",
+              query: args.query
             };
           }
 
-          console.log(`Tool ${fname} completed successfully`);
+          console.log(`Tool ${fname} completed`);
+          
+          // Proper tool response format for Gemini
           toolMessages.push({
             role: "tool",
             tool_call_id: toolCall.id,
-            content: JSON.stringify({ ok: true, data: toolResult }),
+            name: fname,
+            content: JSON.stringify(toolResult)
           });
         } catch (err) {
           console.error(`Tool ${fname} error:`, err);
-          // Return error but suggest web search fallback
           toolMessages.push({
             role: "tool",
             tool_call_id: toolCall.id,
-            content: JSON.stringify({ 
-              ok: false, 
-              error: String(err),
-              suggestion: "Try using webSearch as fallback"
-            }),
+            name: fname,
+            content: JSON.stringify({ error: String(err) })
           });
         }
       }
 
-      // Second call with tool results to Gemini
+      // Second call with tool results
+      console.log("Making follow-up call with tool results...");
       const followUpResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${lovableApiKey}`,
           "Content-Type": "application/json",
         },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: toolMessages,
-        tools: TOOLS, // Include tools again for potential additional calls
-      }),
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: toolMessages
+        }),
       });
 
       if (followUpResponse.ok) {
         result = await followUpResponse.json();
+        console.log("Follow-up response:", JSON.stringify(result).substring(0, 500));
       } else {
-        console.error("Follow-up AI call failed:", followUpResponse.status);
+        const errorText = await followUpResponse.text();
+        console.error("Follow-up call failed:", followUpResponse.status, errorText);
       }
     }
 
