@@ -112,21 +112,16 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <span>B</span>
                 <span className="dot dot-red">·</span>
                 <span>O</span>
-                <span className="dot dot-yellow">·</span>
-                <span>W</span>
-                <span className="dot dot-blue">·</span>
-                <span>L</span>
-              </h1>
-            ) : theme === 'heisenberg' ? (
-              <div className="wordmark flex flex-col items-start gap-0 relative">
-                <span className="periodic-se">Se</span>
-                <span className="periodic-bo ml-4">Bo</span>
-              </div>
-            ) : (
-              <h1 className="text-3xl font-display font-bold wordmark">
-                Serial Bowl
-              </h1>
-            )}
+              <span className="dot dot-yellow">·</span>
+              <span>W</span>
+              <span className="dot dot-blue">·</span>
+              <span>L</span>
+            </h1>
+          ) : (
+            <h1 className="text-3xl font-display font-bold wordmark">
+              Serial Bowl
+            </h1>
+          )}
           </div>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
