@@ -122,6 +122,7 @@ export default function SettingsPage() {
               <SelectItem value="upside_down">Upside Down</SelectItem>
               <SelectItem value="saturday_cartoons">Saturday Cartoons</SelectItem>
               <SelectItem value="blue_crystal">Blue Crystal</SelectItem>
+              <SelectItem value="neo_y2k">Neo Y2K Social Mode</SelectItem>
             </SelectContent>
           </Select>
         </div>
