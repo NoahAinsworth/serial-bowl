@@ -1189,10 +1189,10 @@ All colors MUST be HSL.
     
     /* Sandy tan cards */
     --card: 41 45% 74%;                  /* #E6D3A3 - sandy tan */
-    --card-foreground: 0 0% 14%;         /* #242424 */
+    --card-foreground: 0 0% 8%;          /* #141414 - darker text on cards */
     
     --popover: 41 45% 74%;
-    --popover-foreground: 0 0% 14%;
+    --popover-foreground: 0 0% 8%;
     
     /* Primary = neon lime green */
     --primary: 158 100% 50%;             /* #00FF85 - neon lime */
@@ -1202,8 +1202,8 @@ All colors MUST be HSL.
     --secondary: 42 100% 65%;            /* #FFC14E - amber */
     --secondary-foreground: 0 0% 0%;
     
-    --muted: 41 35% 64%;
-    --muted-foreground: 0 0% 23%;        /* #3B3B3B */
+    --muted: 147 30% 30%;                /* Lighter muted green */
+    --muted-foreground: 49 38% 85%;      /* Light cream for muted text */
     
     --accent: 158 100% 50%;              /* Neon lime */
     --accent-foreground: 0 0% 0%;
@@ -1375,13 +1375,21 @@ All colors MUST be HSL.
   /* Header styling */
   .heisenberg header {
     background: hsl(var(--background));
-    border-bottom: 1.5px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 1.5px solid rgba(247, 246, 239, 0.2);
+    color: hsl(var(--foreground));
   }
   
-  /* Icons - black with green hover */
-  .heisenberg svg {
+  /* Icons and text - light colors */
+  .heisenberg svg,
+  .heisenberg button {
     color: hsl(var(--foreground));
     transition: color var(--dur-fast) ease;
+  }
+  
+  /* Make sure all text on background is visible */
+  .heisenberg h1, .heisenberg h2, .heisenberg h3, .heisenberg h4, .heisenberg h5, .heisenberg h6,
+  .heisenberg p, .heisenberg span, .heisenberg a, .heisenberg label {
+    color: inherit;
   }
   
   .heisenberg button:hover svg {
