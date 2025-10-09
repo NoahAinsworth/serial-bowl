@@ -17,6 +17,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('trending');
   const { posts, loading, refetch } = useFeed(activeTab);
   const [userHideSpoilers, setUserHideSpoilers] = useState(true);
+  const [strictSafety, setStrictSafety] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -29,10 +30,16 @@ export default function Home() {
           if (data?.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)) {
             const settings = data.settings as any;
             setUserHideSpoilers(settings?.safety?.hide_spoilers ?? true);
+            setStrictSafety(settings?.safety?.strict_safety ?? false);
           }
         });
     }
   }, [user]);
+
+  // Filter posts based on strict safety mode
+  const filteredPosts = strictSafety 
+    ? posts.filter(post => !post.is_spoiler)
+    : posts;
 
   if (!user) {
     return (
@@ -75,13 +82,13 @@ export default function Home() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : posts.length === 0 ? (
+          ) : filteredPosts.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-muted-foreground">No trending thoughts yet. Be the first to create!</p>
             </div>
           ) : (
             <div className="px-4">
-              {posts.map((post) => 
+              {filteredPosts.map((post) => 
                 post.type === 'thought' ? (
                   <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
                 ) : (
@@ -97,13 +104,13 @@ export default function Home() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : posts.length === 0 ? (
+          ) : filteredPosts.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-muted-foreground">No hot takes yet. Share controversial opinions!</p>
             </div>
           ) : (
             <div className="px-4">
-              {posts.map((post) => 
+              {filteredPosts.map((post) => 
                 post.type === 'thought' ? (
                   <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
                 ) : (
@@ -119,7 +126,7 @@ export default function Home() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : posts.length === 0 ? (
+          ) : filteredPosts.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-muted-foreground">
                 Follow users and rate shows to build your personalized feed!
@@ -127,7 +134,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="px-4">
-              {posts.map((post) => 
+              {filteredPosts.map((post) => 
                 post.type === 'thought' ? (
                   <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
                 ) : (
