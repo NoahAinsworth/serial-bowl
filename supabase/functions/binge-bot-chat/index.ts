@@ -393,14 +393,20 @@ Use this context to personalize recommendations and respect spoiler preferences.
         messages: toolMessages,
         tools: TOOLS, // Include tools again for potential additional calls
       }),
-    });
+      });
 
-    if (followUpResponse.ok) {
-      result = await followUpResponse.json();
-    }
+      if (followUpResponse.ok) {
+        result = await followUpResponse.json();
+      } else {
+        console.error("Follow-up AI call failed:", followUpResponse.status);
+      }
     }
 
-    const assistantMessage = result.choices[0].message.content;
+    // Extract assistant message - handle both content and potential null values
+    const assistantMessage = result.choices?.[0]?.message?.content || 
+                            result.choices?.[0]?.text || 
+                            "I found some information but had trouble formatting the response. Please try asking again.";
+    
     console.log("Assistant message:", assistantMessage);
 
     // Generate follow-up suggestions based on user question and context
