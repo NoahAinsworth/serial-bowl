@@ -180,10 +180,10 @@ export default function Index() {
           </TabsTrigger>
         </TabsList>
 
-        <div className="max-h-[calc(100vh-240px)] overflow-y-auto">
+        <div className="max-h-[calc(100vh-240px)] overflow-y-auto bg-[hsl(0_0%_4%)] rounded-lg p-4 border border-[hsl(var(--border))]">
           {/* Secondary Filter Tabs */}
           <div className="mb-4">
-            <div className="inline-flex h-10 items-center justify-center rounded-md bg-[hsl(0_0%_4%)] p-1 text-white w-full border border-[hsl(var(--border))]">
+            <div className="inline-flex h-10 items-center justify-center rounded-md bg-[hsl(0_0%_8%)] p-1 text-white w-full border border-[hsl(var(--border))]">
               <button
                 onClick={() => setPostType('all')}
                 className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
