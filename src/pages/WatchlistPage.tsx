@@ -287,11 +287,11 @@ export default function WatchlistPage() {
   };
 
   const isInWatchlist = (showId: number) => {
-    return watchlistItems.some(item => item.content.external_id === showId.toString());
+    return watchlistItems.some(item => item.content?.external_id === showId.toString());
   };
 
   const isInWatched = (showId: number) => {
-    return watchedItems.some(item => item.content.external_id === showId.toString());
+    return watchedItems.some(item => item.content?.external_id === showId.toString());
   };
 
   if (!user) {
