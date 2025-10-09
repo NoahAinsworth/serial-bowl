@@ -268,15 +268,15 @@ All colors MUST be HSL.
     --button-highlight: 158 100% 77%; /* #8EFFC2 */
     --wireframe-glow: 158 100% 50% / 0.15;
 
-    /* Typography - Cyber Futuristic */
-    --font-ui: 'Inter', 'DM Sans', -apple-system, sans-serif;
-    --font-display: 'Orbitron', 'Satoshi', sans-serif;
-    --font-accent: 'Space Mono', monospace;
-    --font-weight-ui: 500;
-    --font-weight-display: 700;
-    --font-weight-accent: 400;
-    --letter-ui: 0em;
-    --letter-display: 0.1em;
+    /* Typography - Cyber Futuristic Y2K Digital */
+    --font-ui: 'Audiowide', 'Orbitron', sans-serif;
+    --font-display: 'Audiowide', 'Orbitron', sans-serif;
+    --font-accent: 'Orbitron', monospace;
+    --font-weight-ui: 400;
+    --font-weight-display: 400;
+    --font-weight-accent: 700;
+    --letter-ui: 0.05em;
+    --letter-display: 0.15em;
 
     /* Shape Tokens - Angular Y2K */
     --radius-sm: 8px;
