@@ -18,7 +18,7 @@ export function PercentRating({
   compact = false,
   showSaveButton = false
 }: PercentRatingProps) {
-  const [value, setValue] = useState(initialRating || 50);
+  const [value, setValue] = useState(initialRating ?? 0);
   const [hasChanged, setHasChanged] = useState(false);
 
   const handleValueChange = (newValue: number[]) => {
