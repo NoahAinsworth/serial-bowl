@@ -370,6 +370,31 @@ Deno.serve(async (req) => {
           .select('id')
           .eq('thought_id', postId);
 
+        // Check if current user has reacted to this post
+        let userReaction: 'like' | 'dislike' | undefined = undefined;
+        if (userId) {
+          const { data: userLike } = await supabase
+            .from('reactions')
+            .select('reaction_type')
+            .eq('thought_id', postId)
+            .eq('user_id', userId)
+            .eq('reaction_type', 'like')
+            .maybeSingle();
+
+          const { data: userDislike } = await supabase
+            .from('thought_dislikes')
+            .select('id')
+            .eq('thought_id', postId)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (userLike) {
+            userReaction = 'like';
+          } else if (userDislike) {
+            userReaction = 'dislike';
+          }
+        }
+
         return {
           id: postId,
           type: postType,
@@ -382,6 +407,7 @@ Deno.serve(async (req) => {
           dislikes,
           comments: comments?.length || 0,
           rethinks,
+          userReaction,
           created_at: postData.created_at,
           score: p.score
         };
