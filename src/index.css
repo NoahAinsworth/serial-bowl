@@ -10,42 +10,45 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Default - Premium Hybrid (Apple × Y2K × Cereal) */
-    --background: 0 0% 97%;          /* Soft light grey #F7F7F7 */
+    /* Serial Bowl Core - Premium Flagship Theme */
+    --background: 0 0% 95%;          /* Neutral light grey #F3F3F3 */
     --foreground: 0 0% 10%;          /* Text Primary #1A1A1A */
     --card: 0 0% 100%;               /* Pure white #FFFFFF */
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 18 100% 58%;          /* Cereal Orange #FF7B29 */
+    --primary: 23 100% 58%;          /* Cereal Orange #FF7A26 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 10 100% 77%;        /* Soft Red #FF9B8A */
+    --secondary: 7 100% 77%;         /* Soft Coral Red #FF958A */
     --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 42%;    /* Text Secondary #6A6A6A */
-    --accent: 158 100% 50%;          /* Electric Lime #00FF85 */
+    --muted: 0 0% 95%;               /* Light grey for backgrounds */
+    --muted-foreground: 0 0% 37%;    /* Text Secondary #5F5F5F */
+    --accent: 158 100% 50%;          /* Neon Lime #00FF85 */
     --accent-foreground: 0 0% 10%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.05;        /* rgba(0,0,0,0.05) */
+    --border: 0 0% 0% / 0.08;        /* rgba(0,0,0,0.08) */
     --input: 0 0% 100%;
-    --ring: 18 100% 58%;
+    --ring: 158 100% 50%;
     --radius: 1.125rem;
 
-    /* Extended Premium Palette */
-    --cereal-orange: 18 100% 58%;    /* #FF7B29 */
-    --soft-red: 10 100% 77%;         /* #FF9B8A */
-    --electric-lime: 158 100% 50%;   /* #00FF85 */
-    --light-teal: 162 100% 89%;      /* #C6FFF2 */
-    --neon-glow: 158 100% 50% / 0.15;
+    /* Extended Serial Bowl Core Palette */
+    --cereal-orange: 23 100% 58%;    /* #FF7A26 */
+    --soft-coral: 7 100% 77%;        /* #FF958A */
+    --neon-lime: 158 100% 50%;       /* #00FF85 */
+    --light-teal: 158 100% 91%;      /* #D1FFF0 */
+    --icon-tint: 0 0% 18%;           /* #2E2E2E */
+    --accent-glow: 158 100% 50% / 0.25;
+    --border-secondary: 0 0% 85%;    /* #DADADA */
 
-    /* Typography - Premium & Clean */
-    --font-ui: 'Inter', 'Poppins', -apple-system, sans-serif;
+    /* Typography - Clean & Cinematic */
+    --font-ui: 'Inter', -apple-system, sans-serif;
     --font-display: 'DM Sans', 'Satoshi', -apple-system, sans-serif;
-    --font-label: 'Space Grotesk', 'Inter', sans-serif;
+    --font-label: 'Poppins', sans-serif;
+    --font-mono: 'Space Grotesk', monospace;
     --font-weight-ui: 500;
     --font-weight-display: 700;
-    --font-weight-label: 500;
+    --font-weight-label: 600;
     --letter-ui: 0em;
     --letter-display: 0.02em;
 
@@ -55,16 +58,17 @@ All colors MUST be HSL.
     --radius-lg: 24px;
     --stroke-width: 1px;
     --stroke-style: solid;
-    --tab-shape: 18px;
+    --tab-shape: 16px;
     --btn-shape: 12px;
 
-    /* Elevation - Soft & Premium */
-    --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.04);
-    --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 255, 133, 0.2);
-    --inner-glow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+    /* Elevation - Premium Shadows */
+    --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
+    --inner-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    --glow-lime: 0 0 15px rgba(0, 255, 133, 0.25);
 
-    /* Motion - Smooth & Cinematic */
+    /* Motion - Smooth & Tactile */
     --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
     --dur-fast: 150ms;
@@ -74,8 +78,8 @@ All colors MUST be HSL.
     /* Effects - Subtle Futurism */
     --fx-overlay: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
     --img-filter: saturate(1.02) contrast(1.01);
-    --active-underline: linear-gradient(90deg, transparent, hsl(var(--electric-lime)), transparent);
-    --gradient-premium: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--soft-red)));
+    --active-underline: linear-gradient(90deg, transparent, hsl(var(--neon-lime)), transparent);
+    --gradient-avatar: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--neon-lime)));
   }
 
   .dark {
@@ -516,13 +520,14 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Wordmark - Premium Default Typography */
+  /* Wordmark - Serial Bowl Core */
   .wordmark {
     font-family: var(--font-display);
     font-weight: 700;
     text-transform: none;
     letter-spacing: 0.02em;
     color: hsl(var(--foreground));
+    position: relative;
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
@@ -639,19 +644,18 @@ All colors MUST be HSL.
     transform: translateY(-2px);
   }
 
-  /* Premium Default Card */
+  /* Serial Bowl Core Card */
   .card-flat {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-1), var(--inner-glow);
+    box-shadow: var(--shadow-1);
     transition: all var(--dur-med) var(--ease-ui);
   }
 
   .card-flat:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: var(--shadow-hover);
-    border-color: hsl(var(--electric-lime) / 0.3);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover), 0 0 0 1px hsl(var(--neon-lime) / 0.3);
   }
 
   /* Premium Default Tabs */
@@ -1072,9 +1076,9 @@ All colors MUST be HSL.
       box-shadow: 0 0 15px rgba(0, 255, 133, 0.6), 0 0 25px rgba(0, 255, 133, 0.3);
   }
 
-  /* Default Theme - Category Borders */
+  /* Serial Bowl Core - Category Borders */
   :root [data-type="thought"] {
-    border-left: 3px solid hsl(var(--electric-lime));
+    border-left: 3px solid hsl(var(--neon-lime));
   }
 
   :root [data-type="review"] {
@@ -1082,59 +1086,44 @@ All colors MUST be HSL.
   }
 
   :root [data-type="trending"] {
-    border-left: 3px solid hsl(var(--soft-red));
+    border-left: 3px solid hsl(var(--soft-coral));
   }
 
-  /* Default Theme - Profile Ring Gradient */
+  /* Serial Bowl Core - Avatar Gradient Ring */
   :root .profile-ring {
     border: 2px solid transparent;
     background: 
       linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
-      linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--electric-lime))) border-box;
-    box-shadow: 0 0 12px rgba(255, 123, 41, 0.15);
+      var(--gradient-avatar) border-box;
+    box-shadow: 0 0 12px rgba(255, 122, 38, 0.15);
   }
 
-  /* Default Theme - Holographic Shimmer */
-  @keyframes holographic-shimmer {
-    0%, 100% { 
-      background-position: 0% 50%;
-    }
-    50% { 
-      background-position: 100% 50%;
-    }
-  }
-
-  :root .shimmer-effect {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(0, 255, 133, 0.1) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: holographic-shimmer 3s ease-in-out infinite;
-  }
-
-  /* Default Theme - Premium Input Focus */
+  /* Serial Bowl Core - Input Focus */
   :root input:focus,
   :root textarea:focus {
-    border-color: hsl(var(--electric-lime) / 0.5);
-    box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+    border-color: hsl(var(--neon-lime));
+    box-shadow: var(--glow-lime);
   }
 
-  /* Default Theme - Reaction Pulse */
+  /* Serial Bowl Core - Reaction Pulse */
   :root button[aria-label*="like"]:active,
   :root button[aria-label*="comment"]:active {
-    animation: reaction-pulse 0.3s ease-out;
+    animation: reaction-pulse-core 0.3s ease-out;
   }
 
-  @keyframes reaction-pulse {
+  @keyframes reaction-pulse-core {
     0% { transform: scale(1); }
     50% { 
-      transform: scale(1.15);
-      box-shadow: 0 0 15px rgba(255, 123, 41, 0.3), 0 0 25px rgba(0, 255, 133, 0.2);
+      transform: scale(1.1);
+      box-shadow: 0 0 12px rgba(255, 122, 38, 0.3), 0 0 20px rgba(0, 255, 133, 0.2);
     }
     100% { transform: scale(1); }
+  }
+
+  /* Serial Bowl Core - Header Shadow */
+  :root header {
+    background: hsl(var(--card));
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 }
 
