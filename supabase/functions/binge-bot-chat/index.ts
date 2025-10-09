@@ -7,10 +7,50 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// TVDB v4 API client
+// TVDB v4 API client with token management
 const TVDB_BASE = "https://api4.thetvdb.com/v4";
+let tvdbToken: { token: string; expiresAt: number } | null = null;
 
-async function tvdbFetch(path: string, token: string) {
+async function getTvdbToken(apiKey: string): Promise<string> {
+  // Check if we have a valid cached token
+  if (tvdbToken && Date.now() < tvdbToken.expiresAt) {
+    return tvdbToken.token;
+  }
+
+  // Login to get a new token
+  const res = await fetch(`${TVDB_BASE}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ apikey: apiKey }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`TVDB login failed ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  const token = data?.data?.token as string;
+  
+  if (!token) {
+    throw new Error("TVDB login returned no token");
+  }
+
+  // Cache token for 27 days (tokens valid ~1 month)
+  tvdbToken = {
+    token,
+    expiresAt: Date.now() + 27 * 24 * 60 * 60 * 1000,
+  };
+
+  return token;
+}
+
+async function tvdbFetch(path: string, apiKey: string) {
+  const token = await getTvdbToken(apiKey);
+  
   const res = await fetch(`${TVDB_BASE}${path}`, {
     headers: {
       "Content-Type": "application/json",
@@ -21,36 +61,58 @@ async function tvdbFetch(path: string, token: string) {
   
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    
+    // If token expired, retry with new token
+    if (res.status === 401) {
+      tvdbToken = null; // Clear cached token
+      const newToken = await getTvdbToken(apiKey);
+      
+      const retryRes = await fetch(`${TVDB_BASE}${path}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${newToken}`,
+          Accept: "application/json",
+        },
+      });
+      
+      if (!retryRes.ok) {
+        const retryText = await retryRes.text().catch(() => "");
+        throw new Error(`TVDB ${path} ${retryRes.status}: ${retryText}`);
+      }
+      
+      return retryRes.json();
+    }
+    
     throw new Error(`TVDB ${path} ${res.status}: ${text}`);
   }
   
   return res.json();
 }
 
-async function searchSeries(query: string, token: string) {
-  const data = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series`, token);
+async function searchSeries(query: string, apiKey: string) {
+  const data = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series`, apiKey);
   return data.data || [];
 }
 
-async function getSeriesById(tvdbId: number, token: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}`, token);
+async function getSeriesById(tvdbId: number, apiKey: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}`, apiKey);
   return data.data || {};
 }
 
-async function getEpisodesForSeason(tvdbId: number, seasonNumber: number, token: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, token);
+async function getEpisodesForSeason(tvdbId: number, seasonNumber: number, apiKey: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey);
   const episodes = data.data?.episodes || [];
   return episodes.filter((ep: any) => ep.seasonNumber === seasonNumber);
 }
 
-async function getEpisodeBySE(tvdbId: number, season: number, episode: number, token: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, token);
+async function getEpisodeBySE(tvdbId: number, season: number, episode: number, apiKey: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey);
   const episodes = data.data?.episodes || [];
   return episodes.find((ep: any) => ep.seasonNumber === season && ep.number === episode);
 }
 
-async function getSeriesPeople(tvdbId: number, token: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/people`, token);
+async function getSeriesPeople(tvdbId: number, apiKey: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}/people`, apiKey);
   return data.data || {};
 }
 
