@@ -492,7 +492,7 @@ export default function PostPage() {
           <TabsContent value="review" className="space-y-4">
             <div>
               <Label className="mb-2 block">Rating *</Label>
-              <PercentRating initialRating={rating || 50} onRate={setRating} compact />
+              <PercentRating initialRating={rating || 0} onRate={setRating} compact />
             </div>
 
             <div>
