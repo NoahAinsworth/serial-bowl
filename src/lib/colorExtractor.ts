@@ -152,43 +152,63 @@ export const hexToRgb = (hex: string): RGB => {
 };
 
 /**
- * Blend show color with base theme
+ * Blend show color with base theme using guardrails
  */
-export const blendWithTheme = (showColorHex: string, blendStrength: number = 0.3): {
-  primary: string;
-  secondary: string;
+export const blendWithTheme = (showColorHex: string, blendStrength: number = 0.35): {
   accent: string;
+  accentGlow: string;
   backgroundTint: string;
-  glowColor: string;
+  shadow: string;
 } => {
   const showRgb = hexToRgb(showColorHex);
   const showHsl = rgbToHsl(showRgb);
+  const baseAccent = { h: 23, s: 100, l: 58 }; // #FF7A26 orange
   
-  // Ensure saturation is vibrant
-  const vibrantSaturation = Math.max(showHsl.s, 60);
+  // Apply guardrails
+  let adjustedHsl = { ...showHsl };
   
-  // Primary: Show color at full vibrancy
-  const primary = `${showHsl.h} ${vibrantSaturation}% 50%`;
+  // If very dark red, lighten
+  if (showHsl.h >= 350 || showHsl.h <= 10) {
+    if (showHsl.l < 30) {
+      adjustedHsl.l = Math.min(showHsl.l + 20, 50);
+    }
+  }
   
-  // Secondary: Complementary harmony
-  const secondaryHue = (showHsl.h + 40) % 360;
-  const secondary = `${secondaryHue} ${Math.min(vibrantSaturation, 80)}% 58%`;
+  // If very saturated green, cap blend
+  if (showHsl.h >= 90 && showHsl.h <= 170 && showHsl.s > 70) {
+    blendStrength = Math.min(blendStrength, 0.30);
+  }
   
-  // Accent: Analogous harmony
-  const accentHue = (showHsl.h + 120) % 360;
-  const accent = `${accentHue} ${vibrantSaturation}% 65%`;
+  // Ensure vibrant saturation
+  const vibrantSaturation = Math.max(adjustedHsl.s, 60);
+  adjustedHsl.s = vibrantSaturation;
   
-  // Background tint: Very subtle show color
-  const backgroundTint = `${showHsl.h} ${Math.min(vibrantSaturation * 0.15, 10)}% 98%`;
+  // Blend hue with base accent
+  const blendedHue = Math.round(baseAccent.h * (1 - blendStrength) + adjustedHsl.h * blendStrength);
+  const blendedSat = Math.round(baseAccent.s * (1 - blendStrength * 0.5) + vibrantSaturation * (blendStrength * 0.5));
+  const blendedLight = Math.round(baseAccent.l * (1 - blendStrength * 0.6) + adjustedHsl.l * (blendStrength * 0.6));
   
-  // Glow color: Brighter version
-  const glowColor = `${showHsl.h} ${vibrantSaturation}% 60%`;
+  // Ensure text contrast for primary buttons
+  const contrastLight = blendedLight > 70 ? blendedLight - 15 : blendedLight;
+  
+  // Accent color
+  const accent = `${blendedHue} ${blendedSat}% ${contrastLight}%`;
+  
+  // Accent glow
+  const accentGlow = `${blendedHue} ${blendedSat}% ${Math.min(contrastLight + 10, 65)}% / 0.22`;
+  
+  // Background tint (very subtle)
+  const bgTintSat = Math.min(blendedSat * 0.15, 10);
+  const backgroundTint = `${blendedHue} ${bgTintSat}% 98%`;
+  
+  // Shadow with show color influence
+  const shadowHue = blendedHue;
+  const shadow = `${shadowHue} ${Math.min(blendedSat * 0.3, 20)}% 10% / 0.12`;
   
   return {
-    primary,
-    secondary,
     accent,
+    accentGlow,
     backgroundTint,
-    glowColor
+    shadow
   };
 };
