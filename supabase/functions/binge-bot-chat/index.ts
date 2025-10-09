@@ -73,25 +73,36 @@ function isOutOfScope(text: string): boolean {
 
 const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant. Current date: October 9, 2025.
 
-CRITICAL - DATA SOURCES:
-- TVDB Database: You will receive verified show data from TVDB when available - ALWAYS prioritize this data over other sources
-- If TVDB data is provided, use it for release dates, episode counts, cast, and other factual information
-- Only use web search for supplemental context or when TVDB data is not available
-- Never contradict TVDB data with guessed information
+CRITICAL RULES - YOU MUST FOLLOW THESE EXACTLY:
 
-IMPORTANT - When mentioning shows, seasons, or episodes, ALWAYS wrap them in [brackets]:
-- Shows: [Peacemaker]
-- Seasons: [Peacemaker Season 2]
-- Episodes: [Peacemaker S02E01] or [Peacemaker S02E05 - Monkey Dory]
+1. TVDB DATA IS YOUR ONLY SOURCE OF TRUTH FOR FACTS
+   - When TVDB data is provided in the context, use ONLY that data for factual information
+   - NEVER use your training data or make assumptions about release dates, episode counts, air dates, cast, etc.
+   - If TVDB says "Status: Continuing" or "Status: Planned", the show is NOT yet released
+   - If TVDB doesn't show an air date for a season/episode, say "No confirmed release date yet"
+   
+2. WHEN YOU DON'T HAVE VERIFIED DATA
+   - If no TVDB data is provided and you don't have verified information, say: "I don't have confirmed information about that. Let me search for you."
+   - NEVER state specific dates, episode counts, or factual details unless they're in the TVDB data provided
+   - It's better to say you don't know than to provide incorrect information
 
-This makes them clickable so users can navigate to those pages in the app.
+3. FORMATTING REQUIREMENTS
+   - ALWAYS wrap show/season/episode names in [brackets] to make them clickable:
+     * Shows: [Peacemaker]
+     * Seasons: [Peacemaker Season 2]
+     * Episodes: [Peacemaker S02E01] or [Peacemaker S02E05 - Monkey Dory]
 
-Keep responses concise (2-4 sentences) and provide 3-5 relevant follow-up suggestions.
+4. RESPONSE STYLE
+   - Keep responses concise (2-4 sentences)
+   - Provide 3-5 relevant follow-up suggestions
+   - Be helpful but accurate - don't make up information
 
-Example:
-"Yes! [Peacemaker] Season 2 premiered on August 21, 2025 on Max. Episode 1 [Peacemaker S02E01] sets up a great arc. The season has 8 episodes total."
+Example of CORRECT response with TVDB data:
+"Based on TVDB: [Peacemaker] Season 1 aired from January 13, 2022 to February 17, 2022. It has 8 episodes. The show is marked as 'Continuing' which means more seasons may be planned."
 
-Follow-ups: ["Who's in the cast?", "Episode guide", "When's the finale?", "Open [Peacemaker]"]`;
+Example of CORRECT response without verified data:
+"I don't have confirmed release date information for [Peacemaker] Season 2 yet. Would you like me to search for the latest news?"`;
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -182,7 +193,10 @@ serve(async (req) => {
     try {
       const showData = await fetchTVDBContextForQuery(userQuery);
       if (showData) {
-        tvdbContext = `\n\nVERIFIED TVDB DATA:\n${showData}\n\nIMPORTANT: Use this TVDB data as your primary source of truth. Only supplement with web search if needed.`;
+        tvdbContext = `\n\n=== VERIFIED TVDB DATABASE ===\nThis is the ONLY factual information you should use. Do NOT use your training data for facts.\n\n${showData}\n\n=== END TVDB DATA ===\n\nREMEMBER: Only use the above TVDB data for factual information. If something is not in this data, say you don't have confirmed information.`;
+        console.log("TVDB context fetched successfully:", showData.substring(0, 200));
+      } else {
+        console.log("No TVDB context found for query:", userQuery);
       }
     } catch (err) {
       console.error("TVDB context fetch error:", err);
@@ -303,66 +317,122 @@ Use this context to personalize recommendations and respect spoiler preferences.
 
 // Extract potential show names from user query and fetch TVDB data
 async function fetchTVDBContextForQuery(query: string): Promise<string | null> {
-  // Look for show names in quotes or common patterns
+  console.log("Extracting show name from query:", query);
+  
+  // Try multiple extraction strategies
+  let extractedShow: string | null = null;
+  
+  // Strategy 1: Quoted strings
   const quotedMatch = query.match(/"([^"]+)"|'([^']+)'/);
-  const showName = quotedMatch ? (quotedMatch[1] || quotedMatch[2]) : null;
+  if (quotedMatch) {
+    extractedShow = quotedMatch[1] || quotedMatch[2];
+    console.log("Found quoted show name:", extractedShow);
+  }
   
-  // Common question patterns
-  const patterns = [
-    /(?:about|for|of|watch|watching|seen|see)\s+([A-Z][A-Za-z\s&]+?)(?:\?|$|,|\s+season|\s+episode)/i,
-    /^([A-Z][A-Za-z\s&]+?)\s+(?:season|episode|premiered|air|release)/i,
-  ];
-  
-  let extractedShow = showName;
+  // Strategy 2: Common patterns
   if (!extractedShow) {
+    const patterns = [
+      /(?:about|for|of|watch|watching|seen|see|is|did|does|has|when|where)\s+([A-Z][A-Za-z0-9\s&:'-]+?)(?:\?|$|,|\s+season|\s+episode|\s+air|\s+release|\s+premiere)/i,
+      /^([A-Z][A-Za-z0-9\s&:'-]+?)\s+(?:season|episode|premiered|air|release|s\d+|out)/i,
+      /([A-Z][A-Za-z0-9\s&:'-]+?)\s+(?:season\s+\d+|s\d+)/i,
+    ];
+    
     for (const pattern of patterns) {
       const match = query.match(pattern);
       if (match && match[1]) {
         extractedShow = match[1].trim();
+        console.log("Found show via pattern:", extractedShow);
         break;
       }
     }
   }
   
-  if (!extractedShow) return null;
+  if (!extractedShow) {
+    console.log("Could not extract show name from query");
+    return null;
+  }
   
   try {
+    console.log("Searching TVDB for:", extractedShow);
+    
     // Search TVDB for the show
     const searchResults = await tvdbFetch(`/search?query=${encodeURIComponent(extractedShow)}&type=series`);
-    if (!searchResults || searchResults.length === 0) return null;
+    
+    if (!searchResults || searchResults.length === 0) {
+      console.log("No TVDB results found for:", extractedShow);
+      return null;
+    }
     
     const show = searchResults[0];
     const showId = show.tvdb_id || show.id;
+    console.log("Found show in TVDB:", show.name, "ID:", showId);
     
-    // Fetch detailed show info
+    // Fetch detailed show info with extended data
     const details = await tvdbFetch(`/series/${showId}/extended`);
+    console.log("Fetched show details:", {
+      name: details.name,
+      status: details.status,
+      firstAired: details.firstAired,
+      seasons: details.seasons?.length
+    });
     
-    let context = `Show: ${details.name}\n`;
-    if (details.firstAired) context += `First Aired: ${details.firstAired}\n`;
-    if (details.overview) context += `Overview: ${details.overview}\n`;
-    if (details.status) context += `Status: ${details.status}\n`;
-    if (details.originalNetwork) context += `Network: ${details.originalNetwork}\n`;
+    // Build comprehensive context
+    let context = `Show: ${details.name} (TVDB ID: ${showId})\n`;
+    context += `Status: ${details.status || 'Unknown'}\n`;
     
-    // Get season/episode info if available
+    if (details.firstAired) {
+      context += `First Aired: ${details.firstAired}\n`;
+    } else {
+      context += `First Aired: Not yet announced\n`;
+    }
+    
+    if (details.nextAired) {
+      context += `Next Episode Airs: ${details.nextAired}\n`;
+    }
+    
+    if (details.originalNetwork) {
+      context += `Network: ${details.originalNetwork}\n`;
+    }
+    
+    if (details.overview) {
+      context += `Overview: ${details.overview.substring(0, 300)}${details.overview.length > 300 ? '...' : ''}\n`;
+    }
+    
+    // Season information
     if (details.seasons && details.seasons.length > 0) {
-      context += `\nSeasons (${details.seasons.length} total):\n`;
-      for (const season of details.seasons.slice(0, 5)) { // Limit to avoid token overflow
-        context += `- Season ${season.number}: ${season.name || 'Unnamed'}`;
-        if (season.type) context += ` (${season.type.name})`;
+      context += `\nTotal Seasons: ${details.seasons.length}\n`;
+      context += `Seasons:\n`;
+      
+      for (const season of details.seasons) {
+        context += `- Season ${season.number}`;
+        if (season.name && season.name !== `Season ${season.number}`) {
+          context += `: ${season.name}`;
+        }
+        if (season.type?.name) {
+          context += ` (${season.type.name})`;
+        }
         context += `\n`;
       }
     }
     
-    // Get latest episodes if query is about recent/new episodes
-    if (/latest|new|recent|aired|episode/i.test(query) && details.latestSeason) {
+    // Try to fetch episode data for the latest season
+    if (details.latestSeason) {
       try {
         const episodes = await tvdbFetch(`/series/${showId}/episodes/default?season=${details.latestSeason}`);
         if (episodes?.episodes && episodes.episodes.length > 0) {
-          context += `\nLatest Season ${details.latestSeason} Episodes:\n`;
-          const recentEps = episodes.episodes.slice(-5); // Last 5 episodes
-          for (const ep of recentEps) {
-            context += `- S${String(details.latestSeason).padStart(2, '0')}E${String(ep.number).padStart(2, '0')}: ${ep.name}`;
-            if (ep.aired) context += ` (Aired: ${ep.aired})`;
+          context += `\nSeason ${details.latestSeason} Episodes (${episodes.episodes.length} total):\n`;
+          
+          // Show last 5 episodes or all if fewer
+          const episodesToShow = episodes.episodes.slice(-5);
+          for (const ep of episodesToShow) {
+            const seasonNum = String(details.latestSeason).padStart(2, '0');
+            const epNum = String(ep.number).padStart(2, '0');
+            context += `- S${seasonNum}E${epNum}: ${ep.name || 'TBA'}`;
+            if (ep.aired) {
+              context += ` (Aired: ${ep.aired})`;
+            } else {
+              context += ` (Not yet aired)`;
+            }
             context += `\n`;
           }
         }
@@ -371,7 +441,9 @@ async function fetchTVDBContextForQuery(query: string): Promise<string | null> {
       }
     }
     
+    console.log("Generated TVDB context length:", context.length);
     return context;
+    
   } catch (err) {
     console.error("TVDB context fetch error:", err);
     return null;
