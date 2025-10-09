@@ -79,7 +79,7 @@ export default function Index() {
             dislikes: post.dislikes,
             comments: post.comments,
             rethinks: post.rethinks,
-            userReaction: undefined
+            userReaction: post.userReaction
           }}
           onReactionChange={currentFeed.refetch}
           onDelete={currentFeed.refetch}
