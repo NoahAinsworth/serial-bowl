@@ -151,9 +151,9 @@ export function ReviewCard({ review, userHideSpoilers = true, onDelete }: Review
   };
 
   return (
-    <article className="py-4 transition-all duration-200 animate-fade-in group">
+    <article className="py-4 border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group">
       <div className="flex gap-3">
-        <div className="profile-ring">
+        <div>
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.id}`)}>
             <AvatarImage src={review.user.avatar_url || undefined} alt={review.user.handle} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
