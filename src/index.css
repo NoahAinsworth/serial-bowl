@@ -11,9 +11,9 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Y2K Flat Cartoon Theme */
-    --background: 0 0% 100%;    /* White */
+    --background: 45 100% 96%;  /* Cream #FFF9E8 */
     --foreground: 0 0% 0%;      /* Black #000000 */
-    --card: 0 0% 98%;           /* Off-white */
+    --card: 0 0% 100%;          /* White */
     --card-foreground: 0 0% 0%; /* Black */
     --popover: 0 0% 100%;       /* White */
     --popover-foreground: 0 0% 0%;
@@ -21,7 +21,7 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 0%;
     --secondary: 4 100% 69%;    /* Coral #FF6F61 */
     --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 96%;          /* Light gray */
+    --muted: 45 100% 92%;       /* Light Cream */
     --muted-foreground: 0 0% 40%;
     --accent: 160 100% 85%;     /* Mint #B8FFDA */
     --accent-foreground: 0 0% 0%;
@@ -38,7 +38,7 @@ All colors MUST be HSL.
     --lavender: 270 100% 86%;   /* #D7B8FF */
     --mint: 160 100% 85%;       /* #B8FFDA */
     --baby-blue: 198 100% 83%;  /* #A6E1FF */
-    --hot-pink: 270 70% 60%;    /* Purple #A855F7 */
+    --hot-pink: 320 100% 76%;   /* #FF84D0 */
 
     /* Typography Tokens */
     --font-ui: 'Nunito Sans', -apple-system, sans-serif;
@@ -277,30 +277,30 @@ All colors MUST be HSL.
   }
 
   .neo_y2k {
-    /* Neo Y2K Social Mode - White background with purple accents */
-    --background: 0 0% 100%;          /* White #FFFFFF */
-    --foreground: 0 0% 0%;            /* Black text #000000 */
-    --card: 0 0% 98%;                 /* Off-white card background */
-    --card-foreground: 0 0% 0%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    /* Neo Y2K Social Mode - Dark futuristic glassmorphism meets flat editorial */
+    --background: 221 60% 8%;         /* Deep navy #0A0E1A */
+    --foreground: 0 0% 95%;           /* White text #F2F2F2 */
+    --card: 220 30% 15%;              /* Dark card background */
+    --card-foreground: 0 0% 95%;
+    --popover: 220 30% 15%;
+    --popover-foreground: 0 0% 95%;
     --primary: 190 100% 67%;          /* Electric blue #4ED9F3 */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 270 70% 60%;         /* Purple #A855F7 */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 40%;
+    --primary-foreground: 221 60% 8%;
+    --secondary: 325 100% 85%;        /* Pastel pink #FFB8E8 */
+    --secondary-foreground: 221 60% 8%;
+    --muted: 220 25% 20%;
+    --muted-foreground: 0 0% 70%;
     --accent: 265 100% 86%;           /* Lilac #C7B8FF */
-    --accent-foreground: 0 0% 0%;
+    --accent-foreground: 221 60% 8%;
     --destructive: 4 100% 69%;        /* Coral #FF6F61 */
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0%;                /* Black borders */
-    --input: 0 0% 100%;
+    --border: 325 100% 85%;           /* Pastel pink borders */
+    --input: 220 30% 18%;
     --ring: 190 100% 67%;
     --radius: 1.5625rem;
 
     /* Extended Neo Y2K Palette */
-    --neo-pink: 270 70% 60%;          /* Purple #A855F7 */
+    --neo-pink: 325 100% 85%;         /* #FFB8E8 */
     --neo-blue: 196 100% 83%;         /* #AEE6FF */
     --neo-lilac: 265 100% 86%;        /* #C7B8FF */
     --neo-mint: 160 100% 85%;         /* #B8FFE3 */
