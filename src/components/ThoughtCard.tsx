@@ -127,7 +127,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
         setLocalReaction(type);
       }
 
-      onReactionChange?.();
+      // Don't trigger immediate refetch - let realtime updates handle it
     } catch (error) {
       toast({
         title: "Error",
@@ -182,7 +182,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
         setLocalReaction('dislike');
       }
 
-      onReactionChange?.();
+      // Don't trigger immediate refetch - let realtime updates handle it
     } catch (error) {
       toast({
         title: "Error",
@@ -314,15 +314,15 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('like')}
-              className={`transition-all duration-300 ${
+              className={`transition-all duration-200 ${
                 localReaction === 'like' 
                   ? 'text-primary bg-primary/10 hover:bg-primary/20 scale-105' 
                   : 'hover:bg-accent/10 scale-100'
               }`}
             >
-              <Heart className={`h-4 w-4 mr-1 transition-all duration-300 ${
+              <Heart className={`h-4 w-4 mr-1 transition-all duration-200 ${
                 localReaction === 'like' 
-                  ? 'fill-primary scale-110 animate-pulse' 
+                  ? 'fill-primary scale-110' 
                   : 'scale-100'
               }`} />
               <span className="text-sm font-medium">{localLikes}</span>
@@ -331,15 +331,15 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={handleDislike}
-              className={`transition-all duration-300 ${
+              className={`transition-all duration-200 ${
                 localReaction === 'dislike' 
                   ? 'text-destructive bg-destructive/10 hover:bg-destructive/20 scale-105' 
                   : 'hover:bg-accent/10 scale-100'
               }`}
             >
-              <ThumbsDown className={`h-4 w-4 mr-1 transition-all duration-300 ${
+              <ThumbsDown className={`h-4 w-4 mr-1 transition-all duration-200 ${
                 localReaction === 'dislike' 
-                  ? 'fill-destructive scale-110 animate-pulse' 
+                  ? 'fill-destructive scale-110' 
                   : 'scale-100'
               }`} />
               <span className="text-sm font-medium">{localDislikes}</span>
