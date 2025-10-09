@@ -57,11 +57,24 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        yellow: "hsl(var(--yellow))",
+        coral: "hsl(var(--coral))",
+        lavender: "hsl(var(--lavender))",
+        mint: "hsl(var(--mint))",
+        "baby-blue": "hsl(var(--baby-blue))",
+        "hot-pink": "hsl(var(--hot-pink))",
+      },
+      fontFamily: {
+        sans: ['Nunito Sans', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['Poppins', 'Rubik', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius-md)",
+        sm: "var(--radius-sm)",
+      },
+      borderWidth: {
+        '3': '3px',
       },
       keyframes: {
         "accordion-down": {

@@ -2,20 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Film Grain - Subtle and Modern */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="2.5" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-  opacity: 0.08;
-  pointer-events: none;
-  z-index: 9999;
-  mix-blend-mode: overlay;
-}
+/* No film grain for flat Y2K aesthetic */
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
@@ -23,97 +10,99 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Light Mode - Modern Flat Purple/Blue */
-    --background: 0 0% 98%;
-    --foreground: 0 0% 8%;
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 8%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
-    --primary: 265 90% 68%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 95% 62%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 240 15% 92%;
-    --muted-foreground: 240 8% 40%;
-    --accent: 191 85% 68%;
-    --accent-foreground: 0 0% 8%;
-    --destructive: 0 85% 60%;
+    /* Y2K Flat Cartoon Theme */
+    --background: 45 100% 96%;  /* Cream #FFF9E8 */
+    --foreground: 0 0% 0%;      /* Black #000000 */
+    --card: 0 0% 100%;          /* White */
+    --card-foreground: 0 0% 0%; /* Black */
+    --popover: 0 0% 100%;       /* White */
+    --popover-foreground: 0 0% 0%;
+    --primary: 45 100% 69%;     /* Yellow #FFD75E */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 4 100% 69%;    /* Coral #FF6F61 */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 45 100% 92%;       /* Light Cream */
+    --muted-foreground: 0 0% 40%;
+    --accent: 160 100% 85%;     /* Mint #B8FFDA */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 60%;  /* Red */
     --destructive-foreground: 0 0% 100%;
-    --border: 240 8% 90%;
-    --input: 240 12% 88%;
-    --ring: 265 90% 68%;
-    --radius: 1rem;
+    --border: 0 0% 0%;          /* Black borders */
+    --input: 0 0% 100%;         /* White */
+    --ring: 45 100% 69%;        /* Yellow */
+    --radius: 1.5rem;
 
-    /* Extended Palette */
-    --purple: 265 90% 68%;
-    --purple-light: 270 80% 75%;
-    --blue: 210 95% 62%;
-    --cyan: 191 85% 68%;
-    --pink: 315 75% 70%;
+    /* Extended Y2K Palette */
+    --yellow: 45 100% 69%;      /* #FFD75E */
+    --coral: 4 100% 69%;        /* #FF6F61 */
+    --lavender: 270 100% 86%;   /* #D7B8FF */
+    --mint: 160 100% 85%;       /* #B8FFDA */
+    --baby-blue: 198 100% 83%;  /* #A6E1FF */
+    --hot-pink: 320 100% 76%;   /* #FF84D0 */
 
     /* Typography Tokens */
-    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-display: 'Montserrat', 'Inter', sans-serif;
-    --font-weight-ui: 500;
-    --font-weight-display: 800;
+    --font-ui: 'Nunito Sans', -apple-system, sans-serif;
+    --font-display: 'Poppins', 'Rubik', sans-serif;
+    --font-weight-ui: 600;
+    --font-weight-display: 700;
     --letter-ui: 0;
-    --letter-display: -0.01em;
+    --letter-display: 0;
 
-    /* Shape Tokens */
-    --radius-sm: 10px;
-    --radius-md: 14px;
-    --radius-lg: 18px;
-    --stroke-width: 2px;
+    /* Shape Tokens - Flat & Rounded */
+    --radius-sm: 20px;
+    --radius-md: 25px;
+    --radius-lg: 30px;
+    --stroke-width: 3px;        /* Thick outlines */
     --stroke-style: solid;
-    --tab-shape: 12px;
-    --btn-shape: 12px;
+    --tab-shape: 25px;
+    --btn-shape: 25px;
 
-    /* Elevation Tokens */
-    --shadow-1: 0 2px 10px rgba(0,0,0,.08);
-    --shadow-2: 0 6px 24px rgba(0,0,0,.12);
-    --inner-glow: inset 0 0 0 transparent;
+    /* Elevation Tokens - NO SHADOWS */
+    --shadow-1: none;
+    --shadow-2: none;
+    --inner-glow: none;
 
     /* Motion Tokens */
-    --ease-ui: cubic-bezier(.2,.8,.2,1);
-    --dur-fast: 120ms;
-    --dur-med: 220ms;
-    --dur-slow: 420ms;
+    --ease-ui: cubic-bezier(.4,0,.2,1);
+    --dur-fast: 150ms;
+    --dur-med: 250ms;
+    --dur-slow: 400ms;
 
-    /* FX Tokens */
+    /* FX Tokens - Flat Design */
     --fx-overlay: none;
     --img-filter: none;
     --active-underline: none;
   }
 
   .dark {
-    /* Dark Mode - Modern Flat Purple/Blue */
-    --background: 230 25% 8%;
-    --foreground: 0 0% 98%;
-    --card: 230 20% 10%;
-    --card-foreground: 0 0% 98%;
-    --popover: 230 20% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 265 90% 68%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 95% 62%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 230 20% 15%;
-    --muted-foreground: 230 8% 65%;
-    --accent: 191 85% 68%;
-    --accent-foreground: 0 0% 8%;
-    --destructive: 0 85% 60%;
+    /* Dark Mode Y2K - Darker but still colorful */
+    --background: 240 20% 12%;   /* Dark navy */
+    --foreground: 0 0% 100%;     /* White text */
+    --card: 240 15% 18%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 15% 18%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 45 100% 69%;      /* Yellow */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 4 100% 69%;     /* Coral */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 240 15% 22%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 160 100% 85%;      /* Mint */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 230 20% 18%;
-    --input: 230 20% 18%;
-    --ring: 265 90% 68%;
+    --border: 0 0% 100%;         /* White borders in dark mode */
+    --input: 240 15% 22%;
+    --ring: 45 100% 69%;
 
-    /* Extended Palette */
-    --purple: 265 90% 68%;
-    --purple-light: 270 80% 75%;
-    --blue: 210 95% 62%;
-    --cyan: 191 85% 68%;
-    --pink: 315 75% 70%;
+    /* Extended Y2K Palette */
+    --yellow: 45 100% 69%;
+    --coral: 4 100% 69%;
+    --lavender: 270 100% 86%;
+    --mint: 160 100% 85%;
+    --baby-blue: 198 100% 83%;
+    --hot-pink: 320 100% 76%;
   }
 
   .retro {
@@ -344,38 +333,7 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
-  /* Grainy Gradient Background - Modern Retro */
-  .gradient-cloud {
-    background: linear-gradient(
-      135deg,
-      hsl(230, 60%, 30%) 0%,
-      hsl(265, 70%, 45%) 25%,
-      hsl(300, 60%, 50%) 50%,
-      hsl(191, 70%, 55%) 75%,
-      hsl(210, 70%, 60%) 100%
-    );
-    background-size: 400% 400%;
-    animation: gradient-shift 15s ease infinite;
-    position: relative;
-  }
-
-  .gradient-cloud::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.25;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-  }
-
-  @keyframes gradient-shift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
+  /* No gradients - flat Y2K aesthetic */
 
   /* Flat Interactive Hover */
   .hover-lift {
@@ -386,16 +344,16 @@ All colors MUST be HSL.
     transform: translateY(-2px);
   }
 
-  /* Flat Card */
+  /* Flat Card - Y2K Cartoon Style */
   .card-flat {
     background: hsl(var(--card));
-    border: 2px solid hsl(var(--border));
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    border: 3px solid hsl(var(--border));
+    border-radius: var(--radius-md);
+    transition: transform 0.2s ease;
   }
 
   .card-flat:hover {
-    border-color: hsl(var(--primary));
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
 
   /* Active Tab Indicator - Flat */
@@ -415,27 +373,16 @@ All colors MUST be HSL.
     color: hsl(var(--foreground));
   }
 
-  /* Profile Ring - Flat */
+  /* Profile Ring - Thick Cartoon Outline */
   .profile-ring {
-    border: 3px solid hsl(var(--primary));
+    border: 4px solid hsl(var(--border));
   }
 
   .profile-ring-secondary {
-    border: 3px solid hsl(var(--secondary));
+    border: 4px solid hsl(var(--border));
   }
 
-  /* Gradient Text - Bold */
-  .gradient-text {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--purple)),
-      hsl(var(--blue)),
-      hsl(var(--cyan))
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  /* No gradient text - solid colors only */
 
   /* Modern Button Effects - No Shadows */
   .btn-flat {
@@ -489,15 +436,17 @@ All colors MUST be HSL.
     letter-spacing: -0.02em;
   }
 
-  /* Expressive Theme Component Styling */
+  /* Y2K Flat Component Styling */
   .card {
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-1);
+    box-shadow: none;
+    border: 3px solid hsl(var(--border));
     transition: all var(--dur-med) var(--ease-ui);
   }
 
   .btn {
     border-radius: var(--btn-shape);
+    border: 3px solid hsl(var(--border));
     transition: all var(--dur-med) var(--ease-ui);
   }
 
