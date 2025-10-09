@@ -651,13 +651,24 @@ All colors MUST be HSL.
     box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
   }
 
-  /* Light mode - no glow */
+  /* Light mode - no glow on anything */
   .neon-glow {
     text-shadow: none;
   }
 
   .btn-glow {
     box-shadow: none;
+  }
+
+  /* Remove glow from tabs in light mode */
+  :not(.dark):not(.upside_down):not(.chemistry) [data-state="active"],
+  :not(.dark):not(.upside_down):not(.chemistry) button[data-state="active"] {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  :not(.dark):not(.upside_down):not(.chemistry) .bg-primary {
+    box-shadow: none !important;
   }
 
   .upside_down .btn-primary,
