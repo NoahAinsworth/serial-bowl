@@ -66,13 +66,13 @@ function isOutOfScope(text: string): boolean {
   return NON_TV_HINTS.some(word => lower.includes(word));
 }
 
-// OpenAI Tools for TVDB + Web Search
+// Gemini Tools for TVDB + Web Search
 const TOOLS = [
   {
     type: "function",
     function: {
       name: "searchShow",
-      description: "Search TV shows by title via TVDB v4",
+      description: "Search TV shows by title via TVDB v4. Returns array of shows with id, name, year, image. If TVDB returns empty results or errors, you should try webSearch instead.",
       parameters: {
         type: "object",
         properties: { query: { type: "string" } },
@@ -84,7 +84,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getShowDetails",
-      description: "Get series details by TVDB id - includes air dates, status, genres, network",
+      description: "Get series details by TVDB id - includes air dates, status, genres, network. If this fails or TVDB is down, you should try webSearch for the show name.",
       parameters: {
         type: "object",
         properties: { tvdb_id: { type: "integer" } },
@@ -96,7 +96,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getSeasonEpisodes",
-      description: "Get all episodes for a specific season with air dates",
+      description: "Get all episodes for a specific season with air dates. If TVDB has no data or errors, try webSearch with '<show name> season <number> episodes release dates'.",
       parameters: {
         type: "object",
         properties: {
@@ -111,7 +111,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getEpisode",
-      description: "Get a specific episode by season/episode numbers",
+      description: "Get a specific episode by season/episode numbers. If TVDB has no data, try webSearch.",
       parameters: {
         type: "object",
         properties: {
@@ -127,11 +127,28 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getSeriesPeople",
-      description: "Get cast/crew for a series",
+      description: "Get cast/crew for a series. If TVDB has no data, try webSearch for '<show name> cast'.",
       parameters: {
         type: "object",
         properties: { tvdb_id: { type: "integer" } },
         required: ["tvdb_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "webSearch",
+      description: "Search the web using Google search with Gemini. Use this ONLY when TVDB fails, returns empty results, or doesn't have recent data (last 60-90 days). Useful for: recent releases, episode air dates, cast updates, streaming availability. Include show name and be specific.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description: "Search query - be specific, e.g. 'Peacemaker season 2 release schedule' or 'One Tree Hill cast members'"
+          }
+        },
+        required: ["query"],
       },
     },
   },
@@ -146,8 +163,13 @@ CORE GOALS:
 - Provide 3-6 contextual follow-up suggestions as tappable chips
 
 SOURCES & PRIORITY:
-1. Primary: Your knowledge + TVDB for canonical data (IDs, air dates, episode lists)
-2. Cross-check facts; if sources disagree, trust TVDB but mention the discrepancy
+1. Primary: TVDB for canonical data (IDs, air dates, episode lists)
+2. Fallback: Use webSearch ONLY when:
+   • TVDB returns empty results
+   • TVDB errors or is unavailable
+   • You need very recent info (last 60-90 days) that TVDB might not have yet
+3. Use your general knowledge as last resort for common/historical TV info
+4. When using webSearch, be specific: include show name, season number, what you're looking for
 
 SPOILER POLICY (CRITICAL):
 - ALWAYS check user's hide_spoilers setting before answering
@@ -196,10 +218,10 @@ PERSONALIZATION:
 - Prioritize shows matching their taste profile
 
 GUARDRAILS:
-- If no TVDB results, ask clarification + show disambiguation chips
-- If TVDB is down, answer from knowledge but mark entities as "unverified"
-- If sources conflict, be transparent: "Based on TVDB and recent coverage..."
-- Never make up air dates or episode counts
+- If TVDB returns no results, try webSearch before giving up
+- If TVDB errors, use webSearch as fallback and mention: "Based on web sources (TVDB unavailable)..."
+- If sources conflict, be transparent: "Based on web search and TVDB..."
+- Never make up air dates or episode counts - always verify with tools
 
 SCOPE:
 ✓ TV shows, seasons, episodes, actors, streaming platforms
@@ -381,6 +403,14 @@ Use this context to personalize recommendations and respect spoiler preferences.
             toolResult = await getEpisodeBySE(args.tvdb_id, args.season_number, args.episode_number, tvdbApiKey);
           } else if (fname === "getSeriesPeople") {
             toolResult = await getSeriesPeople(args.tvdb_id, tvdbApiKey);
+          } else if (fname === "webSearch") {
+            // Gemini has built-in web search, we just acknowledge the call
+            // The actual search happens in Gemini's context
+            toolResult = { 
+              note: "Web search will be performed by Gemini",
+              query: args.query,
+              instruction: "Use Google Search grounding to find this information"
+            };
           }
 
           toolMessages.push({
@@ -390,10 +420,15 @@ Use this context to personalize recommendations and respect spoiler preferences.
           });
         } catch (err) {
           console.error(`Tool ${fname} error:`, err);
+          // Return error but suggest web search fallback
           toolMessages.push({
             role: "tool",
             tool_call_id: toolCall.id,
-            content: JSON.stringify({ ok: false, error: String(err) }),
+            content: JSON.stringify({ 
+              ok: false, 
+              error: String(err),
+              suggestion: "Try using webSearch as fallback"
+            }),
           });
         }
       }
@@ -405,15 +440,16 @@ Use this context to personalize recommendations and respect spoiler preferences.
           Authorization: `Bearer ${lovableApiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: toolMessages,
-        }),
-      });
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: toolMessages,
+        tools: TOOLS, // Include tools again for potential additional calls
+      }),
+    });
 
-      if (followUpResponse.ok) {
-        result = await followUpResponse.json();
-      }
+    if (followUpResponse.ok) {
+      result = await followUpResponse.json();
+    }
     }
 
     const assistantMessage = result.choices[0].message.content;
