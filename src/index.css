@@ -623,6 +623,19 @@ All colors MUST be HSL.
     z-index: 1;  /* Above the glitch overlay */
   }
 
+  /* Glow effect classes - only for non-home screens */
+  .neon-glow {
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+  }
+
+  .btn-glow {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  .btn-glow:hover {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+  }
+
   .upside_down .btn-primary,
   .upside_down button[class*="bg-primary"] {
     background: #C00000;
