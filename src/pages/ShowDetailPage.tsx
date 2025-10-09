@@ -34,7 +34,9 @@ export default function ShowDetailPage() {
 
   useEffect(() => {
     if (id) {
-      loadShow(parseInt(id));
+      // Extract numeric ID from format like "series-403294"
+      const numericId = id.replace(/^series-/, '');
+      loadShow(parseInt(numericId));
     }
   }, [id]);
 
