@@ -398,6 +398,62 @@ All colors MUST be HSL.
     --font-display: 'Inter', 'Helvetica', sans-serif;
     --font-ui: 'Inter', 'Helvetica', sans-serif;
     --letter-display: -0.01em;
+  }
+
+  .friends {
+    /* Friends 90s Theme - Central Perk Cozy Vibes */
+    --background: 39 100% 97%;        /* Coffee Cream Beige #FFFBF0 */
+    --foreground: 0 0% 12%;           /* Black Ink #1F1F1F */
+    --card: 0 0% 99%;                 /* Off-White #FFFDF6 */
+    --card-foreground: 0 0% 12%;
+    --popover: 0 0% 99%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 45 100% 64%;           /* Golden Frame Yellow #FFD84D */
+    --primary-foreground: 0 0% 12%;
+    --secondary: 25 69% 54%;          /* Couch Orange #D97B36 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 39 100% 94%;             /* Light Cream #FFF3D1 */
+    --muted-foreground: 0 0% 40%;
+    --accent: 280 28% 68%;            /* Monica's Wall Purple #B497BD */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 7 80% 54%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 45 100% 64%;            /* Golden Yellow border */
+    --input: 0 0% 99%;
+    --ring: 45 100% 64%;
+    --radius: 1.25rem;
+
+    /* Extended Friends Palette */
+    --friends-purple: 280 28% 68%;    /* Monica's Wall #B497BD */
+    --friends-lavender: 270 38% 85%;  /* Soft Lavender #D6C0E9 */
+    --friends-yellow: 45 100% 64%;    /* Golden Frame #FFD84D */
+    --friends-cream: 39 100% 94%;     /* Coffee Cream #F7E6C4 */
+    --friends-orange: 25 69% 54%;     /* Couch Orange #D97B36 */
+    --friends-green: 140 35% 30%;     /* Chalkboard Green #355E3B */
+
+    /* Typography - Rounded & Friendly */
+    --font-display: 'Poppins', 'Nunito', sans-serif;
+    --font-ui: 'Inter', 'Nunito Sans', sans-serif;
+    --letter-display: 0.015em;
+    --font-weight-display: 600;
+    --font-weight-ui: 500;
+    
+    /* Shapes - Cozy Rounded */
+    --radius-sm: 15px;
+    --radius-md: 20px;
+    --radius-lg: 25px;
+    --btn-shape: 20px;
+    --tab-shape: 18px;
+    --stroke-width: 1.5px;
+    --stroke-style: solid;
+    
+    /* Effects - Warm & Cozy */
+    --shadow-1: 0 2px 8px rgba(217, 123, 54, 0.1);
+    --shadow-2: 0 4px 16px rgba(217, 123, 54, 0.15);
+    --inner-glow: none;
+    --active-underline: linear-gradient(90deg, hsl(45 100% 64%), hsl(25 69% 54%));
+    --img-filter: saturate(1.05) brightness(1.02);
+    --fx-overlay: none;
     --letter-ui: 0;
     --font-weight-display: 600;
     --font-weight-ui: 400;
@@ -1167,5 +1223,54 @@ All colors MUST be HSL.
 
   .dark .glass-float {
     animation: float-glass 6s ease-in-out infinite;
+  }
+
+  /* Friends Logo Styling */
+  .friends-logo {
+    display: flex;
+    align-items: center;
+    font-family: 'Poppins', 'Futura', 'Avenir', sans-serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: 0.2em;
+    color: hsl(var(--foreground));
+    user-select: none;
+  }
+
+  .friends-logo .dot {
+    font-size: 0.75rem;
+    font-weight: 400;
+    vertical-align: middle;
+    margin: 0 -0.05em;
+    position: relative;
+    top: -0.1em;
+  }
+
+  .friends-logo .dot-red {
+    color: #E1443D;
+  }
+
+  .friends-logo .dot-yellow {
+    color: #FFD84D;
+  }
+
+  .friends-logo .dot-blue {
+    color: #4DA6FF;
+  }
+
+  /* Friends Theme - Glow effect on dots in dark backgrounds */
+  .dark .friends-logo .dot-red,
+  .friends .friends-logo .dot-red {
+    text-shadow: 0 0 8px rgba(225, 68, 61, 0.6);
+  }
+
+  .dark .friends-logo .dot-yellow,
+  .friends .friends-logo .dot-yellow {
+    text-shadow: 0 0 8px rgba(255, 212, 77, 0.6);
+  }
+
+  .dark .friends-logo .dot-blue,
+  .friends .friends-logo .dot-blue {
+    text-shadow: 0 0 8px rgba(77, 166, 255, 0.6);
   }
 }

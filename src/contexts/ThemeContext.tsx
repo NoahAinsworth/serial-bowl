@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-type ThemeMode = 'light' | 'dark' | 'retro' | 'upside_down' | 'saturday_cartoons' | 'blue_crystal' | 'neo_y2k' | 'polaroid_grey';
+type ThemeMode = 'light' | 'dark' | 'retro' | 'upside_down' | 'saturday_cartoons' | 'blue_crystal' | 'neo_y2k' | 'polaroid_grey' | 'friends';
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -29,7 +29,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('theme', newTheme);
     
     // Remove all theme classes
-    document.documentElement.classList.remove('light', 'dark', 'retro', 'upside_down', 'saturday_cartoons', 'blue_crystal', 'neo_y2k', 'polaroid_grey');
+    document.documentElement.classList.remove('light', 'dark', 'retro', 'upside_down', 'saturday_cartoons', 'blue_crystal', 'neo_y2k', 'polaroid_grey', 'friends');
     document.documentElement.classList.add(newTheme);
     
     // Handle body classes for overlay effects
@@ -46,7 +46,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark', 'retro', 'upside_down', 'saturday_cartoons', 'blue_crystal', 'neo_y2k', 'polaroid_grey');
+    document.documentElement.classList.remove('light', 'dark', 'retro', 'upside_down', 'saturday_cartoons', 'blue_crystal', 'neo_y2k', 'polaroid_grey', 'friends');
     document.documentElement.classList.add(theme);
     
     // Handle body classes for overlay effects

@@ -93,8 +93,26 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-black tracking-wide wordmark gradient-text">
-              SERIAL BOWL
+            <h1 className="friends-logo">
+              <span>S</span>
+              <span className="dot dot-red">·</span>
+              <span>E</span>
+              <span className="dot dot-yellow">·</span>
+              <span>R</span>
+              <span className="dot dot-blue">·</span>
+              <span>I</span>
+              <span className="dot dot-red">·</span>
+              <span>A</span>
+              <span className="dot dot-yellow">·</span>
+              <span>L</span>
+              <span className="dot dot-blue">·</span>
+              <span>B</span>
+              <span className="dot dot-red">·</span>
+              <span>O</span>
+              <span className="dot dot-yellow">·</span>
+              <span>W</span>
+              <span className="dot dot-blue">·</span>
+              <span>L</span>
             </h1>
           </div>
           <div className="flex items-center gap-1">
