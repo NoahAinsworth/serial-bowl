@@ -17,9 +17,9 @@ All colors MUST be HSL.
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 24 100% 50%;         /* Orange #FF6600 */
+    --primary: 214 89% 52%;         /* Blue #4DA6FF */
     --primary-foreground: 0 0% 100%;
-    --secondary: 24 100% 50%;       /* Orange #FF6600 */
+    --secondary: 214 89% 52%;       /* Blue #4DA6FF */
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 96%;              /* Very light grey */
     --muted-foreground: 0 0% 45%;   /* Medium grey */
@@ -29,7 +29,7 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 93%;             /* Subtle grey border */
     --input: 0 0% 96%;
-    --ring: 24 100% 50%;
+    --ring: 214 89% 52%;
     --radius: 0.75rem;
 
     /* Extended Modern Palette */
@@ -732,8 +732,12 @@ All colors MUST be HSL.
   .the_one_with_the_theme .friends-logo {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
-    color: hsl(var(--foreground));
+    color: hsl(var(--primary));
     text-transform: none;
+  }
+
+  .the_one_with_the_theme .friends-logo .dot-red {
+    color: #E1443D;
   }
 
   .the_one_with_the_theme .friends-logo .dot-blue {
@@ -742,9 +746,5 @@ All colors MUST be HSL.
 
   .the_one_with_the_theme .friends-logo .dot-yellow {
     color: #FFD84D;
-  }
-
-  .the_one_with_the_theme .friends-logo .dot-red {
-    color: #4DA6FF; /* Changed to blue */
   }
 }

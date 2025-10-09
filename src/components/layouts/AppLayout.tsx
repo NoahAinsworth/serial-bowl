@@ -98,19 +98,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             {theme === 'the_one_with_the_theme' ? (
               <h1 className="friends-logo">
                 <span>S</span>
-                <span className="dot dot-blue">·</span>
+                <span className="dot dot-red">·</span>
                 <span>E</span>
                 <span className="dot dot-yellow">·</span>
                 <span>R</span>
                 <span className="dot dot-blue">·</span>
                 <span>I</span>
-                <span className="dot dot-blue">·</span>
+                <span className="dot dot-red">·</span>
                 <span>A</span>
                 <span className="dot dot-yellow">·</span>
                 <span>L</span>
                 <span className="dot dot-blue">·</span>
                 <span>B</span>
-                <span className="dot dot-blue">·</span>
+                <span className="dot dot-red">·</span>
                 <span>O</span>
                 <span className="dot dot-yellow">·</span>
                 <span>W</span>
