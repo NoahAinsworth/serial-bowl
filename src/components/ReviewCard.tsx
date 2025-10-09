@@ -10,6 +10,8 @@ import { RatingBadge } from '@/components/PercentRating';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { SafetyOverlay } from '@/components/SafetyOverlay';
+import { replaceProfanity } from '@/utils/profanityFilter';
 
 interface ReviewCardProps {
   review: {
@@ -22,6 +24,8 @@ interface ReviewCardProps {
     text: string;
     rating: number | null;
     is_spoiler?: boolean;
+    contains_mature?: boolean;
+    mature_reasons?: string[];
     content?: {
       id: string;
       title: string;
@@ -35,16 +39,25 @@ interface ReviewCardProps {
     userReaction?: 'like' | 'dislike';
   };
   userHideSpoilers?: boolean;
+  strictSafety?: boolean;
   onDelete?: () => void;
 }
 
-export function ReviewCard({ review, userHideSpoilers = true, onDelete }: ReviewCardProps) {
+export function ReviewCard({ review, userHideSpoilers = true, strictSafety = false, onDelete }: ReviewCardProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [localReaction, setLocalReaction] = useState(review.userReaction);
   const [localLikes, setLocalLikes] = useState(review.likes || 0);
   const [localDislikes, setLocalDislikes] = useState(review.dislikes || 0);
+
+  // Determine safety overlay type
+  const isSpoilerHidden = review.is_spoiler && userHideSpoilers;
+  const isSexualHidden = strictSafety && review.contains_mature && review.mature_reasons?.includes('sexual');
+  const overlayType = isSpoilerHidden && isSexualHidden ? 'both' : isSexualHidden ? 'sexual' : isSpoilerHidden ? 'spoiler' : null;
+
+  // Apply profanity filter if strict safety is on
+  const displayText = strictSafety ? replaceProfanity(review.text) : review.text;
 
   const handleLike = async () => {
     if (!user) {
@@ -151,7 +164,8 @@ export function ReviewCard({ review, userHideSpoilers = true, onDelete }: Review
   };
 
   return (
-    <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group">
+    <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative">
+      {overlayType && <SafetyOverlay type={overlayType} />}
       <div className="flex gap-3">
         <div>
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.id}`)}>
@@ -202,7 +216,7 @@ export function ReviewCard({ review, userHideSpoilers = true, onDelete }: Review
             </div>
           )}
 
-          <SpoilerText content={review.text} isSpoiler={review.is_spoiler && userHideSpoilers} />
+          <SpoilerText content={displayText} isSpoiler={false} />
 
           {(review.likes !== undefined || review.dislikes !== undefined) && (
             <div className="flex items-center gap-6 text-muted-foreground mt-3">

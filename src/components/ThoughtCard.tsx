@@ -20,6 +20,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { CommentsSection } from '@/components/CommentsSection';
+import { SafetyOverlay } from '@/components/SafetyOverlay';
+import { replaceProfanity } from '@/utils/profanityFilter';
 
 interface ThoughtCardProps {
   thought: {
@@ -31,6 +33,8 @@ interface ThoughtCardProps {
     };
     content: string;
     is_spoiler?: boolean;
+    contains_mature?: boolean;
+    mature_reasons?: string[];
     show?: {
       title: string;
       external_id?: string;
@@ -53,11 +57,12 @@ interface ThoughtCardProps {
     userReaction?: 'like' | 'dislike';
   };
   userHideSpoilers?: boolean;
+  strictSafety?: boolean;
   onReactionChange?: () => void;
   onDelete?: () => void;
 }
 
-export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange, onDelete }: ThoughtCardProps) {
+export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = false, onReactionChange, onDelete }: ThoughtCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -68,6 +73,14 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
   const [deleting, setDeleting] = useState(false);
   
   const isOwner = user?.id === thought.user.id;
+
+  // Determine safety overlay type
+  const isSpoilerHidden = thought.is_spoiler && userHideSpoilers;
+  const isSexualHidden = strictSafety && thought.contains_mature && thought.mature_reasons?.includes('sexual');
+  const overlayType = isSpoilerHidden && isSexualHidden ? 'both' : isSexualHidden ? 'sexual' : isSpoilerHidden ? 'spoiler' : null;
+
+  // Apply profanity filter if strict safety is on
+  const displayContent = strictSafety ? replaceProfanity(thought.content) : thought.content;
 
   const handleReaction = async (type: 'like') => {
     if (!user) {
@@ -208,7 +221,8 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
   };
 
   return (
-    <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group">
+    <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative">
+      {overlayType && <SafetyOverlay type={overlayType} />}
       <div className="flex gap-3">
         <div>
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.handle}`)}>
@@ -258,7 +272,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
               </AlertDialog>
             )}
           </div>
-          <SpoilerText content={thought.content} isSpoiler={thought.is_spoiler && userHideSpoilers} />
+          <SpoilerText content={displayContent} isSpoiler={false} />
           <div className="flex flex-wrap gap-2 mb-3">
             {thought.show && (
               <div 

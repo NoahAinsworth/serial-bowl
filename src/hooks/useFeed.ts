@@ -13,6 +13,9 @@ interface FeedPost {
   content: any;
   text: string;
   is_spoiler?: boolean;
+  contains_mature?: boolean;
+  mature_reasons?: string[];
+  visibility?: string;
   rating: number | null;
   likes: number;
   dislikes: number;
@@ -22,7 +25,7 @@ interface FeedPost {
   score?: number;
 }
 
-export function useFeed(tab: string) {
+export function useFeed(feedType: string, contentType: string = 'all') {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +44,6 @@ export function useFeed(tab: string) {
           table: 'thoughts'
         },
         () => {
-          // Refresh feed when thoughts change
           loadFeed();
         }
       )
@@ -53,7 +55,6 @@ export function useFeed(tab: string) {
           table: 'reviews'
         },
         () => {
-          // Refresh feed when reviews change
           loadFeed();
         }
       )
@@ -65,7 +66,6 @@ export function useFeed(tab: string) {
           table: 'reactions'
         },
         () => {
-          // Refresh feed when reactions change
           loadFeed();
         }
       )
@@ -77,7 +77,6 @@ export function useFeed(tab: string) {
           table: 'comments'
         },
         () => {
-          // Refresh feed when comments change
           loadFeed();
         }
       )
@@ -86,7 +85,7 @@ export function useFeed(tab: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tab]);
+  }, [feedType, contentType]);
 
   const loadFeed = async () => {
     try {
@@ -104,7 +103,7 @@ export function useFeed(tab: string) {
       }
 
       const response = await fetch(
-        `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${tab}`,
+        `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${feedType}&contentType=${contentType}`,
         { 
           headers,
           signal: AbortSignal.timeout(10000),
