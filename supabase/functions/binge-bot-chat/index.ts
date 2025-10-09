@@ -71,80 +71,21 @@ function isOutOfScope(text: string): boolean {
   return NON_TV_HINTS.some(word => lower.includes(word));
 }
 
-const SYSTEM_PROMPT = `You are Binge Bot, a TV show assistant. Current date: October 9, 2025.
+const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant. Current date: October 9, 2025.
 
-🚨 CRITICAL RULES - NEVER BREAK THESE:
-1. NEVER use your training data for show information - it's outdated
-2. ALWAYS call tools to get current data from TVDB before answering
-3. For ANY question about a show, you MUST:
-   - First call searchShow to find it
-   - Then call getShowDetails to get current status and air dates
-   - If asking about a season, call getSeasonEpisodes to get episode air dates
-4. ONLY answer based on the tool results you receive
-5. If tool data conflicts with what you "think" you know, TRUST THE TOOL DATA
+Use your knowledge and web search to answer questions about TV shows accurately.
 
-RELEASE STATUS (use actual dates from tools):
-- Check episode air dates from getSeasonEpisodes
-- If episodes aired in the PAST (before Oct 2025), it IS released/out
-- If last episode aired in the past, say "fully released"
-- If first episode aired but last hasn't, say "currently airing"
-- Always mention specific premiere/finale dates from the data
+When mentioning shows, seasons, or episodes, wrap them in [brackets] so they become clickable links:
+- Shows: [Peacemaker]
+- Seasons: [Peacemaker Season 2]
+- Episodes: [Peacemaker S02E01]
 
-RESPONSE FORMAT:
-- Keep it brief (2-3 sentences)
-- Wrap show names in [brackets] like [Peacemaker]
-- Include specific dates from the tool data
-- Provide 3-5 follow-up suggestions
+Keep responses concise (2-4 sentences) and provide 3-5 relevant follow-up suggestions.
 
-Example workflow:
-User: "Is Peacemaker season 2 out?"
-1. Call searchShow("Peacemaker") → get tvdb_id
-2. Call getSeasonEpisodes(tvdb_id, 2) → check episode air dates
-3. Answer based on the dates: "Yes! [Peacemaker] Season 2 premiered on Aug 21, 2025 and finished airing on Oct 9, 2025."
+Example:
+"Yes! [Peacemaker] Season 2 premiered on August 21, 2025 on Max. The season has 8 episodes and features John Cena returning as Christopher Smith."
 
-NEVER say "I don't have information" - use the tools to GET the information!`;
-
-const TOOLS = [
-  {
-    type: "function",
-    function: {
-      name: "searchShow",
-      description: "Search TV shows by title. Returns array with id, name, year, status, first_aired date.",
-      parameters: {
-        type: "object",
-        properties: { query: { type: "string" } },
-        required: ["query"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "getShowDetails",
-      description: "Get detailed info for a show including all seasons, status, network, last_aired date.",
-      parameters: {
-        type: "object",
-        properties: { tvdb_id: { type: "integer" } },
-        required: ["tvdb_id"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "getSeasonEpisodes",
-      description: "Get all episodes for a season with air dates, numbers, and names.",
-      parameters: {
-        type: "object",
-        properties: {
-          tvdb_id: { type: "integer" },
-          season_number: { type: "integer" },
-        },
-        required: ["tvdb_id", "season_number"],
-      },
-    },
-  },
-];
+Follow-ups: ["Who's in the cast?", "Episode guide", "When's the finale?", "Open [Peacemaker]"]`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -268,13 +209,13 @@ Use this context to personalize recommendations and respect spoiler preferences.
       });
     }
 
-    // Call Lovable AI (Gemini) with tools
+    // Call Gemini with web search grounding - no tools, just natural conversation
     const geminiMessages = [
       { role: "system", content: contextualPrompt },
       ...messages
     ];
 
-    let aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${lovableApiKey}`,
@@ -283,125 +224,37 @@ Use this context to personalize recommendations and respect spoiler preferences.
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: geminiMessages,
-        tools: TOOLS,
+        // Enable Google Search grounding for current info
+        tools: [{ type: "google_search_retrieval" }]
       }),
     });
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error("Lovable AI (Gemini) error:", aiResponse.status, errorText);
+      console.error("AI error:", aiResponse.status, errorText);
       
       if (aiResponse.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
       }
       if (aiResponse.status === 402) {
-        throw new Error("Payment required. Please add credits to your Lovable AI workspace.");
+        throw new Error("Payment required. Please add credits to your workspace.");
       }
       throw new Error("AI request failed");
     }
 
-    let result = await aiResponse.json();
-    console.log("Initial AI response:", JSON.stringify(result).substring(0, 500));
-    
-    let toolCalls = result.choices?.[0]?.message?.tool_calls;
+    const result = await aiResponse.json();
+    console.log("AI response:", JSON.stringify(result).substring(0, 300));
 
-    // Handle tool calls if Gemini made any
-    if (toolCalls && toolCalls.length > 0) {
-      const toolMessages = [...geminiMessages, result.choices[0].message];
-      
-      for (const toolCall of toolCalls) {
-        const fname = toolCall.function.name;
-        const args = JSON.parse(toolCall.function.arguments);
-        let toolResult: any;
-
-        try {
-          console.log(`Tool: ${fname}`, args);
-          
-          if (fname === "searchShow") {
-            toolResult = await tvdbFetch(`/search?query=${encodeURIComponent(args.query)}&type=series`);
-            console.log(`Search returned ${toolResult?.length || 0} results`);
-          } else if (fname === "getShowDetails") {
-            toolResult = await tvdbFetch(`/series/${args.tvdb_id}/extended`);
-            console.log(`Show details:`, { 
-              name: toolResult?.name, 
-              status: toolResult?.status,
-              firstAired: toolResult?.firstAired,
-              lastAired: toolResult?.lastAired
-            });
-          } else if (fname === "getSeasonEpisodes") {
-            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default`);
-            toolResult = (data.episodes || []).filter((e: any) => e.seasonNumber === args.season_number);
-            console.log(`Found ${toolResult.length} episodes for season ${args.season_number}`);
-          } else if (fname === "getEpisode") {
-            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default`);
-            toolResult = (data.episodes || []).find((e: any) => 
-              e.seasonNumber === args.season_number && e.number === args.episode_number
-            );
-          } else if (fname === "getSeriesPeople") {
-            toolResult = await tvdbFetch(`/series/${args.tvdb_id}/people`);
-          } else if (fname === "webSearch") {
-            toolResult = { 
-              note: "Search query received",
-              query: args.query
-            };
-          }
-
-          console.log(`Tool ${fname} completed`);
-          
-          // Proper tool response format for Gemini
-          toolMessages.push({
-            role: "tool",
-            tool_call_id: toolCall.id,
-            name: fname,
-            content: JSON.stringify(toolResult)
-          });
-        } catch (err) {
-          console.error(`Tool ${fname} error:`, err);
-          toolMessages.push({
-            role: "tool",
-            tool_call_id: toolCall.id,
-            name: fname,
-            content: JSON.stringify({ error: String(err) })
-          });
-        }
-      }
-
-      // Second call with tool results
-      console.log("Making follow-up call with tool results...");
-      const followUpResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${lovableApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: toolMessages,
-          // Don't include tools in follow-up to prevent recursive calls
-        }),
-      });
-
-      if (followUpResponse.ok) {
-        result = await followUpResponse.json();
-        console.log("Follow-up response:", JSON.stringify(result).substring(0, 500));
-      } else {
-        const errorText = await followUpResponse.text();
-        console.error("Follow-up call failed:", followUpResponse.status, errorText);
-      }
-    }
-
-    // Extract assistant message - handle both content and potential null values
     const assistantMessage = result.choices?.[0]?.message?.content || 
-                            result.choices?.[0]?.text || 
-                            "I found some information but had trouble formatting the response. Please try asking again.";
+                            "I had trouble generating a response. Please try again.";
     
     console.log("Assistant message:", assistantMessage);
 
-    // Generate follow-up suggestions based on user question and context
+    // Now look up any shows mentioned to get TVDB IDs for deep linking
+    const entities = await resolveEntitiesWithTVDB(assistantMessage);
+    
+    // Generate follow-up suggestions
     const followUps = generateFollowUps(userQuery, assistantMessage);
-
-    // Extract entities from the response (parse [brackets])
-    const entities = extractEntities(assistantMessage);
 
     // Save assistant message (only if we have a session)
     if (actualSessionId) {
@@ -430,38 +283,56 @@ Use this context to personalize recommendations and respect spoiler preferences.
   }
 });
 
-// Helper to extract entities from [bracketed] text
-function extractEntities(message: string): any[] {
+// Extract [bracketed] show names and look them up in TVDB for deep linking
+async function resolveEntitiesWithTVDB(message: string): Promise<any[]> {
   const entities: any[] = [];
   const bracketRegex = /\[([^\]]+)\]/g;
   const matches = [...message.matchAll(bracketRegex)];
   
-  matches.forEach(match => {
+  for (const match of matches) {
     const entityName = match[1];
     
-    // Determine type based on patterns
-    let type: "show" | "season" | "episode" | "person" = "show";
+    // Extract show name (remove season/episode info)
+    let showName = entityName;
+    let seasonNum: number | undefined;
+    let episodeNum: number | undefined;
     
-    if (/S\d{2}E\d{2}/i.test(entityName)) {
-      type = "episode";
-    } else if (/Season \d+/i.test(entityName)) {
-      type = "season";
-    } else if (/\s-\s/.test(entityName) && entityName.split(' - ').length === 2) {
-      // Could be "ShowName - Season X" or "ShowName - S01E01"
-      if (/Season \d+/i.test(entityName.split(' - ')[1])) {
-        type = "season";
-      } else if (/S\d{2}E\d{2}/i.test(entityName.split(' - ')[1])) {
-        type = "episode";
-      }
+    // Check for patterns like "Show S02E01" or "Show Season 2"
+    const seasonEpisodeMatch = entityName.match(/^(.+?)\s+S(\d+)E(\d+)$/i);
+    const seasonMatch = entityName.match(/^(.+?)\s+Season\s+(\d+)$/i);
+    
+    if (seasonEpisodeMatch) {
+      showName = seasonEpisodeMatch[1];
+      seasonNum = parseInt(seasonEpisodeMatch[2]);
+      episodeNum = parseInt(seasonEpisodeMatch[3]);
+    } else if (seasonMatch) {
+      showName = seasonMatch[1];
+      seasonNum = parseInt(seasonMatch[2]);
     }
     
-    entities.push({
-      type,
-      name: entityName,
-      // In a full implementation, we'd look these up from TVDB
-      // For now, we'll rely on the frontend handling navigation
-    });
-  });
+    try {
+      // Look up show in TVDB
+      const searchResults = await tvdbFetch(`/search?query=${encodeURIComponent(showName)}&type=series`);
+      if (searchResults && searchResults.length > 0) {
+        const show = searchResults[0];
+        
+        entities.push({
+          type: episodeNum ? "episode" : seasonNum ? "season" : "show",
+          name: entityName,
+          externalId: show.tvdb_id || show.id,
+          seasonNumber: seasonNum,
+          episodeId: episodeNum
+        });
+      }
+    } catch (err) {
+      console.error(`Failed to look up ${showName} in TVDB:`, err);
+      // Still add entity but without TVDB ID
+      entities.push({
+        type: "show",
+        name: entityName
+      });
+    }
+  }
   
   return entities;
 }
