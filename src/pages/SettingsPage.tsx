@@ -119,6 +119,7 @@ export default function SettingsPage() {
               <SelectItem value="light">Cereal Social</SelectItem>
               <SelectItem value="dark">Dark</SelectItem>
               <SelectItem value="saturday_morning_cartoon">Saturday Morning Cartoon ☀️</SelectItem>
+              <SelectItem value="green_wireframe">Green Wireframe (Y2K) 💻</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>
               <SelectItem value="the_one_with_the_theme">The One with the Theme</SelectItem>
             </SelectContent>

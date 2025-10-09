@@ -307,6 +307,87 @@ All colors MUST be HSL.
     --gradient-cartoon: linear-gradient(135deg, hsl(var(--cartoon-orange)), hsl(var(--cartoon-pink)), hsl(var(--cartoon-blue)));
   }
 
+  .green_wireframe {
+    /* Green Wireframe Mode - Y2K Cyber Aesthetic */
+    --background: 140 48% 3%;         /* Deep near-black #050806 */
+    --foreground: 120 100% 95%;       /* Light green text #E8FFE8 */
+    --card: 140 35% 5%;               /* Secondary background #0B1410 */
+    --card-foreground: 120 100% 95%;
+    --popover: 140 35% 5%;
+    --popover-foreground: 120 100% 95%;
+    --primary: 158 100% 50%;          /* Neon Green #00FF85 */
+    --primary-foreground: 140 48% 3%;
+    --secondary: 162 100% 50%;        /* Electric Lime #00FFC2 */
+    --secondary-foreground: 140 48% 3%;
+    --muted: 140 35% 8%;
+    --muted-foreground: 149 72% 76%;  /* Text Secondary #8CF0AA */
+    --accent: 158 100% 50%;
+    --accent-foreground: 140 48% 3%;
+    --destructive: 345 100% 62%;      /* Magenta pop #FF3D6A */
+    --destructive-foreground: 120 100% 95%;
+    --border: 158 100% 50% / 0.25;    /* Wireframe outline */
+    --input: 140 35% 5%;
+    --ring: 158 100% 50%;
+    --radius: 0.625rem;
+
+    /* Extended Wireframe Palette */
+    --neon-green: 158 100% 50%;       /* #00FF85 */
+    --electric-lime: 162 100% 50%;    /* #00FFC2 */
+    --button-highlight: 158 100% 77%; /* #8EFFC2 */
+    --wireframe-glow: 158 100% 50% / 0.15;
+
+    /* Typography - Cyber Futuristic */
+    --font-ui: 'Inter', 'DM Sans', -apple-system, sans-serif;
+    --font-display: 'Orbitron', 'Satoshi', sans-serif;
+    --font-accent: 'Space Mono', monospace;
+    --font-weight-ui: 500;
+    --font-weight-display: 700;
+    --font-weight-accent: 400;
+    --letter-ui: 0em;
+    --letter-display: 0.1em;
+
+    /* Shape Tokens - Angular Y2K */
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --stroke-width: 1px;
+    --stroke-style: solid;
+    --tab-shape: 8px;
+    --btn-shape: 8px;
+
+    /* Elevation - Neon Glow */
+    --shadow-1: 0 0 15px rgba(0, 255, 133, 0.1);
+    --shadow-2: 0 0 25px rgba(0, 255, 133, 0.15);
+    --shadow-hover: 0 0 30px rgba(0, 255, 133, 0.3), 0 0 60px rgba(0, 255, 133, 0.1);
+    --inner-glow: inset 0 0 20px rgba(0, 255, 133, 0.05);
+
+    /* Motion - Electronic & Fluid */
+    --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --dur-fast: 150ms;
+    --dur-med: 300ms;
+    --dur-slow: 500ms;
+
+    /* Effects - Holographic Grid */
+    --fx-overlay: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 133, 0.03) 2px,
+      rgba(0, 255, 133, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 133, 0.03) 2px,
+      rgba(0, 255, 133, 0.03) 4px
+    );
+    --img-filter: brightness(0.9) contrast(1.1) saturate(0.8) hue-rotate(-10deg);
+    --active-underline: linear-gradient(90deg, transparent, hsl(var(--neon-green)), transparent);
+    --gradient-wireframe: linear-gradient(135deg, hsl(var(--neon-green)), hsl(var(--electric-lime)));
+  }
+
   /* Upside Down Scanline & Static Effects */
   .upside_down body::before {
     content: '';
@@ -946,5 +1027,197 @@ All colors MUST be HSL.
 
   .saturday_morning_cartoon header button:hover {
     background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Green Wireframe Mode - Cyber Effects */
+  .green_wireframe .wordmark {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: hsl(var(--neon-green));
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 255, 133, 0.5);
+    animation: logo-shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes logo-shimmer {
+    0%, 100% { 
+      text-shadow: 0 0 10px rgba(0, 255, 133, 0.5);
+    }
+    50% { 
+      text-shadow: 0 0 20px rgba(0, 255, 133, 0.8), 0 0 30px rgba(0, 255, 133, 0.3);
+    }
+  }
+
+  @keyframes neon-pulse {
+    0%, 100% { 
+      box-shadow: 0 0 5px rgba(0, 255, 133, 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 15px rgba(0, 255, 133, 0.6), 0 0 25px rgba(0, 255, 133, 0.3);
+    }
+  }
+
+  @keyframes wireframe-dissolve {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes scanline-sweep {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+
+  @keyframes holographic-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes grid-parallax {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+  }
+
+  /* Wireframe Card Styling */
+  .green_wireframe .card-flat {
+    background: transparent;
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--inner-glow);
+    transition: all var(--dur-med) var(--ease-ui);
+  }
+
+  .green_wireframe .card-flat:hover {
+    border-color: hsl(var(--neon-green));
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Wireframe Buttons */
+  .green_wireframe .btn-flat {
+    background: transparent;
+    border: 1px solid hsl(var(--neon-green));
+    color: hsl(var(--neon-green));
+    transition: all var(--dur-med) var(--ease-ui);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .green_wireframe .btn-flat::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: hsl(var(--neon-green) / 0.2);
+    transform: translate(-50%, -50%);
+    transition: width var(--dur-slow) var(--ease-ui), height var(--dur-slow) var(--ease-ui);
+  }
+
+  .green_wireframe .btn-flat:hover::before {
+    width: 300%;
+    height: 300%;
+  }
+
+  .green_wireframe .btn-flat:hover {
+    background: hsl(var(--neon-green) / 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
+  }
+
+  /* Wireframe Tabs */
+  .green_wireframe .tab-active {
+    background: transparent;
+    color: hsl(var(--neon-green));
+    border-bottom: 2px solid hsl(var(--neon-green));
+    text-shadow: 0 0 8px rgba(0, 255, 133, 0.5);
+    animation: neon-pulse 2s ease-in-out infinite;
+  }
+
+  .green_wireframe .tab-inactive {
+    background: transparent;
+    color: hsl(var(--muted-foreground));
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Grid Background Overlay */
+  .green_wireframe body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background: var(--fx-overlay);
+    opacity: 1;
+    animation: grid-parallax 20s linear infinite;
+  }
+
+  /* Holographic Avatar Ring */
+  .green_wireframe .profile-ring {
+    border: 2px solid hsl(var(--neon-green));
+    box-shadow: 0 0 15px rgba(0, 255, 133, 0.3), inset 0 0 15px rgba(0, 255, 133, 0.1);
+    position: relative;
+  }
+
+  .green_wireframe .profile-ring::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: inherit;
+    border: 1px solid hsl(var(--electric-lime) / 0.3);
+    animation: holographic-rotate 4s linear infinite;
+  }
+
+  /* Wireframe Header */
+  .green_wireframe header {
+    background: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
+    box-shadow: 0 4px 20px rgba(0, 255, 133, 0.1);
+  }
+
+  /* Scanline Effect (optional overlay on profile banners) */
+  .green_wireframe .banner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(var(--neon-green)), transparent);
+    animation: scanline-sweep 3s ease-in-out infinite;
+  }
+
+  /* Post type borders */
+  .green_wireframe [data-type="thought"] {
+    border-left: 3px solid hsl(var(--electric-lime));
+  }
+
+  .green_wireframe [data-type="review"] {
+    border-left: 3px solid hsl(var(--neon-green));
+  }
+
+  .green_wireframe [data-type="trending"] {
+    border-left: 3px solid hsl(var(--button-highlight));
+  }
+
+  /* Input focus glow */
+  .green_wireframe input:focus,
+  .green_wireframe textarea:focus {
+    border-color: hsl(var(--neon-green));
+    box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1), 0 0 15px rgba(0, 255, 133, 0.2);
+  }
+
+  /* Reaction button glow on hover */
+  .green_wireframe button[aria-label*="like"]:hover,
+  .green_wireframe button[aria-label*="comment"]:hover {
+    animation: cereal-pop 0.3s ease-in-out;
+    color: hsl(var(--neon-green));
+    text-shadow: 0 0 8px rgba(0, 255, 133, 0.5);
   }
 }
