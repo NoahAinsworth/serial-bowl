@@ -224,7 +224,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
   return (
     <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative">
       {overlayType && <SafetyOverlay type={overlayType} onRevealSpoiler={() => setSpoilerRevealed(true)} />}
-      <div className="flex gap-3">
+      <div className={`flex gap-3 ${isSpoilerHidden ? 'blur-md' : ''}`}>
         <div>
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.handle}`)}>
             <AvatarImage src={thought.user.avatar_url} alt={thought.user.handle} />
