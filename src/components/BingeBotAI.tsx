@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send, X, Sparkles } from "lucide-react";
+import { Loader2, Send, X, Sparkles, Bot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -159,7 +159,9 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       <div className="border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-500">
-            <AvatarFallback className="bg-transparent text-white font-bold">BB</AvatarFallback>
+            <AvatarFallback className="bg-transparent text-white">
+              <Bot className="h-6 w-6" />
+            </AvatarFallback>
           </Avatar>
           <div>
             <h2 className="font-semibold text-base">Binge Bot</h2>
@@ -180,7 +182,9 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
               <Avatar className="h-20 w-20 mb-4 bg-gradient-to-br from-purple-500 to-pink-500">
-                <AvatarFallback className="bg-transparent text-white font-bold text-2xl">BB</AvatarFallback>
+                <AvatarFallback className="bg-transparent text-white">
+                  <Bot className="h-12 w-12" />
+                </AvatarFallback>
               </Avatar>
               <h3 className="text-xl font-semibold mb-2">How can I help you today?</h3>
               <p className="text-muted-foreground mb-6">Ask me about shows, seasons, episodes, or cast</p>
@@ -205,7 +209,9 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                   ) : (
                     <div className="flex gap-3 mb-4">
                       <Avatar className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-500 flex-shrink-0">
-                        <AvatarFallback className="bg-transparent text-white text-sm font-bold">BB</AvatarFallback>
+                        <AvatarFallback className="bg-transparent text-white">
+                          <Bot className="h-5 w-5" />
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-2">
                         <BingeBotMessage
@@ -239,7 +245,9 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
               {loading && (
                 <div className="flex gap-3">
                   <Avatar className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-500">
-                    <AvatarFallback className="bg-transparent text-white text-sm font-bold">BB</AvatarFallback>
+                    <AvatarFallback className="bg-transparent text-white">
+                      <Bot className="h-5 w-5" />
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <div className="flex gap-1">
