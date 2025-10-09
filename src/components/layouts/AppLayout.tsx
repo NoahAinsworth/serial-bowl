@@ -95,7 +95,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="sticky top-0 z-40 w-full bg-background">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            {theme === 'friends' ? (
+            {theme === 'the_one_with_the_theme' ? (
               <h1 className="friends-logo">
                 <span>S</span>
                 <span className="dot dot-red">·</span>

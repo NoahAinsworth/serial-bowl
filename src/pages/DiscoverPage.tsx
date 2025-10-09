@@ -113,6 +113,11 @@ export default function DiscoverPage() {
   }
 
   async function searchShows() {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
     setLoading(true);
     try {
       const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20`);

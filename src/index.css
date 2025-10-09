@@ -55,9 +55,9 @@ All colors MUST be HSL.
     --tab-shape: 8px;
     --btn-shape: 8px;
 
-    /* Elevation - Subtle shadows only */
-    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.04);
-    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.08);
+    /* Elevation - No shadows */
+    --shadow-1: none;
+    --shadow-2: none;
     --inner-glow: none;
 
     /* Motion */
@@ -101,307 +101,10 @@ All colors MUST be HSL.
     --mint: 160 100% 85%;
     --baby-blue: 198 100% 83%;
     --hot-pink: 320 100% 76%;
-
-    /* Liquid Glass Effects */
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: blur(20px);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    --glass-shine: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
   }
 
-  .retro {
-    /* CRT Mode - Classic Green Terminal */
-    --background: 0 0% 8%;
-    --foreground: 120 100% 85%;
-    --card: 0 0% 12%;
-    --card-foreground: 120 100% 85%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 120 100% 85%;
-    --primary: 120 100% 50%;
-    --primary-foreground: 0 0% 8%;
-    --secondary: 120 100% 35%;
-    --secondary-foreground: 120 100% 85%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 120 50% 60%;
-    --accent: 120 100% 40%;
-    --accent-foreground: 120 100% 95%;
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 120 50% 25%;
-    --input: 120 50% 25%;
-    --ring: 120 100% 50%;
-    --radius: 0.25rem;
-  }
-
-  .upside_down {
-    /* Upside Down - Stranger Things 80s Neo-Horror */
-    --background: 0 0% 0%;           /* Deep black #000000 */
-    --foreground: 0 0% 72%;          /* Dim gray #B8B8B8 */
-    --card: 0 0% 3%;                 /* Almost black */
-    --card-foreground: 0 0% 72%;
-    --popover: 0 0% 2%;
-    --popover-foreground: 0 0% 72%;
-    --primary: 0 100% 38%;           /* Crimson red #C00000 */
-    --primary-foreground: 0 0% 0%;   /* Black text on red */
-    --secondary: 10 100% 59%;        /* Electric red-orange #FF3B2F */
-    --secondary-foreground: 0 0% 0%;
-    --muted: 200 25% 15%;            /* Muted teal-gray #223344 */
-    --muted-foreground: 0 0% 72%;
-    --accent: 20 100% 50%;           /* Neon orange #FF7B00 */
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 100% 38%;
-    --destructive-foreground: 0 0% 94%;
-    --border: 0 100% 38%;            /* Crimson borders */
-    --input: 0 0% 6%;
-    --ring: 0 100% 38%;
-    --radius: 0.25rem;
-
-    /* Typography - Stranger Things Style */
-    --font-display: 'Bebas Neue', 'Impact', 'Montserrat', sans-serif;
-    --font-ui: 'Inter', 'Rubik', sans-serif;
-    --letter-display: 0.05em;
-    --font-weight-display: 700;
-    
-    /* Shapes - 80s Terminal Flat */
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
-    --btn-shape: 4px;
-    --tab-shape: 4px;
-    
-    /* Effects - Eerie & Cinematic */
-    --shadow-1: 0 0 20px rgba(192, 0, 0, 0.3);
-    --shadow-2: 0 0 40px rgba(255, 123, 0, 0.25);
-    --inner-glow: inset 0 0 20px rgba(192, 0, 0, 0.15);
-    --active-underline: linear-gradient(90deg, #C00000, #FF7B00);
-    --img-filter: contrast(1.1) saturate(0.9) brightness(0.9);
-    --fx-overlay: 
-      repeating-linear-gradient(0deg, rgba(192, 0, 0, 0.03) 0px, transparent 2px, transparent 4px, rgba(192, 0, 0, 0.03) 6px),
-      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0px, transparent 1px, transparent 2px, rgba(0, 0, 0, 0.05) 3px);
-  }
-
-  .saturday_cartoons {
-    /* Saturday Cartoons - Retro Palette */
-    --background: 37 100% 97%;
-    --foreground: 248 62% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 248 62% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 248 62% 12%;
-    --primary: 335 97% 72%;
-    --primary-foreground: 248 62% 12%;
-    --secondary: 39 100% 70%;
-    --secondary-foreground: 248 62% 12%;
-    --muted: 37 100% 94%;
-    --muted-foreground: 248 35% 40%;
-    --accent: 196 98% 42%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 7 99% 63%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 37 100% 88%;
-    --input: 37 100% 88%;
-    --ring: 335 97% 72%;
-    --radius: 1.125rem;
-
-    /* Extended Palette */
-    --cereal-orange: 7 99% 63%;
-    --toy-purple: 258 61% 44%;
-    --box-green: 162 100% 30%;
-
-    /* Expressive Tokens */
-    --font-display: 'Fredoka', 'Montserrat', sans-serif;
-    --font-weight-display: 800;
-    --letter-display: 0.015em;
-    --radius-sm: 14px;
-    --radius-md: 18px;
-    --radius-lg: 24px;
-    --btn-shape: 20px;
-    --tab-shape: 16px;
-    --stroke-width: 0px;
-    --stroke-style: none;
-    --shadow-1: 0 6px 0 rgba(0,0,0,.08), 0 12px 22px rgba(0,0,0,.10);
-    --shadow-2: 0 10px 0 rgba(0,0,0,.10), 0 20px 36px rgba(0,0,0,.12);
-    --active-underline: linear-gradient(90deg,hsl(335 97% 72%),hsl(39 100% 70%),hsl(196 98% 42%));
-    --img-filter: saturate(1.12) contrast(1.02);
-    --fx-overlay: radial-gradient(circle at 12% 18%, rgba(255,197,103,.20) 0 18%, transparent 19%) 0 0/240px 240px, radial-gradient(circle at 82% 30%, rgba(5,140,215,.18) 0 20%, transparent 21%) 0 0/360px 360px;
-  }
-
-  .blue_crystal {
-    /* Blue Crystal - Breaking Bad */
-    --background: 195 100% 7%;        /* Deep navy #001A23 */
-    --foreground: 0 0% 95%;           /* White smoke #F2F2F2 */
-    --card: 0 0% 12%;                 /* Charcoal #1E1E1E */
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 190 87% 63%;           /* Crystal blue #4ED9F3 */
-    --primary-foreground: 0 0% 0%;    /* Black text on crystal blue */
-    --secondary: 188 99% 28%;         /* Teal #017E90 */
-    --secondary-foreground: 0 0% 95%;
-    --muted: 195 100% 10%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 69 100% 64%;            /* Acid yellow #E3FF47 */
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 95%;
-    --border: 190 87% 63%;            /* Crystal blue borders */
-    --input: 0 0% 15%;
-    --ring: 190 87% 63%;
-    --radius: 0.25rem;
-
-    /* Extended Palette */
-    --crystal-blue: 190 87% 63%;
-    --teal-dark: 188 99% 28%;
-    --acid-yellow: 69 100% 64%;
-    --desert-sand: 36 29% 64%;
-
-    /* Typography - Chemical Lab Style */
-    --font-display: 'Oswald', 'Bebas Neue', sans-serif;
-    --font-ui: 'Inter', 'Rubik', sans-serif;
-    --letter-display: 0.08em;
-    --font-weight-display: 700;
-    
-    /* Shapes - Sharp Crystal Edges */
-    --radius-sm: 2px;
-    --radius-md: 4px;
-    --radius-lg: 6px;
-    --btn-shape: 2px;
-    --tab-shape: 0px;
-    --stroke-width: 0px;
-    
-    /* Effects - Chemical Glow */
-    --shadow-1: 0 0 20px rgba(78, 217, 243, 0.15);
-    --shadow-2: 0 0 40px rgba(78, 217, 243, 0.25);
-    --inner-glow: inset 0 0 1px hsl(190 87% 63%);
-    --active-underline: linear-gradient(90deg, hsl(190 87% 63%), hsl(188 99% 28%));
-    --img-filter: contrast(1.08) saturate(1.15) brightness(0.95);
-    --fx-overlay: 
-      repeating-linear-gradient(0deg, rgba(78, 217, 243, 0.02) 0px, transparent 1px, transparent 3px),
-      repeating-linear-gradient(90deg, rgba(78, 217, 243, 0.02) 0px, transparent 1px, transparent 3px);
-  }
-
-  .neo_y2k {
-    /* Neo Y2K Social Mode - Dark futuristic glassmorphism meets flat editorial */
-    --background: 221 60% 8%;         /* Deep navy #0A0E1A */
-    --foreground: 0 0% 95%;           /* White text #F2F2F2 */
-    --card: 220 30% 15%;              /* Dark card background */
-    --card-foreground: 0 0% 95%;
-    --popover: 220 30% 15%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 190 100% 67%;          /* Electric blue #4ED9F3 */
-    --primary-foreground: 221 60% 8%;
-    --secondary: 325 100% 85%;        /* Pastel pink #FFB8E8 */
-    --secondary-foreground: 221 60% 8%;
-    --muted: 220 25% 20%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 265 100% 86%;           /* Lilac #C7B8FF */
-    --accent-foreground: 221 60% 8%;
-    --destructive: 4 100% 69%;        /* Coral #FF6F61 */
-    --destructive-foreground: 0 0% 100%;
-    --border: 325 100% 85%;           /* Pastel pink borders */
-    --input: 220 30% 18%;
-    --ring: 190 100% 67%;
-    --radius: 1.5625rem;
-
-    /* Extended Neo Y2K Palette */
-    --neo-pink: 325 100% 85%;         /* #FFB8E8 */
-    --neo-blue: 196 100% 83%;         /* #AEE6FF */
-    --neo-lilac: 265 100% 86%;        /* #C7B8FF */
-    --neo-mint: 160 100% 85%;         /* #B8FFE3 */
-    --neo-electric: 190 100% 67%;     /* #4ED9F3 */
-    --neo-coral: 4 100% 69%;          /* #FF6F61 */
-
-    /* Typography - Clean modern with retro accents */
-    --font-display: 'Poppins', 'Rubik', sans-serif;
-    --font-ui: 'Inter', 'Nunito Sans', sans-serif;
-    --font-pixel: 'Press Start 2P', 'VT323', monospace;
-    --letter-display: 0.02em;
-    --letter-ui: 0;
-    --font-weight-display: 700;
-    --font-weight-ui: 500;
-    
-    /* Shapes - Flat editorial rounded */
-    --radius-sm: 20px;
-    --radius-md: 25px;
-    --radius-lg: 30px;
-    --btn-shape: 25px;
-    --tab-shape: 25px;
-    --stroke-width: 0px;
-    
-    /* Effects - Clean without glow */
-    --shadow-1: 0 4px 16px rgba(0, 0, 0, 0.2);
-    --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --inner-glow: none;
-    --glass-blur: blur(16px);
-    --active-underline: linear-gradient(90deg, hsl(325 100% 85%), hsl(190 100% 67%), hsl(265 100% 86%));
-    --img-filter: saturate(1.1) contrast(1.05);
-    --fx-overlay: 
-      radial-gradient(circle at 20% 30%, rgba(255, 184, 232, 0.08), transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(78, 217, 243, 0.06), transparent 40%);
-  }
-
-  /* Neo Y2K Light Mode Variant */
-  .neo_y2k.light {
-    --background: 39 100% 98%;        /* Off-white #FFF9F4 */
-    --foreground: 221 60% 8%;         /* Dark navy text */
-    --card: 0 0% 100%;                /* White cards */
-    --card-foreground: 221 60% 8%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 221 60% 8%;
-    --primary: 190 100% 67%;          /* Electric blue */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 325 100% 75%;        /* Deeper pink for visibility */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 39 50% 94%;
-    --muted-foreground: 221 30% 40%;
-    --accent: 265 100% 76%;           /* Deeper lilac */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 4 100% 69%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 325 100% 85%;
-    --input: 0 0% 100%;
-    --ring: 190 100% 67%;
-  }
-
-  .polaroid_grey {
-    /* Polaroid Grey Mode - Nostalgic grey with vintage Polaroid accents */
-    --background: 0 0% 11%;           /* Dark grey #1C1C1C */
-    --foreground: 0 0% 96%;           /* Off-white #F4F4F4 */
-    --card: 0 0% 93%;                 /* Polaroid paper grey-white #EDEDED */
-    --card-foreground: 0 0% 13%;      /* Dark text on light cards #202020 */
-    --popover: 0 0% 93%;
-    --popover-foreground: 0 0% 13%;
-    --primary: 48 100% 84%;           /* Cream Yellow #FFF3B0 */
-    --primary-foreground: 0 0% 0%;
-    --secondary: 13 48% 82%;          /* Blush Pink #EABFB9 */
-    --secondary-foreground: 0 0% 0%;
-    --muted: 36 48% 92%;              /* Warm Beige #F5E6CA */
-    --muted-foreground: 0 0% 40%;
-    --accent: 180 45% 80%;            /* Mint Aqua #B5EAEA */
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 100% 87%;        /* Coral Red #FFBCBC */
-    --destructive-foreground: 0 0% 0%;
-    --border: 0 0% 85%;               /* Light grey border #D8D8D8 */
-    --input: 0 0% 96%;                /* Light grey fill #F5F5F5 */
-    --ring: 180 45% 80%;              /* Mint Aqua */
-    --radius: 0.5rem;
-
-    /* Extended Polaroid Palette */
-    --polaroid-blush: 13 48% 82%;     /* #EABFB9 */
-    --polaroid-cream: 48 100% 84%;    /* #FFF3B0 */
-    --polaroid-aqua: 180 45% 80%;     /* #B5EAEA */
-    --polaroid-coral: 0 100% 87%;     /* #FFBCBC */
-    --polaroid-beige: 36 48% 92%;     /* #F5E6CA */
-
-    /* Typography - Modern minimal */
-    --font-display: 'Inter', 'Helvetica', sans-serif;
-    --font-ui: 'Inter', 'Helvetica', sans-serif;
-    --letter-display: -0.01em;
-  }
-
-  .friends {
-    /* Friends 90s Theme - Central Perk Cozy Vibes */
+  .the_one_with_the_theme {
+    /* The One with the Theme - 90s Central Perk Cozy Vibes */
     --background: 280 28% 68%;        /* Monica's Wall Purple #B497BD */
     --foreground: 0 0% 12%;           /* Black Ink #1F1F1F */
     --card: 0 0% 99%;                 /* Off-White #FFFDF6 */
@@ -444,12 +147,12 @@ All colors MUST be HSL.
     --radius-lg: 25px;
     --btn-shape: 20px;
     --tab-shape: 18px;
-    --stroke-width: 0px;           /* No borders on cards */
+    --stroke-width: 0px;
     --stroke-style: none;
     
     /* Effects - Warm & Cozy */
-    --shadow-1: 0 2px 8px rgba(217, 123, 54, 0.1);
-    --shadow-2: 0 4px 16px rgba(217, 123, 54, 0.15);
+    --shadow-1: none;
+    --shadow-2: none;
     --inner-glow: none;
     --active-underline: linear-gradient(90deg, hsl(45 100% 64%), hsl(25 69% 54%));
     --img-filter: saturate(1.05) brightness(1.02);
@@ -466,30 +169,13 @@ All colors MUST be HSL.
     --tab-shape: 20px;
     --stroke-width: 1px;
     
-    /* Effects - Minimal, flat like Polaroid */
+    /* Effects - Minimal, flat */
     --shadow-1: none;
     --shadow-2: none;
     --inner-glow: none;
     --active-underline: none;
     --img-filter: saturate(0.95) contrast(1.02);
     --fx-overlay: none;
-  }
-
-  /* CRT Effects */
-  .retro body::before {
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        rgba(0, 255, 0, 0.03) 0px,
-        transparent 1px,
-        transparent 2px,
-        rgba(0, 255, 0, 0.03) 3px
-      );
-    opacity: 0.8;
-  }
-
-  .retro * {
-    text-shadow: 0 0 2px rgba(0, 255, 0, 0.3);
   }
 
   /* Upside Down Scanline & Static Effects */
@@ -878,10 +564,7 @@ All colors MUST be HSL.
   .upside_down .card {
     background: rgba(0, 0, 0, 0.8);
     border: 2px solid #9D4EDD;
-    box-shadow: 
-      0 0 20px rgba(157, 78, 221, 0.3), 
-      0 0 40px rgba(157, 78, 221, 0.15),
-      inset 0 0 30px rgba(192, 0, 0, 0.05);
+    box-shadow: none;
   }
 
   .upside_down .btn-primary,
@@ -889,7 +572,7 @@ All colors MUST be HSL.
     background: #C00000;
     color: #000000;
     border: 1px solid #FF7B00;
-    box-shadow: 0 0 10px rgba(192, 0, 0, 0.4);
+    box-shadow: none;
     transition: all 0.3s ease;
   }
   
@@ -897,198 +580,19 @@ All colors MUST be HSL.
   .upside_down button[class*="bg-primary"]:hover {
     background: #FF7B00;
     color: #000000;
-    box-shadow: 0 0 20px rgba(255, 123, 0, 0.6);
+    box-shadow: none;
   }
 
   .upside_down .tab-active {
     background: #C00000;
     color: #000000;
     text-shadow: none;
-    box-shadow: 0 0 15px rgba(192, 0, 0, 0.5);
+    box-shadow: none;
   }
   
   .upside_down input:focus,
   .upside_down textarea:focus {
     animation: flicker 2s ease-in-out infinite;
-  }
-
-  /* Saturday Cartoons Theme Specific Effects */
-  .saturday_cartoons .card {
-    border: var(--stroke-width) var(--stroke-style) hsl(var(--border));
-    box-shadow: var(--shadow-2);
-  }
-
-  .saturday_cartoons .btn-primary,
-  .saturday_cartoons button[class*="bg-primary"] {
-    border-radius: 24px;
-    background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--secondary)));
-    border: 2px solid rgba(25, 23, 38, 0.1);
-    box-shadow: 0 6px 0 rgba(25, 23, 38, 0.2), 0 14px 30px rgba(0, 0, 0, 0.18);
-  }
-
-  .saturday_cartoons .badge {
-    background: #fff;
-    border: 3px solid hsl(var(--foreground));
-    border-radius: 18px;
-    padding: 0.25rem 0.5rem;
-  }
-
-  /* Saturday Morning Wavy Background */
-  .sat-am-waves {
-    position: relative;
-    z-index: 0;
-    height: 140px;
-    margin: 0 -16px 8px;
-    border-radius: 20px;
-    background-color: hsl(var(--background));
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 200' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='%23fff8f1'/%3E%3Cpath d='M0,25 C70,5 140,45 210,25 C280,5 350,45 390,25' fill='none' stroke='%23FB7DA8' stroke-width='22' stroke-linecap='round' opacity='0.95'/%3E%3Cpath d='M0,25 C70,5 140,45 210,25 C280,5 350,45 390,25' fill='none' stroke='%23ffa6c8' stroke-width='10' stroke-linecap='round' opacity='0.95'/%3E%3Cpath d='M-10,95 C60,75 130,115 200,95 C270,75 340,115 400,95' fill='none' stroke='%23FD5A46' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M-10,95 C60,75 130,115 200,95 C270,75 340,115 400,95' fill='none' stroke='%23ff8a78' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M-10,155 C60,135 130,175 200,155 C270,135 340,175 400,155' fill='none' stroke='%2300995E' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M-10,155 C60,135 130,175 200,155 C270,135 340,175 400,155' fill='none' stroke='%2374d1a9' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M0,185 C70,165 140,205 210,185 C280,165 350,205 390,185' fill='none' stroke='%23058CD7' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M0,185 C70,165 140,205 210,185 C280,165 350,205 390,185' fill='none' stroke='%2397d8ff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-size: cover;
-    background-position: center;
-    box-shadow: var(--shadow-1);
-    display: none;
-  }
-
-  .saturday_cartoons .sat-am-waves {
-    display: block;
-  }
-
-  /* Blue Crystal Theme Specific Effects - Chemical Smoke */
-  .blue_crystal body::before,
-  .blue_crystal body::after {
-    content: '';
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .blue_crystal body::before {
-    background: 
-      radial-gradient(ellipse 40vw 60vh at 15% 120%, rgba(78, 217, 243, 0.12), transparent 60%),
-      radial-gradient(ellipse 35vw 55vh at 55% 125%, rgba(78, 217, 243, 0.08), transparent 55%),
-      radial-gradient(ellipse 30vw 50vh at 85% 130%, rgba(78, 217, 243, 0.1), transparent 50%);
-    animation: smoke-drift-1 25s ease-in-out infinite;
-  }
-
-  .blue_crystal body::after {
-    background: 
-      radial-gradient(ellipse 35vw 55vh at 25% 115%, rgba(78, 217, 243, 0.1), transparent 58%),
-      radial-gradient(ellipse 40vw 65vh at 70% 120%, rgba(78, 217, 243, 0.09), transparent 62%),
-      radial-gradient(ellipse 30vw 48vh at 50% 128%, rgba(78, 217, 243, 0.07), transparent 52%);
-    animation: smoke-drift-2 30s ease-in-out infinite 5s;
-  }
-
-  .blue_crystal .card {
-    background: rgba(30, 30, 30, 0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid hsl(var(--crystal-blue));
-    box-shadow: var(--shadow-1), var(--inner-glow);
-  }
-
-  .blue_crystal .btn-primary,
-  .blue_crystal button[class*="bg-primary"] {
-    background: hsl(var(--crystal-blue));
-    color: #000000;
-    border: 1px solid hsl(var(--crystal-blue));
-    box-shadow: 0 0 15px rgba(78, 217, 243, 0.3);
-    transition: all 0.3s ease;
-  }
-
-  .blue_crystal .btn-primary:hover,
-  .blue_crystal button[class*="bg-primary"]:hover {
-    background: #000000;
-    color: hsl(var(--crystal-blue));
-    border: 1px solid hsl(var(--crystal-blue));
-    box-shadow: 0 0 25px rgba(78, 217, 243, 0.5);
-  }
-
-  .blue_crystal .tab-active {
-    background: transparent;
-    color: hsl(var(--foreground));
-    border-bottom: 3px solid hsl(var(--crystal-blue));
-    box-shadow: 0 3px 15px rgba(78, 217, 243, 0.4);
-  }
-
-  .blue_crystal input:focus,
-  .blue_crystal textarea:focus {
-    border-color: hsl(var(--crystal-blue));
-    box-shadow: 0 0 0 1px hsl(var(--crystal-blue)), 0 0 15px rgba(78, 217, 243, 0.2);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { 
-      box-shadow: 0 0 0 1px hsl(var(--crystal-blue)), 0 0 15px rgba(78, 217, 243, 0.2);
-    }
-    50% { 
-      box-shadow: 0 0 0 1px hsl(var(--crystal-blue)), 0 0 20px rgba(78, 217, 243, 0.4);
-    }
-  }
-
-  /* Neo Y2K Theme Specific Effects */
-  .neo_y2k .card {
-    background: rgba(34, 40, 58, 0.7);
-    backdrop-filter: var(--glass-blur);
-    border: 2px solid hsl(var(--neo-pink) / 0.3);
-    box-shadow: var(--shadow-1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .neo_y2k .card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-2);
-    border-color: hsl(var(--neo-pink) / 0.5);
-  }
-
-  .neo_y2k .btn-primary,
-  .neo_y2k button[class*="bg-primary"] {
-    background: hsl(var(--neo-electric));
-    color: hsl(var(--background));
-    border: none;
-    box-shadow: none;
-    transition: all 0.3s ease;
-  }
-
-  .neo_y2k .btn-primary:hover,
-  .neo_y2k button[class*="bg-primary"]:hover {
-    background: hsl(var(--neo-pink));
-    color: hsl(var(--background));
-    box-shadow: none;
-    transform: translateY(-2px);
-  }
-
-  .neo_y2k .tab-active {
-    background: hsl(var(--neo-pink));
-    color: hsl(var(--background));
-    box-shadow: none;
-  }
-
-  .neo_y2k input:focus,
-  .neo_y2k textarea:focus {
-    border-color: hsl(var(--neo-electric));
-    box-shadow: 0 0 0 2px hsl(var(--neo-electric) / 0.2);
-  }
-
-  /* Neo Y2K Floating Effect */
-  @keyframes neo-float {
-    0%, 100% { 
-      transform: translateY(0px);
-    }
-    50% { 
-      transform: translateY(-6px);
-    }
-  }
-
-  .neo_y2k .avatar,
-  .neo_y2k .profile-picture {
-    box-shadow: none;
-    border: 3px solid hsl(var(--neo-pink) / 0.5);
-  }
-
-  .neo_y2k .avatar:hover,
-  .neo_y2k .profile-picture:hover {
-    animation: neo-float 2s ease-in-out infinite;
   }
 
   /* Theme-specific hover animations */
@@ -1099,162 +603,32 @@ All colors MUST be HSL.
     }
     
     .upside_down .card:hover {
-      box-shadow: 
-        0 0 30px rgba(157, 78, 221, 0.5), 
-        0 0 60px rgba(157, 78, 221, 0.2),
-        inset 0 0 30px rgba(192, 0, 0, 0.08);
-    }
-
-    .saturday_cartoons .btn-primary:hover,
-    .saturday_cartoons button[class*="bg-primary"]:hover {
-      transform: translateY(-2px);
-    }
-
-    .saturday_cartoons .tab-active {
-      animation: pop 0.28s var(--ease-ui);
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0.94); }
-      100% { transform: scale(1); }
-    }
-
-    .blue_crystal .btn-primary:hover,
-    .blue_crystal button[class*="bg-primary"]:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 30px rgba(78, 217, 243, 0.6);
-    }
-
-    .blue_crystal .card:hover {
-      box-shadow: 0 0 25px rgba(78, 217, 243, 0.25), var(--inner-glow);
+      box-shadow: none;
     }
   }
 
-  /* Reduced Motion */
+  /* Reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
-    * {
-      animation: none !important;
-      transition: none !important;
-    }
-    
-    .app-overlay {
-      opacity: 0.3;
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
     }
   }
 
-  /* Focus Visibility */
-  :focus-visible {
-    outline: 2px solid hsl(var(--accent));
+  /* Focus visibility for accessibility */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--primary));
     outline-offset: 2px;
   }
 
-  /* Liquid Glass Effects for Dark Mode */
-  .dark .glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .dark .glass-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--glass-shine);
-    opacity: 0.5;
-  }
-
-  .dark .glass-nav {
-    background: rgba(30, 32, 48, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .dark .glass-modal {
-    background: rgba(30, 32, 48, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  }
-
-  .dark .glass-button {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-  }
-
-  .dark .glass-button:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Apply glass effect to cards in dark mode */
-  .dark .card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  }
-
-  /* Floating glass effect */
-  @keyframes float-glass {
-    0%, 100% { 
-      transform: translateY(0px);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    }
-    50% { 
-      transform: translateY(-10px);
-      box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  .dark .glass-float {
-    animation: float-glass 6s ease-in-out infinite;
-  }
-
-  /* Friends Logo Styling */
-  .friends-logo {
-    display: flex;
-    align-items: center;
-    font-family: 'Poppins', 'Futura', 'Avenir', sans-serif;
-    font-weight: 600;
-    font-size: 1.25rem;
-    letter-spacing: 0.2em;
-    color: hsl(var(--foreground));
-    user-select: none;
-  }
-
-  .friends-logo .dot {
-    font-size: 0.75rem;
-    font-weight: 400;
-    vertical-align: middle;
-    margin: 0 -0.05em;
-    position: relative;
-    top: -0.1em;
-  }
-
-  .friends-logo .dot-red {
-    color: #E1443D;
-  }
-
-  .friends-logo .dot-yellow {
-    color: #FFD84D;
-  }
-
-  .friends-logo .dot-blue {
-    color: #4DA6FF;
+  /* The One with the Theme - Friends Logo */
+  .the_one_with_the_theme .friends-logo {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: hsl(var(--primary));
+    text-transform: none;
   }
 }

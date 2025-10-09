@@ -118,13 +118,8 @@ export default function SettingsPage() {
             <SelectContent>
               <SelectItem value="light">Light</SelectItem>
               <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="retro">Retro (CRT Mode)</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>
-              <SelectItem value="saturday_cartoons">Saturday Cartoons</SelectItem>
-              <SelectItem value="blue_crystal">Blue Crystal</SelectItem>
-              <SelectItem value="neo_y2k">Neo Y2K Social Mode</SelectItem>
-              <SelectItem value="polaroid_grey">Polaroid Grey</SelectItem>
-              <SelectItem value="friends">Friends (90s Central Perk)</SelectItem>
+              <SelectItem value="the_one_with_the_theme">The One with the Theme</SelectItem>
             </SelectContent>
           </Select>
         </div>
