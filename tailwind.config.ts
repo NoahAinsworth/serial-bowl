@@ -65,12 +65,9 @@ export default {
         "hot-pink": "hsl(var(--hot-pink))",
       },
       fontFamily: {
-        sans: ['Nunito Sans', 'Inter', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'Rubik', 'system-ui', 'sans-serif'],
-        horror: ['Bebas Neue', 'Impact', 'Montserrat', 'sans-serif'],
-        retro: ['Inter', 'Rubik', 'sans-serif'],
-        chemistry: ['Oswald', 'Bebas Neue', 'sans-serif'],
-        pixel: ['Press Start 2P', 'VT323', 'monospace'],
+        sans: ['Inter', 'Nunito Sans', 'system-ui', 'sans-serif'],
+        display: ['DM Sans', 'Poppins', 'system-ui', 'sans-serif'],
+        button: ['Poppins', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",

@@ -118,8 +118,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <span>L</span>
               </h1>
             ) : (
-              <h1 className="text-xl font-black tracking-wide wordmark gradient-text">
-                SERIAL BOWL
+              <h1 className="text-xl font-display font-bold wordmark">
+                Serial Bowl
               </h1>
             )}
           </div>

@@ -10,66 +10,72 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Modern Minimal Theme - Instagram/Threads Inspired */
-    --background: 0 0% 100%;        /* White background */
-    --foreground: 0 0% 10%;         /* Near black #1A1A1A */
-    --card: 200 100% 90%;           /* Light blue #CCE5FF */
-    --card-foreground: 0 0% 10%;
+    /* Cereal Social Theme - Premium Nostalgic UX */
+    --background: 36 100% 98%;      /* Cream White #FFF9F2 */
+    --foreground: 0 0% 12%;         /* Text Primary #1E1E1E */
+    --card: 0 0% 100%;              /* White cards */
+    --card-foreground: 0 0% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 45 100% 50%;         /* Yellow #FFCC00 */
-    --primary-foreground: 0 0% 10%;
-    --secondary: 45 100% 50%;       /* Yellow #FFCC00 */
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 96%;              /* Very light grey */
-    --muted-foreground: 0 0% 45%;   /* Medium grey */
-    --accent: 45 100% 50%;          /* Yellow */
-    --accent-foreground: 0 0% 10%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 30 100% 63%;         /* Cereal Orange #FF9F40 */
+    --primary-foreground: 0 0% 12%;
+    --secondary: 48 100% 76%;       /* Pastel Yellow #FFE785 */
+    --secondary-foreground: 0 0% 12%;
+    --muted: 36 100% 98%;           /* Cream background */
+    --muted-foreground: 0 0% 42%;   /* Text Secondary #6B6B6B */
+    --accent: 198 100% 84%;         /* Baby Blue #AEE6FF */
+    --accent-foreground: 0 0% 12%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 88%;             /* Subtle grey border */
-    --input: 0 0% 96%;
-    --ring: 45 100% 50%;
-    --radius: 0.75rem;
+    --border: 0 0% 0% / 0.06;       /* Soft border rgba(0,0,0,0.06) */
+    --input: 0 0% 100%;
+    --ring: 30 100% 63%;
+    --radius: 1.5rem;
 
-    /* Extended Modern Palette */
-    --instagram-pink: 330 81% 60%;  /* #E4405F */
-    --vibrant-orange: 24 100% 50%;  /* #FF6600 */
-    --sky-blue: 200 100% 90%;       /* Light blue */
-    --soft-grey: 0 0% 96%;          /* #F5F5F5 */
+    /* Extended Cereal Palette */
+    --cereal-orange: 30 100% 63%;   /* #FF9F40 */
+    --pastel-yellow: 48 100% 76%;   /* #FFE785 */
+    --baby-blue: 198 100% 84%;      /* #AEE6FF */
+    --strawberry-pink: 343 100% 83%;/* #FFA6C1 */
+    --mint-green: 148 100% 86%;     /* #B8FFD9 */
 
-    /* Typography - Clean & Modern */
-    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-    --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    /* Typography - Cinematic & Premium */
+    --font-ui: 'Inter', 'Nunito Sans', -apple-system, sans-serif;
+    --font-display: 'DM Sans', 'Poppins', -apple-system, sans-serif;
+    --font-button: 'Poppins', sans-serif;
     --font-weight-ui: 400;
     --font-weight-display: 600;
-    --letter-ui: -0.01em;
-    --letter-display: -0.02em;
+    --font-weight-button: 500;
+    --letter-ui: 0em;
+    --letter-display: 0.1em;
 
-    /* Shape Tokens - Minimal & Clean */
-    --radius-sm: 12px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --stroke-width: 0px;            /* NO borders on cards */
-    --stroke-style: none;
-    --tab-shape: 8px;
-    --btn-shape: 8px;
+    /* Shape Tokens - Rounded & Soft */
+    --radius-sm: 15px;
+    --radius-md: 25px;
+    --radius-lg: 30px;
+    --stroke-width: 1px;
+    --stroke-style: solid;
+    --tab-shape: 50px;              /* Pill tabs */
+    --btn-shape: 20px;
 
-    /* Elevation - No shadows */
-    --shadow-1: none;
-    --shadow-2: none;
+    /* Elevation - Soft Shadows */
+    --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(255, 159, 64, 0.15);
     --inner-glow: none;
 
-    /* Motion */
+    /* Motion - Smooth & Organic */
     --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
-    --dur-fast: 150ms;
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --dur-fast: 100ms;
     --dur-med: 200ms;
     --dur-slow: 300ms;
 
-    /* Effects - Clean minimal */
+    /* Effects - Premium & Subtle */
     --fx-overlay: none;
     --img-filter: none;
     --active-underline: none;
+    --gradient-pastel: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--mint-green)));
   }
 
   .dark {
@@ -345,7 +351,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    background: hsl(0 0% 100%);
+    background: hsl(var(--background));
     min-height: 100vh;
     font-family: var(--font-ui);
     letter-spacing: var(--letter-ui);
@@ -360,12 +366,13 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Wordmark - Bold Geometric Typography */
+  /* Wordmark - Cereal Social Premium Typography */
   .wordmark {
-    font-family: 'Archivo Black', 'Montserrat', sans-serif;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0.1em;
+    color: hsl(var(--foreground));
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
@@ -482,32 +489,41 @@ All colors MUST be HSL.
     transform: translateY(-2px);
   }
 
-  /* Flat Card - Y2K Cartoon Style */
+  /* Cereal Card - Soft & Premium */
   .card-flat {
     background: hsl(var(--card));
-    border: 3px solid hsl(var(--border));
+    border: 1px solid hsl(var(--border));
     border-radius: var(--radius-md);
-    transition: transform 0.2s ease;
+    box-shadow: var(--shadow-1);
+    transition: all var(--dur-med) var(--ease-ui);
   }
 
   .card-flat:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-hover);
   }
 
-  /* Active Tab Indicator - Flat */
+  /* Pill Tabs - Cereal Social */
   .tab-active {
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
+    border-radius: var(--tab-shape);
+    box-shadow: var(--shadow-1);
+    font-family: var(--font-button);
+    font-weight: var(--font-weight-button);
   }
 
   .tab-inactive {
-    background: transparent;
+    background: hsl(var(--card));
     color: hsl(var(--muted-foreground));
-    border: 2px solid hsl(var(--border));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--tab-shape);
+    font-family: var(--font-button);
+    font-weight: var(--font-weight-button);
   }
 
   .tab-inactive:hover {
-    border-color: hsl(var(--primary) / 0.5);
+    background: hsl(var(--muted));
     color: hsl(var(--foreground));
   }
 
@@ -522,19 +538,21 @@ All colors MUST be HSL.
 
   /* No gradient text - solid colors only */
 
-  /* Modern Button Effects - No Shadows */
+  /* Cereal Button - Soft & Rounded */
   .btn-flat {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--dur-med) var(--ease-ui);
+    border-radius: var(--btn-shape);
+    font-family: var(--font-button);
+    font-weight: var(--font-weight-button);
   }
 
   .btn-flat:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-2);
   }
 
   .btn-flat:active {
-    transform: translateY(0);
-    filter: brightness(0.95);
+    transform: scale(1.02);
   }
 
   /* Pill Shape */
@@ -574,17 +592,17 @@ All colors MUST be HSL.
     letter-spacing: -0.02em;
   }
 
-  /* Y2K Flat Component Styling */
+  /* Cereal Social Component Styling */
   .card {
     border-radius: var(--radius-md);
-    box-shadow: none;
-    border: 3px solid hsl(var(--border));
+    box-shadow: var(--shadow-1);
+    border: 1px solid hsl(var(--border));
     transition: all var(--dur-med) var(--ease-ui);
   }
 
   .btn {
     border-radius: var(--btn-shape);
-    border: 3px solid hsl(var(--border));
+    border: none;
     transition: all var(--dur-med) var(--ease-ui);
   }
 
