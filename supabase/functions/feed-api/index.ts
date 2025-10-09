@@ -117,9 +117,8 @@ Deno.serve(async (req) => {
       }
 
     } else if (tab === 'following') {
-      // Following feed - posts from users you follow
+      // Following feed - posts from users you follow, newest first
       if (!userId) {
-        // Not logged in - return empty
         posts = [];
       } else {
         // Get list of users the current user follows
@@ -132,42 +131,28 @@ Deno.serve(async (req) => {
         if (follows && follows.length > 0) {
           const followingIds = follows.map(f => f.following_id);
           
-          // Get thoughts from followed users
-          const { data: thoughts } = await supabase
+          // Get posts from followed users via v_posts
+          const { data: followedPosts } = await supabase
             .from('v_posts')
             .select('*')
             .in('author_id', followingIds)
             .order('created_at', { ascending: false })
-            .limit(50);
+            .limit(limit);
 
-          // Get post IDs to fetch popularity data
-          const postIds = thoughts?.map(t => t.id) || [];
-          
-          const { data: popularity } = await supabase
-            .from('v_post_popularity')
-            .select('*')
-            .in('post_id', postIds)
-            .order('created_at', { ascending: false });
-
-          if (popularity) {
-            const now = new Date();
-            const scored = popularity.map(p => {
-              const createdAt = new Date(p.created_at);
-              const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
-              const base = 3 * p.likes + 4 * p.comments + 5 * p.reshares + 0.25 * p.views - 6 * p.dislikes;
-              const decay = Math.exp(-ageHours / 48);
-              return {
-                ...p,
-                score: base * decay
-              };
-            });
-
-            scored.sort((a, b) => b.score - a.score);
-            posts = scored.slice(0, limit);
+          if (followedPosts && followedPosts.length > 0) {
+            // Map to popularity format
+            posts = followedPosts.map(p => ({
+              post_id: p.id,
+              post_type: p.type,
+              created_at: p.created_at,
+              likes: 0,
+              dislikes: 0,
+              comments: 0,
+              reshares: 0,
+              views: 0,
+              score: 0
+            }));
           }
-        } else {
-          // Not following anyone yet - return empty
-          posts = [];
         }
       }
     } else if (tab === 'binge') {
