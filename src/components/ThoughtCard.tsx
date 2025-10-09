@@ -208,7 +208,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
   };
 
   return (
-    <article className="py-4 border-b border-border/30 transition-all duration-200 animate-fade-in group">
+    <article className="py-4 transition-all duration-200 animate-fade-in group">
       <div className="flex gap-3">
         <div className="profile-ring">
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.handle}`)}>
