@@ -222,7 +222,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
   };
 
   return (
-    <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative">
+    <article className="py-4 bg-card border border-border rounded-xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative shadow-sm hover:shadow-md" data-type="thought">
       {overlayType && <SafetyOverlay type={overlayType} onRevealSpoiler={() => setSpoilerRevealed(true)} />}
       <div className={`flex gap-3 ${isSpoilerHidden ? 'blur-md' : ''}`}>
         <div>
