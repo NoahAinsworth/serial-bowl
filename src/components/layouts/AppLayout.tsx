@@ -127,10 +127,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
               <Library className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI" className="gap-1.5">
+            {/* BingeBot temporarily disabled */}
+            {/* <Button variant="ghost" size="icon" onClick={() => setBingeBotOpen(true)} title="Binge Bot AI" className="gap-1.5">
               <Bot className="h-5 w-5" />
               <span className="text-xs font-semibold">AI</span>
-            </Button>
+            </Button> */}
             <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
               <Settings className="h-5 w-5" />
             </Button>
@@ -166,8 +167,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </nav>
 
-      {/* Binge Bot AI */}
-      <BingeBotAI open={bingeBotOpen} onOpenChange={setBingeBotOpen} />
+      {/* Binge Bot AI - temporarily disabled */}
+      {/* <BingeBotAI open={bingeBotOpen} onOpenChange={setBingeBotOpen} /> */}
     </div>
   );
 };
