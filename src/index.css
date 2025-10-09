@@ -131,24 +131,24 @@ All colors MUST be HSL.
 
   .upside_down {
     /* Upside Down - Stranger Things Vibe */
-    --background: 240 20% 2%;
-    --foreground: 0 5% 94%;
-    --card: 240 18% 5%;
-    --card-foreground: 0 5% 94%;
-    --popover: 240 20% 4%;
-    --popover-foreground: 0 5% 94%;
-    --primary: 0 100% 58%;
-    --primary-foreground: 0 5% 94%;
-    --secondary: 15 100% 55%;
-    --secondary-foreground: 0 5% 94%;
-    --muted: 240 15% 10%;
-    --muted-foreground: 0 10% 75%;
-    --accent: 15 100% 55%;
-    --accent-foreground: 0 5% 94%;
+    --background: 0 0% 0%;          /* Pure black #000000 */
+    --foreground: 0 0% 72%;         /* Dim gray #B8B8B8 */
+    --card: 0 0% 4%;                /* Near black */
+    --card-foreground: 0 0% 72%;
+    --popover: 0 0% 2%;
+    --popover-foreground: 0 0% 72%;
+    --primary: 0 100% 58%;          /* Crimson red #FF2B2B */
+    --primary-foreground: 0 0% 94%;
+    --secondary: 15 100% 55%;       /* Electric red-orange #FF7A1A */
+    --secondary-foreground: 0 0% 94%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 72%;
+    --accent: 20 100% 50%;          /* Neon orange #FF7B00 */
+    --accent-foreground: 0 0% 94%;
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 5% 94%;
-    --border: 240 15% 12%;
-    --input: 240 15% 12%;
+    --border: 0 100% 58%;           /* Red borders */
+    --input: 0 0% 8%;
     --ring: 0 100% 58%;
     --radius: 0.5rem;
 
@@ -163,9 +163,9 @@ All colors MUST be HSL.
     --shadow-1: 0 4px 18px rgba(255,43,43,.18);
     --shadow-2: 0 8px 36px rgba(255,122,26,.22);
     --inner-glow: inset 0 0 18px rgba(255,43,43,.12);
-    --active-underline: linear-gradient(90deg,hsl(0 100% 58%),hsl(15 100% 55%));
+    --active-underline: linear-gradient(90deg,hsl(0 100% 58%),hsl(20 100% 50%));
     --img-filter: contrast(1.05) saturate(1.05) drop-shadow(0 0 8px rgba(255,43,43,.15));
-    --fx-overlay: radial-gradient(80vmax 60vmax at 80% 20%, rgba(255,43,43,.07), transparent 60%), radial-gradient(60vmax 40vmax at 10% 80%, rgba(255,122,26,.06), transparent 60%);
+    --fx-overlay: radial-gradient(80vmax 60vmax at 80% 20%, rgba(255,123,0,.12), transparent 60%), radial-gradient(60vmax 40vmax at 10% 80%, rgba(255,122,26,.10), transparent 60%);
   }
 
   .saturday_cartoons {
@@ -305,10 +305,11 @@ All colors MUST be HSL.
     letter-spacing: 0.05em;
   }
 
-  /* Upside Down Wordmark */
+  /* Upside Down Wordmark - No dripping */
   .upside_down .wordmark {
     transform: rotate(180deg);
     display: inline-block;
+    text-shadow: 0 0 10px rgba(255, 43, 43, 0.5);
   }
   
   /* Touch-friendly tap targets */
