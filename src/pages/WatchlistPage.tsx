@@ -139,7 +139,7 @@ export default function WatchlistPage() {
 
   useEffect(() => {
     const delaySearch = setTimeout(() => {
-      if (searchQuery.trim()) {
+      if (searchQuery.trim() && activeTab === 'search') {
         handleSearch();
       } else {
         setSearchResults([]);
@@ -147,13 +147,24 @@ export default function WatchlistPage() {
     }, 300);
 
     return () => clearTimeout(delaySearch);
-  }, [searchQuery]);
+  }, [searchQuery, activeTab]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     
-    const results = await search(searchQuery);
-    setSearchResults(results);
+    console.log('[WatchlistPage] Searching for:', searchQuery);
+    try {
+      const results = await search(searchQuery);
+      console.log('[WatchlistPage] Search results:', results);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('[WatchlistPage] Search error:', error);
+      toast({
+        title: "Search failed",
+        description: error instanceof Error ? error.message : "Failed to search shows",
+        variant: "destructive",
+      });
+    }
   };
 
   const addToWatchlist = async (show: any) => {
