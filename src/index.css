@@ -444,8 +444,8 @@ All colors MUST be HSL.
     --radius-lg: 25px;
     --btn-shape: 20px;
     --tab-shape: 18px;
-    --stroke-width: 1.5px;
-    --stroke-style: solid;
+    --stroke-width: 0px;           /* No borders on cards */
+    --stroke-style: none;
     
     /* Effects - Warm & Cozy */
     --shadow-1: 0 2px 8px rgba(217, 123, 54, 0.1);
