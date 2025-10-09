@@ -12,6 +12,7 @@ interface FeedPost {
   };
   content: any;
   text: string;
+  is_spoiler?: boolean;
   rating: number | null;
   likes: number;
   dislikes: number;
@@ -28,6 +29,63 @@ export function useFeed(tab: string) {
 
   useEffect(() => {
     loadFeed();
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('feed-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'thoughts'
+        },
+        () => {
+          // Refresh feed when thoughts change
+          loadFeed();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews'
+        },
+        () => {
+          // Refresh feed when reviews change
+          loadFeed();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reactions'
+        },
+        () => {
+          // Refresh feed when reactions change
+          loadFeed();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'comments'
+        },
+        () => {
+          // Refresh feed when comments change
+          loadFeed();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [tab]);
 
   const loadFeed = async () => {

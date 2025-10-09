@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
     let posts: any[] = [];
 
     if (tab === 'trending') {
-      // Global trending - rank by (base * decay)
+      // Global trending - rank by new algorithm
       const { data: popularity } = await supabase
         .from('v_post_popularity')
         .select('*')
@@ -46,11 +46,15 @@ Deno.serve(async (req) => {
         const scored = popularity.map(p => {
           const createdAt = new Date(p.created_at);
           const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
-          const base = 3 * p.likes + 4 * p.comments + 5 * p.reshares + 0.25 * p.views - 6 * p.dislikes;
-          const decay = Math.exp(-ageHours / 36);
+          
+          // score = (like_count * 3 – dislike_count * 2 + comment_count) / POWER(age_hours + 2, 1.3)
+          const numerator = (p.likes * 3) - (p.dislikes * 2) + p.comments;
+          const denominator = Math.pow(ageHours + 2, 1.3);
+          const score = numerator / denominator;
+          
           return {
             ...p,
-            score: base * decay
+            score: score
           };
         });
 
@@ -59,7 +63,7 @@ Deno.serve(async (req) => {
       }
 
     } else if (tab === 'hot-takes' || tab === 'hot') {
-      // Controversial - rank by (dislikes - likes) * decay with minimum engagement
+      // Hot Takes - where dislikes > likes
       const { data: popularity } = await supabase
         .from('v_post_popularity')
         .select('*')
@@ -67,21 +71,22 @@ Deno.serve(async (req) => {
         .limit(100);
 
       if (popularity) {
-        const now = new Date();
         const scored = popularity
-          .filter(p => (p.likes + p.dislikes) >= 10) // Minimum engagement
+          .filter(p => p.dislikes > p.likes) // Only posts with more dislikes than likes
           .map(p => {
-            const createdAt = new Date(p.created_at);
-            const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
-            const decay = Math.exp(-ageHours / 36);
-            const controversy = (p.dislikes - p.likes);
             return {
               ...p,
-              score: controversy * decay
+              score: p.dislikes // Sort by dislike count
             };
           });
 
-        scored.sort((a, b) => b.score - a.score);
+        scored.sort((a, b) => {
+          // First by dislike count DESC, then by created_at DESC
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
         posts = scored.slice(0, limit);
       }
 
@@ -311,6 +316,7 @@ Deno.serve(async (req) => {
           user: postData.profiles,
           content: postData.content,
           text: postType === 'thought' ? postData.text_content : postData.review_text,
+          is_spoiler: postData.is_spoiler || false,
           rating,
           likes,
           dislikes,

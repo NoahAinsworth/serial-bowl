@@ -54,6 +54,7 @@ export default function Index() {
             id: post.id,
             user: post.user,
             text: post.text,
+            is_spoiler: post.is_spoiler,
             rating: post.rating,
             content: post.content,
             created_at: post.created_at
@@ -69,6 +70,7 @@ export default function Index() {
             id: post.id,
             user: post.user,
             content: post.text,
+            is_spoiler: post.is_spoiler,
             show: post.content ? {
               title: post.content.title,
               external_id: post.content.external_id
