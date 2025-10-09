@@ -321,11 +321,11 @@ async function resolveEntitiesWithTVDB(message: string): Promise<any[]> {
         const show = searchResults[0];
         
         entities.push({
-          type: episodeNum ? "episode" : seasonNum ? "season" : "show",
+          type: episodeNum !== undefined ? "episode" : seasonNum !== undefined ? "season" : "show",
           name: entityName,
-          externalId: show.tvdb_id || show.id,
+          externalId: String(show.tvdb_id || show.id),
           seasonNumber: seasonNum,
-          episodeId: episodeNum
+          episodeId: episodeNum !== undefined ? String(episodeNum) : undefined
         });
       }
     } catch (err) {
