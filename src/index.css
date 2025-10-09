@@ -402,7 +402,7 @@ All colors MUST be HSL.
 
   .friends {
     /* Friends 90s Theme - Central Perk Cozy Vibes */
-    --background: 39 100% 97%;        /* Coffee Cream Beige #FFFBF0 */
+    --background: 280 28% 68%;        /* Monica's Wall Purple #B497BD */
     --foreground: 0 0% 12%;           /* Black Ink #1F1F1F */
     --card: 0 0% 99%;                 /* Off-White #FFFDF6 */
     --card-foreground: 0 0% 12%;
@@ -1256,21 +1256,5 @@ All colors MUST be HSL.
 
   .friends-logo .dot-blue {
     color: #4DA6FF;
-  }
-
-  /* Friends Theme - Glow effect on dots in dark backgrounds */
-  .dark .friends-logo .dot-red,
-  .friends .friends-logo .dot-red {
-    text-shadow: 0 0 8px rgba(225, 68, 61, 0.6);
-  }
-
-  .dark .friends-logo .dot-yellow,
-  .friends .friends-logo .dot-yellow {
-    text-shadow: 0 0 8px rgba(255, 212, 77, 0.6);
-  }
-
-  .dark .friends-logo .dot-blue,
-  .friends .friends-logo .dot-blue {
-    text-shadow: 0 0 8px rgba(77, 166, 255, 0.6);
   }
 }
