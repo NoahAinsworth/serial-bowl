@@ -276,6 +276,89 @@ All colors MUST be HSL.
       repeating-linear-gradient(90deg, rgba(78, 217, 243, 0.02) 0px, transparent 1px, transparent 3px);
   }
 
+  .neo_y2k {
+    /* Neo Y2K Social Mode - Dark futuristic glassmorphism meets flat editorial */
+    --background: 221 60% 8%;         /* Deep navy #0A0E1A */
+    --foreground: 0 0% 95%;           /* White text #F2F2F2 */
+    --card: 220 30% 15%;              /* Dark card background */
+    --card-foreground: 0 0% 95%;
+    --popover: 220 30% 15%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 190 100% 67%;          /* Electric blue #4ED9F3 */
+    --primary-foreground: 221 60% 8%;
+    --secondary: 325 100% 85%;        /* Pastel pink #FFB8E8 */
+    --secondary-foreground: 221 60% 8%;
+    --muted: 220 25% 20%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 265 100% 86%;           /* Lilac #C7B8FF */
+    --accent-foreground: 221 60% 8%;
+    --destructive: 4 100% 69%;        /* Coral #FF6F61 */
+    --destructive-foreground: 0 0% 100%;
+    --border: 325 100% 85%;           /* Pastel pink borders */
+    --input: 220 30% 18%;
+    --ring: 190 100% 67%;
+    --radius: 1.5625rem;
+
+    /* Extended Neo Y2K Palette */
+    --neo-pink: 325 100% 85%;         /* #FFB8E8 */
+    --neo-blue: 196 100% 83%;         /* #AEE6FF */
+    --neo-lilac: 265 100% 86%;        /* #C7B8FF */
+    --neo-mint: 160 100% 85%;         /* #B8FFE3 */
+    --neo-electric: 190 100% 67%;     /* #4ED9F3 */
+    --neo-coral: 4 100% 69%;          /* #FF6F61 */
+
+    /* Typography - Clean modern with retro accents */
+    --font-display: 'Poppins', 'Rubik', sans-serif;
+    --font-ui: 'Inter', 'Nunito Sans', sans-serif;
+    --font-pixel: 'Press Start 2P', 'VT323', monospace;
+    --letter-display: 0.02em;
+    --letter-ui: 0;
+    --font-weight-display: 700;
+    --font-weight-ui: 500;
+    
+    /* Shapes - Flat editorial rounded */
+    --radius-sm: 20px;
+    --radius-md: 25px;
+    --radius-lg: 30px;
+    --btn-shape: 25px;
+    --tab-shape: 25px;
+    --stroke-width: 2px;
+    
+    /* Effects - Glassmorphism with neon glow */
+    --shadow-1: 0 8px 32px rgba(78, 217, 243, 0.15);
+    --shadow-2: 0 12px 48px rgba(78, 217, 243, 0.25);
+    --inner-glow: inset 0 0 20px rgba(190, 100, 67, 0.1);
+    --glass-blur: blur(16px);
+    --active-underline: linear-gradient(90deg, hsl(325 100% 85%), hsl(190 100% 67%), hsl(265 100% 86%));
+    --img-filter: saturate(1.1) contrast(1.05);
+    --fx-overlay: 
+      radial-gradient(circle at 20% 30%, rgba(255, 184, 232, 0.08), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(78, 217, 243, 0.06), transparent 40%);
+  }
+
+  /* Neo Y2K Light Mode Variant */
+  .neo_y2k.light {
+    --background: 39 100% 98%;        /* Off-white #FFF9F4 */
+    --foreground: 221 60% 8%;         /* Dark navy text */
+    --card: 0 0% 100%;                /* White cards */
+    --card-foreground: 221 60% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 60% 8%;
+    --primary: 190 100% 67%;          /* Electric blue */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 325 100% 75%;        /* Deeper pink for visibility */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 39 50% 94%;
+    --muted-foreground: 221 30% 40%;
+    --accent: 265 100% 76%;           /* Deeper lilac */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 4 100% 69%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 325 100% 85%;
+    --input: 0 0% 100%;
+    --ring: 190 100% 67%;
+  }
+
   /* CRT Effects */
   .retro body::before {
     background-image: 
@@ -481,6 +564,32 @@ All colors MUST be HSL.
     font-size: 0.6em;
     color: hsl(var(--crystal-blue));
     font-weight: 400;
+  }
+
+  /* Neo Y2K Wordmark - Retro computer text with pastel gradient */
+  .neo_y2k .wordmark {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, hsl(var(--neo-pink)), hsl(var(--neo-electric)), hsl(var(--neo-lilac)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(255, 184, 232, 0.4);
+    position: relative;
+  }
+
+  .neo_y2k .wordmark::after {
+    content: '';
+    position: absolute;
+    left: -5%;
+    right: -5%;
+    bottom: -4px;
+    height: 2px;
+    background: var(--active-underline);
+    opacity: 0.6;
   }
   
   /* Touch-friendly tap targets */
@@ -800,6 +909,71 @@ All colors MUST be HSL.
     50% { 
       box-shadow: 0 0 0 1px hsl(var(--crystal-blue)), 0 0 20px rgba(78, 217, 243, 0.4);
     }
+  }
+
+  /* Neo Y2K Theme Specific Effects */
+  .neo_y2k .card {
+    background: rgba(34, 40, 58, 0.7);
+    backdrop-filter: var(--glass-blur);
+    border: 2px solid hsl(var(--neo-pink) / 0.3);
+    box-shadow: var(--shadow-1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .neo_y2k .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-2), 0 0 40px rgba(255, 184, 232, 0.15);
+    border-color: hsl(var(--neo-pink) / 0.5);
+  }
+
+  .neo_y2k .btn-primary,
+  .neo_y2k button[class*="bg-primary"] {
+    background: hsl(var(--neo-electric));
+    color: hsl(var(--background));
+    border: none;
+    box-shadow: 0 4px 20px rgba(78, 217, 243, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .neo_y2k .btn-primary:hover,
+  .neo_y2k button[class*="bg-primary"]:hover {
+    background: hsl(var(--neo-pink));
+    color: hsl(var(--background));
+    box-shadow: 0 6px 30px rgba(255, 184, 232, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .neo_y2k .tab-active {
+    background: hsl(var(--neo-pink));
+    color: hsl(var(--background));
+    box-shadow: 0 0 20px rgba(255, 184, 232, 0.4);
+  }
+
+  .neo_y2k input:focus,
+  .neo_y2k textarea:focus {
+    border-color: hsl(var(--neo-electric));
+    box-shadow: 0 0 0 2px hsl(var(--neo-electric) / 0.2), 0 0 20px rgba(78, 217, 243, 0.2);
+  }
+
+  /* Neo Y2K Floating Effect */
+  @keyframes neo-float {
+    0%, 100% { 
+      transform: translateY(0px);
+    }
+    50% { 
+      transform: translateY(-6px);
+    }
+  }
+
+  .neo_y2k .avatar,
+  .neo_y2k .profile-picture {
+    box-shadow: 0 0 30px rgba(255, 184, 232, 0.3);
+    border: 3px solid hsl(var(--neo-pink) / 0.5);
+  }
+
+  .neo_y2k .avatar:hover,
+  .neo_y2k .profile-picture:hover {
+    animation: neo-float 2s ease-in-out infinite;
   }
 
   /* Theme-specific hover animations */

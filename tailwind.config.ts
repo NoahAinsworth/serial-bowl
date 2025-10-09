@@ -70,6 +70,7 @@ export default {
         horror: ['Bebas Neue', 'Impact', 'Montserrat', 'sans-serif'],
         retro: ['Inter', 'Rubik', 'sans-serif'],
         chemistry: ['Oswald', 'Bebas Neue', 'sans-serif'],
+        pixel: ['Press Start 2P', 'VT323', 'monospace'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",
