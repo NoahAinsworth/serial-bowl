@@ -67,6 +67,8 @@ export default {
       fontFamily: {
         sans: ['Nunito Sans', 'Inter', 'system-ui', 'sans-serif'],
         display: ['Poppins', 'Rubik', 'system-ui', 'sans-serif'],
+        horror: ['Nosifer', 'Eater', 'serif'],
+        retro: ['Inter', 'Rubik', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",
