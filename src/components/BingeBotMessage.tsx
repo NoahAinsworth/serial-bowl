@@ -79,14 +79,14 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-6 text-xs px-2 mx-1"
+                  className="h-5 text-xs px-1.5 mx-0.5"
                   onClick={() => setRevealed(true)}
                 >
-                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                   Spoiler
                 </Button>
               ) : (
-                <span className="text-foreground bg-muted px-2 py-0.5 rounded mx-1">
+                <span className="text-foreground bg-muted px-1.5 py-0.5 rounded mx-0.5 text-xs">
                   {spoilerText}
                 </span>
               )}
@@ -110,11 +110,11 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
             <Button
               key={`entity-${keyCounter++}`}
               variant="link"
-              className="inline-flex items-center gap-1 p-0 h-auto font-semibold text-primary hover:underline"
+              className="inline-flex items-center gap-0.5 p-0 h-auto font-semibold text-primary hover:underline text-xs sm:text-sm"
               onClick={() => onEntityClick(matchingEntity)}
             >
               {entityName}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             </Button>
           );
         } else {
@@ -131,36 +131,36 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
       parts.push(content.substring(lastIndex));
     }
     
-    return <p className="text-sm whitespace-pre-wrap break-words">{parts}</p>;
+    return <p className="text-xs sm:text-sm whitespace-pre-wrap break-words leading-relaxed">{parts}</p>;
   };
 
   return (
     <div className="space-y-2 w-full">
       <div className="flex justify-start w-full">
-        <div className="max-w-[95%] sm:max-w-[85%] rounded-lg px-3 sm:px-4 py-2.5 bg-muted text-foreground overflow-hidden break-words">
+        <div className="max-w-[98%] sm:max-w-[85%] rounded-lg px-2 sm:px-4 py-2 sm:py-2.5 bg-muted text-foreground overflow-hidden break-words">
           {renderContentWithLinks()}
         </div>
       </div>
       
       {/* Feedback buttons */}
-      <div className="flex gap-2 ml-2">
+      <div className="flex gap-1.5 sm:gap-2 ml-1 sm:ml-2">
         <Button
           variant={feedback === 1 ? "default" : "ghost"}
           size="sm"
           onClick={() => handleFeedback(1)}
           disabled={feedback !== null}
-          className="h-7 w-7 p-0"
+          className="h-6 w-6 sm:h-7 sm:w-7 p-0"
         >
-          <ThumbsUp className="h-3.5 w-3.5" />
+          <ThumbsUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </Button>
         <Button
           variant={feedback === -1 ? "default" : "ghost"}
           size="sm"
           onClick={() => handleFeedback(-1)}
           disabled={feedback !== null}
-          className="h-7 w-7 p-0"
+          className="h-6 w-6 sm:h-7 sm:w-7 p-0"
         >
-          <ThumbsDown className="h-3.5 w-3.5" />
+          <ThumbsDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </Button>
       </div>
     </div>
