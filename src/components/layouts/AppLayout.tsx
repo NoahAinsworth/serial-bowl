@@ -92,7 +92,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <div className="app-overlay" aria-hidden="true"></div>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
+      <header className="sticky top-0 z-40 w-full bg-background">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             {theme === 'friends' ? (
@@ -144,7 +144,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 w-full border-t-2 border-border bg-background">
+      <nav className="sticky bottom-0 z-40 w-full bg-background">
         <div className="container flex h-16 items-center justify-around px-4">
           {navItems.map(({ icon: Icon, label, path, showBadge, isProfile }) => (
             <Link
