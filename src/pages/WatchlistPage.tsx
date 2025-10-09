@@ -46,6 +46,8 @@ export default function WatchlistPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'watchlist' | 'watched' | 'search'>('watchlist');
+  const [browseShows, setBrowseShows] = useState<any[]>([]);
+  const [loadingBrowse, setLoadingBrowse] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -53,11 +55,46 @@ export default function WatchlistPage() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (activeTab === 'search' && browseShows.length === 0) {
+      loadBrowseShows();
+    }
+  }, [activeTab]);
+
   const loadData = async () => {
     if (!user) return;
 
     await Promise.all([loadWatchlist(), loadWatched()]);
     setLoading(false);
+  };
+
+  const loadBrowseShows = async () => {
+    setLoadingBrowse(true);
+    try {
+      const { data } = await supabase
+        .from('tvdb_trending')
+        .select('*')
+        .order('position', { ascending: true })
+        .limit(50);
+
+      if (data) {
+        const shows = data.map(show => ({
+          id: show.tvdb_id,
+          tvdb_id: show.tvdb_id,
+          name: show.name,
+          overview: show.overview || '',
+          image: show.image_url || '',
+          image_url: show.image_url || '',
+          firstAired: show.first_aired || '',
+          year: show.first_aired?.split('-')[0] || '',
+        }));
+        setBrowseShows(shows);
+      }
+    } catch (error) {
+      console.error('[loadBrowseShows] Error:', error);
+    } finally {
+      setLoadingBrowse(false);
+    }
   };
 
   const loadWatchlist = async () => {
@@ -661,10 +698,85 @@ export default function WatchlistPage() {
               <Card className="p-12 text-center">
                 <p className="text-muted-foreground">No results found for "{searchQuery}"</p>
               </Card>
+            ) : loadingBrowse ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
             ) : (
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold mb-4">Trending Shows</h2>
-                <TrendingShows />
+              <div>
+                <h2 className="text-lg font-semibold mb-4">Browse Shows</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {browseShows.map((show) => (
+                    <Card
+                      key={show.id || show.tvdb_id}
+                      className="overflow-hidden hover:border-primary/50 transition-all"
+                    >
+                      <div 
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/show/${show.id || show.tvdb_id}`)}
+                      >
+                        {show.image || show.image_url ? (
+                          <img
+                            src={show.image || show.image_url}
+                            alt={show.name}
+                            className="w-full aspect-[2/3] object-cover"
+                          />
+                        ) : (
+                          <div className="w-full aspect-[2/3] bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
+                            <span className="text-white font-bold text-center text-sm">
+                              {show.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h3 
+                          className="font-semibold text-sm line-clamp-2 mb-2 cursor-pointer hover:text-primary transition-colors"
+                          onClick={() => navigate(`/show/${show.id || show.tvdb_id}`)}
+                        >
+                          {show.name}
+                        </h3>
+                        {show.year && (
+                          <p className="text-xs text-muted-foreground mb-2">{show.year}</p>
+                        )}
+                        <div className="flex gap-2">
+                          <Button
+                            variant={isInWatchlist(show.id || show.tvdb_id) ? "secondary" : "outline"}
+                            size="sm"
+                            className="flex-1 h-8 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToWatchlist(show);
+                            }}
+                            disabled={isInWatchlist(show.id || show.tvdb_id)}
+                          >
+                            {isInWatchlist(show.id || show.tvdb_id) ? (
+                              <><Check className="h-3 w-3 mr-1" /> Listed</>
+                            ) : (
+                              <><Plus className="h-3 w-3 mr-1" /> List</>
+                            )}
+                          </Button>
+                          <Button
+                            variant={isInWatched(show.id || show.tvdb_id) ? "secondary" : "outline"}
+                            size="sm"
+                            className="flex-1 h-8 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToWatched(show);
+                            }}
+                            disabled={isInWatched(show.id || show.tvdb_id)}
+                          >
+                            {isInWatched(show.id || show.tvdb_id) ? (
+                              <><Check className="h-3 w-3 mr-1" /> Watched</>
+                            ) : (
+                              <><Plus className="h-3 w-3 mr-1" /> Watched</>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
           </div>
