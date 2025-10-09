@@ -116,7 +116,7 @@ export default function SettingsPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Cereal Social</SelectItem>
+              <SelectItem value="light">Light</SelectItem>
               <SelectItem value="dark">Dark</SelectItem>
               <SelectItem value="green_wireframe">Green Wireframe (Y2K) 💻</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>
