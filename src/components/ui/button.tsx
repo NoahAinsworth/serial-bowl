@@ -5,15 +5,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation font-label",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation font-display",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground rounded-xl hover:bg-[#E96B1F] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] shadow-sm",
-        destructive: "bg-destructive text-destructive-foreground rounded-xl hover:opacity-90 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] shadow-sm",
-        outline: "border border-[#DADADA] bg-card text-foreground rounded-xl hover:border-primary hover:text-primary active:scale-98",
-        secondary: "bg-secondary text-secondary-foreground rounded-xl hover:opacity-90 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] shadow-sm",
-        ghost: "text-foreground hover:bg-muted active:bg-muted/80 rounded-lg",
+        default: "bg-primary text-primary-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
+        destructive: "bg-destructive text-destructive-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
+        outline: "bg-card text-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
+        secondary: "bg-secondary text-secondary-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
+        ghost: "hover:bg-muted rounded-[20px]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

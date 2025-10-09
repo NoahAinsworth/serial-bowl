@@ -10,76 +10,72 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Serial Bowl Core - Premium Flagship Theme */
-    --background: 0 0% 95%;          /* Neutral light grey #F3F3F3 */
-    --foreground: 0 0% 10%;          /* Text Primary #1A1A1A */
-    --card: 0 0% 100%;               /* Pure white #FFFFFF */
-    --card-foreground: 0 0% 10%;
+    /* Cereal Social Theme - Premium Nostalgic UX */
+    --background: 36 100% 98%;      /* Cream White #FFF9F2 */
+    --foreground: 0 0% 12%;         /* Text Primary #1E1E1E */
+    --card: 0 0% 100%;              /* White cards */
+    --card-foreground: 0 0% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 23 100% 58%;          /* Cereal Orange #FF7A26 */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 7 100% 77%;         /* Soft Coral Red #FF958A */
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 95%;               /* Light grey for backgrounds */
-    --muted-foreground: 0 0% 37%;    /* Text Secondary #5F5F5F */
-    --accent: 158 100% 50%;          /* Neon Lime #00FF85 */
-    --accent-foreground: 0 0% 10%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 30 100% 63%;         /* Cereal Orange #FF9F40 */
+    --primary-foreground: 0 0% 12%;
+    --secondary: 48 100% 76%;       /* Pastel Yellow #FFE785 */
+    --secondary-foreground: 0 0% 12%;
+    --muted: 36 100% 98%;           /* Cream background */
+    --muted-foreground: 0 0% 42%;   /* Text Secondary #6B6B6B */
+    --accent: 198 100% 84%;         /* Baby Blue #AEE6FF */
+    --accent-foreground: 0 0% 12%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.08;        /* rgba(0,0,0,0.08) */
+    --border: 0 0% 0% / 0.06;       /* Soft border rgba(0,0,0,0.06) */
     --input: 0 0% 100%;
-    --ring: 158 100% 50%;
-    --radius: 1.125rem;
+    --ring: 30 100% 63%;
+    --radius: 1.5rem;
 
-    /* Extended Serial Bowl Core Palette */
-    --cereal-orange: 23 100% 58%;    /* #FF7A26 */
-    --soft-coral: 7 100% 77%;        /* #FF958A */
-    --neon-lime: 158 100% 50%;       /* #00FF85 */
-    --light-teal: 158 100% 91%;      /* #D1FFF0 */
-    --icon-tint: 0 0% 18%;           /* #2E2E2E */
-    --accent-glow: 158 100% 50% / 0.25;
-    --border-secondary: 0 0% 85%;    /* #DADADA */
+    /* Extended Cereal Palette */
+    --cereal-orange: 30 100% 63%;   /* #FF9F40 */
+    --pastel-yellow: 48 100% 76%;   /* #FFE785 */
+    --baby-blue: 198 100% 84%;      /* #AEE6FF */
+    --strawberry-pink: 343 100% 83%;/* #FFA6C1 */
+    --mint-green: 148 100% 86%;     /* #B8FFD9 */
 
-    /* Typography - Clean & Cinematic */
-    --font-ui: 'Inter', -apple-system, sans-serif;
-    --font-display: 'DM Sans', 'Satoshi', -apple-system, sans-serif;
-    --font-label: 'Poppins', sans-serif;
-    --font-mono: 'Space Grotesk', monospace;
-    --font-weight-ui: 500;
-    --font-weight-display: 700;
-    --font-weight-label: 600;
+    /* Typography - Cinematic & Premium */
+    --font-ui: 'Inter', 'Nunito Sans', -apple-system, sans-serif;
+    --font-display: 'DM Sans', 'Poppins', -apple-system, sans-serif;
+    --font-button: 'Poppins', sans-serif;
+    --font-weight-ui: 400;
+    --font-weight-display: 600;
+    --font-weight-button: 500;
     --letter-ui: 0em;
-    --letter-display: 0.02em;
+    --letter-display: 0.1em;
 
-    /* Shape Tokens - Clean Geometry */
-    --radius-sm: 12px;
-    --radius-md: 18px;
-    --radius-lg: 24px;
+    /* Shape Tokens - Rounded & Soft */
+    --radius-sm: 15px;
+    --radius-md: 25px;
+    --radius-lg: 30px;
     --stroke-width: 1px;
     --stroke-style: solid;
-    --tab-shape: 16px;
-    --btn-shape: 12px;
+    --tab-shape: 50px;              /* Pill tabs */
+    --btn-shape: 20px;
 
-    /* Elevation - Premium Shadows */
-    --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.05);
-    --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.1);
-    --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
-    --inner-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    --glow-lime: 0 0 15px rgba(0, 255, 133, 0.25);
+    /* Elevation - Soft Shadows */
+    --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(255, 159, 64, 0.15);
+    --inner-glow: none;
 
-    /* Motion - Smooth & Tactile */
+    /* Motion - Smooth & Organic */
     --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --dur-fast: 150ms;
-    --dur-med: 250ms;
-    --dur-slow: 400ms;
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --dur-fast: 100ms;
+    --dur-med: 200ms;
+    --dur-slow: 300ms;
 
-    /* Effects - Subtle Futurism */
-    --fx-overlay: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
-    --img-filter: saturate(1.02) contrast(1.01);
-    --active-underline: linear-gradient(90deg, transparent, hsl(var(--neon-lime)), transparent);
-    --gradient-avatar: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--neon-lime)));
+    /* Effects - Premium & Subtle */
+    --fx-overlay: none;
+    --img-filter: none;
+    --active-underline: none;
+    --gradient-pastel: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--mint-green)));
   }
 
   .dark {
@@ -520,14 +516,13 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Wordmark - Serial Bowl Core */
+  /* Wordmark - Cereal Social Premium Typography */
   .wordmark {
     font-family: var(--font-display);
     font-weight: 700;
     text-transform: none;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.1em;
     color: hsl(var(--foreground));
-    position: relative;
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
@@ -644,7 +639,7 @@ All colors MUST be HSL.
     transform: translateY(-2px);
   }
 
-  /* Serial Bowl Core Card */
+  /* Cereal Card - Soft & Premium */
   .card-flat {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
@@ -654,44 +649,31 @@ All colors MUST be HSL.
   }
 
   .card-flat:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover), 0 0 0 1px hsl(var(--neon-lime) / 0.3);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-hover);
   }
 
-  /* Premium Default Tabs */
+  /* Pill Tabs - Cereal Social */
   .tab-active {
-    background: var(--gradient-premium);
-    color: white;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
     border-radius: var(--tab-shape);
     box-shadow: var(--shadow-1);
-    font-family: var(--font-label);
-    font-weight: var(--font-weight-label);
-    position: relative;
-  }
-
-  .tab-active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: var(--active-underline);
-    border-radius: 2px;
+    font-family: var(--font-button);
+    font-weight: var(--font-weight-button);
   }
 
   .tab-inactive {
-    background: transparent;
+    background: hsl(var(--card));
     color: hsl(var(--muted-foreground));
     border: 1px solid hsl(var(--border));
     border-radius: var(--tab-shape);
-    font-family: var(--font-label);
-    font-weight: var(--font-weight-label);
+    font-family: var(--font-button);
+    font-weight: var(--font-weight-button);
   }
 
   .tab-inactive:hover {
     background: hsl(var(--muted));
-    border-color: hsl(var(--cereal-orange) / 0.3);
     color: hsl(var(--foreground));
   }
 
@@ -706,22 +688,21 @@ All colors MUST be HSL.
 
   /* No gradient text - solid colors only */
 
-  /* Premium Default Button */
+  /* Cereal Button - Soft & Rounded */
   .btn-flat {
     transition: all var(--dur-med) var(--ease-ui);
     border-radius: var(--btn-shape);
-    font-family: var(--font-label);
-    font-weight: var(--font-weight-label);
+    font-family: var(--font-button);
+    font-weight: var(--font-weight-button);
   }
 
   .btn-flat:hover {
-    transform: scale(1.02);
-    box-shadow: var(--shadow-2), 0 0 0 1px hsl(var(--electric-lime) / 0.2);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-2);
   }
 
   .btn-flat:active {
-    transform: scale(0.98);
-    box-shadow: var(--inner-glow);
+    transform: scale(1.02);
   }
 
   /* Pill Shape */
@@ -761,10 +742,10 @@ All colors MUST be HSL.
     letter-spacing: -0.02em;
   }
 
-  /* Premium Default Component Styling */
+  /* Cereal Social Component Styling */
   .card {
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-1), var(--inner-glow);
+    box-shadow: var(--shadow-1);
     border: 1px solid hsl(var(--border));
     transition: all var(--dur-med) var(--ease-ui);
   }
@@ -1074,58 +1055,8 @@ All colors MUST be HSL.
     }
     50% { 
       box-shadow: 0 0 15px rgba(0, 255, 133, 0.6), 0 0 25px rgba(0, 255, 133, 0.3);
-  }
-
-  /* Serial Bowl Core - Category Borders */
-  :root [data-type="thought"] {
-    border-left: 3px solid hsl(var(--neon-lime));
-  }
-
-  :root [data-type="review"] {
-    border-left: 3px solid hsl(var(--cereal-orange));
-  }
-
-  :root [data-type="trending"] {
-    border-left: 3px solid hsl(var(--soft-coral));
-  }
-
-  /* Serial Bowl Core - Avatar Gradient Ring */
-  :root .profile-ring {
-    border: 2px solid transparent;
-    background: 
-      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
-      var(--gradient-avatar) border-box;
-    box-shadow: 0 0 12px rgba(255, 122, 38, 0.15);
-  }
-
-  /* Serial Bowl Core - Input Focus */
-  :root input:focus,
-  :root textarea:focus {
-    border-color: hsl(var(--neon-lime));
-    box-shadow: var(--glow-lime);
-  }
-
-  /* Serial Bowl Core - Reaction Pulse */
-  :root button[aria-label*="like"]:active,
-  :root button[aria-label*="comment"]:active {
-    animation: reaction-pulse-core 0.3s ease-out;
-  }
-
-  @keyframes reaction-pulse-core {
-    0% { transform: scale(1); }
-    50% { 
-      transform: scale(1.1);
-      box-shadow: 0 0 12px rgba(255, 122, 38, 0.3), 0 0 20px rgba(0, 255, 133, 0.2);
     }
-    100% { transform: scale(1); }
   }
-
-  /* Serial Bowl Core - Header Shadow */
-  :root header {
-    background: hsl(var(--card));
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  }
-}
 
   @keyframes wireframe-dissolve {
     0% { opacity: 0; transform: scale(0.95); }

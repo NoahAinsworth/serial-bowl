@@ -165,7 +165,7 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
   };
 
   return (
-    <article className="py-4 bg-card border border-border rounded-xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative shadow-sm hover:shadow-md" data-type="review">
+    <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative">
       {overlayType && <SafetyOverlay type={overlayType} onRevealSpoiler={() => setSpoilerRevealed(true)} />}
       <div className={`flex gap-3 ${isSpoilerHidden ? 'blur-md' : ''}`}>
         <div>
@@ -225,19 +225,19 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
-                className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary bg-primary/10' : 'text-foreground'}`}
+                className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
               >
                 <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
-                <span className="text-sm font-semibold">{localLikes}</span>
+                <span className="text-sm">{localLikes}</span>
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleDislike}
-                className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive bg-destructive/10' : 'text-foreground'}`}
+                className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
               >
                 <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
-                <span className="text-sm font-semibold">{localDislikes}</span>
+                <span className="text-sm">{localDislikes}</span>
               </Button>
             </div>
           )}

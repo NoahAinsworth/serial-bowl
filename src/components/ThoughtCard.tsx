@@ -222,7 +222,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
   };
 
   return (
-    <article className="py-4 bg-card border border-border rounded-xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative shadow-sm hover:shadow-md" data-type="thought">
+    <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative">
       {overlayType && <SafetyOverlay type={overlayType} onRevealSpoiler={() => setSpoilerRevealed(true)} />}
       <div className={`flex gap-3 ${isSpoilerHidden ? 'blur-md' : ''}`}>
         <div>
@@ -314,28 +314,28 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('like')}
-              className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary bg-primary/10' : 'text-foreground'}`}
+              className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
             >
               <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
-              <span className="text-sm font-semibold">{localLikes}</span>
+              <span className="text-sm">{localLikes}</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleDislike}
-              className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive bg-destructive/10' : 'text-foreground'}`}
+              className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
             >
               <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
-              <span className="text-sm font-semibold">{localDislikes}</span>
+              <span className="text-sm">{localDislikes}</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="text-foreground active:text-accent transition-colors"
+              className="active:text-accent transition-colors"
             >
               <MessageCircle className="h-4 w-4 mr-1" />
-              <span className="text-sm font-semibold">{thought.comments}</span>
+              <span className="text-sm">{thought.comments}</span>
             </Button>
           </div>
 
