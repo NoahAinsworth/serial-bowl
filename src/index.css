@@ -277,12 +277,12 @@ All colors MUST be HSL.
   }
 
   .neo_y2k {
-    /* Neo Y2K Social Mode - Dark futuristic glassmorphism meets flat editorial */
+    /* Neo Y2K Social Mode - Glass aesthetic with futuristic depth */
     --background: 221 60% 8%;         /* Deep navy #0A0E1A */
     --foreground: 0 0% 95%;           /* White text #F2F2F2 */
-    --card: 220 30% 15%;              /* Dark card background */
+    --card: 0 0% 100%;                /* White base for glass tint */
     --card-foreground: 0 0% 95%;
-    --popover: 220 30% 15%;
+    --popover: 0 0% 100%;
     --popover-foreground: 0 0% 95%;
     --primary: 190 100% 67%;          /* Electric blue #4ED9F3 */
     --primary-foreground: 221 60% 8%;
@@ -294,8 +294,8 @@ All colors MUST be HSL.
     --accent-foreground: 221 60% 8%;
     --destructive: 4 100% 69%;        /* Coral #FF6F61 */
     --destructive-foreground: 0 0% 100%;
-    --border: 325 100% 85%;           /* Pastel pink borders */
-    --input: 220 30% 18%;
+    --border: 0 0% 100%;              /* White borders for glass */
+    --input: 0 0% 100%;
     --ring: 190 100% 67%;
     --radius: 1.5625rem;
 
@@ -316,24 +316,30 @@ All colors MUST be HSL.
     --font-weight-display: 700;
     --font-weight-ui: 500;
     
-    /* Shapes - Flat editorial rounded */
+    /* Shapes - Rounded glass panels */
     --radius-sm: 20px;
     --radius-md: 25px;
     --radius-lg: 30px;
     --btn-shape: 25px;
     --tab-shape: 25px;
-    --stroke-width: 2px;
+    --stroke-width: 1px;
     
-    /* Effects - Clean without glow */
-    --shadow-1: 0 4px 16px rgba(0, 0, 0, 0.2);
-    --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --inner-glow: none;
-    --glass-blur: blur(16px);
+    /* Glass Effects */
+    --glass-card: rgba(255, 255, 255, 0.08);
+    --glass-card-hover: rgba(255, 255, 255, 0.12);
+    --glass-nav: rgba(255, 255, 255, 0.10);
+    --glass-border: rgba(255, 255, 255, 0.25);
+    --glass-blur-heavy: blur(40px);
+    --glass-blur-medium: blur(25px);
+    --glass-blur-light: blur(15px);
+    
+    /* Effects */
+    --shadow-1: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow-2: 0 12px 48px rgba(0, 0, 0, 0.15);
+    --inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    --reflection: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
     --active-underline: linear-gradient(90deg, hsl(325 100% 85%), hsl(190 100% 67%), hsl(265 100% 86%));
     --img-filter: saturate(1.1) contrast(1.05);
-    --fx-overlay: 
-      radial-gradient(circle at 20% 30%, rgba(255, 184, 232, 0.08), transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(78, 217, 243, 0.06), transparent 40%);
   }
 
   /* Neo Y2K Light Mode Variant */
@@ -910,48 +916,139 @@ All colors MUST be HSL.
     }
   }
 
-  /* Neo Y2K Theme Specific Effects */
+  /* Neo Y2K Theme Specific Effects - Glassmorphism */
+  .neo_y2k body {
+    background: linear-gradient(135deg, #0A0E1A 0%, #151B2B 100%);
+    position: relative;
+  }
+
+  .neo_y2k body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(255, 184, 232, 0.1), transparent 45%),
+      radial-gradient(circle at 80% 70%, rgba(78, 217, 243, 0.08), transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(199, 184, 255, 0.06), transparent 50%);
+  }
+
   .neo_y2k .card {
-    background: rgba(34, 40, 58, 0.7);
-    backdrop-filter: var(--glass-blur);
-    border: 2px solid hsl(var(--neo-pink) / 0.3);
-    box-shadow: var(--shadow-1);
+    background: var(--glass-card);
+    backdrop-filter: var(--glass-blur-medium);
+    -webkit-backdrop-filter: var(--glass-blur-medium);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-1), var(--inner-glow);
+    position: relative;
+    overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  .neo_y2k .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: var(--reflection);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .neo_y2k .card > * {
+    position: relative;
+    z-index: 1;
+  }
+
   .neo_y2k .card:hover {
+    background: var(--glass-card-hover);
     transform: translateY(-4px);
-    box-shadow: var(--shadow-2);
-    border-color: hsl(var(--neo-pink) / 0.5);
+    box-shadow: var(--shadow-2), var(--inner-glow);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  /* Navigation with heavy blur */
+  .neo_y2k nav,
+  .neo_y2k header {
+    background: var(--glass-nav);
+    backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border-bottom: 1px solid var(--glass-border);
   }
 
   .neo_y2k .btn-primary,
   .neo_y2k button[class*="bg-primary"] {
-    background: hsl(var(--neo-electric));
-    color: hsl(var(--background));
-    border: none;
-    box-shadow: none;
+    background: rgba(78, 217, 243, 0.2);
+    color: hsl(var(--foreground));
+    border: 1px solid rgba(78, 217, 243, 0.4);
+    backdrop-filter: var(--glass-blur-light);
+    -webkit-backdrop-filter: var(--glass-blur-light);
+    box-shadow: var(--inner-glow);
     transition: all 0.3s ease;
   }
 
   .neo_y2k .btn-primary:hover,
   .neo_y2k button[class*="bg-primary"]:hover {
-    background: hsl(var(--neo-pink));
+    background: hsl(var(--neo-electric));
     color: hsl(var(--background));
-    box-shadow: none;
+    border-color: hsl(var(--neo-electric));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     transform: translateY(-2px);
   }
 
-  .neo_y2k .tab-active {
+  .neo_y2k .btn-primary:active,
+  .neo_y2k button[class*="bg-primary"]:active {
     background: hsl(var(--neo-pink));
-    color: hsl(var(--background));
-    box-shadow: none;
+    border-color: hsl(var(--neo-pink));
+  }
+
+  .neo_y2k .tab-active {
+    background: rgba(255, 184, 232, 0.25);
+    color: hsl(var(--foreground));
+    border: 1px solid rgba(255, 184, 232, 0.5);
+    backdrop-filter: var(--glass-blur-light);
+    -webkit-backdrop-filter: var(--glass-blur-light);
+  }
+
+  .neo_y2k input,
+  .neo_y2k textarea {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: var(--glass-blur-light);
+    -webkit-backdrop-filter: var(--glass-blur-light);
+    border: 1px solid var(--glass-border);
   }
 
   .neo_y2k input:focus,
   .neo_y2k textarea:focus {
-    border-color: hsl(var(--neo-electric));
-    box-shadow: 0 0 0 2px hsl(var(--neo-electric) / 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(78, 217, 243, 0.6);
+    box-shadow: 0 0 0 3px rgba(78, 217, 243, 0.1);
+  }
+
+  /* Frosted avatar bubbles */
+  .neo_y2k .avatar,
+  .neo_y2k .profile-picture {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: var(--glass-blur-light);
+    -webkit-backdrop-filter: var(--glass-blur-light);
+    border: 2px solid rgba(255, 184, 232, 0.4);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), var(--inner-glow);
+  }
+
+  /* Glass modals and popovers */
+  .neo_y2k [role="dialog"],
+  .neo_y2k .popover {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border: 1px solid rgba(255, 184, 232, 0.3);
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.3), var(--inner-glow);
   }
 
   /* Neo Y2K Floating Effect */
@@ -964,15 +1061,10 @@ All colors MUST be HSL.
     }
   }
 
-  .neo_y2k .avatar,
-  .neo_y2k .profile-picture {
-    box-shadow: none;
-    border: 3px solid hsl(var(--neo-pink) / 0.5);
-  }
-
   .neo_y2k .avatar:hover,
   .neo_y2k .profile-picture:hover {
     animation: neo-float 2s ease-in-out infinite;
+    border-color: rgba(78, 217, 243, 0.6);
   }
 
   /* Theme-specific hover animations */
