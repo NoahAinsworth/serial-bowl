@@ -130,7 +130,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="px-4">
-              {posts.map((post) => 
+              {posts
+                .filter(post => !strictSafety || !post.contains_mature)
+                .map((post) => 
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
@@ -165,7 +167,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="px-4">
-              {posts.map((post) => 
+              {posts
+                .filter(post => !strictSafety || !post.contains_mature)
+                .map((post) => 
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
@@ -200,7 +204,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="px-4">
-              {posts.map((post) => 
+              {posts
+                .filter(post => !strictSafety || !post.contains_mature)
+                .map((post) => 
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 

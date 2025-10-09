@@ -194,8 +194,8 @@ export default function SettingsPage() {
 
         <div className="flex items-center justify-between">
           <div>
-            <Label>Strict Safety Mode</Label>
-            <p className="text-sm text-muted-foreground">Additional content filtering</p>
+            <Label>Filter Mature Content</Label>
+            <p className="text-sm text-muted-foreground">Hide posts marked as mature content</p>
           </div>
           <Switch
             checked={settings.safety.strict_safety}
