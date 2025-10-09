@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
-import { extractColorPalette } from '@/lib/colorExtractor';
+
 
 export default function ShowDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -31,11 +31,6 @@ export default function ShowDetailPage() {
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
-  const [colorPalette, setColorPalette] = useState({
-    primary: '152 100% 40%',
-    secondary: '14 100% 62%',
-    accent: '351 100% 77%',
-  });
 
   useEffect(() => {
     if (id) {
@@ -47,20 +42,6 @@ export default function ShowDetailPage() {
     const showData = await fetchShow(showId);
     if (showData) {
       setShow(showData);
-      
-      // Extract color palette from poster
-      if (showData.image) {
-        try {
-          const palette = await extractColorPalette(showData.image);
-          setColorPalette(palette);
-          // Set CSS variables for dynamic theming
-          document.documentElement.style.setProperty('--show-accent', palette.primary);
-          document.documentElement.style.setProperty('--show-secondary', palette.secondary);
-          document.documentElement.style.setProperty('--show-tertiary', palette.accent);
-        } catch (error) {
-          console.error('Failed to extract colors:', error);
-        }
-      }
       
       // Fetch seasons
       const seasonsData = await fetchSeasons(showId);
@@ -183,56 +164,20 @@ export default function ShowDetailPage() {
   }
 
   return (
-    <div 
-      className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in min-h-screen transition-all duration-700"
-      style={{
-        background: `
-          radial-gradient(ellipse at top right, hsl(${colorPalette.primary} / 0.15) 0%, transparent 50%),
-          radial-gradient(ellipse at bottom left, hsl(${colorPalette.secondary} / 0.12) 0%, transparent 50%),
-          radial-gradient(ellipse at center, hsl(${colorPalette.accent} / 0.08) 0%, transparent 70%),
-          hsl(var(--background))
-        `,
-      }}
-    >
-      <Card 
-        className="p-6 transition-all duration-700 backdrop-blur-sm"
-        style={{
-          background: `
-            linear-gradient(135deg, 
-              hsl(${colorPalette.primary} / 0.15) 0%, 
-              hsl(${colorPalette.secondary} / 0.1) 50%,
-              hsl(${colorPalette.accent} / 0.12) 100%
-            )
-          `,
-          borderColor: `hsl(${colorPalette.primary} / 0.3)`,
-          boxShadow: `0 8px 32px hsl(${colorPalette.primary} / 0.2)`,
-        }}
-      >
+    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in min-h-screen">
+      <Card className="p-6">
         <div className="flex flex-col md:flex-row gap-6">
           {show.image && (
             <div className="relative">
               <img
                 src={show.image}
                 alt={show.name}
-                className="w-full md:w-48 h-auto md:h-72 object-cover rounded-lg transition-all duration-500"
-                style={{
-                  border: `2px solid hsl(${colorPalette.primary})`,
-                  boxShadow: `
-                    0 4px 20px hsl(${colorPalette.primary} / 0.4),
-                    0 0 60px hsl(${colorPalette.secondary} / 0.2)
-                  `,
-                }}
+                className="w-full md:w-48 h-auto md:h-72 object-cover rounded-lg"
               />
             </div>
           )}
             <div className="flex-1">
-              <h1 
-                className="text-3xl font-bold mb-2 transition-colors duration-500"
-                style={{ 
-                  color: `hsl(${colorPalette.primary})`,
-                  textShadow: `0 2px 20px hsl(${colorPalette.primary} / 0.3)`,
-                }}
-              >
+              <h1 className="text-3xl font-bold mb-2">
                 {show.name}
               </h1>
               <p className="text-muted-foreground mb-4">{show.overview}</p>
@@ -256,19 +201,7 @@ export default function ShowDetailPage() {
       </Card>
 
       {contentId && (
-        <Card 
-          className="p-6 transition-all duration-700 backdrop-blur-sm"
-          style={{
-            background: `
-              linear-gradient(135deg, 
-                hsl(${colorPalette.secondary} / 0.12) 0%, 
-                hsl(${colorPalette.accent} / 0.08) 100%
-              )
-            `,
-            borderColor: `hsl(${colorPalette.secondary} / 0.25)`,
-            boxShadow: `0 4px 24px hsl(${colorPalette.secondary} / 0.15)`,
-          }}
-        >
+        <Card className="p-6">
           <PostTypeSelector 
             onReviewClick={() => {
               setPostType('review');
@@ -300,36 +233,16 @@ export default function ShowDetailPage() {
         <div>
         <h2 className="text-2xl font-bold mb-4">Seasons</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {seasons.filter(season => season.number !== 0).map((season, index) => {
-            // Cycle through the color palette for different seasons
-            const seasonColor = index % 3 === 0 
-              ? colorPalette.primary 
-              : index % 3 === 1 
-              ? colorPalette.secondary 
-              : colorPalette.accent;
-            
-            return (
+          {seasons.filter(season => season.number !== 0).map((season) => (
               <Card
                 key={season.id}
-                className="p-4 cursor-pointer transition-all duration-500 hover-scale backdrop-blur-sm"
-                style={{
-                  background: `hsl(${seasonColor} / 0.1)`,
-                  borderColor: `hsl(${seasonColor} / 0.25)`,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = `hsl(${seasonColor} / 0.6)`;
-                  e.currentTarget.style.boxShadow = `0 4px 20px hsl(${seasonColor} / 0.3)`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = `hsl(${seasonColor} / 0.25)`;
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
+                className="p-4 cursor-pointer transition-all hover:border-primary"
                 onClick={() => navigate(`/show/${id}/season/${season.number}`)}
               >
                 <h3 className="font-semibold text-center">{season.name}</h3>
               </Card>
-            );
-          })}
+            )
+          )}
         </div>
       </div>
 
