@@ -314,16 +314,16 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('like')}
-              className={`transition-all duration-200 ${
+              className={`transition-all duration-300 ${
                 localReaction === 'like' 
-                  ? 'text-primary bg-primary/10 hover:bg-primary/20' 
-                  : 'hover:bg-accent/10'
+                  ? 'text-primary bg-primary/10 hover:bg-primary/20 scale-105' 
+                  : 'hover:bg-accent/10 scale-100'
               }`}
             >
-              <Heart className={`h-4 w-4 mr-1 transition-transform ${
+              <Heart className={`h-4 w-4 mr-1 transition-all duration-300 ${
                 localReaction === 'like' 
-                  ? 'fill-primary scale-110' 
-                  : ''
+                  ? 'fill-primary scale-110 animate-pulse' 
+                  : 'scale-100'
               }`} />
               <span className="text-sm font-medium">{localLikes}</span>
             </Button>
@@ -331,16 +331,16 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={handleDislike}
-              className={`transition-all duration-200 ${
+              className={`transition-all duration-300 ${
                 localReaction === 'dislike' 
-                  ? 'text-destructive bg-destructive/10 hover:bg-destructive/20' 
-                  : 'hover:bg-accent/10'
+                  ? 'text-destructive bg-destructive/10 hover:bg-destructive/20 scale-105' 
+                  : 'hover:bg-accent/10 scale-100'
               }`}
             >
-              <ThumbsDown className={`h-4 w-4 mr-1 transition-transform ${
+              <ThumbsDown className={`h-4 w-4 mr-1 transition-all duration-300 ${
                 localReaction === 'dislike' 
-                  ? 'fill-destructive scale-110' 
-                  : ''
+                  ? 'fill-destructive scale-110 animate-pulse' 
+                  : 'scale-100'
               }`} />
               <span className="text-sm font-medium">{localDislikes}</span>
             </Button>
