@@ -84,6 +84,31 @@ export default function Home() {
 
   return (
     <div className="max-w-2xl mx-auto pb-6">
+      {/* Wordmark */}
+      <div className="text-center py-4">
+        <h1 className="text-2xl font-bold tracking-[0.5em] mx-auto">
+          <span className="inline-block" style={{ color: '#4DA6FF' }}>S</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#FFD84D' }}>E</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#4DA6FF' }}>R</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#4DA6FF' }}>I</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#FFD84D' }}>A</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#4DA6FF' }}>L</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#4DA6FF' }}>B</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#FFD84D' }}>O</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#4DA6FF' }}>W</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-block" style={{ color: '#4DA6FF' }}>L</span>
+        </h1>
+      </div>
+
       {/* Feed Type Tabs */}
       <Tabs value={feedType} onValueChange={setFeedType} className="w-full">
         <TabsList className="w-full grid grid-cols-3 mb-0 sticky top-0 z-10 bg-background/80 backdrop-blur-lg rounded-none border-b border-border/30">
