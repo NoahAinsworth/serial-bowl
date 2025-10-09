@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { extractDominantColor, blendWithTheme } from '@/lib/colorExtractor';
 
 interface LiveAccentColors {
+  primary: string;
+  secondary: string;
   accent: string;
-  accentGlow: string;
   backgroundTint: string;
-  shadow: string;
+  glowColor: string;
 }
 
 /**
@@ -61,22 +62,21 @@ const applyColorsToDOM = (colors: LiveAccentColors) => {
   // Add transition class for smooth color changes
   root.classList.add('live-accent-transition');
   
-  // Apply new colors to Serial Bowl tokens
-  root.style.setProperty('--sb-accent', colors.accent);
-  root.style.setProperty('--sb-bg-tint', colors.backgroundTint);
-  root.style.setProperty('--sb-shadow', colors.shadow);
-  root.style.setProperty('--sb-glow', colors.accentGlow);
-  
-  // Update legacy variables for compatibility
-  root.style.setProperty('--primary', colors.accent);
-  root.style.setProperty('--secondary', colors.accent);
-  root.style.setProperty('--ring', colors.accent);
+  // Apply new colors
+  root.style.setProperty('--primary', colors.primary);
+  root.style.setProperty('--secondary', colors.secondary);
   root.style.setProperty('--accent', colors.accent);
+  root.style.setProperty('--background', colors.backgroundTint);
+  root.style.setProperty('--ring', colors.primary);
+  
+  // Update glow colors
+  root.style.setProperty('--glow-lime', `hsl(${colors.glowColor} / 0.25)`);
+  root.style.setProperty('--shadow-hover', `0 0 25px hsl(${colors.glowColor} / 0.3)`);
   
   // Remove transition class after animation completes
   setTimeout(() => {
     root.classList.remove('live-accent-transition');
-  }, 850);
+  }, 800);
 };
 
 /**
@@ -88,16 +88,15 @@ const resetToDefaultTheme = () => {
   root.classList.add('live-accent-transition');
   
   // Reset to default Serial Bowl Core colors
-  root.style.setProperty('--sb-accent', '23 100% 58%');
-  root.style.setProperty('--sb-bg-tint', '0 0% 98%');
-  root.style.setProperty('--sb-shadow', '0 0% 0% / 0.12');
-  root.style.setProperty('--sb-glow', '23 100% 58% / 0.22');
-  root.style.setProperty('--primary', '23 100% 58%');
-  root.style.setProperty('--secondary', '23 100% 58%');
-  root.style.setProperty('--ring', '23 100% 58%');
-  root.style.setProperty('--accent', '23 100% 58%');
+  root.style.setProperty('--primary', '150 100% 50%');
+  root.style.setProperty('--secondary', '14 100% 62%');
+  root.style.setProperty('--accent', '351 100% 77%');
+  root.style.setProperty('--background', '0 0% 98%');
+  root.style.setProperty('--ring', '150 100% 50%');
+  root.style.setProperty('--glow-lime', 'rgba(0, 255, 133, 0.25)');
+  root.style.setProperty('--shadow-hover', '0 0 25px rgba(0, 255, 133, 0.25)');
   
   setTimeout(() => {
     root.classList.remove('live-accent-transition');
-  }, 850);
+  }, 800);
 };
