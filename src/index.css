@@ -500,6 +500,18 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
+  
+  /* Live Accent Lighting Transition */
+  .live-accent-transition {
+    transition: 
+      --primary 800ms cubic-bezier(0.4, 0, 0.2, 1),
+      --secondary 800ms cubic-bezier(0.4, 0, 0.2, 1),
+      --accent 800ms cubic-bezier(0.4, 0, 0.2, 1),
+      --background 800ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 800ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 800ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 800ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
   body {
     @apply bg-background text-foreground;
