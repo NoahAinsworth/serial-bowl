@@ -82,7 +82,7 @@ All colors MUST be HSL.
     --card-foreground: 0 0% 100%;
     --popover: 240 15% 18%;
     --popover-foreground: 0 0% 100%;
-    --primary: 45 100% 69%;      /* Yellow */
+    --primary: 320 100% 76%;      /* Hot Pink */
     --primary-foreground: 0 0% 0%;
     --secondary: 4 100% 69%;     /* Coral */
     --secondary-foreground: 0 0% 0%;
@@ -94,7 +94,7 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 100%;         /* White borders in dark mode */
     --input: 240 15% 22%;
-    --ring: 45 100% 69%;
+    --ring: 320 100% 76%;
 
     /* Extended Y2K Palette */
     --yellow: 45 100% 69%;
