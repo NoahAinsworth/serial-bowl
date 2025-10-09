@@ -76,13 +76,19 @@ function normalizeShow(show: any) {
 // Export convenience functions
 export async function searchShows(query: string) {
   const results = await tvdbClient.searchShows(query);
-  return results.map((show: any) => ({
+  console.log('[searchShows] Raw results:', results.slice(0, 2));
+  const mapped = results.map((show: any) => ({
     id: show.tvdb_id,
+    tvdb_id: show.tvdb_id,
     name: show.name,
     overview: show.overview || '',
     image: show.image_url || '',
+    image_url: show.image_url || '',
     firstAired: show.first_air_time || '',
+    year: show.first_air_time?.split('-')[0] || '',
   }));
+  console.log('[searchShows] Mapped results:', mapped.slice(0, 2));
+  return mapped;
 }
 
 export async function fetchBrowseShows(page = 1) {
