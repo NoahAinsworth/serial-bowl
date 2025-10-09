@@ -24,9 +24,9 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Light Mode - Modern Flat Purple/Blue */
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 0 0% 8%;
-    --card: 0 0% 99%;
+    --card: 0 0% 98%;
     --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 8%;
@@ -34,16 +34,16 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --secondary: 210 95% 62%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 240 15% 95%;
+    --muted: 240 15% 92%;
     --muted-foreground: 240 8% 40%;
     --accent: 191 85% 68%;
     --accent-foreground: 0 0% 8%;
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 12% 88%;
+    --border: 240 8% 90%;
     --input: 240 12% 88%;
     --ring: 265 90% 68%;
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     /* Extended Palette */
     --purple: 265 90% 68%;

@@ -230,13 +230,15 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto py-6 px-4">
+    <div className="max-w-4xl mx-auto">
 
       {/* Follow Requests List */}
-      <FollowRequestsList />
+      <div className="px-4">
+        <FollowRequestsList />
+      </div>
 
       {/* Header Section */}
-      <Card className="p-6 mb-6">
+      <div className="px-4 py-6 border-b border-border/30">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
           {/* Avatar */}
           <Avatar className="h-24 w-24 relative z-10 flex-shrink-0">
@@ -296,10 +298,10 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Top 3 Shows Section */}
-      <Card className="p-6 mb-6">
+      <div className="px-4 py-6 border-b border-border/30">
         <h2 className="text-xl font-bold text-center mb-4">Top 3</h2>
         <Dialog open={showTop3Dialog} onOpenChange={(open) => {
           setShowTop3Dialog(open);
@@ -400,11 +402,11 @@ export default function ProfilePage() {
             );
           })}
         </div>
-      </Card>
+      </div>
 
       {/* Tabs Section */}
-      <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="w-full grid grid-cols-5">
+      <Tabs defaultValue="posts" className="w-full mt-0">
+        <TabsList className="w-full grid grid-cols-5 rounded-none border-b border-border/30 bg-background/80 backdrop-blur-lg sticky top-0 z-10">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="shows">Shows</TabsTrigger>
           <TabsTrigger value="seasons">Seasons</TabsTrigger>
@@ -412,7 +414,7 @@ export default function ProfilePage() {
           <TabsTrigger value="lists">Lists</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="posts" className="mt-6">
+        <TabsContent value="posts" className="mt-0 px-4">
           {/* Secondary Filter Tabs */}
           <div className="mb-4">
             <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full">
@@ -453,19 +455,19 @@ export default function ProfilePage() {
           {postType === 'reviews' && <UserReviews userId={user!.id} />}
         </TabsContent>
 
-        <TabsContent value="shows" className="mt-6">
+        <TabsContent value="shows" className="mt-0 px-4">
           <UserRatings userId={user!.id} contentKind="show" />
         </TabsContent>
 
-        <TabsContent value="seasons" className="mt-6">
+        <TabsContent value="seasons" className="mt-0 px-4">
           <UserRatings userId={user!.id} contentKind="season" />
         </TabsContent>
 
-        <TabsContent value="episodes" className="mt-6">
+        <TabsContent value="episodes" className="mt-0 px-4">
           <UserRatings userId={user!.id} contentKind="episode" />
         </TabsContent>
 
-        <TabsContent value="lists" className="mt-6">
+        <TabsContent value="lists" className="mt-0 px-4">
           <UserLists />
         </TabsContent>
       </Tabs>

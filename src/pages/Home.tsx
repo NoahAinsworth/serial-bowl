@@ -53,9 +53,9 @@ export default function Home() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4">
+    <div className="max-w-2xl mx-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
+        <TabsList className="w-full grid grid-cols-3 mb-0 sticky top-0 z-10 bg-background/80 backdrop-blur-lg rounded-none border-b border-border/30">
           <TabsTrigger value="trending">
             <TrendingUp className="h-4 w-4 mr-2" />
             Trending
@@ -70,65 +70,71 @@ export default function Home() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="trending" className="space-y-4">
+        <TabsContent value="trending" className="space-y-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : posts.length === 0 ? (
-            <Card className="p-12 text-center">
+            <div className="p-12 text-center">
               <p className="text-muted-foreground">No trending thoughts yet. Be the first to create!</p>
-            </Card>
+            </div>
           ) : (
-            posts.map((post) => 
-              post.type === 'thought' ? (
-                <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
-              ) : (
-                <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
-              )
-            )
+            <div className="px-4">
+              {posts.map((post) => 
+                post.type === 'thought' ? (
+                  <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
+                ) : (
+                  <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
+                )
+              )}
+            </div>
           )}
         </TabsContent>
 
-        <TabsContent value="hot-takes" className="space-y-4">
+        <TabsContent value="hot-takes" className="space-y-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : posts.length === 0 ? (
-            <Card className="p-12 text-center">
+            <div className="p-12 text-center">
               <p className="text-muted-foreground">No hot takes yet. Share controversial opinions!</p>
-            </Card>
+            </div>
           ) : (
-            posts.map((post) => 
-              post.type === 'thought' ? (
-                <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
-              ) : (
-                <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
-              )
-            )
+            <div className="px-4">
+              {posts.map((post) => 
+                post.type === 'thought' ? (
+                  <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
+                ) : (
+                  <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
+                )
+              )}
+            </div>
           )}
         </TabsContent>
 
-        <TabsContent value="binge" className="space-y-4">
+        <TabsContent value="binge" className="space-y-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : posts.length === 0 ? (
-            <Card className="p-12 text-center">
+            <div className="p-12 text-center">
               <p className="text-muted-foreground">
                 Follow users and rate shows to build your personalized feed!
               </p>
-            </Card>
+            </div>
           ) : (
-            posts.map((post) => 
-              post.type === 'thought' ? (
-                <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
-              ) : (
-                <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
-              )
-            )
+            <div className="px-4">
+              {posts.map((post) => 
+                post.type === 'thought' ? (
+                  <ThoughtCard key={post.id} thought={post} userHideSpoilers={userHideSpoilers} onReactionChange={refetch} onDelete={refetch} />
+                ) : (
+                  <ReviewCard key={post.id} review={post} userHideSpoilers={userHideSpoilers} onDelete={refetch} />
+                )
+              )}
+            </div>
           )}
         </TabsContent>
       </Tabs>
