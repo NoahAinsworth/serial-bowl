@@ -75,7 +75,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark Mode Y2K - Darker but still colorful */
+    /* Dark Mode with Liquid Glass Effects */
     --background: 240 20% 12%;   /* Dark navy */
     --foreground: 0 0% 100%;     /* White text */
     --card: 240 15% 18%;
@@ -103,6 +103,13 @@ All colors MUST be HSL.
     --mint: 160 100% 85%;
     --baby-blue: 198 100% 83%;
     --hot-pink: 320 100% 76%;
+
+    /* Liquid Glass Effects */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: blur(20px);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --glass-shine: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
   }
 
   .retro {
@@ -1085,5 +1092,82 @@ All colors MUST be HSL.
   :focus-visible {
     outline: 2px solid hsl(var(--accent));
     outline-offset: 2px;
+  }
+
+  /* Liquid Glass Effects for Dark Mode */
+  .dark .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dark .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--glass-shine);
+    opacity: 0.5;
+  }
+
+  .dark .glass-nav {
+    background: rgba(30, 32, 48, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dark .glass-modal {
+    background: rgba(30, 32, 48, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .dark .glass-button {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .dark .glass-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Apply glass effect to cards in dark mode */
+  .dark .card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  /* Floating glass effect */
+  @keyframes float-glass {
+    0%, 100% { 
+      transform: translateY(0px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    50% { 
+      transform: translateY(-10px);
+      box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  .dark .glass-float {
+    animation: float-glass 6s ease-in-out infinite;
   }
 }
