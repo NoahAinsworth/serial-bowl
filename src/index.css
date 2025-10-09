@@ -1177,4 +1177,250 @@ All colors MUST be HSL.
     color: hsl(var(--neon-green));
     text-shadow: 0 0 8px rgba(0, 255, 133, 0.5);
   }
+
+  /* ===========================
+     HEISENBERG THEME - Breaking Bad Inspired
+     ========================== */
+  
+  .heisenberg {
+    /* Base chemical green background */
+    --background: 147 48% 12%;           /* #0F2F1B - deep chemical green */
+    --foreground: 0 0% 4%;               /* #0A0A0A - almost black text */
+    
+    /* Sandy tan cards */
+    --card: 41 45% 74%;                  /* #E6D3A3 - sandy tan */
+    --card-foreground: 0 0% 14%;         /* #242424 */
+    
+    --popover: 41 45% 74%;
+    --popover-foreground: 0 0% 14%;
+    
+    /* Primary = neon lime green */
+    --primary: 158 100% 50%;             /* #00FF85 - neon lime */
+    --primary-foreground: 0 0% 0%;       /* Black text on green */
+    
+    /* Secondary = amber fume */
+    --secondary: 42 100% 65%;            /* #FFC14E - amber */
+    --secondary-foreground: 0 0% 0%;
+    
+    --muted: 41 35% 64%;
+    --muted-foreground: 0 0% 23%;        /* #3B3B3B */
+    
+    --accent: 158 100% 50%;              /* Neon lime */
+    --accent-foreground: 0 0% 0%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Black borders */
+    --border: 0 0% 0%;                   /* #000000 */
+    --input: 41 45% 74%;
+    --ring: 158 100% 50%;
+    
+    /* Lab colors */
+    --lab-green: 147 48% 20%;            /* #184C2A - darker green for boxes */
+    --lab-paper: 49 38% 96%;             /* #F7F6EF - off-white */
+    --neon-lime: 158 100% 50%;           /* #00FF85 */
+    --amber-fume: 42 100% 65%;           /* #FFC14E */
+    
+    /* Typography - Breaking Bad style */
+    --font-ui: 'DM Sans', 'Rubik', sans-serif;
+    --font-display: 'Roboto Slab', 'DM Sans', serif;
+    --font-accent: 'Roboto Slab', serif;
+    --font-weight-ui: 500;
+    --font-weight-display: 800;
+    --font-weight-accent: 900;
+    --letter-ui: -0.01em;
+    --letter-display: 0.02em;
+    --letter-accent: 0.03em;
+    
+    /* Shape tokens */
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 20px;
+    --stroke-width: 1.5px;
+    --stroke-style: solid;
+    --tab-shape: 14px;
+    --btn-shape: 14px;
+    
+    /* Elevation - subtle shadows */
+    --shadow-1: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.18);
+    --inner-glow: none;
+    
+    /* Motion */
+    --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-fast: 120ms;
+    --dur-med: 250ms;
+    --dur-slow: 600ms;
+    
+    /* Effects - smoke overlay */
+    --fx-overlay: linear-gradient(180deg, rgba(15, 47, 27, 0.03) 0%, rgba(24, 76, 42, 0.05) 100%);
+    --img-filter: saturate(0.95) contrast(1.1);
+  }
+  
+  /* Heisenberg wordmark - Periodic Table style */
+  .heisenberg .wordmark {
+    font-family: 'Roboto Slab', serif;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .heisenberg .wordmark .periodic-se,
+  .heisenberg .wordmark .periodic-bo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--lab-green));
+    color: white;
+    border: 1.5px solid black;
+    padding: 0.25rem 0.4rem;
+    font-size: 1.1em;
+    font-weight: 900;
+    text-transform: uppercase;
+    border-radius: 4px;
+    position: relative;
+  }
+  
+  /* Smoke texture overlay on background */
+  .heisenberg body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background: var(--fx-overlay);
+    opacity: 1;
+  }
+  
+  /* Card styling - sandy with black outline */
+  .heisenberg .card {
+    background: hsl(var(--card));
+    border: 1.5px solid hsl(var(--border));
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-1);
+    transition: all var(--dur-med) var(--ease-ui);
+  }
+  
+  .heisenberg .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  
+  /* Buttons - neon green with black outline */
+  .heisenberg button[class*="default"],
+  .heisenberg button[class*="primary"] {
+    background: hsl(var(--neon-lime));
+    border: 2px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    font-weight: 700;
+    transition: transform var(--dur-fast) ease-out;
+  }
+  
+  .heisenberg button[class*="default"]:hover,
+  .heisenberg button[class*="primary"]:hover {
+    transform: scale(1.03);
+    background: hsl(158 100% 55%);
+  }
+  
+  /* Outlined buttons */
+  .heisenberg button[class*="outline"] {
+    background: transparent;
+    border: 1.5px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+  
+  .heisenberg button[class*="outline"]:hover {
+    background: hsl(var(--neon-lime));
+  }
+  
+  /* Tabs - black outline rectangles */
+  .heisenberg [role="tablist"] button {
+    background: transparent;
+    border: 1.5px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    border-radius: var(--tab-shape);
+    transition: all var(--dur-med) var(--ease-ui);
+  }
+  
+  .heisenberg [role="tablist"] button[data-state="active"],
+  .heisenberg [role="tablist"] button[aria-selected="true"] {
+    background: hsl(var(--neon-lime));
+    color: hsl(var(--foreground));
+  }
+  
+  /* Inputs */
+  .heisenberg input,
+  .heisenberg textarea {
+    background: hsl(var(--card));
+    border: 1.5px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    border-radius: 12px;
+  }
+  
+  .heisenberg input:focus,
+  .heisenberg textarea:focus {
+    border-color: hsl(var(--neon-lime));
+    box-shadow: 0 0 0 3px hsla(158, 100%, 50%, 0.1);
+  }
+  
+  /* Header styling */
+  .heisenberg header {
+    background: hsl(var(--background));
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Icons - black with green hover */
+  .heisenberg svg {
+    color: hsl(var(--foreground));
+    transition: color var(--dur-fast) ease;
+  }
+  
+  .heisenberg button:hover svg {
+    color: hsl(var(--neon-lime));
+  }
+  
+  /* Heat haze effect on card hover (subtle blur ripple) */
+  @keyframes heat-haze {
+    0%, 100% { filter: blur(0px); }
+    50% { filter: blur(0.5px); }
+  }
+  
+  .heisenberg .card:hover {
+    animation: heat-haze 1s ease-in-out;
+  }
+  
+  /* Pulse animation for active buttons */
+  @keyframes heisenberg-pulse {
+    0%, 100% { 
+      background: hsl(158 100% 50%);
+    }
+    50% { 
+      background: hsl(158 100% 55%);
+    }
+  }
+  
+  .heisenberg button[class*="default"]:active {
+    animation: heisenberg-pulse 0.3s ease;
+  }
+  
+  /* Post type borders */
+  .heisenberg [data-type="thought"] {
+    border-left: 3px solid hsl(var(--neon-lime));
+  }
+  
+  .heisenberg [data-type="review"] {
+    border-left: 3px solid hsl(var(--amber-fume));
+  }
+  
+  .heisenberg [data-type="trending"] {
+    border-left: 3px solid hsl(var(--lab-green));
+  }
 }

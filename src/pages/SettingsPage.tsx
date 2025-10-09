@@ -121,6 +121,7 @@ export default function SettingsPage() {
               <SelectItem value="green_wireframe">Green Wireframe (Y2K) 💻</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>
               <SelectItem value="the_one_with_the_theme">The One with the Theme</SelectItem>
+              <SelectItem value="heisenberg">Heisenberg 🧪</SelectItem>
             </SelectContent>
           </Select>
         </div>
