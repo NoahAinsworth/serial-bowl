@@ -615,12 +615,21 @@ All colors MUST be HSL.
   }
 
   /* Upside Down Theme Specific Effects */
-  .upside_down .card {
+  .upside_down .card,
+  .upside_down [class*="card"] {
     background: rgba(0, 0, 0, 0.8);
     border: 2px solid #9D4EDD;
     box-shadow: none;
     position: relative;
     z-index: 1;  /* Above the glitch overlay */
+  }
+
+  /* Ensure all main content is above the glitch */
+  .upside_down main,
+  .upside_down .container,
+  .upside_down [role="main"] {
+    position: relative;
+    z-index: 1;
   }
 
   /* Glow effect classes - only for non-home screens */
