@@ -277,30 +277,30 @@ All colors MUST be HSL.
   }
 
   .neo_y2k {
-    /* Neo Y2K Social Mode - Dark futuristic glassmorphism meets flat editorial */
-    --background: 221 60% 8%;         /* Deep navy #0A0E1A */
-    --foreground: 0 0% 95%;           /* White text #F2F2F2 */
-    --card: 220 30% 15%;              /* Dark card background */
-    --card-foreground: 0 0% 95%;
-    --popover: 220 30% 15%;
-    --popover-foreground: 0 0% 95%;
+    /* Neo Y2K Social Mode - White background with purple accents */
+    --background: 0 0% 100%;          /* White #FFFFFF */
+    --foreground: 0 0% 0%;            /* Black text #000000 */
+    --card: 0 0% 98%;                 /* Off-white card background */
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
     --primary: 190 100% 67%;          /* Electric blue #4ED9F3 */
-    --primary-foreground: 221 60% 8%;
-    --secondary: 325 100% 85%;        /* Pastel pink #FFB8E8 */
-    --secondary-foreground: 221 60% 8%;
-    --muted: 220 25% 20%;
-    --muted-foreground: 0 0% 70%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 70% 60%;         /* Purple #A855F7 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
     --accent: 265 100% 86%;           /* Lilac #C7B8FF */
-    --accent-foreground: 221 60% 8%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 4 100% 69%;        /* Coral #FF6F61 */
     --destructive-foreground: 0 0% 100%;
-    --border: 325 100% 85%;           /* Pastel pink borders */
-    --input: 220 30% 18%;
+    --border: 0 0% 0%;                /* Black borders */
+    --input: 0 0% 100%;
     --ring: 190 100% 67%;
     --radius: 1.5625rem;
 
     /* Extended Neo Y2K Palette */
-    --neo-pink: 325 100% 85%;         /* #FFB8E8 */
+    --neo-pink: 270 70% 60%;          /* Purple #A855F7 */
     --neo-blue: 196 100% 83%;         /* #AEE6FF */
     --neo-lilac: 265 100% 86%;        /* #C7B8FF */
     --neo-mint: 160 100% 85%;         /* #B8FFE3 */
