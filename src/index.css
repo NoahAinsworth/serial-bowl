@@ -632,17 +632,32 @@ All colors MUST be HSL.
     z-index: 1;
   }
 
-  /* Glow effect classes - only for non-home screens */
-  .neon-glow {
+  /* Glow effect classes - only for dark themes */
+  .dark .neon-glow,
+  .upside_down .neon-glow,
+  .chemistry .neon-glow {
     text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
   }
 
-  .btn-glow {
+  .dark .btn-glow,
+  .upside_down .btn-glow,
+  .chemistry .btn-glow {
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
   }
 
-  .btn-glow:hover {
+  .dark .btn-glow:hover,
+  .upside_down .btn-glow:hover,
+  .chemistry .btn-glow:hover {
     box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+  }
+
+  /* Light mode - no glow */
+  .neon-glow {
+    text-shadow: none;
+  }
+
+  .btn-glow {
+    box-shadow: none;
   }
 
   .upside_down .btn-primary,
