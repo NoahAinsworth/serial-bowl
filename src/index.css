@@ -103,6 +103,60 @@ All colors MUST be HSL.
     --hot-pink: 320 100% 76%;
   }
 
+  .upside_down {
+    /* Upside Down - Stranger Things Dark & Eerie */
+    --background: 0 0% 8%;           /* Very dark background #141414 */
+    --foreground: 0 0% 95%;          /* Light grey text */
+    --card: 0 0% 12%;                /* Dark card #1F1F1F */
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 0 100% 38%;           /* Dark Red #C00000 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 100% 50%;        /* Orange #FF7B00 */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 18%;               /* Dark muted #2E2E2E */
+    --muted-foreground: 0 0% 60%;
+    --accent: 276 77% 58%;           /* Purple #9D4EDD */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 38%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 276 77% 58%;           /* Purple border */
+    --input: 0 0% 18%;
+    --ring: 0 100% 38%;
+    --radius: 0.5rem;
+
+    /* Extended Upside Down Palette */
+    --blood-red: 0 100% 38%;         /* #C00000 */
+    --toxic-orange: 24 100% 50%;     /* #FF7B00 */
+    --void-purple: 276 77% 58%;      /* #9D4EDD */
+    --shadow-grey: 0 0% 18%;         /* #2E2E2E */
+
+    /* Typography - Eerie & Unsettling */
+    --font-display: 'Bebas Neue', 'Impact', sans-serif;
+    --font-ui: 'Roboto Mono', monospace;
+    --letter-display: 0.05em;
+    --font-weight-display: 700;
+    --font-weight-ui: 400;
+    
+    /* Shapes - Angular & Ominous */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --btn-shape: 4px;
+    --tab-shape: 6px;
+    --stroke-width: 1px;
+    --stroke-style: solid;
+    
+    /* Effects - Glitchy & Eerie */
+    --shadow-1: 0 4px 12px rgba(192, 0, 0, 0.3);
+    --shadow-2: 0 8px 24px rgba(192, 0, 0, 0.4);
+    --inner-glow: inset 0 0 20px rgba(157, 78, 221, 0.2);
+    --active-underline: none;
+    --img-filter: saturate(0.7) contrast(1.1) brightness(0.9);
+    --fx-overlay: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  }
+
   .the_one_with_the_theme {
     /* The One with the Theme - 90s Central Perk Cozy Vibes */
     --background: 280 28% 68%;        /* Monica's Wall Purple #B497BD */

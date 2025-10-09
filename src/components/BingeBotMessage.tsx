@@ -83,7 +83,7 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
                   onClick={() => setRevealed(true)}
                 >
                   <AlertTriangle className="h-3 w-3 mr-1" />
-                  Tap to reveal spoiler
+                  Spoiler
                 </Button>
               ) : (
                 <span className="text-foreground bg-muted px-2 py-0.5 rounded mx-1">
@@ -96,28 +96,31 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
         
         parts.push(<SpoilerReveal key={`spoiler-${keyCounter++}`} />);
       } else if (match[3]) {
-        // Entity link match
+        // Entity link match - only show if it's a show/season/episode
         const entityName = match[4];
         
         // Try to find matching entity
         const matchingEntity = entities?.find(e => 
           e.name === entityName
-        ) || {
-          type: "show" as const,
-          name: entityName
-        };
-        
-        parts.push(
-          <Button
-            key={`entity-${keyCounter++}`}
-            variant="link"
-            className="inline-flex items-center gap-1 p-0 h-auto font-semibold text-primary hover:underline"
-            onClick={() => onEntityClick(matchingEntity)}
-          >
-            {entityName}
-            <ExternalLink className="h-3 w-3" />
-          </Button>
         );
+        
+        // Only create links for actual shows/seasons/episodes, not questions
+        if (matchingEntity && ['show', 'season', 'episode'].includes(matchingEntity.type)) {
+          parts.push(
+            <Button
+              key={`entity-${keyCounter++}`}
+              variant="link"
+              className="inline-flex items-center gap-1 p-0 h-auto font-semibold text-primary hover:underline"
+              onClick={() => onEntityClick(matchingEntity)}
+            >
+              {entityName}
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          );
+        } else {
+          // Not an entity link, just show the text
+          parts.push(entityName);
+        }
       }
       
       lastIndex = match.index + match[0].length;
@@ -128,13 +131,13 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
       parts.push(content.substring(lastIndex));
     }
     
-    return <p className="text-sm whitespace-pre-wrap">{parts}</p>;
+    return <p className="text-sm whitespace-pre-wrap break-words">{parts}</p>;
   };
 
   return (
     <div className="space-y-2">
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-lg px-4 py-2 bg-muted text-foreground">
+        <div className="max-w-[85%] rounded-lg px-4 py-2.5 bg-muted text-foreground overflow-hidden">
           {renderContentWithLinks()}
         </div>
       </div>
