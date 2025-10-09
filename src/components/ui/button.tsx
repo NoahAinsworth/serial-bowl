@@ -5,15 +5,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation font-display",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation tracking-wide",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
-        destructive: "bg-destructive text-destructive-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
-        outline: "bg-card text-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
-        secondary: "bg-secondary text-secondary-foreground rounded-[25px] hover:translate-y-[-2px] active:translate-y-[0px]",
-        ghost: "hover:bg-muted rounded-[20px]",
+        default: "bg-primary text-primary-foreground rounded-[20px] border-2 border-primary shadow-[0_0_15px_rgba(0,255,133,0.3)] hover:shadow-[0_0_25px_rgba(0,255,133,0.5)] hover:scale-[1.02] active:scale-[0.98]",
+        destructive: "bg-destructive text-destructive-foreground rounded-[20px] border-2 border-destructive hover:scale-[1.02] active:scale-[0.98]",
+        outline: "bg-card text-foreground rounded-[20px] border-2 border-transparent bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 bg-origin-border hover:from-primary hover:via-secondary hover:to-accent hover:text-white hover:shadow-[0_0_20px_rgba(0,255,133,0.4)] active:scale-[0.98]",
+        secondary: "bg-secondary text-secondary-foreground rounded-[20px] border-2 border-secondary shadow-[0_0_15px_rgba(255,106,61,0.3)] hover:shadow-[0_0_25px_rgba(255,106,61,0.5)] hover:scale-[1.02] active:scale-[0.98]",
+        ghost: "hover:bg-muted/50 rounded-[16px] hover:shadow-[0_0_10px_rgba(0,255,133,0.2)]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

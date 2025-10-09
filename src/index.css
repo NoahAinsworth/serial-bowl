@@ -10,72 +10,74 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Cereal Social Theme - Premium Nostalgic UX */
-    --background: 36 100% 98%;      /* Cream White #FFF9F2 */
-    --foreground: 0 0% 12%;         /* Text Primary #1E1E1E */
-    --card: 0 0% 100%;              /* White cards */
-    --card-foreground: 0 0% 12%;
+    /* Iridescent Metal - Futuristic Y2K Cinema */
+    --background: 0 0% 98%;         /* Soft White #FAFAFA */
+    --foreground: 0 0% 4%;          /* Near Black #0A0A0A */
+    --card: 0 0% 100%;              /* Pure White */
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 12%;
-    --primary: 30 100% 63%;         /* Cereal Orange #FF9F40 */
-    --primary-foreground: 0 0% 12%;
-    --secondary: 48 100% 76%;       /* Pastel Yellow #FFE785 */
-    --secondary-foreground: 0 0% 12%;
-    --muted: 36 100% 98%;           /* Cream background */
-    --muted-foreground: 0 0% 42%;   /* Text Secondary #6B6B6B */
-    --accent: 198 100% 84%;         /* Baby Blue #AEE6FF */
-    --accent-foreground: 0 0% 12%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 150 100% 50%;        /* Neon Green #00FF85 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 14 100% 62%;       /* Hot Orange #FF6A3D */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 95%;              /* Light Grey #F2F2F2 */
+    --muted-foreground: 0 0% 36%;   /* Text Secondary #5C5C5C */
+    --accent: 351 100% 77%;         /* Coral #FF8FA3 */
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.06;       /* Soft border rgba(0,0,0,0.06) */
+    --border: 0 0% 0% / 0.08;       /* Thin border rgba(0,0,0,0.08) */
     --input: 0 0% 100%;
-    --ring: 30 100% 63%;
-    --radius: 1.5rem;
+    --ring: 150 100% 50%;
+    --radius: 1.25rem;
 
-    /* Extended Cereal Palette */
-    --cereal-orange: 30 100% 63%;   /* #FF9F40 */
-    --pastel-yellow: 48 100% 76%;   /* #FFE785 */
-    --baby-blue: 198 100% 84%;      /* #AEE6FF */
-    --strawberry-pink: 343 100% 83%;/* #FFA6C1 */
-    --mint-green: 148 100% 86%;     /* #B8FFD9 */
+    /* Extended Iridescent Palette */
+    --neon-green: 150 100% 50%;     /* #00FF85 */
+    --hot-orange: 14 100% 62%;      /* #FF6A3D */
+    --soft-coral: 351 100% 77%;     /* #FF8FA3 */
+    --violet-tint: 258 100% 77%;    /* #B58BFF */
+    --electric-lime: 150 100% 50%;  /* #00FF85 */
 
-    /* Typography - Cinematic & Premium */
-    --font-ui: 'Inter', 'Nunito Sans', -apple-system, sans-serif;
-    --font-display: 'DM Sans', 'Poppins', -apple-system, sans-serif;
-    --font-button: 'Poppins', sans-serif;
-    --font-weight-ui: 400;
-    --font-weight-display: 600;
-    --font-weight-button: 500;
-    --letter-ui: 0em;
+    /* Typography - Sleek Futuristic */
+    --font-ui: 'Inter', system-ui, sans-serif;
+    --font-display: 'Satoshi', 'DM Sans', sans-serif;
+    --font-label: 'Space Grotesk', sans-serif;
+    --font-weight-ui: 500;
+    --font-weight-display: 700;
+    --font-weight-label: 600;
+    --letter-ui: 0.01em;
     --letter-display: 0.1em;
 
-    /* Shape Tokens - Rounded & Soft */
-    --radius-sm: 15px;
-    --radius-md: 25px;
-    --radius-lg: 30px;
-    --stroke-width: 1px;
+    /* Shape Tokens - Cinematic Rounded */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --stroke-width: 1.5px;
     --stroke-style: solid;
-    --tab-shape: 50px;              /* Pill tabs */
+    --tab-shape: 16px;
     --btn-shape: 20px;
 
-    /* Elevation - Soft Shadows */
-    --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.04);
-    --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 8px 24px rgba(255, 159, 64, 0.15);
-    --inner-glow: none;
+    /* Elevation - Holographic Glow */
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 0 25px rgba(0, 255, 133, 0.25);
+    --inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
-    /* Motion - Smooth & Organic */
-    --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
+    /* Motion - Fluid & Electronic */
+    --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
     --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --dur-fast: 100ms;
-    --dur-med: 200ms;
-    --dur-slow: 300ms;
+    --dur-fast: 150ms;
+    --dur-med: 300ms;
+    --dur-slow: 500ms;
 
-    /* Effects - Premium & Subtle */
-    --fx-overlay: none;
-    --img-filter: none;
-    --active-underline: none;
-    --gradient-pastel: linear-gradient(135deg, hsl(var(--cereal-orange)), hsl(var(--mint-green)));
+    /* Effects - Holographic Iridescence */
+    --fx-overlay: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 133, 0.02) 2px, rgba(0, 255, 133, 0.02) 4px);
+    --img-filter: saturate(1.05) brightness(1.02);
+    --active-underline: linear-gradient(90deg, hsl(var(--neon-green)), hsl(var(--hot-orange)), hsl(var(--soft-coral)));
+    --gradient-chrome: linear-gradient(90deg, hsl(var(--soft-coral)) 0%, hsl(var(--hot-orange)) 40%, hsl(var(--neon-green)) 80%);
+    --glow-lime: rgba(0, 255, 133, 0.25);
+    --glow-orange: rgba(255, 106, 61, 0.25);
   }
 
   .dark {
