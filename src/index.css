@@ -359,6 +359,61 @@ All colors MUST be HSL.
     --ring: 190 100% 67%;
   }
 
+  .polaroid_grey {
+    /* Polaroid Grey Mode - Nostalgic grey with vintage Polaroid accents */
+    --background: 0 0% 11%;           /* Dark grey #1C1C1C */
+    --foreground: 0 0% 96%;           /* Off-white #F4F4F4 */
+    --card: 0 0% 93%;                 /* Polaroid paper grey-white #EDEDED */
+    --card-foreground: 0 0% 13%;      /* Dark text on light cards #202020 */
+    --popover: 0 0% 93%;
+    --popover-foreground: 0 0% 13%;
+    --primary: 48 100% 84%;           /* Cream Yellow #FFF3B0 */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 13 48% 82%;          /* Blush Pink #EABFB9 */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 36 48% 92%;              /* Warm Beige #F5E6CA */
+    --muted-foreground: 0 0% 40%;
+    --accent: 180 45% 80%;            /* Mint Aqua #B5EAEA */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 87%;        /* Coral Red #FFBCBC */
+    --destructive-foreground: 0 0% 0%;
+    --border: 0 0% 85%;               /* Light grey border #D8D8D8 */
+    --input: 0 0% 96%;                /* Light grey fill #F5F5F5 */
+    --ring: 180 45% 80%;              /* Mint Aqua */
+    --radius: 0.5rem;
+
+    /* Extended Polaroid Palette */
+    --polaroid-blush: 13 48% 82%;     /* #EABFB9 */
+    --polaroid-cream: 48 100% 84%;    /* #FFF3B0 */
+    --polaroid-aqua: 180 45% 80%;     /* #B5EAEA */
+    --polaroid-coral: 0 100% 87%;     /* #FFBCBC */
+    --polaroid-beige: 36 48% 92%;     /* #F5E6CA */
+
+    /* Typography - Modern minimal */
+    --font-display: 'Inter', 'Helvetica', sans-serif;
+    --font-ui: 'Inter', 'Helvetica', sans-serif;
+    --letter-display: -0.01em;
+    --letter-ui: 0;
+    --font-weight-display: 600;
+    --font-weight-ui: 400;
+    
+    /* Shapes - Flat Polaroid style */
+    --radius-sm: 8px;
+    --radius-md: 8px;
+    --radius-lg: 8px;
+    --btn-shape: 8px;
+    --tab-shape: 20px;
+    --stroke-width: 1px;
+    
+    /* Effects - Minimal, flat like Polaroid */
+    --shadow-1: none;
+    --shadow-2: none;
+    --inner-glow: none;
+    --active-underline: none;
+    --img-filter: saturate(0.95) contrast(1.02);
+    --fx-overlay: none;
+  }
+
   /* CRT Effects */
   .retro body::before {
     background-image: 
