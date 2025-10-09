@@ -345,7 +345,7 @@ All colors MUST be HSL.
 
   body {
     @apply text-foreground;
-    background: linear-gradient(180deg, hsl(0 0% 75%) 0%, hsl(0 0% 95%) 100%);
+    background: linear-gradient(180deg, hsl(0 0% 65%) 0%, hsl(0 0% 90%) 50%, hsl(0 0% 98%) 100%);
     min-height: 100vh;
     font-family: var(--font-ui);
     letter-spacing: var(--letter-ui);
