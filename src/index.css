@@ -10,93 +10,97 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Minimal Social - Clean & Simple */
-    --background: 0 0% 100%;         /* Pure White */
-    --foreground: 0 0% 0%;           /* Black */
-    --card: 0 0% 100%;               /* White cards */
-    --card-foreground: 0 0% 0%;
+    /* Modern Cinematic Instagram Style */
+    --background: 0 0% 100%;         /* Pure White #FFFFFF */
+    --foreground: 0 0% 4%;           /* Text Primary #0B0B0B */
+    --card: 0 0% 98%;                /* Surface #FAFAFA */
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 0 0% 0%;              /* Black primary */
+    --popover-foreground: 0 0% 4%;
+    --primary: 0 0% 7%;              /* Active Black #111111 */
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;           /* Light grey */
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 96%;               /* Light grey */
-    --muted-foreground: 0 0% 45%;    /* Medium grey text */
-    --accent: 0 0% 96%;              /* Light grey accent */
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;              /* Light border */
-    --input: 0 0% 100%;
-    --ring: 0 0% 0%;
-    --radius: 0.5rem;
-
-    /* Dynamic Show Accent System */
-    --show-accent: 0 0% 0%;
-    
-    /* Typography - System Fonts */
-    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-    --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-    --font-accent: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-    --font-weight-ui: 400;
-    --font-weight-display: 700;
-    --font-weight-accent: 600;
-    --letter-ui: 0;
-    --letter-display: 0;
-    --letter-accent: 0;
-
-    /* Shape Tokens - Minimal */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --stroke-width: 1px;
-    --stroke-style: solid;
-    --tab-shape: 8px;
-    --btn-shape: 8px;
-
-    /* Elevation - Subtle */
-    --shadow-1: none;
-    --shadow-2: none;
-    --shadow-hover: none;
-    --inner-glow: none;
-
-    /* Motion - Quick */
-    --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-bounce: cubic-bezier(0.4, 0, 0.2, 1);
-    --dur-fast: 150ms;
-    --dur-med: 200ms;
-    --dur-slow: 300ms;
-
-    /* Effects - None */
-    --fx-overlay: none;
-    --img-filter: none;
-    --active-underline: none;
-    --gradient-vignette: none;
-    --grain-opacity: 0;
-  }
-
-  .dark {
-    /* Minimal Dark Mode */
-    --background: 0 0% 0%;       /* Pure black */
-    --foreground: 0 0% 100%;     /* White text */
-    --card: 0 0% 0%;             /* Black cards */
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 0 0% 100%;        /* White primary */
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 15%;       /* Dark grey */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 15%;           /* Dark grey */
-    --muted-foreground: 0 0% 65%; /* Light grey text */
-    --accent: 0 0% 15%;          /* Dark grey accent */
+    --secondary-foreground: 0 0% 7%;
+    --muted: 0 0% 96%;               
+    --muted-foreground: 0 0% 40%;    /* Text Secondary #666666 */
+    --accent: 152 84% 41%;           /* Emerald #10C974 */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 20%;          /* Dark border */
-    --input: 0 0% 0%;
-    --ring: 0 0% 100%;
+    --border: 0 0% 0% / 0.08;        /* rgba(0,0,0,0.08) */
+    --input: 0 0% 98%;
+    --ring: 0 0% 7%;
+    --radius: 1.125rem;              /* 18px */
+
+    /* Dynamic Show Accent System */
+    --show-accent: 152 84% 41%;
+    
+    /* Typography - Cinematic */
+    --font-ui: 'Inter', 'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Inter', 'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-accent: 'Space Grotesk', 'Clash Display', sans-serif;
+    --font-weight-ui: 400;
+    --font-weight-display: 700;
+    --font-weight-accent: 700;
+    --letter-ui: 0;
+    --letter-display: -0.02em;
+    --letter-accent: 0.05em;
+
+    /* Shape Tokens - Cinematic Rounded */
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
+    --stroke-width: 1px;
+    --stroke-style: solid;
+    --tab-shape: 18px;
+    --btn-shape: 18px;
+
+    /* Elevation - Cinematic */
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --inner-glow: none;
+
+    /* Motion - Cinematic */
+    --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.4, 0, 0.2, 1);
+    --dur-fast: 200ms;
+    --dur-med: 400ms;
+    --dur-slow: 600ms;
+
+    /* Effects - Film Grain */
+    --fx-overlay: none;
+    --img-filter: none;
+    --active-underline: none;
+    --gradient-vignette: radial-gradient(90vw 50vh at 50% 40%, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 100%);
+    --grain-opacity: 0.04;
+  }
+
+  .dark {
+    /* Cinematic Dark Mode */
+    --background: 0 0% 7%;       /* #111111 */
+    --foreground: 0 0% 96%;      /* Off-white #F5F5F5 */
+    --card: 0 0% 9%;             /* #171717 */
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 0 0% 96%;         /* Off-white primary */
+    --primary-foreground: 0 0% 7%;
+    --secondary: 0 0% 14%;       /* Dark grey */
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 14%;           
+    --muted-foreground: 0 0% 60%; /* #999999 */
+    --accent: 152 84% 41%;       /* Emerald #10C974 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 96%;
+    --border: 0 0% 100% / 0.1;   /* rgba(255,255,255,0.1) */
+    --input: 0 0% 9%;
+    --ring: 0 0% 96%;
+    
+    /* Effects - Film Grain Dark */
+    --grain-opacity: 0.05;
+    --gradient-vignette: radial-gradient(90vw 50vh at 50% 40%, hsl(0 0% 7%) 0%, hsl(0 0% 5%) 100%);
   }
 
   .upside_down {
@@ -498,6 +502,35 @@ All colors MUST be HSL.
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     position: relative;
+  }
+
+  /* Cinematic film grain overlay - only for main themes */
+  :root body::after,
+  .dark body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    animation: grain 8s steps(10) infinite;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-5%, -10%); }
+    20% { transform: translate(-15%, 5%); }
+    30% { transform: translate(7%, -25%); }
+    40% { transform: translate(-5%, 25%); }
+    50% { transform: translate(-15%, 10%); }
+    60% { transform: translate(15%, 0%); }
+    70% { transform: translate(0%, 15%); }
+    80% { transform: translate(3%, 35%); }
+    90% { transform: translate(-10%, 10%); }
   }
   
   body::before {
