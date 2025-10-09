@@ -140,7 +140,7 @@ All colors MUST be HSL.
 
     /* Typography - Eerie & Unsettling - ITC Benguiat Style */
     --font-display: 'Cinzel', 'Palatino', serif;
-    --font-ui: 'Cinzel', 'Palatino', serif;
+    --font-ui: 'Roboto', 'Arial', sans-serif;
     --letter-display: 0.02em;
     --font-weight-display: 700;
     --font-weight-ui: 400;
