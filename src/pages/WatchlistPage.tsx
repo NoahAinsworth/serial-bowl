@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Bookmark, Trash2, Search, Plus, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB } from '@/hooks/useTVDB';
-import { TrendingShows } from '@/components/TrendingShows';
+import { tvdbFetch } from '@/lib/tvdb';
+import { normalizeSeries } from '@/lib/shows';
 
 interface WatchlistItem {
   id: string;
@@ -48,6 +49,9 @@ export default function WatchlistPage() {
   const [activeTab, setActiveTab] = useState<'watchlist' | 'watched' | 'search'>('watchlist');
   const [browseShows, setBrowseShows] = useState<any[]>([]);
   const [loadingBrowse, setLoadingBrowse] = useState(false);
+  const [browsePage, setBrowsePage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -61,6 +65,31 @@ export default function WatchlistPage() {
     }
   }, [activeTab]);
 
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingBrowse && !searchQuery.trim() && activeTab === 'search') {
+          setBrowsePage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, loadingBrowse, searchQuery, activeTab]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (browsePage > 0 && !searchQuery.trim() && activeTab === 'search') {
+      loadBrowseShows();
+    }
+  }, [browsePage]);
+
   const loadData = async () => {
     if (!user) return;
 
@@ -69,29 +98,30 @@ export default function WatchlistPage() {
   };
 
   const loadBrowseShows = async () => {
+    if (loadingBrowse) return;
+    
     setLoadingBrowse(true);
     try {
-      const { data } = await supabase
-        .from('tvdb_trending')
-        .select('*')
-        .order('position', { ascending: true })
-        .limit(50);
-
-      if (data) {
-        const shows = data.map(show => ({
-          id: show.tvdb_id,
-          tvdb_id: show.tvdb_id,
-          name: show.name,
-          overview: show.overview || '',
-          image: show.image_url || '',
-          image_url: show.image_url || '',
-          firstAired: show.first_aired || '',
-          year: show.first_aired?.split('-')[0] || '',
-        }));
-        setBrowseShows(shows);
+      const response = await tvdbFetch(`/series/filter?page=${browsePage}&sort=score&sortType=desc`);
+      const showsData = Array.isArray(response) ? response : [];
+      const normalized = showsData.map(normalizeSeries);
+      
+      setBrowseShows((prev) => {
+        const combined = [...prev, ...normalized];
+        const seen = new Set();
+        return combined.filter((show: any) => {
+          if (seen.has(show.id)) return false;
+          seen.add(show.id);
+          return true;
+        });
+      });
+      
+      if (normalized.length < 20) {
+        setHasMore(false);
       }
     } catch (error) {
       console.error('[loadBrowseShows] Error:', error);
+      setHasMore(false);
     } finally {
       setLoadingBrowse(false);
     }
@@ -777,6 +807,11 @@ export default function WatchlistPage() {
                     </Card>
                   ))}
                 </div>
+                {hasMore && !searchQuery.trim() && (
+                  <div ref={observerTarget} className="py-4 text-center">
+                    {loadingBrowse && <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />}
+                  </div>
+                )}
               </div>
             )}
           </div>
