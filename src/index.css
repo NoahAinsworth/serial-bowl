@@ -138,10 +138,10 @@ All colors MUST be HSL.
     --void-purple: 276 77% 58%;      /* #9D4EDD */
     --shadow-grey: 0 0% 18%;         /* #2E2E2E */
 
-    /* Typography - Eerie & Unsettling */
-    --font-display: 'Bebas Neue', 'Impact', sans-serif;
-    --font-ui: 'Roboto Mono', monospace;
-    --letter-display: 0.05em;
+    /* Typography - Eerie & Unsettling - ITC Benguiat Style */
+    --font-display: 'Cinzel', 'Palatino', serif;
+    --font-ui: 'Cinzel', 'Palatino', serif;
+    --letter-display: 0.02em;
     --font-weight-display: 700;
     --font-weight-ui: 400;
     
