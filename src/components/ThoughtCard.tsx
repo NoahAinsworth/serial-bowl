@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Trash2, ThumbsDown } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SpoilerText } from '@/components/SpoilerText';
 import {
   AlertDialog,
@@ -72,8 +73,33 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
   const [showComments, setShowComments] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [showUndo, setShowUndo] = useState(false);
   
   const isOwner = user?.id === thought.user.id;
+
+  const handleHidePost = () => {
+    setHidden(true);
+    setShowUndo(true);
+    toast({
+      title: "Post hidden",
+      description: "Undo?",
+      action: (
+        <Button variant="outline" size="sm" onClick={() => {
+          setHidden(false);
+          setShowUndo(false);
+        }}>
+          Undo
+        </Button>
+      ),
+    });
+  };
+
+  const handleReport = () => {
+    navigate('/settings', { state: { openTab: 'legal', scrollTo: 'report' } });
+  };
+
+  if (hidden && !showUndo) return null;
 
   // Determine safety overlay type
   const isSpoilerHidden = thought.is_spoiler && userHideSpoilers && !spoilerRevealed;
@@ -241,37 +267,56 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
             >
               {thought.user.handle}
             </span>
-            {isOwner && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground active:text-destructive h-8 w-8 p-0"
-                    disabled={deleting}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete thought?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your thought.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      className="bg-destructive active:bg-destructive/90"
+            <div className="flex items-center gap-1">
+              {isOwner && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground active:text-destructive h-8 w-8 p-0"
+                      disabled={deleting}
                     >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete thought?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your thought.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-destructive active:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleHidePost}>
+                    <EyeOff className="h-4 w-4 mr-2" />
+                    Hide Post
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleReport}>
+                    <Flag className="h-4 w-4 mr-2" />
+                    Report...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <SpoilerText content={displayContent} isSpoiler={false} />
           <div className="flex flex-wrap gap-2 mb-3">

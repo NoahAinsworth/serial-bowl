@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, ThumbsDown } from 'lucide-react';
+import { Heart, ThumbsDown, MoreVertical, EyeOff, Flag } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { SpoilerText } from '@/components/SpoilerText';
 import { RatingBadge } from '@/components/PercentRating';
@@ -51,6 +52,31 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
   const [localLikes, setLocalLikes] = useState(review.likes || 0);
   const [localDislikes, setLocalDislikes] = useState(review.dislikes || 0);
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [showUndo, setShowUndo] = useState(false);
+
+  const handleHidePost = () => {
+    setHidden(true);
+    setShowUndo(true);
+    toast({
+      title: "Post hidden",
+      description: "Undo?",
+      action: (
+        <Button variant="outline" size="sm" onClick={() => {
+          setHidden(false);
+          setShowUndo(false);
+        }}>
+          Undo
+        </Button>
+      ),
+    });
+  };
+
+  const handleReport = () => {
+    navigate('/settings', { state: { openTab: 'legal', scrollTo: 'report' } });
+  };
+
+  if (hidden && !showUndo) return null;
 
   // Determine safety overlay type
   const isSpoilerHidden = review.is_spoiler && userHideSpoilers && !spoilerRevealed;
@@ -177,14 +203,33 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
           </Avatar>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-semibold text-foreground">
-              {review.user.handle}
-            </span>
-            <span className="text-muted-foreground text-sm">·</span>
-            <span className="text-muted-foreground text-sm">
-              {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
-            </span>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-foreground">
+                {review.user.handle}
+              </span>
+              <span className="text-muted-foreground text-sm">·</span>
+              <span className="text-muted-foreground text-sm">
+                {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
+              </span>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleHidePost}>
+                  <EyeOff className="h-4 w-4 mr-2" />
+                  Hide Post
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleReport}>
+                  <Flag className="h-4 w-4 mr-2" />
+                  Report...
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {review.content && (

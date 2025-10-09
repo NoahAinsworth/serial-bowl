@@ -9,6 +9,9 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Textarea } from '@/components/ui/textarea';
 
 
 export default function SettingsPage() {
@@ -32,6 +35,12 @@ export default function SettingsPage() {
       follows: true,
       dms: true,
     },
+  });
+
+  const [reportForm, setReportForm] = useState({
+    reason: '',
+    description: '',
+    userOrLink: '',
   });
 
   useEffect(() => {
@@ -102,9 +111,33 @@ export default function SettingsPage() {
     }));
   };
 
+  const handleSendReport = () => {
+    const subject = encodeURIComponent('Serialbowl Report');
+    const body = encodeURIComponent(
+      `Reason: ${reportForm.reason}\n\nDescription:\n${reportForm.description}\n\nUsername or Link:\n${reportForm.userOrLink}`
+    );
+    
+    window.location.href = `mailto:serialbowlofficial@gmail.com?subject=${subject}&body=${body}`;
+    
+    toast({
+      title: "Thanks for reporting",
+      description: "We'll review this as soon as possible.",
+    });
+
+    setReportForm({ reason: '', description: '', userOrLink: '' });
+  };
+
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
       <h1 className="text-3xl font-bold neon-glow">Settings</h1>
+
+      <Tabs defaultValue="preferences" className="w-full">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <TabsTrigger value="legal">Legal & Community</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="preferences" className="space-y-6 mt-6">
 
       {/* Appearance */}
       <Card className="p-6 space-y-4">
@@ -242,9 +275,104 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      <Button onClick={saveSettings} className="w-full btn-glow">
-        Save Settings
-      </Button>
+        <Button onClick={saveSettings} className="w-full btn-glow">
+          Save Settings
+        </Button>
+        </TabsContent>
+
+        <TabsContent value="legal" className="space-y-6 mt-6">
+          <Card className="p-6">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="terms">
+                <AccordionTrigger className="text-lg font-semibold">Terms of Service</AccordionTrigger>
+                <AccordionContent className="space-y-3 text-foreground">
+                  <p>By using Serialbowl, you agree not to misuse or exploit the platform.</p>
+                  <p>You retain ownership of your posts but grant Serialbowl permission to display and share them publicly within the app.</p>
+                  <p>We reserve the right to remove or restrict content that violates these terms or harms the community.</p>
+                  <p>Continued use of Serialbowl means you agree to these terms and any future updates.</p>
+                  <p>For any questions, contact serialbowlofficial@gmail.com.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="privacy">
+                <AccordionTrigger className="text-lg font-semibold">Privacy Policy</AccordionTrigger>
+                <AccordionContent className="space-y-3 text-foreground">
+                  <p>Serialbowl only collects the information needed to provide core features such as user profiles, ratings, and recommendations.</p>
+                  <p>We do not sell or share your personal data with any third parties.</p>
+                  <p>You can request account deletion or data export anytime in Settings → Account or by emailing serialbowlofficial@gmail.com.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="guidelines">
+                <AccordionTrigger className="text-lg font-semibold">Community Guidelines</AccordionTrigger>
+                <AccordionContent className="space-y-3 text-foreground">
+                  <p>Serialbowl is designed for respectful, creative TV discussion.</p>
+                  <p className="font-semibold">The following actions are strictly prohibited:</p>
+                  <ul className="list-disc pl-6 space-y-1">
+                    <li>Hate speech, racial or ethnic slurs, or discriminatory language targeting gender, sexuality, or religion.</li>
+                    <li>Harassment, bullying, or threats.</li>
+                    <li>Posting sexually explicit, violent, or hateful content.</li>
+                    <li>Impersonation, spam, or spreading misinformation.</li>
+                  </ul>
+                  <p>Violations can lead to warnings, suspensions, or bans.</p>
+                  <p>Our goal is to keep Serialbowl a safe and welcoming place for everyone.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="report">
+                <AccordionTrigger className="text-lg font-semibold">Report Content or User</AccordionTrigger>
+                <AccordionContent className="space-y-4 text-foreground">
+                  <div className="space-y-2">
+                    <Label>Reason for report</Label>
+                    <Select value={reportForm.reason} onValueChange={(value) => setReportForm(prev => ({ ...prev, reason: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a reason" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hate_speech">Hate Speech</SelectItem>
+                        <SelectItem value="harassment">Harassment</SelectItem>
+                        <SelectItem value="explicit_content">Explicit Content</SelectItem>
+                        <SelectItem value="spam">Spam</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Describe what happened</Label>
+                    <Textarea
+                      value={reportForm.description}
+                      onChange={(e) => setReportForm(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Please provide details about the issue..."
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Username or link involved (optional)</Label>
+                    <Textarea
+                      value={reportForm.userOrLink}
+                      onChange={(e) => setReportForm(prev => ({ ...prev, userOrLink: e.target.value }))}
+                      placeholder="@username or link to content"
+                      rows={2}
+                    />
+                  </div>
+
+                  <Button onClick={handleSendReport} className="w-full" disabled={!reportForm.reason || !reportForm.description}>
+                    Send Report
+                  </Button>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <div className="mt-6 pt-6 border-t border-border text-center">
+              <p className="text-xs text-muted-foreground">
+                Serialbowl is an independent project by Noah Ainsworth. All app content and policies are currently in development.
+              </p>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
