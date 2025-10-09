@@ -119,9 +119,14 @@ export default function DiscoverPage() {
   async function searchShows() {
     setLoading(true);
     try {
+      console.log('Searching for:', searchQuery);
       const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20`);
+      console.log('Search results:', results);
       const showsData = Array.isArray(results) ? results : [];
-      setSearchResults(showsData.map(normalizeSeries));
+      console.log('Shows data array:', showsData);
+      const normalized = showsData.map(normalizeSeries);
+      console.log('Normalized shows:', normalized);
+      setSearchResults(normalized);
     } catch (error) {
       console.error("Error searching shows:", error);
       toast.error("Failed to search shows");
