@@ -10,7 +10,6 @@ import { Loader2, Bookmark, Trash2, Search, Plus, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB } from '@/hooks/useTVDB';
 import { tvdbFetch } from '@/lib/tvdb';
-import { normalizeSeries } from '@/lib/shows';
 
 interface WatchlistItem {
   id: string;
@@ -104,7 +103,16 @@ export default function WatchlistPage() {
     try {
       const response = await tvdbFetch(`/series/filter?page=${browsePage}&sort=score&sortType=desc`);
       const showsData = Array.isArray(response) ? response : [];
-      const normalized = showsData.map(normalizeSeries);
+      const normalized = showsData.map((s: any) => ({
+        id: s.id,
+        tvdb_id: s.id,
+        name: s.name ?? s.seriesName ?? "Untitled",
+        overview: s.overview || '',
+        image: s.image ?? s.artwork_64_url ?? s.artwork_32_url ?? null,
+        image_url: s.image ?? s.artwork_64_url ?? s.artwork_32_url ?? null,
+        firstAired: s.firstAired ?? null,
+        year: s.firstAired ? String(s.firstAired).slice(0, 4) : null,
+      }));
       
       setBrowseShows((prev) => {
         const combined = [...prev, ...normalized];
