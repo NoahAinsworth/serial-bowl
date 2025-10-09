@@ -314,28 +314,28 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('like')}
-              className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
+              className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary bg-primary/10' : 'text-foreground'}`}
             >
               <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
-              <span className="text-sm">{localLikes}</span>
+              <span className="text-sm font-semibold">{localLikes}</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleDislike}
-              className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
+              className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive bg-destructive/10' : 'text-foreground'}`}
             >
               <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
-              <span className="text-sm">{localDislikes}</span>
+              <span className="text-sm font-semibold">{localDislikes}</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="active:text-accent transition-colors"
+              className="text-foreground active:text-accent transition-colors"
             >
               <MessageCircle className="h-4 w-4 mr-1" />
-              <span className="text-sm">{thought.comments}</span>
+              <span className="text-sm font-semibold">{thought.comments}</span>
             </Button>
           </div>
 

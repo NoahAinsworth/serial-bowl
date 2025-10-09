@@ -225,19 +225,19 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
-                className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
+                className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary bg-primary/10' : 'text-foreground'}`}
               >
                 <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
-                <span className="text-sm">{localLikes}</span>
+                <span className="text-sm font-semibold">{localLikes}</span>
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleDislike}
-                className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
+                className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive bg-destructive/10' : 'text-foreground'}`}
               >
                 <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
-                <span className="text-sm">{localDislikes}</span>
+                <span className="text-sm font-semibold">{localDislikes}</span>
               </Button>
             </div>
           )}
