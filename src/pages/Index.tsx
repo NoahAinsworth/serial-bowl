@@ -81,7 +81,6 @@ export default function Index() {
             rethinks: post.rethinks,
             userReaction: undefined
           }}
-          variant={activeTab === 'hot-takes' ? 'hot-take' : 'default'}
           onReactionChange={currentFeed.refetch}
           onDelete={currentFeed.refetch}
         />
@@ -161,13 +160,22 @@ export default function Index() {
       )}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-3 mb-6">
-          <TabsTrigger value="trending">
+          <TabsTrigger 
+            value="trending" 
+            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
             Trending
           </TabsTrigger>
-          <TabsTrigger value="hot-takes">
+          <TabsTrigger 
+            value="hot-takes" 
+            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
             Hot Takes
           </TabsTrigger>
-          <TabsTrigger value="following">
+          <TabsTrigger 
+            value="following" 
+            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
             Following
           </TabsTrigger>
         </TabsList>

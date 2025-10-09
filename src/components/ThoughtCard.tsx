@@ -55,10 +55,9 @@ interface ThoughtCardProps {
   userHideSpoilers?: boolean;
   onReactionChange?: () => void;
   onDelete?: () => void;
-  variant?: 'default' | 'hot-take';
 }
 
-export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange, onDelete, variant = 'default' }: ThoughtCardProps) {
+export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange, onDelete }: ThoughtCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -209,7 +208,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, onReactionChange
   };
 
   return (
-    <article className={`py-4 border-b transition-all duration-200 animate-fade-in group ${variant === 'hot-take' ? 'border-l-4 border-l-secondary pl-3 bg-secondary/5' : 'border-border/30'}`}>
+    <article className="py-4 border-b border-border/30 transition-all duration-200 animate-fade-in group">
       <div className="flex gap-3">
         <div className="profile-ring">
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${thought.user.handle}`)}>

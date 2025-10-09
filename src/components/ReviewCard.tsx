@@ -36,10 +36,9 @@ interface ReviewCardProps {
   };
   userHideSpoilers?: boolean;
   onDelete?: () => void;
-  variant?: 'default';
 }
 
-export function ReviewCard({ review, userHideSpoilers = true, onDelete, variant = 'default' }: ReviewCardProps) {
+export function ReviewCard({ review, userHideSpoilers = true, onDelete }: ReviewCardProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -152,7 +151,7 @@ export function ReviewCard({ review, userHideSpoilers = true, onDelete, variant 
   };
 
   return (
-    <article className="py-4 border-b border-l-4 border-l-primary pl-3 bg-primary/5 transition-all duration-200 animate-fade-in group">
+    <article className="py-4 border-b border-border/30 transition-all duration-200 animate-fade-in group">
       <div className="flex gap-3">
         <div className="profile-ring">
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.id}`)}>
