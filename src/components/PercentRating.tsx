@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,12 @@ export function PercentRating({
 }: PercentRatingProps) {
   const [value, setValue] = useState(initialRating ?? 0);
   const [hasChanged, setHasChanged] = useState(false);
+
+  // Sync internal state when initialRating changes
+  useEffect(() => {
+    setValue(initialRating ?? 0);
+    setHasChanged(false);
+  }, [initialRating]);
 
   const handleValueChange = (newValue: number[]) => {
     setValue(newValue[0]);
