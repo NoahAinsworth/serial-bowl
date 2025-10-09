@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTVDB, TVSeason, TVEpisode } from '@/hooks/useTVDB';
 import { X, Loader2 } from 'lucide-react';
 import { PercentRating } from '@/components/PercentRating';
+import { detectMatureContent } from '@/utils/profanityFilter';
 
 export default function PostPage() {
   const navigate = useNavigate();
@@ -29,6 +30,16 @@ export default function PostPage() {
   const [posting, setPosting] = useState(false);
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
+  const [containsMature, setContainsMature] = useState(false);
+
+  // Auto-detect mature content
+  const handleContentChange = (value: string) => {
+    setContent(value);
+    const { isMature } = detectMatureContent(value);
+    if (isMature && !containsMature) {
+      setContainsMature(true);
+    }
+  };
   
   // For hierarchical selection
   const [selectedShow, setSelectedShow] = useState<any | null>(null);
@@ -364,6 +375,8 @@ export default function PostPage() {
     }
 
     if (postType === 'thought') {
+      const { isMature, reasons } = detectMatureContent(content);
+      
       const { error } = await supabase
         .from('thoughts')
         .insert({
@@ -371,6 +384,8 @@ export default function PostPage() {
           content_id: selectedContent?.id || null,
           text_content: content.trim(),
           is_spoiler: isSpoiler,
+          contains_mature: containsMature || isMature,
+          mature_reasons: containsMature || isMature ? reasons : [],
           moderation_status: 'approved',
         } as any);
 
@@ -389,10 +404,13 @@ export default function PostPage() {
         setContent('');
         setSelectedContent(null);
         setIsSpoiler(false);
+        setContainsMature(false);
         navigate('/');
       }
     } else {
       // Post review
+      const { isMature, reasons } = detectMatureContent(content);
+      
       const { error: reviewError } = await supabase
         .from('reviews')
         .insert({
@@ -400,6 +418,8 @@ export default function PostPage() {
           content_id: selectedContent!.id,
           review_text: content.trim(),
           is_spoiler: isSpoiler,
+          contains_mature: containsMature || isMature,
+          mature_reasons: containsMature || isMature ? reasons : [],
         });
 
       if (reviewError) {
@@ -440,6 +460,7 @@ export default function PostPage() {
         setSelectedContent(null);
         setRating(0);
         setIsSpoiler(false);
+        setContainsMature(false);
         navigate('/');
       }
     }
@@ -463,7 +484,7 @@ export default function PostPage() {
               <Textarea
                 placeholder="What's on your mind about TV?"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => handleContentChange(e.target.value)}
                 className="min-h-[150px] resize-none"
                 maxLength={500}
               />
@@ -487,6 +508,20 @@ export default function PostPage() {
                 This contains spoilers
               </Label>
             </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="mature-thought"
+                checked={containsMature}
+                onCheckedChange={(checked) => setContainsMature(checked as boolean)}
+              />
+              <Label
+                htmlFor="mature-thought"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                🔞 This contains mature content
+              </Label>
+            </div>
           </TabsContent>
 
           <TabsContent value="review" className="space-y-4">
@@ -500,7 +535,7 @@ export default function PostPage() {
               <Textarea
                 placeholder="Share your thoughts about this show..."
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => handleContentChange(e.target.value)}
                 className="min-h-[150px] resize-none"
                 maxLength={500}
               />
@@ -522,6 +557,20 @@ export default function PostPage() {
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 This contains spoilers
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="mature-review"
+                checked={containsMature}
+                onCheckedChange={(checked) => setContainsMature(checked as boolean)}
+              />
+              <Label
+                htmlFor="mature-review"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                🔞 This contains mature content
               </Label>
             </div>
           </TabsContent>
