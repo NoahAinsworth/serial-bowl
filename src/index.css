@@ -194,12 +194,12 @@ All colors MUST be HSL.
     --friends-orange: 25 69% 54%;     /* Couch Orange #D97B36 */
     --friends-green: 140 35% 30%;     /* Chalkboard Green #355E3B */
 
-    /* Typography - Rounded & Friendly */
-    --font-display: 'Poppins', 'Nunito', sans-serif;
-    --font-ui: 'Inter', 'Nunito Sans', sans-serif;
+    /* Typography - Rounded & Friendly - Comic Sans */
+    --font-display: 'Comic Sans MS', 'Comic Sans', cursive;
+    --font-ui: 'Comic Sans MS', 'Comic Sans', cursive;
     --letter-display: 0.015em;
-    --font-weight-display: 600;
-    --font-weight-ui: 500;
+    --font-weight-display: 700;
+    --font-weight-ui: 400;
     
     /* Shapes - Cozy Rounded */
     --radius-sm: 15px;
