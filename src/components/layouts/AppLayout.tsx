@@ -23,7 +23,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const [unreadDMs, setUnreadDMs] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   
-  // Apply route-based theming
+  // Apply Y2K theme routing
   useThemeRoute();
 
   useEffect(() => {
@@ -91,10 +91,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Theme Overlay */}
-      <div className="app-overlay" aria-hidden="true"></div>
-
+    <div className="flex flex-col h-screen">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full bg-[hsl(var(--sb-card)/0.95)] backdrop-blur-sm border-b border-[hsl(var(--sb-accent)/0.12)]">
         <div className="container flex h-16 items-center justify-between px-4">
@@ -122,7 +119,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <span>L</span>
               </h1>
             ) : (
-              <h1 className="wordmark" data-role="brand">
+              <h1 className="text-xl font-display font-bold wordmark">
                 Serial Bowl
               </h1>
             )}

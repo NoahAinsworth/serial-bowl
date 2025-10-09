@@ -14,10 +14,10 @@ const Slider = React.forwardRef<
     defaultValue={[0]}
     {...props}
   >
-    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-[hsl(var(--sb-accent)/0.15)]">
-      <SliderPrimitive.Range className="absolute h-full bg-[hsl(var(--sb-accent))]" />
+    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+      <SliderPrimitive.Range className="absolute h-full bg-primary" />
     </SliderPrimitive.Track>
-    <SliderPrimitive.Thumb className="block ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--sb-accent))] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 relative z-10">
+    <SliderPrimitive.Thumb className="block ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
       <TVIcon size={32} />
     </SliderPrimitive.Thumb>
   </SliderPrimitive.Root>

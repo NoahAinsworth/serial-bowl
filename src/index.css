@@ -3,125 +3,55 @@
 @tailwind utilities;
 
 /* ========================
-   Serial Bowl Theme Tokens
+   Y2K WIREFRAME THEME
    ======================== */
 
 :root {
-  /* Typography */
-  --sb-font-primary: "Satoshi", "DM Sans", system-ui, -apple-system, sans-serif;
-  --sb-font-accent: "Orbitron", "Space Grotesk", system-ui, monospace;
+  /* Brand Colors */
+  --sb-brand-green: 138 213 122;    /* #12D57A in HSL */
+  --sb-brand-green-dark: 135 186 106; /* #0FB86A in HSL */
+  --sb-brand-orange: 16 100 58;     /* #FF7A26 in HSL */
   
-  /* Text Colors */
-  --sb-text: 0 0% 4%;           /* #0B0B0B */
-  --sb-weak: 0 0% 42%;          /* #6A6A6A */
+  /* Text & Base */
+  --sb-text: 0 0 4%;
+  --sb-text-weak: 0 0 40%;
+  --sb-card: 0 0 100%;
+  --sb-border: 0 0 0% / 0.1;
   
-  /* Backgrounds */
-  --sb-bg: 0 0% 98%;            /* #FAFAFA */
-  --sb-bg-tint: 0 0% 98%;       /* computed per show */
-  --sb-card: 0 0% 100%;         /* #FFFFFF */
-  --sb-border: 0 0% 0% / 0.10;
-  --sb-shadow: 0 0% 0% / 0.08;
-  
-  /* Accent Colors (default emerald) */
-  --sb-accent: 152 85% 42%;     /* #10C974 */
-  --sb-accent-dark: 152 85% 34%; /* #0FA463 */
-  
-  /* Button Shape */
-  --btn-shape: 16px;
+  /* Live Accent (changes per page) */
+  --sb-accent: var(--sb-brand-green);
+  --sb-bg-strong: 138 30% 98%;      /* subtle green tint */
+  --sb-glow: var(--sb-accent) / 0.25;
   
   /* Motion */
   --sb-fast: 140ms ease-out;
   --sb-slow: 820ms cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* ========================
-   Route-Based Themes
-   ======================== */
-
+/* Dynamic route themes */
 body[data-theme="home"] {
-  --sb-accent: 152 85% 42%;     /* #10C974 emerald */
-  --sb-accent-dark: 152 85% 34%;
-  --sb-bg-tint: 144 100% 97%;   /* #F4FFF8 */
+  --sb-accent: var(--sb-brand-green);
+  --sb-bg-strong: 138 30% 98%;
 }
 
 body[data-theme="discover"] {
-  --sb-accent: 23 100% 58%;     /* #FF7A26 orange */
-  --sb-accent-dark: 23 85% 51%;
-  --sb-bg-tint: 23 100% 96%;    /* #FFF4EB */
+  --sb-accent: var(--sb-brand-orange);
+  --sb-bg-strong: 16 100% 97%;
 }
 
 body[data-theme="messages"] {
-  --sb-accent: 225 100% 72%;    /* #6F8BFF blue */
-  --sb-accent-dark: 225 80% 63%;
-  --sb-bg-tint: 225 100% 97%;   /* #F2F6FF */
+  --sb-accent: 225 100 71;  /* #6F8BFF */
+  --sb-bg-strong: 225 100% 98%;
 }
 
 body[data-theme="ai"] {
-  --sb-accent: 274 100% 67%;    /* #B058FF purple */
-  --sb-accent-dark: 274 75% 57%;
-  --sb-bg-tint: 274 100% 97%;   /* #F7F1FF */
+  --sb-accent: 274 100 68;  /* #B058FF */
+  --sb-bg-strong: 274 100% 98%;
 }
 
 body[data-theme="show"] {
-  --sb-accent: 152 85% 42%;     /* fallback emerald */
-  --sb-accent-dark: 152 85% 34%;
-  --sb-bg-tint: 144 100% 97%;
-}
-
-/* Dynamic show accent (set via data-accent attribute) */
-body[data-theme="show"][data-accent] {
-  /* Note: CSS attr() for colors is limited browser support, 
-     so we use JS to set CSS custom properties directly */
-}
-
-/* ========================
-   Cinematic Background
-   ======================== */
-
-html, body, #root {
-  background: 
-    radial-gradient(60vw 34vh at 50% 86%, hsl(var(--sb-accent) / 0.08), transparent),
-    linear-gradient(180deg, hsl(0 0% 100%), hsl(var(--sb-bg-tint))) !important;
-  transition: background var(--sb-slow);
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* Wireframe Grid Overlay */
-#root::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(transparent 96%, hsl(var(--sb-accent) / 0.12) 96%) 0 0 / 100% 18px,
-    linear-gradient(90deg, transparent 96%, hsl(var(--sb-accent) / 0.12) 96%) 0 0 / 18px 100%;
-  opacity: 0.14;
-  mix-blend-mode: multiply;
-  z-index: 1;
-}
-
-/* Scanline Shimmer */
-#root::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.10;
-  background: linear-gradient(0deg, transparent, hsl(var(--sb-accent) / 0.07), transparent);
-  animation: sb-scan 6s linear infinite;
-  z-index: 1;
-}
-
-@keyframes sb-scan {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(100%); }
-}
-
-/* Ensure content is above overlays */
-#root > * {
-  position: relative;
-  z-index: 2;
+  --sb-accent: var(--sb-brand-green);
+  --sb-bg-strong: 138 30% 98%;
 }
 
 /* No film grain for flat Y2K aesthetic */
@@ -130,149 +60,487 @@ html, body, #root {
 All colors MUST be HSL.
 */
 
-/* ========================
-   Base Styles
-   ======================== */
-
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--sb-font-primary);
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--sb-font-primary);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-  }
-}
+  :root {
+    /* Iridescent Metal - Futuristic Y2K Cinema */
+    --background: 0 0% 98%;         /* Soft White #FAFAFA */
+    --foreground: 0 0% 4%;          /* Near Black #0A0A0A */
+    --card: 0 0% 100%;              /* Pure White */
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 150 100% 50%;        /* Neon Green #00FF85 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 14 100% 62%;       /* Hot Orange #FF6A3D */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 95%;              /* Light Grey #F2F2F2 */
+    --muted-foreground: 0 0% 36%;   /* Text Secondary #5C5C5C */
+    --accent: 351 100% 77%;         /* Coral #FF8FA3 */
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 0% / 0.08;       /* Thin border rgba(0,0,0,0.08) */
+    --input: 0 0% 100%;
+    --ring: 150 100% 50%;
+    --radius: 1.25rem;
 
-/* ========================
-   Component Styles
-   ======================== */
+    /* Extended Iridescent Palette */
+    --neon-green: 150 100% 50%;     /* #00FF85 */
+    --hot-orange: 14 100% 62%;      /* #FF6A3D */
+    --soft-coral: 351 100% 77%;     /* #FF8FA3 */
+    --violet-tint: 258 100% 77%;    /* #B58BFF */
+    --electric-lime: 150 100% 50%;  /* #00FF85 */
 
-@layer components {
-  /* Wordmark Styling */
-  .wordmark, .app-title, [data-role="brand"] {
-    font-family: var(--sb-font-primary);
-    font-weight: 900;
-    letter-spacing: 0.05em;
-    font-size: 24px;
-    color: hsl(var(--sb-text));
-    position: relative;
+    /* Typography - Sleek Futuristic */
+    --font-ui: 'Inter', system-ui, sans-serif;
+    --font-display: 'Satoshi', 'DM Sans', sans-serif;
+    --font-label: 'Space Grotesk', sans-serif;
+    --font-weight-ui: 500;
+    --font-weight-display: 700;
+    --font-weight-label: 600;
+    --letter-ui: 0.01em;
+    --letter-display: 0.1em;
+
+    /* Shape Tokens - Cinematic Rounded */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --stroke-width: 1.5px;
+    --stroke-style: solid;
+    --tab-shape: 16px;
+    --btn-shape: 20px;
+
+    /* Elevation - Holographic Glow */
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 0 25px rgba(0, 255, 133, 0.25);
+    --inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    /* Motion - Fluid & Electronic */
+    --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --dur-fast: 150ms;
+    --dur-med: 300ms;
+    --dur-slow: 500ms;
+
+    /* Effects - Holographic Iridescence */
+    --fx-overlay: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 133, 0.02) 2px, rgba(0, 255, 133, 0.02) 4px);
+    --img-filter: saturate(1.05) brightness(1.02);
+    --active-underline: linear-gradient(90deg, hsl(var(--neon-green)), hsl(var(--hot-orange)), hsl(var(--soft-coral)));
+    --gradient-chrome: linear-gradient(90deg, hsl(var(--soft-coral)) 0%, hsl(var(--hot-orange)) 40%, hsl(var(--neon-green)) 80%);
+    --glow-lime: rgba(0, 255, 133, 0.25);
+    --glow-orange: rgba(255, 106, 61, 0.25);
   }
-  
-  .wordmark::after, .app-title::after, [data-role="brand"]::after {
-    content: "";
-    position: absolute;
+
+  .dark {
+    /* Dark Mode with Liquid Glass Effects */
+    --background: 240 20% 12%;   /* Dark navy */
+    --foreground: 0 0% 100%;     /* White text */
+    --card: 240 15% 18%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 15% 18%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 320 100% 76%;      /* Hot Pink */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 4 100% 69%;     /* Coral */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 240 15% 22%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 160 100% 85%;      /* Mint */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 100%;         /* White borders in dark mode */
+    --input: 240 15% 22%;
+    --ring: 320 100% 76%;
+
+    /* Extended Y2K Palette */
+    --yellow: 45 100% 69%;
+    --coral: 4 100% 69%;
+    --lavender: 270 100% 86%;
+    --mint: 160 100% 85%;
+    --baby-blue: 198 100% 83%;
+    --hot-pink: 320 100% 76%;
+  }
+
+  .upside_down {
+    /* Upside Down - Stranger Things Dark & Eerie */
+    --background: 0 0% 8%;           /* Very dark background #141414 */
+    --foreground: 0 0% 95%;          /* Light grey text */
+    --card: 0 0% 12%;                /* Dark card #1F1F1F */
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 0 100% 38%;           /* Dark Red #C00000 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 100% 50%;        /* Orange #FF7B00 */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 18%;               /* Dark muted #2E2E2E */
+    --muted-foreground: 0 0% 60%;
+    --accent: 276 77% 58%;           /* Purple #9D4EDD */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 38%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 276 77% 58%;           /* Purple border */
+    --input: 0 0% 18%;
+    --ring: 0 100% 38%;
+    --radius: 0.5rem;
+
+    /* Extended Upside Down Palette */
+    --blood-red: 0 100% 38%;         /* #C00000 */
+    --toxic-orange: 24 100% 50%;     /* #FF7B00 */
+    --void-purple: 276 77% 58%;      /* #9D4EDD */
+    --shadow-grey: 0 0% 18%;         /* #2E2E2E */
+
+    /* Typography - Eerie & Unsettling */
+    --font-display: 'Bebas Neue', 'Impact', sans-serif;
+    --font-ui: 'Roboto Mono', monospace;
+    --letter-display: 0.05em;
+    --font-weight-display: 700;
+    --font-weight-ui: 400;
+    
+    /* Shapes - Angular & Ominous */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --btn-shape: 4px;
+    --tab-shape: 6px;
+    --stroke-width: 1px;
+    --stroke-style: solid;
+    
+    /* Effects - Glitchy & Eerie */
+    --shadow-1: 0 4px 12px rgba(192, 0, 0, 0.3);
+    --shadow-2: 0 8px 24px rgba(192, 0, 0, 0.4);
+    --inner-glow: inset 0 0 20px rgba(157, 78, 221, 0.2);
+    --active-underline: none;
+    --img-filter: saturate(0.7) contrast(1.1) brightness(0.9);
+    --fx-overlay: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  }
+
+  .the_one_with_the_theme {
+    /* The One with the Theme - 90s Central Perk Cozy Vibes */
+    --background: 280 28% 68%;        /* Monica's Wall Purple #B497BD */
+    --foreground: 0 0% 12%;           /* Black Ink #1F1F1F */
+    --card: 0 0% 99%;                 /* Off-White #FFFDF6 */
+    --card-foreground: 0 0% 12%;
+    --popover: 0 0% 99%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 45 100% 64%;           /* Golden Frame Yellow #FFD84D */
+    --primary-foreground: 0 0% 12%;
+    --secondary: 25 69% 54%;          /* Couch Orange #D97B36 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 39 100% 94%;             /* Light Cream #FFF3D1 */
+    --muted-foreground: 0 0% 40%;
+    --accent: 280 28% 68%;            /* Monica's Wall Purple #B497BD */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 7 80% 54%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 45 100% 64%;            /* Golden Yellow border */
+    --input: 0 0% 99%;
+    --ring: 45 100% 64%;
+    --radius: 1.25rem;
+
+    /* Extended Friends Palette */
+    --friends-purple: 280 28% 68%;    /* Monica's Wall #B497BD */
+    --friends-lavender: 270 38% 85%;  /* Soft Lavender #D6C0E9 */
+    --friends-yellow: 45 100% 64%;    /* Golden Frame #FFD84D */
+    --friends-cream: 39 100% 94%;     /* Coffee Cream #F7E6C4 */
+    --friends-orange: 25 69% 54%;     /* Couch Orange #D97B36 */
+    --friends-green: 140 35% 30%;     /* Chalkboard Green #355E3B */
+
+    /* Typography - Rounded & Friendly */
+    --font-display: 'Poppins', 'Nunito', sans-serif;
+    --font-ui: 'Inter', 'Nunito Sans', sans-serif;
+    --letter-display: 0.015em;
+    --font-weight-display: 600;
+    --font-weight-ui: 500;
+    
+    /* Shapes - Cozy Rounded */
+    --radius-sm: 15px;
+    --radius-md: 20px;
+    --radius-lg: 25px;
+    --btn-shape: 20px;
+    --tab-shape: 18px;
+    --stroke-width: 0px;
+    --stroke-style: none;
+    
+    /* Effects - Warm & Cozy */
+    --shadow-1: none;
+    --shadow-2: none;
+    --inner-glow: none;
+    --active-underline: linear-gradient(90deg, hsl(45 100% 64%), hsl(25 69% 54%));
+    --img-filter: saturate(1.05) brightness(1.02);
+    --fx-overlay: none;
+    --letter-ui: 0;
+    --font-weight-display: 600;
+    --font-weight-ui: 400;
+    
+    /* Shapes - Flat Polaroid style */
+    --radius-sm: 8px;
+    --radius-md: 8px;
+    --radius-lg: 8px;
+    --btn-shape: 8px;
+    --tab-shape: 20px;
+    --stroke-width: 1px;
+    
+    /* Effects - Minimal, flat */
+    --shadow-1: none;
+    --shadow-2: none;
+    --inner-glow: none;
+    --active-underline: none;
+    --img-filter: saturate(0.95) contrast(1.02);
+    --fx-overlay: none;
+  }
+
+  .saturday_morning_cartoon {
+    /* Saturday Morning Cartoon - 90s Cereal Box Vibes */
+    --background: 198 100% 85%;       /* Bright Sky Blue #B3E5FC */
+    --foreground: 0 0% 12%;           /* Text Primary #1E1E1E */
+    --card: 0 0% 100%;                /* White cards */
+    --card-foreground: 0 0% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 23 100% 63%;           /* Sunny Orange #FF8C42 */
+    --primary-foreground: 0 0% 12%;
+    --secondary: 47 100% 69%;         /* Honey Yellow #FFD85E */
+    --secondary-foreground: 0 0% 12%;
+    --muted: 38 100% 96%;             /* Warm Cream */
+    --muted-foreground: 0 0% 35%;     /* Text Secondary #595959 */
+    --accent: 197 100% 77%;           /* Sky Blue #87E1FF */
+    --accent-foreground: 0 0% 12%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 0% / 0.08;         /* Soft border */
+    --input: 0 0% 100%;
+    --ring: 23 100% 63%;
+    --radius: 1.875rem;
+
+    /* Extended Cartoon Palette */
+    --cartoon-orange: 23 100% 63%;    /* #FF8C42 */
+    --cartoon-yellow: 47 100% 69%;    /* #FFD85E */
+    --cartoon-blue: 197 100% 77%;     /* #87E1FF */
+    --cartoon-pink: 339 100% 84%;     /* #FFAACF */
+    --cartoon-mint: 111 100% 80%;     /* #B5FF9E */
+
+    /* Typography - Bouncy Cartoon Style */
+    --font-ui: 'Nunito Sans', 'Inter', -apple-system, sans-serif;
+    --font-display: 'Baloo 2', 'Fredoka One', cursive;
+    --font-button: 'Poppins', sans-serif;
+    --font-weight-ui: 500;
+    --font-weight-display: 700;
+    --font-weight-button: 600;
+    --letter-ui: 0em;
+    --letter-display: 0.02em;
+
+    /* Shape Tokens - Rounded Cartoon Bubbles */
+    --radius-sm: 20px;
+    --radius-md: 30px;
+    --radius-lg: 40px;
+    --stroke-width: 0px;
+    --stroke-style: none;
+    --tab-shape: 50px;
+    --btn-shape: 50px;
+
+    /* Elevation - Soft Cartoon Shadows */
+    --shadow-1: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-2: 0 6px 20px rgba(0, 0, 0, 0.12);
+    --shadow-hover: 0 8px 24px rgba(255, 140, 66, 0.2);
+    --inner-glow: none;
+
+    /* Motion - Bouncy & Playful */
+    --ease-ui: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --dur-fast: 150ms;
+    --dur-med: 250ms;
+    --dur-slow: 350ms;
+
+    /* Effects - Nostalgic Grain */
+    --fx-overlay: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    --img-filter: saturate(1.1) contrast(1.05);
+    --active-underline: none;
+    --gradient-cartoon: linear-gradient(135deg, hsl(var(--cartoon-orange)), hsl(var(--cartoon-pink)), hsl(var(--cartoon-blue)));
+  }
+
+  .green_wireframe {
+    /* Green Wireframe Mode - Y2K Cyber Aesthetic */
+    --background: 140 48% 3%;         /* Deep near-black #050806 */
+    --foreground: 120 100% 95%;       /* Light green text #E8FFE8 */
+    --card: 140 35% 5%;               /* Secondary background #0B1410 */
+    --card-foreground: 120 100% 95%;
+    --popover: 140 35% 5%;
+    --popover-foreground: 120 100% 95%;
+    --primary: 158 100% 50%;          /* Neon Green #00FF85 */
+    --primary-foreground: 140 48% 3%;
+    --secondary: 162 100% 50%;        /* Electric Lime #00FFC2 */
+    --secondary-foreground: 140 48% 3%;
+    --muted: 140 35% 8%;
+    --muted-foreground: 149 72% 76%;  /* Text Secondary #8CF0AA */
+    --accent: 158 100% 50%;
+    --accent-foreground: 140 48% 3%;
+    --destructive: 345 100% 62%;      /* Magenta pop #FF3D6A */
+    --destructive-foreground: 120 100% 95%;
+    --border: 158 100% 50% / 0.25;    /* Wireframe outline */
+    --input: 140 35% 5%;
+    --ring: 158 100% 50%;
+    --radius: 0.625rem;
+
+    /* Extended Wireframe Palette */
+    --neon-green: 158 100% 50%;       /* #00FF85 */
+    --electric-lime: 162 100% 50%;    /* #00FFC2 */
+    --button-highlight: 158 100% 77%; /* #8EFFC2 */
+    --wireframe-glow: 158 100% 50% / 0.15;
+
+    /* Typography - Cyber Futuristic */
+    --font-ui: 'Inter', 'DM Sans', -apple-system, sans-serif;
+    --font-display: 'Orbitron', 'Satoshi', sans-serif;
+    --font-accent: 'Space Mono', monospace;
+    --font-weight-ui: 500;
+    --font-weight-display: 700;
+    --font-weight-accent: 400;
+    --letter-ui: 0em;
+    --letter-display: 0.1em;
+
+    /* Shape Tokens - Angular Y2K */
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --stroke-width: 1px;
+    --stroke-style: solid;
+    --tab-shape: 8px;
+    --btn-shape: 8px;
+
+    /* Elevation - Neon Glow */
+    --shadow-1: 0 0 15px rgba(0, 255, 133, 0.1);
+    --shadow-2: 0 0 25px rgba(0, 255, 133, 0.15);
+    --shadow-hover: 0 0 30px rgba(0, 255, 133, 0.3), 0 0 60px rgba(0, 255, 133, 0.1);
+    --inner-glow: inset 0 0 20px rgba(0, 255, 133, 0.05);
+
+    /* Motion - Electronic & Fluid */
+    --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --dur-fast: 150ms;
+    --dur-med: 300ms;
+    --dur-slow: 500ms;
+
+    /* Effects - Holographic Grid */
+    --fx-overlay: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 133, 0.03) 2px,
+      rgba(0, 255, 133, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 133, 0.03) 2px,
+      rgba(0, 255, 133, 0.03) 4px
+    );
+    --img-filter: brightness(0.9) contrast(1.1) saturate(0.8) hue-rotate(-10deg);
+    --active-underline: linear-gradient(90deg, transparent, hsl(var(--neon-green)), transparent);
+    --gradient-wireframe: linear-gradient(135deg, hsl(var(--neon-green)), hsl(var(--electric-lime)));
+  }
+
+  /* Upside Down Scanline & Static Effects */
+  .upside_down body::before {
+    content: '';
+    position: fixed;
+    top: 0;
     left: 0;
-    right: 0;
-    bottom: -6px;
-    height: 2px;
-    background: linear-gradient(90deg, hsl(var(--sb-accent)), #FF8FA3, hsl(var(--sb-accent)));
-    opacity: 0.35;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;  /* Behind all content */
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(192, 0, 0, 0.03) 0px,
+        transparent 2px,
+        transparent 4px,
+        rgba(192, 0, 0, 0.03) 6px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.05) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.05) 3px
+      ),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.25;
+    animation: static-flicker 0.15s infinite, static-shift 0.3s infinite;
   }
 
-  /* Card Styling */
-  .card, .panel, .sheet {
-    background: hsl(var(--sb-card));
-    border: 1px solid hsl(var(--sb-border));
-    border-radius: 18px;
-    box-shadow: 0 8px 24px hsl(var(--sb-shadow));
-    transition: box-shadow var(--sb-fast), outline var(--sb-fast), border-color var(--sb-fast);
-  }
-  
-  .card:hover {
-    outline: 2px solid hsl(var(--sb-accent) / 0.24);
+  @keyframes static-shift {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-1px, 1px); }
+    50% { transform: translate(1px, -1px); }
+    75% { transform: translate(-1px, -1px); }
+    100% { transform: translate(1px, 1px); }
   }
 
-  /* Tab Styling with Y2K Font */
-  [role="tablist"] [role="tab"] {
-    font-family: var(--sb-font-accent);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    border-radius: 18px;
-    padding: 10px 16px;
-    border: 1px solid #E6E6E6;
-    background: #F3F3F3;
-    color: hsl(var(--sb-text));
-    transition: background var(--sb-fast), border-color var(--sb-fast), color var(--sb-fast);
-  }
-  
-  [role="tablist"] [role="tab"][data-state="active"] {
-    background: hsl(var(--sb-accent) / 0.18);
-    border-color: hsl(var(--sb-accent) / 0.32);
+  @keyframes static-flicker {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 0.18; }
   }
 
-  /* Button Base Styles */
-  .btn, button {
-    border-radius: var(--btn-shape);
-    font-weight: 700;
-    letter-spacing: 0.01em;
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
   }
 
-  /* Primary Button */
-  .btn-primary, .btn--primary, button.primary {
-    background: hsl(var(--sb-accent-dark));
-    color: #FFFFFF;
-    border: 1px solid hsl(var(--sb-accent-dark) / 0.8);
-    box-shadow: 0 8px 22px hsl(var(--sb-accent) / 0.24);
-    transition: transform var(--sb-fast), box-shadow var(--sb-fast);
-  }
-  
-  .btn-primary:hover, .btn--primary:hover, button.primary:hover {
-    transform: translateY(-1px);
-  }
-
-  /* Secondary Button */
-  .btn-secondary, .btn--secondary, button.secondary {
-    background: hsl(var(--sb-accent) / 0.12);
-    border: 1px solid hsl(var(--sb-accent) / 0.26);
-    color: hsl(var(--sb-text));
+  @keyframes smoke-drift-1 {
+    0% {
+      transform: translateY(100vh) translateX(0) scale(0.8);
+      opacity: 0;
+    }
+    15% {
+      opacity: 0.08;
+    }
+    85% {
+      opacity: 0.04;
+    }
+    100% {
+      transform: translateY(-20vh) translateX(15vw) scale(1.2);
+      opacity: 0;
+    }
   }
 
-  /* Tertiary Button */
-  .btn-tertiary, .btn--tertiary, button.tertiary {
-    background: #FFFFFF;
-    color: hsl(var(--sb-text));
-    border: 1px solid hsl(var(--sb-accent) / 0.22);
+  @keyframes smoke-drift-2 {
+    0% {
+      transform: translateY(100vh) translateX(0) scale(0.9);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.1;
+    }
+    80% {
+      opacity: 0.05;
+    }
+    100% {
+      transform: translateY(-15vh) translateX(-20vw) scale(1.3);
+      opacity: 0;
+    }
   }
 
-  /* Progress & Sliders */
-  [role="progressbar"], .progress .bar {
-    background: hsl(var(--sb-accent));
+  @keyframes smoke-drift-3 {
+    0% {
+      transform: translateY(100vh) translateX(0) scale(1);
+      opacity: 0;
+    }
+    18% {
+      opacity: 0.06;
+    }
+    82% {
+      opacity: 0.03;
+    }
+    100% {
+      transform: translateY(-25vh) translateX(10vw) scale(1.1);
+      opacity: 0;
+    }
   }
-  
-  input[type="range"]::-webkit-slider-thumb {
-    border: 2px solid hsl(var(--sb-accent));
-  }
-  
-  input[type="range"]::-moz-range-thumb {
-    border: 2px solid hsl(var(--sb-accent));
-  }
-}
 
-/* ========================
-   Utility Classes
-   ======================== */
-
-@layer utilities {
-  .transition-smooth {
-    transition: all var(--sb-slow);
-  }
-  
-  .transition-fast {
-    transition: all var(--sb-fast);
-  }
-  
-  .focus-accent:focus-visible {
-    outline: 3px solid hsl(var(--sb-accent) / 0.4);
-    outline-offset: 2px;
-  }
-  
   /* Hide Lovable Badge */
   #lovable-badge,
   .lovable-edit-tab {
@@ -284,108 +552,57 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-  
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-    color: hsl(var(--sb-text));
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    letter-spacing: 0.01em;
-    
-    /* Dynamic background with subtle show tint and radial glow */
-    background:
-      radial-gradient(60vw 30vh at 50% 85%,
-        hsl(var(--sb-accent) / 0.06),
-        transparent),
-      linear-gradient(180deg, hsl(var(--sb-bg)) 0%, hsl(var(--sb-bg-tint)) 100%);
-    transition: background var(--sb-trans-slow);
-  }
-  
-  /* Live Accent Lighting Transition */
-  .live-accent-transition,
-  .live-accent-transition * {
-    transition: 
-      background-color var(--sb-trans-slow),
-      border-color var(--sb-trans-slow),
-      box-shadow var(--sb-trans-slow),
-      color var(--sb-trans-slow);
-  }
-  
-  /* Button Variants - Full Color System */
-  .btn--primary {
-    background: hsl(var(--sb-accent));
-    color: #FFFFFF;
-    border: 1px solid hsl(var(--sb-accent) / 0.9);
-    border-radius: var(--btn-shape);
-    box-shadow: 0 6px 18px hsl(var(--sb-accent) / 0.22);
-    transition: transform var(--sb-trans-fast), box-shadow var(--sb-trans-fast), background var(--sb-trans-fast);
-    font-weight: 600;
-  }
-  
-  .btn--primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px hsl(var(--sb-accent) / 0.28);
-  }
-  
-  .btn--primary:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 12px hsl(var(--sb-accent) / 0.18);
-  }
-  
-  .btn--primary:focus-visible {
-    outline: 0;
-    box-shadow: 0 0 0 3px hsl(var(--sb-glow)), 0 8px 22px hsl(var(--sb-accent) / 0.26);
-  }
-  
-  .btn--secondary {
-    background: hsl(var(--sb-accent) / 0.12);
-    color: hsl(var(--sb-text));
-    border: 1px solid hsl(var(--sb-accent) / 0.25);
-    border-radius: var(--btn-shape);
-    transition: background var(--sb-trans-fast), border-color var(--sb-trans-fast);
-    font-weight: 600;
-  }
-  
-  .btn--secondary:hover {
-    background: hsl(var(--sb-accent) / 0.18);
-    border-color: hsl(var(--sb-accent) / 0.35);
-  }
-  
-  .btn--tertiary {
-    background: #FFFFFF;
-    color: hsl(var(--sb-text));
-    border: 1px solid hsl(var(--sb-accent) / 0.22);
-    border-radius: var(--btn-shape);
-    transition: border-color var(--sb-trans-fast), box-shadow var(--sb-trans-fast);
-    font-weight: 600;
-  }
-  
-  .btn--tertiary:hover {
-    border-color: hsl(var(--sb-accent) / 0.40);
-    box-shadow: 0 0 0 2px hsl(var(--sb-accent) / 0.20);
-  }
-  
-  /* Card System */
-  .card-accent {
-    background: hsl(var(--sb-card));
-    border: 1px solid hsl(var(--sb-accent) / 0.10);
-    box-shadow: 0 8px 24px hsl(var(--sb-shadow));
-    transition: outline var(--sb-trans-fast), box-shadow var(--sb-trans-fast);
-  }
-  
-  .card-accent:hover {
-    outline: 2px solid hsl(var(--sb-accent) / 0.25);
-    outline-offset: 0px;
-  }
 
   body {
-    @apply bg-background text-foreground;
-    background: hsl(var(--background));
+    @apply text-foreground;
+    background: 
+      radial-gradient(60vw 35vh at 50% 85%, hsl(var(--sb-accent) / 0.1), transparent),
+      linear-gradient(180deg, #FFFFFF 0%, hsl(var(--sb-bg-strong)) 100%) !important;
+    transition: background var(--sb-slow);
+    position: relative;
+    overflow-x: hidden;
     min-height: 100vh;
     font-family: var(--font-ui);
     letter-spacing: var(--letter-ui);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Wireframe grid overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(transparent 97%, hsl(var(--sb-accent) / 0.12) 97%) 0 0/100% 18px,
+      linear-gradient(90deg, transparent 97%, hsl(var(--sb-accent) / 0.12) 97%) 0 0/18px 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.18;
+    z-index: 1;
+  }
+  
+  /* Scanline shimmer */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(0deg, transparent, hsl(var(--sb-accent) / 0.08), transparent);
+    opacity: 0.12;
+    pointer-events: none;
+    animation: sb-scan 6s linear infinite;
+    z-index: 1;
+  }
+  
+  @keyframes sb-scan {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100%); }
+  }
+  
+  /* Ensure content is above overlays */
+  #root {
+    position: relative;
+    z-index: 2;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -395,13 +612,26 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Wordmark - Cereal Social Premium Typography */
+  /* Y2K Wordmark */
   .wordmark {
-    font-family: var(--font-display);
-    font-weight: 700;
+    font-family: "Satoshi", "DM Sans", system-ui, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    font-size: 24px;
     text-transform: none;
-    letter-spacing: 0.1em;
-    color: hsl(var(--foreground));
+    color: hsl(var(--sb-text));
+    position: relative;
+  }
+
+  .wordmark::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: linear-gradient(90deg, hsl(var(--sb-accent)), hsl(16 100 70), hsl(var(--sb-accent)));
+    opacity: 0.35;
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
@@ -1098,5 +1328,28 @@ All colors MUST be HSL.
     animation: cereal-pop 0.3s ease-in-out;
     color: hsl(var(--neon-green));
     text-shadow: 0 0 8px rgba(0, 255, 133, 0.5);
+  }
+
+  /* Y2K Button Shimmer */
+  .btn-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--sb-accent)),
+      hsl(var(--sb-accent) / 0.8)
+    );
+    background-size: 200% 100%;
+    animation: sb-sheen 5s ease-in-out infinite;
+  }
+  
+  @keyframes sb-sheen {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* Focus ring with accent glow */
+  .focus-accent:focus-visible {
+    outline: 3px solid hsl(var(--sb-glow));
+    outline-offset: 2px;
   }
 }

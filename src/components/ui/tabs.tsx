@@ -12,7 +12,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-auto w-full items-center justify-center rounded-[20px] bg-white border border-[hsl(var(--sb-border))] p-1.5 text-muted-foreground gap-2 shadow-sm",
+      "inline-flex h-12 items-center justify-center rounded-[20px] bg-white border-2 border-border p-1.5 text-muted-foreground gap-2 shadow-sm",
       className,
     )}
     {...props}
@@ -27,11 +27,10 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-[18px] px-4 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] transition-all",
-      "data-[state=inactive]:bg-[#F3F3F3] data-[state=inactive]:border data-[state=inactive]:border-[#E6E6E6] data-[state=inactive]:text-[hsl(var(--sb-text))]",
-      "data-[state=active]:bg-[hsl(var(--sb-accent)/0.18)] data-[state=active]:border data-[state=active]:border-[hsl(var(--sb-accent)/0.32)] data-[state=active]:text-[hsl(var(--sb-text))] data-[state=active]:shadow-sm",
-      "focus-visible:outline-none focus-visible:ring-0 disabled:pointer-events-none disabled:opacity-50",
-      "font-[family-name:var(--sb-font-accent)]",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-[18px] px-4 py-2.5 text-sm font-bold transition-all focus-accent",
+      "data-[state=inactive]:bg-[#F6F6F6] data-[state=inactive]:text-[hsl(var(--sb-text))] data-[state=inactive]:border data-[state=inactive]:border-[#E6E6E6]",
+      "data-[state=active]:bg-[hsl(var(--sb-accent)/0.18)] data-[state=active]:text-[hsl(var(--sb-text))] data-[state=active]:border data-[state=active]:border-[hsl(var(--sb-accent)/0.3)] data-[state=active]:shadow-sm",
+      "disabled:pointer-events-none disabled:opacity-50",
       className,
     )}
     {...props}

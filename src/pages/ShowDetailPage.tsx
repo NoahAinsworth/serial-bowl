@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useLiveAccentLighting } from '@/hooks/useLiveAccentLighting';
+
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
@@ -31,9 +31,6 @@ export default function ShowDetailPage() {
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
-  
-  // Enable Live Accent Lighting
-  useLiveAccentLighting(show?.image, !!show);
 
   useEffect(() => {
     if (id) {
@@ -216,9 +213,9 @@ export default function ShowDetailPage() {
 
       {contentId && (
         <Tabs defaultValue="reviews" className="w-full">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            <TabsTrigger value="thoughts">Thoughts</TabsTrigger>
+          <TabsList className="w-full">
+            <TabsTrigger value="reviews" className="flex-1">Reviews</TabsTrigger>
+            <TabsTrigger value="thoughts" className="flex-1">Thoughts</TabsTrigger>
           </TabsList>
           <TabsContent value="reviews">
             <ReviewsList contentId={contentId} />

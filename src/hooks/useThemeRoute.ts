@@ -1,54 +1,64 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-/**
- * Maps routes to theme identifiers for dynamic styling
- */
-export const useThemeRoute = () => {
+export type ThemeRoute = 'home' | 'discover' | 'messages' | 'ai' | 'show' | 'default';
+
+export function useThemeRoute(theme?: ThemeRoute, accentColor?: string) {
   const location = useLocation();
 
   useEffect(() => {
+    const body = document.body;
+    
+    // If explicit theme provided, use it
+    if (theme) {
+      body.setAttribute('data-theme', theme);
+      if (theme === 'show' && accentColor) {
+        body.setAttribute('data-accent', accentColor);
+      } else {
+        body.removeAttribute('data-accent');
+      }
+      return;
+    }
+
+    // Auto-detect theme from route
     const path = location.pathname;
     
-    // Determine theme based on route
-    if (path === '/' || path === '/home') {
-      setTheme('home');
-    } else if (path.startsWith('/discover')) {
-      setTheme('discover');
-    } else if (path.startsWith('/messages') || path.startsWith('/dm')) {
-      setTheme('messages');
-    } else if (path.startsWith('/binge')) {
-      setTheme('ai');
+    if (path === '/' || path === '/home' || path === '/activity') {
+      body.setAttribute('data-theme', 'home');
+      body.removeAttribute('data-accent');
+    } else if (path === '/discover' || path === '/search') {
+      body.setAttribute('data-theme', 'discover');
+      body.removeAttribute('data-accent');
+    } else if (path.startsWith('/messages') || path.startsWith('/dms')) {
+      body.setAttribute('data-theme', 'messages');
+      body.removeAttribute('data-accent');
+    } else if (path === '/binge') {
+      body.setAttribute('data-theme', 'ai');
+      body.removeAttribute('data-accent');
     } else if (path.startsWith('/show/')) {
-      // Show pages use dynamic accent from poster - handled by useLiveAccentLighting
-      setTheme('show');
+      body.setAttribute('data-theme', 'show');
+      // Show pages set their own accent color
     } else {
-      setTheme('home');
+      body.setAttribute('data-theme', 'default');
+      body.removeAttribute('data-accent');
     }
-  }, [location.pathname]);
-};
+  }, [location.pathname, theme, accentColor]);
 
-/**
- * Set theme on document body
- */
-export const setTheme = (theme: string) => {
-  document.body.setAttribute('data-theme', theme);
-  if (theme !== 'show') {
-    document.body.removeAttribute('data-accent');
-  }
-};
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      document.body.removeAttribute('data-theme');
+      document.body.removeAttribute('data-accent');
+    };
+  }, []);
+}
 
-/**
- * Set show-specific accent color from poster
- */
-export const setShowAccent = (hex: string) => {
+export function setShowAccent(hex: string) {
   document.body.setAttribute('data-theme', 'show');
   document.body.setAttribute('data-accent', hex);
-};
+}
 
-/**
- * Reset to default theme
- */
-export const resetTheme = () => {
-  setTheme('home');
-};
+export function resetTheme() {
+  document.body.removeAttribute('data-theme');
+  document.body.removeAttribute('data-accent');
+}
