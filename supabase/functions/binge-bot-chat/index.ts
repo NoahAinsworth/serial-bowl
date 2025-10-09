@@ -71,13 +71,39 @@ function isOutOfScope(text: string): boolean {
   return NON_TV_HINTS.some(word => lower.includes(word));
 }
 
-// Gemini Tools for TVDB + Web Search
+const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant.
+
+CRITICAL INSTRUCTIONS FOR RELEASE STATUS:
+- When asked if a show/season is "out" or "released", check the air dates carefully
+- If episodes have aired dates in the PAST, the show IS released/out
+- If the first episode aired but finale hasn't, it's "currently airing"
+- If all episodes have past air dates, it's "fully released"
+- Always mention specific dates when available
+- Current date context: It is October 2025
+
+DATA INTERPRETATION:
+- TVDB data may have gaps - if you find a show but lack season details, say so
+- Always wrap show names in [brackets] like [Peacemaker] for clickability
+- Be specific with dates: "Season 2 premiered on August 21, 2025"
+- If uncertain, acknowledge it: "Based on available data..." or "TVDB shows..."
+
+RESPONSE FORMAT:
+- Keep answers concise (2-3 sentences)
+- Always include specific dates when discussing releases
+- Provide 3-5 follow-up suggestions after each response
+
+Examples:
+✓ "Yes, [Peacemaker] Season 2 is out! It premiered on August 21, 2025 on Max."
+✓ "[The Last of Us] Season 2 is currently airing - started January 2025, finale airs March 2025."
+✗ "I don't have information about when this aired." (too vague)
+✗ "The show hasn't been released yet." (if episodes have past air dates)`;
+
 const TOOLS = [
   {
     type: "function",
     function: {
       name: "searchShow",
-      description: "Search TV shows by title via TVDB v4. Returns array of shows with id, name, year, image. If TVDB returns empty results or errors, you should try webSearch instead.",
+      description: "Search TV shows by title. Returns array with id, name, year, status, first_aired date.",
       parameters: {
         type: "object",
         properties: { query: { type: "string" } },
@@ -89,7 +115,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getShowDetails",
-      description: "Get series details by TVDB id - includes air dates, status, genres, network. If this fails or TVDB is down, you should try webSearch for the show name.",
+      description: "Get detailed info for a show including all seasons, status, network, last_aired date.",
       parameters: {
         type: "object",
         properties: { tvdb_id: { type: "integer" } },
@@ -101,7 +127,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "getSeasonEpisodes",
-      description: "Get all episodes for a specific season with air dates. If TVDB has no data or errors, try webSearch with '<show name> season <number> episodes release dates'.",
+      description: "Get all episodes for a season with air dates, numbers, and names.",
       parameters: {
         type: "object",
         properties: {
@@ -112,60 +138,7 @@ const TOOLS = [
       },
     },
   },
-  {
-    type: "function",
-    function: {
-      name: "getEpisode",
-      description: "Get a specific episode by season/episode numbers. If TVDB has no data, try webSearch.",
-      parameters: {
-        type: "object",
-        properties: {
-          tvdb_id: { type: "integer" },
-          season_number: { type: "integer" },
-          episode_number: { type: "integer" },
-        },
-        required: ["tvdb_id", "season_number", "episode_number"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "getSeriesPeople",
-      description: "Get cast/crew for a series. If TVDB has no data, try webSearch for '<show name> cast'.",
-      parameters: {
-        type: "object",
-        properties: { tvdb_id: { type: "integer" } },
-        required: ["tvdb_id"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "webSearch",
-      description: "Search the web using Google search with Gemini. Use this ONLY when TVDB fails, returns empty results, or doesn't have recent data (last 60-90 days). Useful for: recent releases, episode air dates, cast updates, streaming availability. Include show name and be specific.",
-      parameters: {
-        type: "object",
-        properties: {
-          query: {
-            type: "string",
-            description: "Search query - be specific, e.g. 'Peacemaker season 2 release schedule' or 'One Tree Hill cast members'"
-          }
-        },
-        required: ["query"],
-      },
-    },
-  },
 ];
-
-const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant.
-
-Keep answers concise and conversational. Always wrap show names in [brackets] like [Peacemaker] so they're clickable.
-
-When searching for shows, use the searchShow tool. If it fails or returns nothing, try searching the web instead.
-
-Provide 3-5 follow-up suggestions after each response.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -340,13 +313,21 @@ Use this context to personalize recommendations and respect spoiler preferences.
           
           if (fname === "searchShow") {
             toolResult = await tvdbFetch(`/search?query=${encodeURIComponent(args.query)}&type=series`);
+            console.log(`Search returned ${toolResult?.length || 0} results`);
           } else if (fname === "getShowDetails") {
-            toolResult = await tvdbFetch(`/series/${args.tvdb_id}`);
+            toolResult = await tvdbFetch(`/series/${args.tvdb_id}/extended`);
+            console.log(`Show details:`, { 
+              name: toolResult?.name, 
+              status: toolResult?.status,
+              firstAired: toolResult?.firstAired,
+              lastAired: toolResult?.lastAired
+            });
           } else if (fname === "getSeasonEpisodes") {
-            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default/eng`);
+            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default`);
             toolResult = (data.episodes || []).filter((e: any) => e.seasonNumber === args.season_number);
+            console.log(`Found ${toolResult.length} episodes for season ${args.season_number}`);
           } else if (fname === "getEpisode") {
-            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default/eng`);
+            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default`);
             toolResult = (data.episodes || []).find((e: any) => 
               e.seasonNumber === args.season_number && e.number === args.episode_number
             );
