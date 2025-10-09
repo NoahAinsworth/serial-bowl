@@ -406,7 +406,7 @@ export default function ProfilePage() {
 
       {/* Tabs Section */}
       <Tabs defaultValue="posts" className="w-full mt-0">
-        <TabsList className="w-full grid grid-cols-5 rounded-none border-b border-border/30 bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+        <TabsList className="w-full grid grid-cols-5 rounded-none bg-background/80 backdrop-blur-lg sticky top-0 z-10">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="shows">Shows</TabsTrigger>
           <TabsTrigger value="seasons">Seasons</TabsTrigger>
