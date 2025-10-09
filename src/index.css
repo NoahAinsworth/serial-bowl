@@ -523,20 +523,6 @@ All colors MUST be HSL.
     text-transform: none;
     letter-spacing: 0.02em;
     color: hsl(var(--foreground));
-    position: relative;
-  }
-
-  /* Orange dot accent on "i" */
-  .wordmark::after {
-    content: '';
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: hsl(var(--cereal-orange));
-    border-radius: 50%;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
   }
 
   /* Upside Down Wordmark - Stranger Things Style */
