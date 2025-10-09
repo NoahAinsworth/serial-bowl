@@ -7,129 +7,56 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// TVDB v4 API client with token management
+// TVDB v4 API with token caching
 const TVDB_BASE = "https://api4.thetvdb.com/v4";
-let tvdbToken: { token: string; expiresAt: number } | null = null;
+let cachedToken: { token: string; expiresAt: number } | null = null;
 
-async function getTvdbToken(apiKey: string, pin?: string): Promise<string> {
-  // Check if we have a valid cached token
-  if (tvdbToken && Date.now() < tvdbToken.expiresAt) {
-    console.log("Using cached TVDB token");
-    return tvdbToken.token;
+async function getTvdbToken(): Promise<string> {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    return cachedToken.token;
   }
 
-  console.log("Logging in to TVDB...");
-  
-  // Login to get a new token
-  const loginBody: any = { apikey: apiKey };
-  if (pin) {
-    loginBody.pin = pin;
-  }
+  const apiKey = Deno.env.get("TVDB_API_KEY");
+  if (!apiKey) throw new Error("TVDB_API_KEY not configured");
 
   const res = await fetch(`${TVDB_BASE}/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(loginBody),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ apikey: apiKey }),
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    console.error(`TVDB login failed ${res.status}: ${text}`);
-    throw new Error(`TVDB login failed ${res.status}: ${text}`);
-  }
+  if (!res.ok) throw new Error(`TVDB login failed: ${res.status}`);
 
-  const data = await res.json();
-  console.log("TVDB login response:", JSON.stringify(data).substring(0, 200));
-  
-  const token = data?.data?.token as string;
-  
-  if (!token) {
-    console.error("TVDB login returned no token, response:", data);
-    throw new Error("TVDB login returned no token");
-  }
-
-  // Cache token for 27 days (tokens valid ~1 month)
-  tvdbToken = {
-    token,
+  const { data } = await res.json();
+  cachedToken = {
+    token: data.token,
     expiresAt: Date.now() + 27 * 24 * 60 * 60 * 1000,
   };
-
-  console.log("TVDB login successful, token cached");
-  return token;
+  
+  return data.token;
 }
 
-async function tvdbFetch(path: string, apiKey: string, pin?: string) {
-  const token = await getTvdbToken(apiKey, pin);
-  
-  const res = await fetch(`${TVDB_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    },
+async function tvdbFetch(path: string) {
+  let token = await getTvdbToken();
+  let res = await fetch(`${TVDB_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
-  
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    
-    // If token expired, retry with new token
-    if (res.status === 401) {
-      console.log("Token expired, getting new token...");
-      tvdbToken = null; // Clear cached token
-      const newToken = await getTvdbToken(apiKey, pin);
-      
-      const retryRes = await fetch(`${TVDB_BASE}${path}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${newToken}`,
-          Accept: "application/json",
-        },
-      });
-      
-      if (!retryRes.ok) {
-        const retryText = await retryRes.text().catch(() => "");
-        console.error(`TVDB ${path} retry failed ${retryRes.status}: ${retryText}`);
-        throw new Error(`TVDB ${path} ${retryRes.status}: ${retryText}`);
-      }
-      
-      return retryRes.json();
-    }
-    
-    console.error(`TVDB ${path} failed ${res.status}: ${text}`);
-    throw new Error(`TVDB ${path} ${res.status}: ${text}`);
+
+  if (res.status === 401) {
+    cachedToken = null;
+    token = await getTvdbToken();
+    res = await fetch(`${TVDB_BASE}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    });
   }
-  
-  return res.json();
-}
 
-async function searchSeries(query: string, apiKey: string, pin?: string) {
-  const data = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series`, apiKey, pin);
-  return data.data || [];
-}
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`TVDB error: ${res.status} ${text}`);
+  }
 
-async function getSeriesById(tvdbId: number, apiKey: string, pin?: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}`, apiKey, pin);
-  return data.data || {};
-}
-
-async function getEpisodesForSeason(tvdbId: number, seasonNumber: number, apiKey: string, pin?: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey, pin);
-  const episodes = data.data?.episodes || [];
-  return episodes.filter((ep: any) => ep.seasonNumber === seasonNumber);
-}
-
-async function getEpisodeBySE(tvdbId: number, season: number, episode: number, apiKey: string, pin?: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey, pin);
-  const episodes = data.data?.episodes || [];
-  return episodes.find((ep: any) => ep.seasonNumber === season && ep.number === episode);
-}
-
-async function getSeriesPeople(tvdbId: number, apiKey: string, pin?: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/people`, apiKey, pin);
-  return data.data || {};
+  const json = await res.json();
+  return json.data || json;
 }
 
 // Scope check
@@ -232,84 +159,13 @@ const TOOLS = [
   },
 ];
 
-const SYSTEM_PROMPT = `You are BingeBotAI, a smart TV show assistant for SerialBowl.
+const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant.
 
-CORE GOALS:
-- Help users discover shows, seasons, episodes, and people
-- Detect entities (show, season, episode, person) and resolve them with TVDB
-- Always wrap entity names in [brackets] for clickable deep-links
-- Provide 3-6 contextual follow-up suggestions as tappable chips
+Keep answers concise and conversational. Always wrap show names in [brackets] like [Peacemaker] so they're clickable.
 
-SOURCES & PRIORITY:
-1. Primary: TVDB for canonical data (IDs, air dates, episode lists)
-2. Fallback: Use webSearch ONLY when:
-   • TVDB returns empty results
-   • TVDB errors or is unavailable
-   • You need very recent info (last 60-90 days) that TVDB might not have yet
-3. Use your general knowledge as last resort for common/historical TV info
-4. When using webSearch, be specific: include show name, season number, what you're looking for
+When searching for shows, use the searchShow tool. If it fails or returns nothing, try searching the web instead.
 
-SPOILER POLICY (CRITICAL):
-- ALWAYS check user's hide_spoilers setting before answering
-- If hide_spoilers=true:
-  • Redact plot-critical details beyond user's tracked progress
-  • Wrap spoiler content in [SPOILER: content] tags
-  • Never reveal events after user's last_seen_episode
-- If user explicitly asks for spoilers, show them but wrap in [SPOILER: ] tags
-
-SEASON STATUS DETECTION:
-When asked if a season is "out" or "released":
-1. Use getShowDetails + getSeasonEpisodes to check air dates
-2. Determine status based on episode air dates:
-   - "airing" = first episode aired BUT finale hasn't aired yet
-   - "released" = all episodes have aired
-   - "upcoming" = first episode hasn't aired yet
-3. Always include: premiere date, finale date (if known), total episodes, network
-
-TONE & FORMAT:
-- Friendly, concise, helpful (max 5 sentences before follow-ups)
-- Use short sections with bolded micro-headings when needed
-- Wrap every show/season/episode/person name in [brackets] for clickable links
-- Example: "**[Peacemaker]** Season 2 is airing now. Premiered Aug 21, 2025 on Max; finale Oct 9, 2025."
-
-ENTITY LINKING (CRITICAL):
-- Always wrap entity names in brackets: [ShowName], [Season 2], [Episode Title]
-- The UI will convert these to deep links automatically
-- Link format examples:
-  • Show → [One Tree Hill]
-  • Season → [One Tree Hill - Season 2]
-  • Episode → [One Tree Hill - S01E01]
-  • Person → [Chad Michael Murray]
-
-FOLLOW-UP CHIPS:
-- Generate 3-6 contextual next questions after each answer
-- Always include at least one navigational chip ("Open [Show]")
-- Examples:
-  • "Who played Brooke Davis?"
-  • "What season did Lucas leave?"
-  • "Open [One Tree Hill]"
-  • "Best Lucas episodes"
-
-PERSONALIZATION:
-- Use user's favorites, watchlist, and genre preferences when recommending
-- If user has tracked progress, acknowledge it: "Based on your watchlist..."
-- Prioritize shows matching their taste profile
-
-GUARDRAILS:
-- If TVDB returns no results, try webSearch before giving up
-- If TVDB errors, use webSearch as fallback and mention: "Based on web sources (TVDB unavailable)..."
-- If sources conflict, be transparent: "Based on web search and TVDB..."
-- Never make up air dates or episode counts - always verify with tools
-
-SCOPE:
-✓ TV shows, seasons, episodes, actors, streaming platforms
-✓ "What to watch", recommendations, episode guides
-✓ Release dates, cast info, episode summaries
-✓ User's watchlist, favorites, progress tracking
-✗ Movies (redirect to TV equivalent if possible)
-✗ Non-TV topics (politely decline and redirect to TV)
-
-Always extract entities from your response so the UI can make them clickable.`;
+Provide 3-5 follow-up suggestions after each response.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -478,18 +334,22 @@ Use this context to personalize recommendations and respect spoiler preferences.
         let toolResult: any;
 
         try {
-          console.log(`Executing tool: ${fname} with args:`, args);
+          console.log(`Tool: ${fname}`, args);
           
           if (fname === "searchShow") {
-            toolResult = await searchSeries(args.query, tvdbApiKey, tvdbPin);
+            toolResult = await tvdbFetch(`/search?query=${encodeURIComponent(args.query)}&type=series`);
           } else if (fname === "getShowDetails") {
-            toolResult = await getSeriesById(args.tvdb_id, tvdbApiKey, tvdbPin);
+            toolResult = await tvdbFetch(`/series/${args.tvdb_id}`);
           } else if (fname === "getSeasonEpisodes") {
-            toolResult = await getEpisodesForSeason(args.tvdb_id, args.season_number, tvdbApiKey, tvdbPin);
+            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default/eng`);
+            toolResult = (data.episodes || []).filter((e: any) => e.seasonNumber === args.season_number);
           } else if (fname === "getEpisode") {
-            toolResult = await getEpisodeBySE(args.tvdb_id, args.season_number, args.episode_number, tvdbApiKey, tvdbPin);
+            const data = await tvdbFetch(`/series/${args.tvdb_id}/episodes/default/eng`);
+            toolResult = (data.episodes || []).find((e: any) => 
+              e.seasonNumber === args.season_number && e.number === args.episode_number
+            );
           } else if (fname === "getSeriesPeople") {
-            toolResult = await getSeriesPeople(args.tvdb_id, tvdbApiKey, tvdbPin);
+            toolResult = await tvdbFetch(`/series/${args.tvdb_id}/people`);
           } else if (fname === "webSearch") {
             // Gemini has built-in web search, we just acknowledge the call
             // The actual search happens in Gemini's context

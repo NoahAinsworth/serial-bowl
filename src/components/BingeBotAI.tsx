@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Bot, Send, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, Send, X, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { BingeBotMessage } from "./BingeBotMessage";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Entity {
   type: "show" | "season" | "episode";
@@ -88,8 +89,8 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleSend();
     }
@@ -150,53 +151,43 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
     }
   };
 
-  const quickChips = [
-    "Main cast",
-    "Season list",
-    "Top episodes",
-    "Air date of pilot",
-    "How many episodes in season 1?",
-  ];
-
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col">
-      {/* Header with Bot Logo */}
-      <div className="flex items-center justify-center py-6 border-b relative">
+      {/* Modern Header */}
+      <div className="border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Bot className="h-12 w-12 text-primary" />
-            {loading && (
-              <Loader2 className="absolute -bottom-1 -right-1 h-5 w-5 text-primary animate-spin" />
-            )}
+          <Avatar className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-500">
+            <AvatarFallback className="bg-transparent text-white font-bold">BB</AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="font-semibold text-base">Binge Bot</h2>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Sparkles className="h-3 w-3" />
+              AI Assistant
+            </p>
           </div>
-          <span className="text-2xl font-bold">Binge Bot AI</span>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onOpenChange(false)}
-          className="absolute right-4"
-        >
+        <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
           <X className="h-5 w-5" />
         </Button>
       </div>
 
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 pb-0 space-y-4 max-w-4xl mx-auto w-full">
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
           {messages.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
-              <p className="mb-4">Ask me anything about shows, seasons, episodes, or actors.</p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {quickChips.map((chip) => (
-                  <Button
-                    key={chip}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleChipClick(chip)}
-                  >
-                    {chip}
+            <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+              <Avatar className="h-20 w-20 mb-4 bg-gradient-to-br from-purple-500 to-pink-500">
+                <AvatarFallback className="bg-transparent text-white font-bold text-2xl">BB</AvatarFallback>
+              </Avatar>
+              <h3 className="text-xl font-semibold mb-2">How can I help you today?</h3>
+              <p className="text-muted-foreground mb-6">Ask me about shows, seasons, episodes, or cast</p>
+              <div className="flex flex-wrap gap-2 justify-center max-w-md">
+                {["Tell me about Peacemaker", "Who's in the cast?", "Latest episodes"].map((q) => (
+                  <Button key={q} variant="outline" size="sm" onClick={() => setInput(q)}>
+                    {q}
                   </Button>
                 ))}
               </div>
@@ -204,49 +195,58 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
           ) : (
             <>
               {messages.map((msg, idx) => (
-                <div key={idx} className="space-y-2">
+                <div key={idx}>
                   {msg.role === "user" ? (
-                    <div className="flex justify-end">
-                      <div className="max-w-[80%] rounded-lg px-4 py-2 bg-primary text-primary-foreground">
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    <div className="flex justify-end mb-4">
+                      <div className="bg-primary text-primary-foreground rounded-2xl px-4 py-2.5 max-w-[85%]">
+                        {msg.content}
                       </div>
                     </div>
                   ) : (
-                    <>
-                      <BingeBotMessage
-                        content={msg.content}
-                        entities={msg.entities}
-                        sessionId={sessionId || ''}
-                        question={messages[idx - 1]?.content || ''}
-                        onEntityClick={handleEntityClick}
-                      />
-                      
-                      {/* Only show follow-up chips for the last assistant message */}
-                      {msg.followUps && msg.followUps.length > 0 && idx === messages.length - 1 && (
-                        <div className="flex flex-wrap gap-2 ml-2">
-                          {msg.followUps.map((followUp, i) => (
-                            <Button
-                              key={i}
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => handleFollowUpClick(followUp)}
-                              disabled={loading}
-                              className="h-7 text-xs"
-                            >
-                              {followUp}
-                            </Button>
-                          ))}
-                        </div>
-                      )}
-                    </>
+                    <div className="flex gap-3 mb-4">
+                      <Avatar className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-500 flex-shrink-0">
+                        <AvatarFallback className="bg-transparent text-white text-sm font-bold">BB</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 space-y-2">
+                        <BingeBotMessage
+                          content={msg.content}
+                          entities={msg.entities}
+                          sessionId={sessionId || ''}
+                          question={messages[idx - 1]?.content || ''}
+                          onEntityClick={handleEntityClick}
+                        />
+                        {msg.followUps && msg.followUps.length > 0 && idx === messages.length - 1 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {msg.followUps.map((followUp, i) => (
+                              <Button
+                                key={i}
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleFollowUpClick(followUp)}
+                                disabled={loading}
+                                className="h-8 text-xs rounded-full"
+                              >
+                                {followUp}
+                              </Button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
               ))}
               {loading && (
-                <div className="flex justify-start">
-                  <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <p className="text-sm text-muted-foreground">Thinking...</p>
+                <div className="flex gap-3">
+                  <Avatar className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-500">
+                    <AvatarFallback className="bg-transparent text-white text-sm font-bold">BB</AvatarFallback>
+                  </Avatar>
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
                   </div>
                 </div>
               )}
@@ -254,29 +254,26 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
             </>
           )}
         </div>
+      </div>
 
-      {/* Input Area */}
-      <div className="px-6 pt-4 border-t max-w-4xl mx-auto w-full pb-safe" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}>
-        <div className="flex gap-2 mb-4">
-          <Textarea
+      {/* Input */}
+      <div className="border-t px-4 py-4 bg-background">
+        <div className="max-w-3xl mx-auto flex gap-2">
+          <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about a show, season, or actor…"
-            className="min-h-[60px] resize-none"
+            placeholder="Message Binge Bot..."
+            className="flex-1 rounded-full"
             disabled={loading}
           />
           <Button
             onClick={handleSend}
             disabled={!input.trim() || loading}
             size="icon"
-            className="h-[60px] w-[60px]"
+            className="rounded-full"
           >
-            {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
       </div>
