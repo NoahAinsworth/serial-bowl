@@ -1,35 +1,10 @@
 import * as React from "react";
+
 import { cn } from "@/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
 
-const cardVariants = cva(
-  "border-2 rounded-3xl shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)]",
-  {
-    variants: {
-      variant: {
-        default: "bg-card text-card-foreground border-border",
-        show: "bg-[hsl(var(--show-card))] text-[hsl(var(--show-card-foreground))] border-[hsl(var(--border))]",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
-
-export interface CardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {}
-
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(cardVariants({ variant }), className)}
-      {...props}
-    />
-  )
-);
+const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("bg-card text-card-foreground border-2 border-border rounded-3xl shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.2)] transition-all hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:hover:shadow-[4px_4px_0px_rgba(255,255,255,0.3)]", className)} {...props} />
+));
 Card.displayName = "Card";
 
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
