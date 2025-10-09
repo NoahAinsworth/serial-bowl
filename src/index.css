@@ -153,10 +153,10 @@ All colors MUST be HSL.
     --radius: 0.25rem;
 
     /* Typography - Stranger Things Style */
-    --font-display: 'Nosifer', 'Eater', serif;
+    --font-display: 'Bebas Neue', 'Impact', 'Montserrat', sans-serif;
     --font-ui: 'Inter', 'Rubik', sans-serif;
     --letter-display: 0.05em;
-    --font-weight-display: 400;
+    --font-weight-display: 700;
     
     /* Shapes - 80s Terminal Flat */
     --radius-sm: 4px;
