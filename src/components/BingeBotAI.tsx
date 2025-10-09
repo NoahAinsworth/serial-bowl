@@ -221,8 +221,8 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                         onEntityClick={handleEntityClick}
                       />
                       
-                      {/* Follow-up chips */}
-                      {msg.followUps && msg.followUps.length > 0 && (
+                      {/* Only show follow-up chips for the last assistant message */}
+                      {msg.followUps && msg.followUps.length > 0 && idx === messages.length - 1 && (
                         <div className="flex flex-wrap gap-2 ml-2">
                           {msg.followUps.map((followUp, i) => (
                             <Button
