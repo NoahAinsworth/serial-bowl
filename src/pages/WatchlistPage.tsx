@@ -164,7 +164,7 @@ export default function WatchlistPage() {
       const { data: existingContent } = await supabase
         .from('content')
         .select('id')
-        .eq('external_id', show.tvdb_id.toString())
+        .eq('external_id', (show.id || show.tvdb_id).toString())
         .eq('kind', 'show')
         .maybeSingle();
 
@@ -174,10 +174,10 @@ export default function WatchlistPage() {
         const { data: newContent, error: contentError } = await supabase
           .from('content')
           .insert({
-            external_id: show.tvdb_id.toString(),
+            external_id: (show.id || show.tvdb_id).toString(),
             kind: 'show',
             title: show.name,
-            poster_url: show.image_url,
+            poster_url: show.image || show.image_url,
             metadata: { overview: show.overview, year: show.year },
           })
           .select('id')
@@ -229,7 +229,7 @@ export default function WatchlistPage() {
       const { data: existingContent } = await supabase
         .from('content')
         .select('id')
-        .eq('external_id', show.tvdb_id.toString())
+        .eq('external_id', (show.id || show.tvdb_id).toString())
         .eq('kind', 'show')
         .maybeSingle();
 
@@ -239,10 +239,10 @@ export default function WatchlistPage() {
         const { data: newContent, error: contentError } = await supabase
           .from('content')
           .insert({
-            external_id: show.tvdb_id.toString(),
+            external_id: (show.id || show.tvdb_id).toString(),
             kind: 'show',
             title: show.name,
-            poster_url: show.image_url,
+            poster_url: show.image || show.image_url,
             metadata: { overview: show.overview, year: show.year },
           })
           .select('id')
@@ -286,12 +286,12 @@ export default function WatchlistPage() {
     }
   };
 
-  const isInWatchlist = (showId?: number) => {
+  const isInWatchlist = (showId?: number | string) => {
     if (!showId) return false;
     return watchlistItems.some(item => item.content?.external_id === showId.toString());
   };
 
-  const isInWatched = (showId?: number) => {
+  const isInWatched = (showId?: number | string) => {
     if (!showId) return false;
     return watchedItems.some(item => item.content?.external_id === showId.toString());
   };
@@ -459,13 +459,13 @@ export default function WatchlistPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               {searchResults.map((show) => (
                 <Card
-                  key={show.tvdb_id}
+                  key={show.id || show.tvdb_id}
                   className="overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
                   onClick={() => addToWatched(show)}
                 >
-                  {show.image_url ? (
+                  {show.image || show.image_url ? (
                     <img
-                      src={show.image_url}
+                      src={show.image || show.image_url}
                       alt={show.name}
                       className="w-full aspect-[2/3] object-cover"
                     />
@@ -576,16 +576,16 @@ export default function WatchlistPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {searchResults.map((show) => (
                   <Card
-                    key={show.tvdb_id}
+                    key={show.id || show.tvdb_id}
                     className="overflow-hidden hover:border-primary/50 transition-all"
                   >
                     <div 
                       className="cursor-pointer"
-                      onClick={() => navigate(`/show/${show.tvdb_id}`)}
+                      onClick={() => navigate(`/show/${show.id || show.tvdb_id}`)}
                     >
-                      {show.image_url ? (
+                      {show.image || show.image_url ? (
                         <img
-                          src={show.image_url}
+                          src={show.image || show.image_url}
                           alt={show.name}
                           className="w-full aspect-[2/3] object-cover"
                         />
@@ -600,7 +600,7 @@ export default function WatchlistPage() {
                     <div className="p-3">
                       <h3 
                         className="font-semibold text-sm line-clamp-2 mb-2 cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => navigate(`/show/${show.tvdb_id}`)}
+                        onClick={() => navigate(`/show/${show.id || show.tvdb_id}`)}
                       >
                         {show.name}
                       </h3>
@@ -609,32 +609,32 @@ export default function WatchlistPage() {
                       )}
                       <div className="flex gap-2">
                         <Button
-                          variant={isInWatchlist(show.tvdb_id) ? "secondary" : "outline"}
+                          variant={isInWatchlist(show.id || show.tvdb_id) ? "secondary" : "outline"}
                           size="sm"
                           className="flex-1 h-8 text-xs"
                           onClick={(e) => {
                             e.stopPropagation();
                             addToWatchlist(show);
                           }}
-                          disabled={isInWatchlist(show.tvdb_id)}
+                          disabled={isInWatchlist(show.id || show.tvdb_id)}
                         >
-                          {isInWatchlist(show.tvdb_id) ? (
+                          {isInWatchlist(show.id || show.tvdb_id) ? (
                             <><Check className="h-3 w-3 mr-1" /> Listed</>
                           ) : (
                             <><Plus className="h-3 w-3 mr-1" /> List</>
                           )}
                         </Button>
                         <Button
-                          variant={isInWatched(show.tvdb_id) ? "secondary" : "outline"}
+                          variant={isInWatched(show.id || show.tvdb_id) ? "secondary" : "outline"}
                           size="sm"
                           className="flex-1 h-8 text-xs"
                           onClick={(e) => {
                             e.stopPropagation();
                             addToWatched(show);
                           }}
-                          disabled={isInWatched(show.tvdb_id)}
+                          disabled={isInWatched(show.id || show.tvdb_id)}
                         >
-                          {isInWatched(show.tvdb_id) ? (
+                          {isInWatched(show.id || show.tvdb_id) ? (
                             <><Check className="h-3 w-3 mr-1" /> Watched</>
                           ) : (
                             <><Plus className="h-3 w-3 mr-1" /> Watch</>
