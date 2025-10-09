@@ -156,29 +156,29 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col">
       {/* Modern Header */}
-      <div className="border-b px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-500">
+      <div className="border-b px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-purple-500 to-pink-500">
             <AvatarFallback className="bg-transparent text-white">
-              <Bot className="h-6 w-6" />
+              <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
             </AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="font-semibold text-base">Binge Bot</h2>
+            <h2 className="font-semibold text-sm sm:text-base">Binge Bot</h2>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <Sparkles className="h-3 w-3" />
               AI Assistant
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-          <X className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onOpenChange(false)}>
+          <X className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
       </div>
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="max-w-3xl mx-auto px-2 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <div className="w-full px-1 sm:px-4 py-2 sm:py-6 space-y-3 sm:space-y-6">
 
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
@@ -266,21 +266,21 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       </div>
 
       {/* Input */}
-      <div className="border-t px-4 py-4 bg-background">
-        <div className="max-w-3xl mx-auto flex gap-2">
+      <div className="border-t px-2 sm:px-4 py-2 sm:py-4 bg-background">
+        <div className="w-full flex gap-1.5 sm:gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Message Binge Bot..."
-            className="flex-1 rounded-full"
+            className="flex-1 rounded-full text-sm"
             disabled={loading}
           />
           <Button
             onClick={handleSend}
             disabled={!input.trim() || loading}
             size="icon"
-            className="rounded-full"
+            className="rounded-full h-9 w-9 sm:h-10 sm:w-10"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
