@@ -156,16 +156,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {isProfile && avatarUrl ? (
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={avatarUrl} alt="Profile" />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xs">
-                    <Icon className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-              ) : (
-                <Icon className="h-6 w-6" />
-              )}
+              <Icon className="h-6 w-6" />
               {showBadge && (
                 <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
               )}
