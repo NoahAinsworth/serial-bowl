@@ -20,6 +20,7 @@ interface DMThread {
     text: string;
     created_at: string;
     read: boolean;
+    sender_id: string;
   };
   unreadCount: number;
 }
@@ -94,6 +95,7 @@ export default function DMsPage() {
               text: dm.text_content,
               created_at: dm.created_at,
               read: dm.read,
+              sender_id: dm.sender_id,
             },
             unreadCount: isReceived && !dm.read ? 1 : 0,
           });
@@ -164,6 +166,13 @@ export default function DMsPage() {
                   <p className={`text-sm truncate ${thread.unreadCount > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
                     {thread.lastMessage.text}
                   </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {thread.lastMessage.sender_id === user?.id && (
+                      <span className="text-xs text-muted-foreground">
+                        {thread.lastMessage.read ? '✓ Read' : '✓ Sent'}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {thread.unreadCount > 0 && (
                   <div className="relative flex-shrink-0">

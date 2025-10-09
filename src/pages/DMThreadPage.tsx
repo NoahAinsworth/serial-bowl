@@ -59,6 +59,20 @@ export default function DMThreadPage() {
             }
           }
         )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'dms',
+          },
+          (payload) => {
+            const updatedMsg = payload.new as Message;
+            setMessages(prev => 
+              prev.map(msg => msg.id === updatedMsg.id ? updatedMsg : msg)
+            );
+          }
+        )
         .subscribe();
 
       return () => {
@@ -176,24 +190,32 @@ export default function DMThreadPage() {
       
       <Card className="flex-1 p-4 mb-4 overflow-y-auto">
         <div className="space-y-4">
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             const isSent = message.sender_id === user.id;
+            const isLastMessage = index === messages.length - 1;
             return (
               <div
                 key={message.id}
                 className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-scale-in`}
               >
-                <div
-                  className={`max-w-[70%] rounded-lg p-3 ${
-                    isSent
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
-                >
-                  <p className="break-words">{message.text_content}</p>
-                  <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                    {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                  </p>
+                <div className="flex flex-col">
+                  <div
+                    className={`max-w-[70%] rounded-lg p-3 ${
+                      isSent
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    <p className="break-words">{message.text_content}</p>
+                    <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                  {isSent && isLastMessage && (
+                    <span className={`text-xs mt-1 ${isSent ? 'text-right text-muted-foreground' : ''}`}>
+                      {message.read ? '✓ Read' : '✓ Sent'}
+                    </span>
+                  )}
                 </div>
               </div>
             );
