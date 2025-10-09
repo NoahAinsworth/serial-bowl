@@ -2,7 +2,7 @@ import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { cn } from "@/lib/utils";
-import { CerealBowlIcon } from "@/components/CerealBowlIcon";
+import { SpoonIcon } from "@/components/SpoonIcon";
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
@@ -18,7 +18,7 @@ const Slider = React.forwardRef<
       <SliderPrimitive.Range className="absolute h-full bg-primary" />
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb className="block ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-      <CerealBowlIcon size={24} />
+      <SpoonIcon size={32} />
     </SliderPrimitive.Thumb>
   </SliderPrimitive.Root>
 ));
