@@ -732,7 +732,19 @@ All colors MUST be HSL.
   .the_one_with_the_theme .friends-logo {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
-    color: hsl(var(--primary));
+    color: hsl(var(--foreground));
     text-transform: none;
+  }
+
+  .the_one_with_the_theme .friends-logo .dot-blue {
+    color: #4DA6FF;
+  }
+
+  .the_one_with_the_theme .friends-logo .dot-yellow {
+    color: #FFD84D;
+  }
+
+  .the_one_with_the_theme .friends-logo .dot-red {
+    color: #4DA6FF; /* Changed to blue */
   }
 }
