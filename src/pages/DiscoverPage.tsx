@@ -65,8 +65,12 @@ export default function DiscoverPage() {
 
   // Search shows when query changes and on Browse tab
   useEffect(() => {
-    if (activeTab === "browse" && searchQuery.trim()) {
-      searchShows();
+    if (activeTab === "browse") {
+      if (searchQuery.trim()) {
+        searchShows();
+      } else {
+        setSearchResults([]);
+      }
     }
   }, [searchQuery, activeTab]);
 
@@ -113,11 +117,6 @@ export default function DiscoverPage() {
   }
 
   async function searchShows() {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    
     setLoading(true);
     try {
       const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20`);
