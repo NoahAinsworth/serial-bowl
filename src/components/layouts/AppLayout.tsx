@@ -8,6 +8,7 @@ import { BingeBotAI } from '@/components/BingeBotAI';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
+import { useThemeRoute } from '@/hooks/useThemeRoute';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -21,6 +22,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const [bingeBotOpen, setBingeBotOpen] = useState(false);
   const [unreadDMs, setUnreadDMs] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  
+  // Apply Y2K theme routing
+  useThemeRoute();
 
   useEffect(() => {
     if (user) {
@@ -87,12 +91,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Theme Overlay */}
-      <div className="app-overlay" aria-hidden="true"></div>
-
+    <div className="flex flex-col h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-background">
+      <header className="sticky top-0 z-40 w-full bg-[hsl(var(--sb-card)/0.95)] backdrop-blur-sm border-b border-[hsl(var(--sb-accent)/0.12)]">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             {theme === 'the_one_with_the_theme' ? (
@@ -144,7 +145,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 w-full bg-background">
+      <nav className="sticky bottom-0 z-40 w-full bg-[hsl(var(--sb-card)/0.95)] backdrop-blur-sm border-t border-[hsl(var(--sb-accent)/0.12)]">
         <div className="container flex h-16 items-center justify-around px-4">
           {navItems.map(({ icon: Icon, label, path, showBadge, isProfile }) => (
             <Link
@@ -152,7 +153,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               to={path}
               className={`flex flex-col items-center gap-1 transition-all relative ${
                 isActive(path)
-                  ? 'text-primary font-bold'
+                  ? 'text-[hsl(var(--sb-accent))] font-bold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -167,7 +168,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <Icon className="h-6 w-6" />
               )}
               {showBadge && (
-                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
+                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[hsl(var(--sb-accent))] animate-pulse shadow-lg shadow-[hsl(var(--sb-accent)/0.5)]"></div>
               )}
               <span className="text-xs font-semibold uppercase">{label}</span>
             </Link>
