@@ -526,14 +526,18 @@ All colors MUST be HSL.
     font-weight: 800;
     text-transform: lowercase;
     letter-spacing: 0;
-    color: hsl(var(--foreground));
+    color: hsl(var(--secondary));
     position: relative;
     display: inline-block;
     text-shadow: 
-      -2px -2px 0 hsl(var(--border)),
-      2px -2px 0 hsl(var(--border)),
-      -2px 2px 0 hsl(var(--border)),
-      2px 2px 0 hsl(var(--border));
+      -2px -2px 0 hsl(var(--foreground)),
+      2px -2px 0 hsl(var(--foreground)),
+      -2px 2px 0 hsl(var(--foreground)),
+      2px 2px 0 hsl(var(--foreground)),
+      -2px 0 0 hsl(var(--foreground)),
+      2px 0 0 hsl(var(--foreground)),
+      0 -2px 0 hsl(var(--foreground)),
+      0 2px 0 hsl(var(--foreground));
   }
 
   /* Generic wordmark for other themes */
