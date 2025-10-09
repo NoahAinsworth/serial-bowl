@@ -10,108 +10,93 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Premium Neo-Y2K Editorial */
-    --background: 0 0% 100%;         /* Pure White #FFFFFF */
-    --foreground: 0 0% 7%;           /* Near Black #111111 */
-    --card: 0 0% 97%;                /* Light Grey #F7F7F7 */
-    --card-foreground: 0 0% 7%;
+    /* Minimal Social - Clean & Simple */
+    --background: 0 0% 100%;         /* Pure White */
+    --foreground: 0 0% 0%;           /* Black */
+    --card: 0 0% 100%;               /* White cards */
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
-    --primary: 152 100% 40%;         /* Emerald #10C974 */
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;              /* Black primary */
     --primary-foreground: 0 0% 100%;
-    --secondary: 14 100% 62%;        /* Hot Orange #FF6A3D */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 97%;               /* Light Grey #F7F7F7 */
-    --muted-foreground: 0 0% 40%;    /* Text Secondary #666666 */
-    --accent: 152 100% 40%;          /* Emerald Accent */
-    --accent-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;           /* Light grey */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96%;               /* Light grey */
+    --muted-foreground: 0 0% 45%;    /* Medium grey text */
+    --accent: 0 0% 96%;              /* Light grey accent */
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.12;        /* Black border rgba(0,0,0,0.12) */
+    --border: 0 0% 90%;              /* Light border */
     --input: 0 0% 100%;
-    --ring: 152 100% 40%;
-    --radius: 1.125rem;
+    --ring: 0 0% 0%;
+    --radius: 0.5rem;
 
     /* Dynamic Show Accent System */
-    --show-accent: 152 100% 40%;     /* Default to emerald, dynamically updated per show */
+    --show-accent: 0 0% 0%;
     
-    /* Extended Premium Palette */
-    --emerald: 152 100% 40%;         /* #10C974 */
-    --hot-orange: 14 100% 62%;       /* #FF6A3D */
-    --text-primary: 0 0% 7%;         /* #111111 */
-    --text-secondary: 0 0% 40%;      /* #666666 */
-    --surface: 0 0% 97%;             /* #F7F7F7 */
-
-    /* Typography - Modern Editorial */
-    --font-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
-    --font-display: 'DM Sans', sans-serif;
-    --font-accent: 'Orbitron', 'Space Grotesk', sans-serif;
-    --font-weight-ui: 500;
+    /* Typography - System Fonts */
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    --font-accent: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    --font-weight-ui: 400;
     --font-weight-display: 700;
     --font-weight-accent: 600;
-    --letter-ui: 0.005em;
-    --letter-display: 0.01em;
-    --letter-accent: 0.1em;
+    --letter-ui: 0;
+    --letter-display: 0;
+    --letter-accent: 0;
 
-    /* Shape Tokens - Clean & Modern */
-    --radius-sm: 14px;
-    --radius-md: 18px;
-    --radius-lg: 18px;
-    --stroke-width: 1.25px;
+    /* Shape Tokens - Minimal */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --stroke-width: 1px;
     --stroke-style: solid;
-    --tab-shape: 18px;
-    --btn-shape: 14px;
+    --tab-shape: 8px;
+    --btn-shape: 8px;
 
-    /* Elevation - Minimal Outlines */
+    /* Elevation - Subtle */
     --shadow-1: none;
     --shadow-2: none;
-    --shadow-hover: 0 0 0 2px rgba(0, 0, 0, 0.2);
+    --shadow-hover: none;
     --inner-glow: none;
 
-    /* Motion - Smooth Editorial */
-    --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
-    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Motion - Quick */
+    --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.4, 0, 0.2, 1);
     --dur-fast: 150ms;
-    --dur-med: 300ms;
-    --dur-slow: 500ms;
+    --dur-med: 200ms;
+    --dur-slow: 300ms;
 
-    /* Effects - Subtle Grain Texture */
+    /* Effects - None */
     --fx-overlay: none;
-    --img-filter: saturate(1) brightness(1);
-    --active-underline: 2px solid hsl(var(--show-accent));
-    --gradient-vignette: radial-gradient(90vw 50vh at 50% 50%, hsl(0 0% 95%) 0%, transparent 100%);
-    --grain-opacity: 0.06;
+    --img-filter: none;
+    --active-underline: none;
+    --gradient-vignette: none;
+    --grain-opacity: 0;
   }
 
   .dark {
-    /* Dark Mode with Liquid Glass Effects */
-    --background: 240 20% 12%;   /* Dark navy */
+    /* Minimal Dark Mode */
+    --background: 0 0% 0%;       /* Pure black */
     --foreground: 0 0% 100%;     /* White text */
-    --card: 240 15% 18%;
+    --card: 0 0% 0%;             /* Black cards */
     --card-foreground: 0 0% 100%;
-    --popover: 240 15% 18%;
+    --popover: 0 0% 0%;
     --popover-foreground: 0 0% 100%;
-    --primary: 320 100% 76%;      /* Hot Pink */
+    --primary: 0 0% 100%;        /* White primary */
     --primary-foreground: 0 0% 0%;
-    --secondary: 4 100% 69%;     /* Coral */
-    --secondary-foreground: 0 0% 0%;
-    --muted: 240 15% 22%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 160 100% 85%;      /* Mint */
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 100% 60%;
+    --secondary: 0 0% 15%;       /* Dark grey */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 15%;           /* Dark grey */
+    --muted-foreground: 0 0% 65%; /* Light grey text */
+    --accent: 0 0% 15%;          /* Dark grey accent */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 100%;         /* White borders in dark mode */
-    --input: 240 15% 22%;
-    --ring: 320 100% 76%;
-
-    /* Extended Y2K Palette */
-    --yellow: 45 100% 69%;
-    --coral: 4 100% 69%;
-    --lavender: 270 100% 86%;
-    --mint: 160 100% 85%;
-    --baby-blue: 198 100% 83%;
-    --hot-pink: 320 100% 76%;
+    --border: 0 0% 20%;          /* Dark border */
+    --input: 0 0% 0%;
+    --ring: 0 0% 100%;
   }
 
   .upside_down {
