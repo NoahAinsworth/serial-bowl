@@ -135,9 +135,9 @@ export function BingeBotMessage({ content, entities, sessionId, question, onEnti
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex justify-start">
-        <div className="max-w-[85%] rounded-lg px-4 py-2.5 bg-muted text-foreground overflow-hidden">
+    <div className="space-y-2 w-full">
+      <div className="flex justify-start w-full">
+        <div className="max-w-[95%] sm:max-w-[85%] rounded-lg px-3 sm:px-4 py-2.5 bg-muted text-foreground overflow-hidden break-words">
           {renderContentWithLinks()}
         </div>
       </div>
