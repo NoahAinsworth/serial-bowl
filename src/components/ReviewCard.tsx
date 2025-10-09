@@ -50,9 +50,10 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
   const [localReaction, setLocalReaction] = useState(review.userReaction);
   const [localLikes, setLocalLikes] = useState(review.likes || 0);
   const [localDislikes, setLocalDislikes] = useState(review.dislikes || 0);
+  const [spoilerRevealed, setSpoilerRevealed] = useState(false);
 
   // Determine safety overlay type
-  const isSpoilerHidden = review.is_spoiler && userHideSpoilers;
+  const isSpoilerHidden = review.is_spoiler && userHideSpoilers && !spoilerRevealed;
   const isSexualHidden = strictSafety && review.contains_mature && review.mature_reasons?.includes('sexual');
   const overlayType = isSpoilerHidden && isSexualHidden ? 'both' : isSexualHidden ? 'sexual' : isSpoilerHidden ? 'spoiler' : null;
 
@@ -165,7 +166,7 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
 
   return (
     <article className="py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in group relative">
-      {overlayType && <SafetyOverlay type={overlayType} />}
+      {overlayType && <SafetyOverlay type={overlayType} onRevealSpoiler={() => setSpoilerRevealed(true)} />}
       <div className="flex gap-3">
         <div>
           <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.id}`)}>

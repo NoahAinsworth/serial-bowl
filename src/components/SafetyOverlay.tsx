@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface SafetyOverlayProps {
   type: 'spoiler' | 'sexual' | 'both';
+  onRevealSpoiler?: () => void;
 }
 
-export function SafetyOverlay({ type }: SafetyOverlayProps) {
+export function SafetyOverlay({ type, onRevealSpoiler }: SafetyOverlayProps) {
   const navigate = useNavigate();
 
   return (
@@ -17,8 +18,19 @@ export function SafetyOverlay({ type }: SafetyOverlayProps) {
             <AlertTriangle className="h-12 w-12 mx-auto text-warning" />
             <p className="font-semibold">⚠️ Spoiler hidden</p>
             <p className="text-sm text-muted-foreground">
-              Turn off "Hide spoilers" in Settings to view.
+              Tap to reveal spoiler content
             </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRevealSpoiler?.();
+              }}
+              className="mt-2"
+            >
+              Reveal Spoiler
+            </Button>
           </>
         )}
         
@@ -29,6 +41,14 @@ export function SafetyOverlay({ type }: SafetyOverlayProps) {
             <p className="text-sm text-muted-foreground">
               Turn OFF Strict Safety Mode to view.
             </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/settings')}
+              className="mt-2"
+            >
+              Open Safety Settings
+            </Button>
           </>
         )}
         
@@ -40,19 +60,18 @@ export function SafetyOverlay({ type }: SafetyOverlayProps) {
             </div>
             <p className="font-semibold">Spoiler + Mature Content</p>
             <p className="text-sm text-muted-foreground">
-              Adjust your Safety Settings to view.
+              Turn OFF Strict Safety to view mature content
             </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/settings')}
+              className="mt-2"
+            >
+              Open Safety Settings
+            </Button>
           </>
         )}
-        
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => navigate('/settings')}
-          className="mt-2"
-        >
-          Open Safety Settings
-        </Button>
       </div>
     </div>
   );
