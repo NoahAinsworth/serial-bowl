@@ -153,14 +153,22 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               to={path}
               className={`flex flex-col items-center gap-1 transition-all relative ${
                 isActive(path)
-                  ? 'text-primary font-bold'
+                  ? 'text-primary font-bold scale-110'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon className="h-6 w-6" />
-              {showBadge && (
-                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
-              )}
+              <div className={`relative ${isActive(path) ? 'animate-pulse' : ''}`}>
+                <Icon 
+                  className={`h-6 w-6 transition-all ${
+                    isActive(path) 
+                      ? 'drop-shadow-[0_0_8px_hsl(var(--primary))]' 
+                      : ''
+                  }`} 
+                />
+                {showBadge && (
+                  <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
+                )}
+              </div>
               <span className="text-xs font-semibold uppercase">{label}</span>
             </Link>
           ))}
