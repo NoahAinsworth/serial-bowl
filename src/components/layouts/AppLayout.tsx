@@ -154,18 +154,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               className="flex flex-col items-center gap-1 transition-all relative group"
             >
               <Icon 
-                className={`h-6 w-6 transition-colors ${
+                className={`h-6 w-6 transition-all ${
                   isActive(path)
-                    ? 'text-green-500'
+                    ? 'fill-blue-500 stroke-black'
                     : 'text-muted-foreground group-hover:text-foreground'
-                }`} 
+                }`}
+                strokeWidth={isActive(path) ? 2.5 : 2}
               />
               {showBadge && (
                 <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
               )}
               <span className={`text-xs font-semibold uppercase transition-colors ${
                 isActive(path)
-                  ? 'text-green-500'
+                  ? 'text-blue-500'
                   : 'text-muted-foreground group-hover:text-foreground'
               }`}>{label}</span>
             </Link>
