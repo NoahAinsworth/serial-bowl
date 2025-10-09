@@ -73,19 +73,23 @@ export default function UserProfilePage() {
       return;
     }
 
-    // Check if this is a private profile and if current user follows them
+    // Check follow status for current user
     let canViewPrivateContent = !profileData.is_private;
-    if (profileData.is_private && user) {
+    if (user) {
       const { data: followData } = await supabase
         .from('follows')
         .select('status')
         .eq('follower_id', user.id)
         .eq('following_id', profileData.id)
-        .eq('status', 'accepted')
         .maybeSingle();
       
-      canViewPrivateContent = !!followData;
-      setFollowStatus(followData ? 'accepted' : 'none');
+      if (followData) {
+        const status = followData.status === 'accepted' ? 'accepted' : followData.status === 'pending' ? 'pending' : 'none';
+        setFollowStatus(status);
+        canViewPrivateContent = followData.status === 'accepted' || !profileData.is_private;
+      } else {
+        setFollowStatus('none');
+      }
     }
 
     // If private and can't view, show limited profile
