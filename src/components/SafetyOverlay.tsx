@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,30 +10,28 @@ interface SafetyOverlayProps {
 export function SafetyOverlay({ type, onRevealSpoiler }: SafetyOverlayProps) {
   const navigate = useNavigate();
 
+  if (type === 'spoiler') {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRevealSpoiler?.();
+          }}
+          className="pointer-events-auto bg-background/95 backdrop-blur-sm shadow-lg border-warning/50 hover:border-warning"
+        >
+          <AlertTriangle className="h-4 w-4 mr-2 text-warning" />
+          Reveal Spoiler
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm z-10 rounded-lg">
       <div className="text-center space-y-4 p-6">
-        {type === 'spoiler' && (
-          <>
-            <AlertTriangle className="h-12 w-12 mx-auto text-warning" />
-            <p className="font-semibold">⚠️ Spoiler hidden</p>
-            <p className="text-sm text-muted-foreground">
-              Tap to reveal spoiler content
-            </p>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRevealSpoiler?.();
-              }}
-              className="mt-2"
-            >
-              Reveal Spoiler
-            </Button>
-          </>
-        )}
-        
         {type === 'sexual' && (
           <>
             <div className="text-4xl">🔞</div>

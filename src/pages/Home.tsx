@@ -41,7 +41,7 @@ export default function Home() {
       <div className="container max-w-2xl mx-auto py-12 px-4 text-center space-y-6">
         <div className="flex flex-col items-center gap-4">
           <img src={cerealBowlLogo} alt="Serial Bowl Logo" className="w-32 h-32" />
-          <h1 className="text-4xl font-bold tracking-[0.5em]">
+          <h1 className="text-4xl font-bold tracking-[0.5em] text-center">
             <span className="inline-block" style={{ color: '#E1443D' }}>S</span>
             <span className="text-muted-foreground">·</span>
             <span className="inline-block" style={{ color: '#FFD84D' }}>E</span>

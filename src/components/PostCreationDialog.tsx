@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { postSchema } from '@/lib/validation';
 import { z } from 'zod';
+import { detectMatureContent } from '@/utils/profanityFilter';
 
 interface PostCreationDialogProps {
   open: boolean;
@@ -34,7 +35,17 @@ export function PostCreationDialog({
   const [text, setText] = useState('');
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
+  const [containsMature, setContainsMature] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Auto-detect mature content when text changes
+  const handleTextChange = (value: string) => {
+    setText(value);
+    const { isMature, reasons } = detectMatureContent(value);
+    if (isMature && !containsMature) {
+      setContainsMature(true);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -116,6 +127,8 @@ export function PostCreationDialog({
         // Only create a review POST if text is provided
         // Rating alone does NOT create a post
         if (text.trim()) {
+          const { isMature, reasons } = detectMatureContent(text);
+          
           const { error: reviewError } = await supabase
             .from('reviews')
             .insert({
@@ -123,12 +136,16 @@ export function PostCreationDialog({
               content_id: contentId,
               review_text: text,
               is_spoiler: isSpoiler,
+              contains_mature: containsMature || isMature,
+              mature_reasons: containsMature || isMature ? reasons : [],
             });
 
           if (reviewError) throw reviewError;
         }
       } else {
         // Save thought
+        const { isMature, reasons } = detectMatureContent(text);
+        
         const { error: thoughtError } = await supabase
           .from('thoughts')
           .insert({
@@ -136,6 +153,8 @@ export function PostCreationDialog({
             content_id: contentId,
             text_content: text,
             is_spoiler: isSpoiler,
+            contains_mature: containsMature || isMature,
+            mature_reasons: containsMature || isMature ? reasons : [],
           });
 
         if (thoughtError) throw thoughtError;
@@ -154,6 +173,7 @@ export function PostCreationDialog({
       setText('');
       setRating(0);
       setIsSpoiler(false);
+      setContainsMature(false);
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
@@ -190,7 +210,7 @@ export function PostCreationDialog({
             <Textarea
               placeholder={postType === 'review' ? 'Write your review...' : 'Share your thoughts...'}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => handleTextChange(e.target.value)}
               rows={6}
             />
           </div>
@@ -206,6 +226,20 @@ export function PostCreationDialog({
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               This contains spoilers
+            </Label>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="mature"
+              checked={containsMature}
+              onCheckedChange={(checked) => setContainsMature(checked as boolean)}
+            />
+            <Label
+              htmlFor="mature"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              🔞 This contains mature content
             </Label>
           </div>
 
