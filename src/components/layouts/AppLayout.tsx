@@ -118,12 +118,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <span>L</span>
               </h1>
             ) : theme === 'heisenberg' ? (
-              <h1 className="text-3xl font-display font-bold wordmark flex items-center gap-1">
+              <div className="wordmark flex flex-col items-start gap-0 relative">
                 <span className="periodic-se">Se</span>
-                <span className="text-[#F7F6EF] font-medium">rial</span>
-                <span className="periodic-bo ml-1">Bo</span>
-                <span className="text-[#F7F6EF] font-medium">wl</span>
-              </h1>
+                <span className="periodic-bo ml-4">Bo</span>
+              </div>
             ) : (
               <h1 className="text-3xl font-display font-bold wordmark">
                 Serial Bowl

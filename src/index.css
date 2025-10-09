@@ -1265,12 +1265,6 @@ All colors MUST be HSL.
     font-family: 'Bebas Neue', sans-serif;
     font-weight: 400;
     letter-spacing: 0.08em;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 2rem;
-    -webkit-text-stroke: 0.5px #000000;
-    text-stroke: 0.5px #000000;
   }
   
   .heisenberg .wordmark .periodic-se,
@@ -1281,14 +1275,15 @@ All colors MUST be HSL.
     background: #2A5F3C;
     color: #FFFFFF;
     border: 2px solid #000000;
-    padding: 0.3rem 0.45rem;
-    font-size: 1.15em;
+    padding: 0.4rem 0.6rem;
+    font-size: 1.5rem;
     font-weight: 900;
     text-transform: uppercase;
     border-radius: 4px;
     position: relative;
     line-height: 1;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    font-family: 'Bebas Neue', sans-serif;
   }
   
   /* Smoke texture overlay on background */
