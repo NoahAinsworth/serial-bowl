@@ -299,13 +299,12 @@ async function resolveEntitiesWithTVDB(message: string): Promise<any[]> {
     let seasonNum: number | undefined;
     let episodeNum: number | undefined;
     
-    // Check for patterns like "Show S02E01", "Show S02E01 - Title", or "Show Season 2"
-    const seasonEpisodeWithTitleMatch = entityName.match(/^(.+?)\s+S(\d+)E(\d+)\s*(?:-\s*.+)?$/i);
-    const seasonEpisodeMatch = entityName.match(/^(.+?)\s+S(\d+)E(\d+)$/i);
+    // Check for patterns like "Show S02E01", "Show S02E01 - Title", "Show S02E01: Title", or "Show Season 2"
+    const seasonEpisodeWithTitleMatch = entityName.match(/^(.+?)\s+S(\d+)E(\d+)\s*(?:[-:]\s*.+)?$/i);
     const seasonMatch = entityName.match(/^(.+?)\s+Season\s+(\d+)$/i);
     
-    if (seasonEpisodeWithTitleMatch || seasonEpisodeMatch) {
-      const match = (seasonEpisodeWithTitleMatch || seasonEpisodeMatch)!;
+    if (seasonEpisodeWithTitleMatch) {
+      const match = seasonEpisodeWithTitleMatch;
       showName = match[1];
       seasonNum = parseInt(match[2]);
       episodeNum = parseInt(match[3]);
