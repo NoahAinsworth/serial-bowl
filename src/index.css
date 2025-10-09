@@ -13,29 +13,29 @@ All colors MUST be HSL.
     /* Modern Minimal Theme - Instagram/Threads Inspired */
     --background: 0 0% 85%;         /* Medium grey for gradient start */
     --foreground: 0 0% 10%;         /* Near black #1A1A1A */
-    --card: 25 100% 95%;            /* Light orange #FFF4E6 */
+    --card: 30 100% 85%;            /* More orange #FFCC99 */
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 210 100% 70%;        /* Lighter blue #66B3FF */
+    --primary: 270 70% 60%;         /* Purple #9966CC */
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 100% 70%;      /* Lighter blue #66B3FF */
+    --secondary: 270 70% 60%;       /* Purple #9966CC */
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 96%;              /* Very light grey */
     --muted-foreground: 0 0% 45%;   /* Medium grey */
-    --accent: 210 100% 70%;         /* Lighter blue */
+    --accent: 270 70% 60%;          /* Purple */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 88%;             /* Subtle grey border */
     --input: 0 0% 96%;
-    --ring: 210 100% 70%;
+    --ring: 270 70% 60%;
     --radius: 0.75rem;
 
     /* Extended Modern Palette */
     --instagram-pink: 330 81% 60%;  /* #E4405F */
     --vibrant-orange: 24 100% 50%;  /* #FF6600 */
-    --sky-blue: 210 100% 70%;       /* #66B3FF */
+    --sky-blue: 270 70% 60%;        /* Purple */
     --soft-grey: 0 0% 96%;          /* #F5F5F5 */
 
     /* Typography - Clean & Modern */
