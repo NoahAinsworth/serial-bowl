@@ -11,31 +11,43 @@ const corsHeaders = {
 const TVDB_BASE = "https://api4.thetvdb.com/v4";
 let tvdbToken: { token: string; expiresAt: number } | null = null;
 
-async function getTvdbToken(apiKey: string): Promise<string> {
+async function getTvdbToken(apiKey: string, pin?: string): Promise<string> {
   // Check if we have a valid cached token
   if (tvdbToken && Date.now() < tvdbToken.expiresAt) {
+    console.log("Using cached TVDB token");
     return tvdbToken.token;
   }
 
+  console.log("Logging in to TVDB...");
+  
   // Login to get a new token
+  const loginBody: any = { apikey: apiKey };
+  if (pin) {
+    loginBody.pin = pin;
+  }
+
   const res = await fetch(`${TVDB_BASE}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: JSON.stringify({ apikey: apiKey }),
+    body: JSON.stringify(loginBody),
   });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    console.error(`TVDB login failed ${res.status}: ${text}`);
     throw new Error(`TVDB login failed ${res.status}: ${text}`);
   }
 
   const data = await res.json();
+  console.log("TVDB login response:", JSON.stringify(data).substring(0, 200));
+  
   const token = data?.data?.token as string;
   
   if (!token) {
+    console.error("TVDB login returned no token, response:", data);
     throw new Error("TVDB login returned no token");
   }
 
@@ -45,11 +57,12 @@ async function getTvdbToken(apiKey: string): Promise<string> {
     expiresAt: Date.now() + 27 * 24 * 60 * 60 * 1000,
   };
 
+  console.log("TVDB login successful, token cached");
   return token;
 }
 
-async function tvdbFetch(path: string, apiKey: string) {
-  const token = await getTvdbToken(apiKey);
+async function tvdbFetch(path: string, apiKey: string, pin?: string) {
+  const token = await getTvdbToken(apiKey, pin);
   
   const res = await fetch(`${TVDB_BASE}${path}`, {
     headers: {
@@ -64,8 +77,9 @@ async function tvdbFetch(path: string, apiKey: string) {
     
     // If token expired, retry with new token
     if (res.status === 401) {
+      console.log("Token expired, getting new token...");
       tvdbToken = null; // Clear cached token
-      const newToken = await getTvdbToken(apiKey);
+      const newToken = await getTvdbToken(apiKey, pin);
       
       const retryRes = await fetch(`${TVDB_BASE}${path}`, {
         headers: {
@@ -77,42 +91,44 @@ async function tvdbFetch(path: string, apiKey: string) {
       
       if (!retryRes.ok) {
         const retryText = await retryRes.text().catch(() => "");
+        console.error(`TVDB ${path} retry failed ${retryRes.status}: ${retryText}`);
         throw new Error(`TVDB ${path} ${retryRes.status}: ${retryText}`);
       }
       
       return retryRes.json();
     }
     
+    console.error(`TVDB ${path} failed ${res.status}: ${text}`);
     throw new Error(`TVDB ${path} ${res.status}: ${text}`);
   }
   
   return res.json();
 }
 
-async function searchSeries(query: string, apiKey: string) {
-  const data = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series`, apiKey);
+async function searchSeries(query: string, apiKey: string, pin?: string) {
+  const data = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series`, apiKey, pin);
   return data.data || [];
 }
 
-async function getSeriesById(tvdbId: number, apiKey: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}`, apiKey);
+async function getSeriesById(tvdbId: number, apiKey: string, pin?: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}`, apiKey, pin);
   return data.data || {};
 }
 
-async function getEpisodesForSeason(tvdbId: number, seasonNumber: number, apiKey: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey);
+async function getEpisodesForSeason(tvdbId: number, seasonNumber: number, apiKey: string, pin?: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey, pin);
   const episodes = data.data?.episodes || [];
   return episodes.filter((ep: any) => ep.seasonNumber === seasonNumber);
 }
 
-async function getEpisodeBySE(tvdbId: number, season: number, episode: number, apiKey: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey);
+async function getEpisodeBySE(tvdbId: number, season: number, episode: number, apiKey: string, pin?: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}/episodes/default/eng`, apiKey, pin);
   const episodes = data.data?.episodes || [];
   return episodes.find((ep: any) => ep.seasonNumber === season && ep.number === episode);
 }
 
-async function getSeriesPeople(tvdbId: number, apiKey: string) {
-  const data = await tvdbFetch(`/series/${tvdbId}/people`, apiKey);
+async function getSeriesPeople(tvdbId: number, apiKey: string, pin?: string) {
+  const data = await tvdbFetch(`/series/${tvdbId}/people`, apiKey, pin);
   return data.data || {};
 }
 
@@ -307,6 +323,13 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
     const tvdbApiKey = Deno.env.get("TVDB_API_KEY")!;
+    const tvdbPin = Deno.env.get("TVDB_PIN"); // Optional
+    
+    console.log("Environment check:", {
+      hasLovableKey: !!lovableApiKey,
+      hasTvdbKey: !!tvdbApiKey,
+      hasTvdbPin: !!tvdbPin,
+    });
     
     if (!lovableApiKey) throw new Error("LOVABLE_API_KEY not configured");
     if (!tvdbApiKey) throw new Error("TVDB_API_KEY not configured");
@@ -455,16 +478,18 @@ Use this context to personalize recommendations and respect spoiler preferences.
         let toolResult: any;
 
         try {
+          console.log(`Executing tool: ${fname} with args:`, args);
+          
           if (fname === "searchShow") {
-            toolResult = await searchSeries(args.query, tvdbApiKey);
+            toolResult = await searchSeries(args.query, tvdbApiKey, tvdbPin);
           } else if (fname === "getShowDetails") {
-            toolResult = await getSeriesById(args.tvdb_id, tvdbApiKey);
+            toolResult = await getSeriesById(args.tvdb_id, tvdbApiKey, tvdbPin);
           } else if (fname === "getSeasonEpisodes") {
-            toolResult = await getEpisodesForSeason(args.tvdb_id, args.season_number, tvdbApiKey);
+            toolResult = await getEpisodesForSeason(args.tvdb_id, args.season_number, tvdbApiKey, tvdbPin);
           } else if (fname === "getEpisode") {
-            toolResult = await getEpisodeBySE(args.tvdb_id, args.season_number, args.episode_number, tvdbApiKey);
+            toolResult = await getEpisodeBySE(args.tvdb_id, args.season_number, args.episode_number, tvdbApiKey, tvdbPin);
           } else if (fname === "getSeriesPeople") {
-            toolResult = await getSeriesPeople(args.tvdb_id, tvdbApiKey);
+            toolResult = await getSeriesPeople(args.tvdb_id, tvdbApiKey, tvdbPin);
           } else if (fname === "webSearch") {
             // Gemini has built-in web search, we just acknowledge the call
             // The actual search happens in Gemini's context
@@ -475,6 +500,7 @@ Use this context to personalize recommendations and respect spoiler preferences.
             };
           }
 
+          console.log(`Tool ${fname} completed successfully`);
           toolMessages.push({
             role: "tool",
             tool_call_id: toolCall.id,
