@@ -17,7 +17,7 @@ All colors MUST be HSL.
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 330 81% 60%;         /* Pink #E4405F (Instagram pink) */
+    --primary: 24 100% 50%;         /* Orange #FF6600 */
     --primary-foreground: 0 0% 100%;
     --secondary: 24 100% 50%;       /* Orange #FF6600 */
     --secondary-foreground: 0 0% 100%;
@@ -29,7 +29,7 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 93%;             /* Subtle grey border */
     --input: 0 0% 96%;
-    --ring: 330 81% 60%;
+    --ring: 24 100% 50%;
     --radius: 0.75rem;
 
     /* Extended Modern Palette */
