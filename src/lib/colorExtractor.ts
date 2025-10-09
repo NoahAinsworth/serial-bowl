@@ -153,16 +153,17 @@ export const hexToRgb = (hex: string): RGB => {
 
 /**
  * Blend show color with base theme using guardrails
+ * Returns HSL values compatible with Serial Bowl theme system
  */
 export const blendWithTheme = (showColorHex: string, blendStrength: number = 0.35): {
   accent: string;
-  accentGlow: string;
+  accentDark: string;
   backgroundTint: string;
   shadow: string;
 } => {
   const showRgb = hexToRgb(showColorHex);
   const showHsl = rgbToHsl(showRgb);
-  const baseAccent = { h: 23, s: 100, l: 58 }; // #FF7A26 orange
+  const baseAccent = { h: 152, s: 85, l: 42 }; // #10C974 emerald
   
   // Apply guardrails
   let adjustedHsl = { ...showHsl };
@@ -191,23 +192,22 @@ export const blendWithTheme = (showColorHex: string, blendStrength: number = 0.3
   // Ensure text contrast for primary buttons
   const contrastLight = blendedLight > 70 ? blendedLight - 15 : blendedLight;
   
-  // Accent color
+  // Accent color (HSL format for CSS variables)
   const accent = `${blendedHue} ${blendedSat}% ${contrastLight}%`;
   
-  // Accent glow
-  const accentGlow = `${blendedHue} ${blendedSat}% ${Math.min(contrastLight + 10, 65)}% / 0.22`;
+  // Darker accent for buttons
+  const accentDark = `${blendedHue} ${blendedSat}% ${Math.max(contrastLight - 8, 25)}%`;
   
   // Background tint (very subtle)
-  const bgTintSat = Math.min(blendedSat * 0.15, 10);
-  const backgroundTint = `${blendedHue} ${bgTintSat}% 98%`;
+  const bgTintSat = Math.min(blendedSat * 0.2, 15);
+  const backgroundTint = `${blendedHue} ${bgTintSat}% 97%`;
   
   // Shadow with show color influence
-  const shadowHue = blendedHue;
-  const shadow = `${shadowHue} ${Math.min(blendedSat * 0.3, 20)}% 10% / 0.12`;
+  const shadow = `${blendedHue} ${Math.min(blendedSat * 0.3, 20)}% 10% / 0.12`;
   
   return {
     accent,
-    accentGlow,
+    accentDark,
     backgroundTint,
     shadow
   };

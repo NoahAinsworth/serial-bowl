@@ -3,7 +3,7 @@ import { extractDominantColor, blendWithTheme } from '@/lib/colorExtractor';
 
 interface LiveAccentColors {
   accent: string;
-  accentGlow: string;
+  accentDark: string;
   backgroundTint: string;
   shadow: string;
 }
@@ -58,25 +58,14 @@ export const useLiveAccentLighting = (posterUrl: string | null | undefined, enab
 const applyColorsToDOM = (colors: LiveAccentColors) => {
   const root = document.documentElement;
   
-  // Add transition class for smooth color changes
-  root.classList.add('live-accent-transition');
-  
   // Apply new colors to Serial Bowl tokens
   root.style.setProperty('--sb-accent', colors.accent);
+  root.style.setProperty('--sb-accent-dark', colors.accentDark);
   root.style.setProperty('--sb-bg-tint', colors.backgroundTint);
   root.style.setProperty('--sb-shadow', colors.shadow);
-  root.style.setProperty('--sb-glow', colors.accentGlow);
   
-  // Update legacy variables for compatibility
-  root.style.setProperty('--primary', colors.accent);
-  root.style.setProperty('--secondary', colors.accent);
-  root.style.setProperty('--ring', colors.accent);
-  root.style.setProperty('--accent', colors.accent);
-  
-  // Remove transition class after animation completes
-  setTimeout(() => {
-    root.classList.remove('live-accent-transition');
-  }, 850);
+  // Set data-accent attribute for show-specific styling
+  document.body.setAttribute('data-theme', 'show');
 };
 
 /**
@@ -85,19 +74,12 @@ const applyColorsToDOM = (colors: LiveAccentColors) => {
 const resetToDefaultTheme = () => {
   const root = document.documentElement;
   
-  root.classList.add('live-accent-transition');
+  // Reset to default emerald theme
+  root.style.setProperty('--sb-accent', '152 85% 42%');
+  root.style.setProperty('--sb-accent-dark', '152 85% 34%');
+  root.style.setProperty('--sb-bg-tint', '144 100% 97%');
+  root.style.setProperty('--sb-shadow', '0 0% 0% / 0.08');
   
-  // Reset to default Serial Bowl Core colors
-  root.style.setProperty('--sb-accent', '23 100% 58%');
-  root.style.setProperty('--sb-bg-tint', '0 0% 98%');
-  root.style.setProperty('--sb-shadow', '0 0% 0% / 0.12');
-  root.style.setProperty('--sb-glow', '23 100% 58% / 0.22');
-  root.style.setProperty('--primary', '23 100% 58%');
-  root.style.setProperty('--secondary', '23 100% 58%');
-  root.style.setProperty('--ring', '23 100% 58%');
-  root.style.setProperty('--accent', '23 100% 58%');
-  
-  setTimeout(() => {
-    root.classList.remove('live-accent-transition');
-  }, 850);
+  // Remove show-specific attribute
+  document.body.removeAttribute('data-accent');
 };

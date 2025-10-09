@@ -27,7 +27,11 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-[16px] px-5 py-2 text-sm font-semibold tracking-wide transition-all data-[state=inactive]:text-foreground data-[state=inactive]:bg-muted/30 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_0_20px_rgba(0,255,133,0.4)] hover:shadow-[0_0_15px_rgba(0,255,133,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-[18px] px-4 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] transition-all",
+      "data-[state=inactive]:bg-[#F3F3F3] data-[state=inactive]:border data-[state=inactive]:border-[#E6E6E6] data-[state=inactive]:text-[hsl(var(--sb-text))]",
+      "data-[state=active]:bg-[hsl(var(--sb-accent)/0.18)] data-[state=active]:border data-[state=active]:border-[hsl(var(--sb-accent)/0.32)] data-[state=active]:text-[hsl(var(--sb-text))] data-[state=active]:shadow-sm",
+      "focus-visible:outline-none focus-visible:ring-0 disabled:pointer-events-none disabled:opacity-50",
+      "font-[family-name:var(--sb-font-accent)]",
       className,
     )}
     {...props}

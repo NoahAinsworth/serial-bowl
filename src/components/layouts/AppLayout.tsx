@@ -8,6 +8,7 @@ import { BingeBotAI } from '@/components/BingeBotAI';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
+import { useThemeRoute } from '@/hooks/useThemeRoute';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -21,6 +22,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const [bingeBotOpen, setBingeBotOpen] = useState(false);
   const [unreadDMs, setUnreadDMs] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  
+  // Apply route-based theming
+  useThemeRoute();
 
   useEffect(() => {
     if (user) {
@@ -92,7 +96,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <div className="app-overlay" aria-hidden="true"></div>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-background">
+      <header className="sticky top-0 z-40 w-full bg-[hsl(var(--sb-card)/0.95)] backdrop-blur-sm border-b border-[hsl(var(--sb-accent)/0.12)]">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             {theme === 'the_one_with_the_theme' ? (
@@ -118,7 +122,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <span>L</span>
               </h1>
             ) : (
-              <h1 className="text-xl font-display font-bold wordmark">
+              <h1 className="wordmark" data-role="brand">
                 Serial Bowl
               </h1>
             )}
@@ -144,7 +148,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 w-full bg-background">
+      <nav className="sticky bottom-0 z-40 w-full bg-[hsl(var(--sb-card)/0.95)] backdrop-blur-sm border-t border-[hsl(var(--sb-accent)/0.12)]">
         <div className="container flex h-16 items-center justify-around px-4">
           {navItems.map(({ icon: Icon, label, path, showBadge, isProfile }) => (
             <Link
@@ -152,7 +156,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               to={path}
               className={`flex flex-col items-center gap-1 transition-all relative ${
                 isActive(path)
-                  ? 'text-primary font-bold'
+                  ? 'text-[hsl(var(--sb-accent))] font-bold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -167,7 +171,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <Icon className="h-6 w-6" />
               )}
               {showBadge && (
-                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50"></div>
+                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[hsl(var(--sb-accent))] animate-pulse shadow-lg shadow-[hsl(var(--sb-accent)/0.5)]"></div>
               )}
               <span className="text-xs font-semibold uppercase">{label}</span>
             </Link>
