@@ -1194,9 +1194,9 @@ All colors MUST be HSL.
     --popover: 41 45% 74%;
     --popover-foreground: 0 0% 8%;
     
-    /* Primary = neon lime green */
-    --primary: 158 100% 50%;             /* #00FF85 - neon lime */
-    --primary-foreground: 0 0% 0%;       /* Black text on green */
+    /* Primary = crystal blue */
+    --primary: 194 100% 50%;             /* #00B8FF - crystal blue */
+    --primary-foreground: 0 0% 0%;       /* Black text on blue */
     
     /* Secondary = amber fume */
     --secondary: 42 100% 65%;            /* #FFC14E - amber */
@@ -1205,7 +1205,7 @@ All colors MUST be HSL.
     --muted: 147 30% 30%;                /* Lighter muted green */
     --muted-foreground: 49 38% 85%;      /* Light cream for muted text */
     
-    --accent: 158 100% 50%;              /* Neon lime */
+    --accent: 194 100% 50%;              /* Crystal blue */
     --accent-foreground: 0 0% 0%;
     
     --destructive: 0 84% 60%;
@@ -1214,24 +1214,24 @@ All colors MUST be HSL.
     /* Black borders */
     --border: 0 0% 0%;                   /* #000000 */
     --input: 41 45% 74%;
-    --ring: 158 100% 50%;
+    --ring: 194 100% 50%;
     
     /* Lab colors */
     --lab-green: 147 48% 20%;            /* #184C2A - darker green for boxes */
     --lab-paper: 49 38% 96%;             /* #F7F6EF - off-white */
-    --neon-lime: 158 100% 50%;           /* #00FF85 */
+    --crystal-blue: 194 100% 50%;        /* #00B8FF */
     --amber-fume: 42 100% 65%;           /* #FFC14E */
     
     /* Typography - Breaking Bad style */
     --font-ui: 'DM Sans', 'Rubik', sans-serif;
-    --font-display: 'Roboto Slab', 'DM Sans', serif;
-    --font-accent: 'Roboto Slab', serif;
+    --font-display: 'Bebas Neue', 'Roboto Slab', sans-serif;
+    --font-accent: 'Bebas Neue', sans-serif;
     --font-weight-ui: 500;
-    --font-weight-display: 800;
-    --font-weight-accent: 900;
+    --font-weight-display: 400;
+    --font-weight-accent: 400;
     --letter-ui: -0.01em;
-    --letter-display: 0.02em;
-    --letter-accent: 0.03em;
+    --letter-display: 0.05em;
+    --letter-accent: 0.05em;
     
     /* Shape tokens */
     --radius-sm: 12px;
@@ -1262,13 +1262,13 @@ All colors MUST be HSL.
   
   /* Heisenberg wordmark - Periodic Table style */
   .heisenberg .wordmark {
-    font-family: 'Roboto Slab', serif;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.08em;
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 1.75rem;
+    font-size: 2rem;
     -webkit-text-stroke: 0.5px #000000;
     text-stroke: 0.5px #000000;
   }
@@ -1319,10 +1319,10 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-hover);
   }
   
-  /* Buttons - neon green with black outline */
+  /* Buttons - crystal blue with black outline */
   .heisenberg button[class*="default"],
   .heisenberg button[class*="primary"] {
-    background: hsl(var(--neon-lime));
+    background: hsl(var(--crystal-blue));
     border: 2px solid hsl(var(--border));
     color: hsl(var(--foreground));
     font-weight: 700;
@@ -1332,7 +1332,7 @@ All colors MUST be HSL.
   .heisenberg button[class*="default"]:hover,
   .heisenberg button[class*="primary"]:hover {
     transform: scale(1.03);
-    background: hsl(158 100% 55%);
+    background: hsl(194 100% 55%);
   }
   
   /* Outlined buttons */
@@ -1343,7 +1343,7 @@ All colors MUST be HSL.
   }
   
   .heisenberg button[class*="outline"]:hover {
-    background: hsl(var(--neon-lime));
+    background: hsl(var(--crystal-blue));
   }
   
   /* Tabs - black outline rectangles */
@@ -1357,7 +1357,7 @@ All colors MUST be HSL.
   
   .heisenberg [role="tablist"] button[data-state="active"],
   .heisenberg [role="tablist"] button[aria-selected="true"] {
-    background: hsl(var(--neon-lime));
+    background: hsl(var(--crystal-blue));
     color: hsl(var(--foreground));
   }
   
@@ -1372,8 +1372,8 @@ All colors MUST be HSL.
   
   .heisenberg input:focus,
   .heisenberg textarea:focus {
-    border-color: hsl(var(--neon-lime));
-    box-shadow: 0 0 0 3px hsla(158, 100%, 50%, 0.1);
+    border-color: hsl(var(--crystal-blue));
+    box-shadow: 0 0 0 3px hsla(194, 100%, 50%, 0.1);
   }
   
   /* Header styling */
@@ -1397,7 +1397,7 @@ All colors MUST be HSL.
   }
   
   .heisenberg button:hover svg {
-    color: hsl(var(--neon-lime));
+    color: hsl(var(--crystal-blue));
   }
   
   /* Heat haze effect on card hover (subtle blur ripple) */
@@ -1413,10 +1413,10 @@ All colors MUST be HSL.
   /* Pulse animation for active buttons */
   @keyframes heisenberg-pulse {
     0%, 100% { 
-      background: hsl(158 100% 50%);
+      background: hsl(194 100% 50%);
     }
     50% { 
-      background: hsl(158 100% 55%);
+      background: hsl(194 100% 55%);
     }
   }
   
@@ -1426,7 +1426,7 @@ All colors MUST be HSL.
   
   /* Post type borders */
   .heisenberg [data-type="thought"] {
-    border-left: 3px solid hsl(var(--neon-lime));
+    border-left: 3px solid hsl(var(--crystal-blue));
   }
   
   .heisenberg [data-type="review"] {
