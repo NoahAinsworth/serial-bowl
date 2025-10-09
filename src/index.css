@@ -2,68 +2,278 @@
 @tailwind components;
 @tailwind utilities;
 
+/* No film grain for flat Y2K aesthetic */
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
 @layer base {
   :root {
-    /* Upside Down Mode - Stranger Things 80s Horror Theme */
-    --background: 0 0% 0%;           /* Deep black */
-    --foreground: 0 0% 72%;          /* Dim gray text */
-    
-    --card: 0 0% 5%;                 /* Very dark gray */
-    --card-foreground: 0 0% 72%;
-    
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 72%;
-    
-    --primary: 0 100% 38%;           /* Crimson red */
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 16 100% 50%;        /* Electric red-orange */
+    /* Y2K Flat Cartoon Theme */
+    --background: 45 100% 96%;  /* Cream #FFF9E8 */
+    --foreground: 0 0% 0%;      /* Black #000000 */
+    --card: 0 0% 100%;          /* White */
+    --card-foreground: 0 0% 0%; /* Black */
+    --popover: 0 0% 100%;       /* White */
+    --popover-foreground: 0 0% 0%;
+    --primary: 45 100% 69%;     /* Yellow #FFD75E */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 4 100% 69%;    /* Coral #FF6F61 */
     --secondary-foreground: 0 0% 0%;
-    
-    --muted: 210 18% 20%;            /* Muted teal/blue-gray */
-    --muted-foreground: 0 0% 72%;
-    
-    --accent: 24 100% 50%;           /* Neon orange */
+    --muted: 45 100% 92%;       /* Light Cream */
+    --muted-foreground: 0 0% 40%;
+    --accent: 160 100% 85%;     /* Mint #B8FFDA */
     --accent-foreground: 0 0% 0%;
-    
-    --destructive: 0 100% 38%;
+    --destructive: 0 100% 60%;  /* Red */
     --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 100% 38%;            /* Crimson red borders */
-    --input: 0 0% 15%;
-    --ring: 0 100% 38%;
-    
-    --radius: 0.5rem;
-    
-    /* 80s Horror Palette */
-    --crimson: 0 100% 38%;
-    --electric-red: 16 100% 50%;
-    --neon-orange: 24 100% 50%;
-    --dim-gray: 0 0% 72%;
-    --blue-gray: 210 18% 20%;
+    --border: 0 0% 0%;          /* Black borders */
+    --input: 0 0% 100%;         /* White */
+    --ring: 45 100% 69%;        /* Yellow */
+    --radius: 1.5rem;
+
+    /* Extended Y2K Palette */
+    --yellow: 45 100% 69%;      /* #FFD75E */
+    --coral: 4 100% 69%;        /* #FF6F61 */
+    --lavender: 270 100% 86%;   /* #D7B8FF */
+    --mint: 160 100% 85%;       /* #B8FFDA */
+    --baby-blue: 198 100% 83%;  /* #A6E1FF */
+    --hot-pink: 320 100% 76%;   /* #FF84D0 */
+
+    /* Typography Tokens */
+    --font-ui: 'Nunito Sans', -apple-system, sans-serif;
+    --font-display: 'Poppins', 'Rubik', sans-serif;
+    --font-weight-ui: 600;
+    --font-weight-display: 700;
+    --letter-ui: 0;
+    --letter-display: 0;
+
+    /* Shape Tokens - Flat & Rounded */
+    --radius-sm: 20px;
+    --radius-md: 25px;
+    --radius-lg: 30px;
+    --stroke-width: 3px;        /* Thick outlines */
+    --stroke-style: solid;
+    --tab-shape: 25px;
+    --btn-shape: 25px;
+
+    /* Elevation Tokens - NO SHADOWS */
+    --shadow-1: none;
+    --shadow-2: none;
+    --inner-glow: none;
+
+    /* Motion Tokens */
+    --ease-ui: cubic-bezier(.4,0,.2,1);
+    --dur-fast: 150ms;
+    --dur-med: 250ms;
+    --dur-slow: 400ms;
+
+    /* FX Tokens - Flat Design */
+    --fx-overlay: none;
+    --img-filter: none;
+    --active-underline: none;
   }
 
   .dark {
-    /* Same as root - always dark mode */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 72%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 72%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 72%;
-    --primary: 0 100% 38%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 16 100% 50%;
+    /* Dark Mode Y2K - Darker but still colorful */
+    --background: 240 20% 12%;   /* Dark navy */
+    --foreground: 0 0% 100%;     /* White text */
+    --card: 240 15% 18%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 15% 18%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 320 100% 76%;      /* Hot Pink */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 4 100% 69%;     /* Coral */
     --secondary-foreground: 0 0% 0%;
-    --muted: 210 18% 20%;
-    --muted-foreground: 0 0% 72%;
-    --accent: 24 100% 50%;
+    --muted: 240 15% 22%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 160 100% 85%;      /* Mint */
     --accent-foreground: 0 0% 0%;
-    --destructive: 0 100% 38%;
+    --destructive: 0 100% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 100% 38%;
-    --input: 0 0% 15%;
-    --ring: 0 100% 38%;
+    --border: 0 0% 100%;         /* White borders in dark mode */
+    --input: 240 15% 22%;
+    --ring: 320 100% 76%;
+
+    /* Extended Y2K Palette */
+    --yellow: 45 100% 69%;
+    --coral: 4 100% 69%;
+    --lavender: 270 100% 86%;
+    --mint: 160 100% 85%;
+    --baby-blue: 198 100% 83%;
+    --hot-pink: 320 100% 76%;
+  }
+
+  .retro {
+    /* CRT Mode - Classic Green Terminal */
+    --background: 0 0% 8%;
+    --foreground: 120 100% 85%;
+    --card: 0 0% 12%;
+    --card-foreground: 120 100% 85%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 120 100% 85%;
+    --primary: 120 100% 50%;
+    --primary-foreground: 0 0% 8%;
+    --secondary: 120 100% 35%;
+    --secondary-foreground: 120 100% 85%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 120 50% 60%;
+    --accent: 120 100% 40%;
+    --accent-foreground: 120 100% 95%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 120 50% 25%;
+    --input: 120 50% 25%;
+    --ring: 120 100% 50%;
+    --radius: 0.25rem;
+  }
+
+  .upside_down {
+    /* Upside Down - Stranger Things Vibe */
+    --background: 240 20% 2%;
+    --foreground: 0 5% 94%;
+    --card: 240 18% 5%;
+    --card-foreground: 0 5% 94%;
+    --popover: 240 20% 4%;
+    --popover-foreground: 0 5% 94%;
+    --primary: 0 100% 58%;
+    --primary-foreground: 0 5% 94%;
+    --secondary: 15 100% 55%;
+    --secondary-foreground: 0 5% 94%;
+    --muted: 240 15% 10%;
+    --muted-foreground: 0 10% 75%;
+    --accent: 15 100% 55%;
+    --accent-foreground: 0 5% 94%;
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 5% 94%;
+    --border: 240 15% 12%;
+    --input: 240 15% 12%;
+    --ring: 0 100% 58%;
+    --radius: 0.5rem;
+
+    /* Expressive Tokens */
+    --font-display: 'Impact', 'Montserrat', sans-serif;
+    --letter-display: 0.02em;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --btn-shape: 8px;
+    --tab-shape: 8px;
+    --shadow-1: 0 4px 18px rgba(255,43,43,.18);
+    --shadow-2: 0 8px 36px rgba(255,122,26,.22);
+    --inner-glow: inset 0 0 18px rgba(255,43,43,.12);
+    --active-underline: linear-gradient(90deg,hsl(0 100% 58%),hsl(15 100% 55%));
+    --img-filter: contrast(1.05) saturate(1.05) drop-shadow(0 0 8px rgba(255,43,43,.15));
+    --fx-overlay: radial-gradient(80vmax 60vmax at 80% 20%, rgba(255,43,43,.07), transparent 60%), radial-gradient(60vmax 40vmax at 10% 80%, rgba(255,122,26,.06), transparent 60%);
+  }
+
+  .saturday_cartoons {
+    /* Saturday Cartoons - Retro Palette */
+    --background: 37 100% 97%;
+    --foreground: 248 62% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 248 62% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 248 62% 12%;
+    --primary: 335 97% 72%;
+    --primary-foreground: 248 62% 12%;
+    --secondary: 39 100% 70%;
+    --secondary-foreground: 248 62% 12%;
+    --muted: 37 100% 94%;
+    --muted-foreground: 248 35% 40%;
+    --accent: 196 98% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 7 99% 63%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 37 100% 88%;
+    --input: 37 100% 88%;
+    --ring: 335 97% 72%;
+    --radius: 1.125rem;
+
+    /* Extended Palette */
+    --cereal-orange: 7 99% 63%;
+    --toy-purple: 258 61% 44%;
+    --box-green: 162 100% 30%;
+
+    /* Expressive Tokens */
+    --font-display: 'Fredoka', 'Montserrat', sans-serif;
+    --font-weight-display: 800;
+    --letter-display: 0.015em;
+    --radius-sm: 14px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
+    --btn-shape: 20px;
+    --tab-shape: 16px;
+    --stroke-width: 2.5px;
+    --stroke-style: solid;
+    --shadow-1: 0 6px 0 rgba(0,0,0,.08), 0 12px 22px rgba(0,0,0,.10);
+    --shadow-2: 0 10px 0 rgba(0,0,0,.10), 0 20px 36px rgba(0,0,0,.12);
+    --active-underline: linear-gradient(90deg,hsl(335 97% 72%),hsl(39 100% 70%),hsl(196 98% 42%));
+    --img-filter: saturate(1.12) contrast(1.02);
+    --fx-overlay: radial-gradient(circle at 12% 18%, rgba(255,197,103,.20) 0 18%, transparent 19%) 0 0/240px 240px, radial-gradient(circle at 82% 30%, rgba(5,140,215,.18) 0 20%, transparent 21%) 0 0/360px 360px;
+  }
+
+  .blue_crystal {
+    /* Blue Crystal - Breaking Bad */
+    --background: 205 60% 6%;
+    --foreground: 195 100% 95%;
+    --card: 205 55% 10%;
+    --card-foreground: 195 100% 95%;
+    --popover: 205 60% 8%;
+    --popover-foreground: 195 100% 95%;
+    --primary: 195 100% 55%;
+    --primary-foreground: 195 100% 95%;
+    --secondary: 190 100% 72%;
+    --secondary-foreground: 205 55% 10%;
+    --muted: 205 40% 14%;
+    --muted-foreground: 195 30% 72%;
+    --accent: 190 100% 72%;
+    --accent-foreground: 205 55% 10%;
+    --destructive: 350 80% 68%;
+    --destructive-foreground: 195 100% 95%;
+    --border: 205 45% 16%;
+    --input: 205 45% 16%;
+    --ring: 195 100% 55%;
+    --radius: 0.5rem;
+
+    /* Expressive Tokens */
+    --font-display: 'Inter', sans-serif;
+    --letter-display: 0.005em;
+    --radius-sm: 12px;
+    --radius-md: 14px;
+    --radius-lg: 16px;
+    --btn-shape: 14px;
+    --tab-shape: 14px;
+    --shadow-1: 0 6px 24px rgba(25,180,255,.14);
+    --shadow-2: 0 12px 48px rgba(25,180,255,.18);
+    --inner-glow: inset 0 0 1px hsl(190 100% 72%);
+    --active-underline: linear-gradient(90deg,hsl(195 100% 55%),hsl(190 100% 72%));
+    --img-filter: contrast(1.05) saturate(1.08);
+    --fx-overlay: radial-gradient(60vmax 40vmax at 10% 20%, rgba(25,180,255,.10), transparent 60%);
+  }
+
+  /* CRT Effects */
+  .retro body::before {
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 0, 0.03) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 255, 0, 0.03) 3px
+      );
+    opacity: 0.8;
+  }
+
+  .retro * {
+    text-shadow: 0 0 2px rgba(0, 255, 0, 0.3);
+  }
+
+  /* Hide Lovable Badge */
+  #lovable-badge,
+  .lovable-edit-tab {
+    display: none !important;
   }
 }
 
@@ -71,89 +281,34 @@
   * {
     @apply border-border;
   }
-  
+
   body {
-    @apply bg-background text-foreground font-sans;
-    position: relative;
+    @apply bg-background text-foreground;
+    font-family: var(--font-ui);
+    letter-spacing: var(--letter-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
-  /* Scanline effect overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.15),
-      rgba(0, 0, 0, 0.15) 1px,
-      transparent 1px,
-      transparent 2px
-    );
-    opacity: 0.3;
-  }
-  
-  /* Static noise animation */
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9998;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    animation: noise 0.2s infinite;
-  }
-  
-  @keyframes noise {
-    0%, 100% { opacity: 0.03; }
-    50% { opacity: 0.06; }
-  }
-  
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 700;
+    letter-spacing: var(--letter-display);
+    font-weight: var(--font-weight-display);
     text-transform: uppercase;
   }
-  
-  /* Wordmark - Upside Down Style */
+
+  /* Wordmark - Bold Geometric Typography */
   .wordmark {
-    font-family: 'Nosifer', 'Creepster', serif;
-    font-weight: 700;
+    font-family: 'Archivo Black', 'Montserrat', sans-serif;
+    font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
+  }
+
+  /* Upside Down Wordmark */
+  .upside_down .wordmark {
     transform: rotate(180deg);
     display: inline-block;
-    filter: drop-shadow(0 0 4px hsl(var(--primary))) drop-shadow(0 0 8px hsl(var(--primary)));
-    animation: glow-pulse 2s ease-in-out infinite;
-    position: relative;
-  }
-  
-  /* Red lines above and below wordmark */
-  .wordmark::before,
-  .wordmark::after {
-    content: '';
-    position: absolute;
-    left: -20px;
-    right: -20px;
-    height: 2px;
-    background: hsl(var(--primary));
-    box-shadow: 0 0 8px hsl(var(--primary));
-  }
-  
-  .wordmark::before {
-    top: -8px;
-  }
-  
-  .wordmark::after {
-    bottom: -8px;
   }
   
   /* Touch-friendly tap targets */
@@ -171,10 +326,276 @@
   * {
     -webkit-overflow-scrolling: touch;
   }
+  /* Smooth scrolling on mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
-/* Hide Lovable Badge */
-#lovable-badge,
-.lovable-edit-tab {
-  display: none !important;
+@layer utilities {
+  /* No gradients - flat Y2K aesthetic */
+
+  /* Flat Interactive Hover */
+  .hover-lift {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Flat Card - Y2K Cartoon Style */
+  .card-flat {
+    background: hsl(var(--card));
+    border: 3px solid hsl(var(--border));
+    border-radius: var(--radius-md);
+    transition: transform 0.2s ease;
+  }
+
+  .card-flat:hover {
+    transform: translateY(-3px);
+  }
+
+  /* Active Tab Indicator - Flat */
+  .tab-active {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .tab-inactive {
+    background: transparent;
+    color: hsl(var(--muted-foreground));
+    border: 2px solid hsl(var(--border));
+  }
+
+  .tab-inactive:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    color: hsl(var(--foreground));
+  }
+
+  /* Profile Ring - Thick Cartoon Outline */
+  .profile-ring {
+    border: 4px solid hsl(var(--border));
+  }
+
+  .profile-ring-secondary {
+    border: 4px solid hsl(var(--border));
+  }
+
+  /* No gradient text - solid colors only */
+
+  /* Modern Button Effects - No Shadows */
+  .btn-flat {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-flat:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  .btn-flat:active {
+    transform: translateY(0);
+    filter: brightness(0.95);
+  }
+
+  /* Pill Shape */
+  .pill {
+    border-radius: 9999px;
+  }
+
+  /* Flat Banner with Grain */
+  .banner-grain {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .banner-grain::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.0' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.2;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  .banner-grain > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Spotify-style Heading */
+  .heading-spotify {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+
+  /* Y2K Flat Component Styling */
+  .card {
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    border: 3px solid hsl(var(--border));
+    transition: all var(--dur-med) var(--ease-ui);
+  }
+
+  .btn {
+    border-radius: var(--btn-shape);
+    border: 3px solid hsl(var(--border));
+    transition: all var(--dur-med) var(--ease-ui);
+  }
+
+  .tab {
+    border-radius: var(--tab-shape);
+    position: relative;
+  }
+
+  .tab-active::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: -2px;
+    height: 3px;
+    background: var(--active-underline);
+    border-radius: 3px;
+  }
+
+  .poster img {
+    filter: var(--img-filter);
+  }
+
+  .app-overlay {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: var(--fx-overlay);
+  }
+
+  /* Upside Down Theme Specific Effects */
+  .upside_down .card {
+    box-shadow: var(--shadow-2), var(--inner-glow);
+  }
+
+  .upside_down .btn-primary,
+  .upside_down button[class*="bg-primary"] {
+    background: linear-gradient(180deg, rgba(255, 43, 43, 0.85), rgba(255, 122, 26, 0.85));
+    border: 1px solid rgba(255, 122, 26, 0.55);
+    box-shadow: 0 0 12px rgba(255, 43, 43, 0.25);
+  }
+
+  .upside_down .tab-active {
+    text-shadow: 0 0 8px rgba(255, 43, 43, 0.5);
+  }
+
+  /* Saturday Cartoons Theme Specific Effects */
+  .saturday_cartoons .card {
+    border: var(--stroke-width) var(--stroke-style) hsl(var(--border));
+    box-shadow: var(--shadow-2);
+  }
+
+  .saturday_cartoons .btn-primary,
+  .saturday_cartoons button[class*="bg-primary"] {
+    border-radius: 24px;
+    background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--secondary)));
+    border: 2px solid rgba(25, 23, 38, 0.1);
+    box-shadow: 0 6px 0 rgba(25, 23, 38, 0.2), 0 14px 30px rgba(0, 0, 0, 0.18);
+  }
+
+  .saturday_cartoons .badge {
+    background: #fff;
+    border: 3px solid hsl(var(--foreground));
+    border-radius: 18px;
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* Saturday Morning Wavy Background */
+  .sat-am-waves {
+    position: relative;
+    z-index: 0;
+    height: 140px;
+    margin: 0 -16px 8px;
+    border-radius: 20px;
+    background-color: hsl(var(--background));
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 200' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='%23fff8f1'/%3E%3Cpath d='M0,25 C70,5 140,45 210,25 C280,5 350,45 390,25' fill='none' stroke='%23FB7DA8' stroke-width='22' stroke-linecap='round' opacity='0.95'/%3E%3Cpath d='M0,25 C70,5 140,45 210,25 C280,5 350,45 390,25' fill='none' stroke='%23ffa6c8' stroke-width='10' stroke-linecap='round' opacity='0.95'/%3E%3Cpath d='M-10,95 C60,75 130,115 200,95 C270,75 340,115 400,95' fill='none' stroke='%23FD5A46' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M-10,95 C60,75 130,115 200,95 C270,75 340,115 400,95' fill='none' stroke='%23ff8a78' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M-10,155 C60,135 130,175 200,155 C270,135 340,175 400,155' fill='none' stroke='%2300995E' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M-10,155 C60,135 130,175 200,155 C270,135 340,175 400,155' fill='none' stroke='%2374d1a9' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M0,185 C70,165 140,205 210,185 C280,165 350,205 390,185' fill='none' stroke='%23058CD7' stroke-width='22' stroke-linecap='round'/%3E%3Cpath d='M0,185 C70,165 140,205 210,185 C280,165 350,205 390,185' fill='none' stroke='%2397d8ff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-1);
+    display: none;
+  }
+
+  .saturday_cartoons .sat-am-waves {
+    display: block;
+  }
+
+  /* Blue Crystal Theme Specific Effects */
+  .blue_crystal .card {
+    background: linear-gradient(180deg, rgba(14, 34, 51, 0.65), rgba(14, 34, 51, 0.85));
+    backdrop-filter: blur(9px) saturate(1.1);
+    border: 1px solid hsl(205 45% 16%);
+    box-shadow: var(--shadow-1), var(--inner-glow);
+  }
+
+  .blue_crystal .btn-primary,
+  .blue_crystal button[class*="bg-primary"] {
+    background: linear-gradient(180deg, rgba(25, 180, 255, 0.95), rgba(14, 34, 51, 0.95));
+    border: 1px solid hsl(195 100% 55%);
+    box-shadow: inset 0 0 0.5px hsl(190 100% 72%), 0 0 12px rgba(25, 180, 255, 0.35);
+  }
+
+  /* Theme-specific hover animations */
+  @media (prefers-reduced-motion: no-preference) {
+    .upside_down .btn-primary:hover,
+    .upside_down button[class*="bg-primary"]:hover {
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    .saturday_cartoons .btn-primary:hover,
+    .saturday_cartoons button[class*="bg-primary"]:hover {
+      transform: translateY(-2px);
+    }
+
+    .saturday_cartoons .tab-active {
+      animation: pop 0.28s var(--ease-ui);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.94); }
+      100% { transform: scale(1); }
+    }
+
+    .blue_crystal .btn-primary:hover,
+    .blue_crystal button[class*="bg-primary"]:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .blue_crystal .tab-active {
+      box-shadow: 0 0 10px rgba(25, 180, 255, 0.35);
+    }
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    .app-overlay {
+      opacity: 0.3;
+    }
+  }
+
+  /* Focus Visibility */
+  :focus-visible {
+    outline: 2px solid hsl(var(--accent));
+    outline-offset: 2px;
+  }
 }
