@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Bookmark, Trash2, Search, Plus, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB } from '@/hooks/useTVDB';
+import { TrendingShows } from '@/components/TrendingShows';
 
 interface WatchlistItem {
   id: string;
@@ -660,7 +661,12 @@ export default function WatchlistPage() {
               <Card className="p-12 text-center">
                 <p className="text-muted-foreground">No results found for "{searchQuery}"</p>
               </Card>
-            ) : null}
+            ) : (
+              <div className="mt-6">
+                <h2 className="text-xl font-semibold mb-4">Trending Shows</h2>
+                <TrendingShows />
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
