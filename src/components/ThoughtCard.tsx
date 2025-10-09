@@ -314,19 +314,35 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('like')}
-              className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
+              className={`transition-all duration-200 ${
+                localReaction === 'like' 
+                  ? 'text-primary bg-primary/10 hover:bg-primary/20' 
+                  : 'hover:bg-accent/10'
+              }`}
             >
-              <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
-              <span className="text-sm">{localLikes}</span>
+              <Heart className={`h-4 w-4 mr-1 transition-transform ${
+                localReaction === 'like' 
+                  ? 'fill-primary scale-110' 
+                  : ''
+              }`} />
+              <span className="text-sm font-medium">{localLikes}</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleDislike}
-              className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
+              className={`transition-all duration-200 ${
+                localReaction === 'dislike' 
+                  ? 'text-destructive bg-destructive/10 hover:bg-destructive/20' 
+                  : 'hover:bg-accent/10'
+              }`}
             >
-              <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
-              <span className="text-sm">{localDislikes}</span>
+              <ThumbsDown className={`h-4 w-4 mr-1 transition-transform ${
+                localReaction === 'dislike' 
+                  ? 'fill-destructive scale-110' 
+                  : ''
+              }`} />
+              <span className="text-sm font-medium">{localDislikes}</span>
             </Button>
             <Button
               variant="ghost"
