@@ -10,37 +10,36 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Modern High-End Cartoon Aesthetic - "Pixar meets Apple" */
-    --background: 0 0% 100%;         /* Pure White #FFFFFF */
-    --foreground: 0 0% 0%;           /* Jet Black #000000 */
-    --card: 0 0% 99%;                /* Card #FDFDFD */
-    --card-foreground: 0 0% 0%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 0 0% 0%;              /* Black primary */
+    /* The Bear Theme - Chicago Blue & Gold */
+    --background: 0 0% 0%;           /* Pure Black #000000 */
+    --foreground: 0 0% 100%;         /* White text */
+    --card: 210 65% 35%;             /* Chicago Blue #1f5a8a */
+    --card-foreground: 0 0% 100%;    /* White text on blue */
+    --popover: 210 65% 35%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 210 65% 35%;          /* Chicago Blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 47 100% 60%;        /* Sunshine Yellow #FFCF33 */
+    --secondary: 42 88% 55%;         /* Golden Yellow #e0a633 */
     --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 96%;               
-    --muted-foreground: 0 0% 30%;    /* Dark grey text */
-    --accent: 152 84% 41%;           /* Emerald Green #10C974 */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 8 100% 67%;       /* Cereal Red #FF6A5A */
+    --muted: 0 0% 15%;               
+    --muted-foreground: 0 0% 70%;
+    --accent: 42 88% 55%;            /* Golden Yellow accent */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 8 100% 67%;       
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0%;               /* Black outlines */
-    --input: 0 0% 100%;
-    --ring: 47 100% 60%;
-    --radius: 1.5rem;                /* 24px - big rounded corners */
+    --border: 42 88% 55%;            /* Golden Yellow borders */
+    --input: 210 65% 35%;
+    --ring: 42 88% 55%;
+    --radius: 0.5rem;
 
-    /* Cartoon Color Palette */
-    --sunshine-yellow: 47 100% 60%;  /* #FFCF33 */
-    --cereal-red: 8 100% 67%;        /* #FF6A5A */
-    --blueberry-blue: 207 99% 61%;   /* #3C9DFE */
-    --emerald-green: 152 84% 41%;    /* #10C974 */
-    --cotton-candy: 306 95% 80%;     /* #FF9BEA */
+    /* The Bear Color Palette */
+    --chicago-blue: 210 65% 35%;     /* #1f5a8a */
+    --golden-yellow: 42 88% 55%;     /* #e0a633 */
+    --show-card: 0 0% 100%;          /* White for show cards */
+    --show-card-foreground: 0 0% 0%; /* Black text on show cards */
     
     /* Dynamic Show Accent System */
-    --show-accent: 47 100% 60%;
+    --show-accent: 42 88% 55%;
     
     /* Typography - Cartoon Friendly */
     --font-ui: 'Rubik', 'Poppins', 'DM Sans', -apple-system, sans-serif;
@@ -76,7 +75,7 @@ All colors MUST be HSL.
     --dur-slow: 350ms;
 
     /* Effects */
-    --fx-overlay: none;
+    --fx-overlay: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
     --img-filter: saturate(1.1) contrast(1.05);
     --active-underline: none;
     --gradient-vignette: none;
@@ -439,6 +438,20 @@ All colors MUST be HSL.
     letter-spacing: var(--letter-ui);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    position: relative;
+  }
+  
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: overlay;
     position: relative;
   }
 
