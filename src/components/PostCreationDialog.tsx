@@ -107,54 +107,31 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review') {
-        // Detect mature content if there's text
-        const { isMature, reasons } = text.trim() ? detectMatureContent(text) : { isMature: false, reasons: [] };
+        // Parse contentId to get item_type and item_id
+        // Assuming contentId format is either UUID (show) or contains hierarchical info
+        // For now, we'll treat all as 'show' - you may need to adjust based on your ID format
+        const itemType = 'show'; // TODO: detect from contentId format
+        const itemId = contentId;
         
-        // Create review record (with or without text, as long as rating or text exists)
-        const { error: reviewError } = await supabase
-          .from('reviews')
-          .insert({
-            user_id: user.id,
-            content_id: contentId,
-            review_text: text.trim() || null,
-            rating: rating > 0 ? rating : null,
-            is_spoiler: isSpoiler,
-            contains_mature: containsMature || isMature,
-            mature_reasons: containsMature || isMature ? reasons : [],
-          });
+        // Use the new api_rate_and_review function
+        const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
+          p_item_type: itemType,
+          p_item_id: itemId,
+          p_score_any: rating > 0 ? rating.toString() : null,
+          p_review: text.trim() || null,
+          p_is_spoiler: isSpoiler,
+        });
 
         if (reviewError) throw reviewError;
 
-        // Also save rating to ratings table if provided
+        // Log interaction for algorithm (fire and forget)
         if (rating > 0) {
-          console.log('💾 Saving rating:', { user_id: user.id, content_id: contentId, rating });
-          const { error: ratingError, data: ratingData } = await supabase
-            .from('ratings')
-            .upsert({
-              user_id: user.id,
-              content_id: contentId,
-              rating,
-            }, {
-              onConflict: 'user_id,content_id'
-            })
-            .select();
-
-          if (ratingError) {
-            console.error('❌ Rating error:', ratingError);
-            throw ratingError;
-          }
-
-          console.log('✅ Rating saved successfully:', ratingData);
-
-          // Log rating interaction for algorithm
-          await supabase
-            .from('interactions')
-            .insert({
-              user_id: user.id,
-              post_id: contentId,
-              post_type: 'rating',
-              interaction_type: 'rate',
-            });
+          supabase.from('interactions').insert({
+            user_id: user.id,
+            post_id: contentId,
+            post_type: 'rating',
+            interaction_type: 'rate',
+          });
         }
       } else {
         // Save thought
