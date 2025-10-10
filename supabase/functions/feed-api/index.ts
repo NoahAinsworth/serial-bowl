@@ -14,37 +14,32 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     
-    // Get user from auth header
-    const authHeader = req.headers.get('Authorization');
-    
-    let userId: string | null = null;
-    let supabase;
-    
-    if (authHeader) {
-      // Create authenticated client
-      supabase = createClient(supabaseUrl, supabaseAnonKey, {
-        global: {
-          headers: { Authorization: authHeader }
-        }
-      });
-      
-      // Extract user from JWT token
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error } = await supabase.auth.getUser(token);
-      
-      if (error) {
-        console.error('Auth error:', error.message);
-      }
-      
-      userId = user?.id || null;
-    } else {
-      // Create anonymous client
-      supabase = createClient(supabaseUrl, supabaseAnonKey);
-    }
-
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'trending';
     const limit = parseInt(url.searchParams.get('limit') || '20');
+    
+    // Get auth token from header
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    // Create Supabase client with the user's token
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: authHeader ? { Authorization: authHeader } : {}
+      }
+    });
+    
+    // Get user ID from the token
+    let userId: string | null = null;
+    
+    if (token) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      if (authError) {
+        console.error('Auth error:', authError.message);
+      } else if (user) {
+        userId = user.id;
+      }
+    }
 
     console.log(`Fetching feed for tab: ${tab}, user: ${userId || 'anonymous'}`);
 
