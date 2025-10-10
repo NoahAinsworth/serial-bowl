@@ -15,7 +15,7 @@ export default function Home() {
   const navigate = useNavigate();
   const [feedType, setFeedType] = useState('trending');
   const [contentType, setContentType] = useState('all');
-  const { posts, loading, refetch } = useFeed(feedType, contentType);
+  const { posts, loading, error, refetch } = useFeed(feedType, contentType);
   const [userHideSpoilers, setUserHideSpoilers] = useState(true);
   const [strictSafety, setStrictSafety] = useState(false);
 
@@ -149,6 +149,10 @@ export default function Home() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
+          ) : error ? (
+            <div className="p-12 text-center">
+              <p className="text-destructive">Error: {error}</p>
+            </div>
           ) : posts.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-muted-foreground">{currentMessage}</p>
@@ -186,6 +190,10 @@ export default function Home() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
+          ) : error ? (
+            <div className="p-12 text-center">
+              <p className="text-destructive">Error: {error}</p>
+            </div>
           ) : posts.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-muted-foreground">{currentMessage}</p>
@@ -222,6 +230,10 @@ export default function Home() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="p-12 text-center">
+              <p className="text-destructive">Error: {error}</p>
             </div>
           ) : posts.length === 0 ? (
             <div className="p-12 text-center">
