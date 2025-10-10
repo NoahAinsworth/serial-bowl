@@ -57,21 +57,23 @@ export function PostCreationDialog({
       return;
     }
 
-    // Validate with Zod schema
-    try {
-      postSchema.parse({
-        content: text,
-        rating: rating > 0 ? rating : undefined,
-        isSpoiler,
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast({
-          title: "Validation Error",
-          description: error.issues[0].message,
-          variant: "destructive",
+    // Validate with Zod schema - only validate content if there is text
+    if (text.trim()) {
+      try {
+        postSchema.parse({
+          content: text,
+          rating: rating > 0 ? rating : undefined,
+          isSpoiler,
         });
-        return;
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          toast({
+            title: "Validation Error",
+            description: error.issues[0].message,
+            variant: "destructive",
+          });
+          return;
+        }
       }
     }
 
