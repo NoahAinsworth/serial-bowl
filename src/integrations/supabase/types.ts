@@ -1132,6 +1132,78 @@ export type Database = {
       }
     }
     Views: {
+      feed_following: {
+        Row: {
+          author_id: string | null
+          comments: number | null
+          created_at: string | null
+          dislikes: number | null
+          id: string | null
+          likes: number | null
+          post_type: string | null
+          rank_score: number | null
+          rating: number | null
+          reshares: number | null
+          show_id: string | null
+          text: string | null
+          views: number | null
+        }
+        Relationships: []
+      }
+      feed_for_you: {
+        Row: {
+          author_id: string | null
+          comments: number | null
+          created_at: string | null
+          dislikes: number | null
+          id: string | null
+          likes: number | null
+          post_type: string | null
+          rank_score: number | null
+          rating: number | null
+          reshares: number | null
+          show_id: string | null
+          text: string | null
+          views: number | null
+        }
+        Relationships: []
+      }
+      feed_hot_takes: {
+        Row: {
+          author_id: string | null
+          comments: number | null
+          created_at: string | null
+          dislikes: number | null
+          id: string | null
+          likes: number | null
+          post_type: string | null
+          rank_score: number | null
+          rating: number | null
+          reshares: number | null
+          show_id: string | null
+          text: string | null
+          views: number | null
+        }
+        Relationships: []
+      }
+      feed_trending: {
+        Row: {
+          author_id: string | null
+          comments: number | null
+          created_at: string | null
+          dislikes: number | null
+          id: string | null
+          likes: number | null
+          post_type: string | null
+          rank_score: number | null
+          rating: number | null
+          reshares: number | null
+          show_id: string | null
+          text: string | null
+          views: number | null
+        }
+        Relationships: []
+      }
       v_post_popularity: {
         Row: {
           comments: number | null
@@ -1162,12 +1234,32 @@ export type Database = {
       }
     }
     Functions: {
+      attention_score: {
+        Args: {
+          created: string
+          dislikes: number
+          half_life_hours?: number
+          impressions: number
+          likes: number
+          replies: number
+          reshares: number
+        }
+        Returns: number
+      }
+      exp_decay: {
+        Args: { created: string; half_life_hours: number }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      wilson_lower_bound: {
+        Args: { dislikes: number; likes: number }
+        Returns: number
       }
     }
     Enums: {

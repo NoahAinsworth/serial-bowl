@@ -26,7 +26,7 @@ interface FeedPost {
   score?: number;
 }
 
-export function useFeed(feedType: string, contentType: string = 'all') {
+export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-takes', contentType: string = 'all') {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
