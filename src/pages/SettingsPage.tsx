@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,7 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const location = useLocation();
   
   const [settings, setSettings] = useState({
     privacy: {
@@ -42,6 +44,27 @@ export default function SettingsPage() {
     description: '',
     userOrLink: '',
   });
+
+  const [activeTab, setActiveTab] = useState('preferences');
+  const [openAccordion, setOpenAccordion] = useState<string | undefined>();
+
+  // Handle navigation from report action
+  useEffect(() => {
+    if (location.state?.openTab === 'legal') {
+      setActiveTab('legal');
+      if (location.state?.scrollTo === 'report') {
+        setOpenAccordion('report');
+        // Pre-fill report form if data is provided
+        if (location.state?.reportData) {
+          setReportForm({
+            reason: location.state.reportData.reason || '',
+            description: location.state.reportData.description || '',
+            userOrLink: location.state.reportData.userOrLink || '',
+          });
+        }
+      }
+    }
+  }, [location.state]);
 
   useEffect(() => {
     loadSettings();
@@ -131,7 +154,7 @@ export default function SettingsPage() {
     <div className="container max-w-2xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
       <h1 className="text-3xl font-bold neon-glow">Settings</h1>
 
-      <Tabs defaultValue="preferences" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
           <TabsTrigger value="legal">Legal & Community</TabsTrigger>
@@ -282,7 +305,7 @@ export default function SettingsPage() {
 
         <TabsContent value="legal" className="space-y-6 mt-6">
           <Card className="p-6">
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" value={openAccordion} onValueChange={setOpenAccordion}>
               <AccordionItem value="terms">
                 <AccordionTrigger className="text-lg font-semibold">Terms of Service</AccordionTrigger>
                 <AccordionContent className="space-y-3 text-foreground">

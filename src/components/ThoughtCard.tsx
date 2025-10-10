@@ -96,7 +96,17 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
   };
 
   const handleReport = () => {
-    navigate('/settings', { state: { openTab: 'legal', scrollTo: 'report' } });
+    navigate('/settings', { 
+      state: { 
+        openTab: 'legal', 
+        scrollTo: 'report',
+        reportData: {
+          reason: '',
+          description: `Reported post by ${thought.user.handle}:\n\n"${thought.content}"`,
+          userOrLink: thought.user.handle,
+        }
+      } 
+    });
   };
 
   if (hidden && !showUndo) return null;

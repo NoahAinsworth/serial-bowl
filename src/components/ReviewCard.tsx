@@ -73,7 +73,17 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
   };
 
   const handleReport = () => {
-    navigate('/settings', { state: { openTab: 'legal', scrollTo: 'report' } });
+    navigate('/settings', { 
+      state: { 
+        openTab: 'legal', 
+        scrollTo: 'report',
+        reportData: {
+          reason: '',
+          description: `Reported review by ${review.user.handle}${review.content ? ` for ${review.content.title}` : ''}:\n\n"${review.text}"${review.rating ? `\n\nRating: ${review.rating}%` : ''}`,
+          userOrLink: review.user.handle,
+        }
+      } 
+    });
   };
 
   if (hidden && !showUndo) return null;
