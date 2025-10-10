@@ -21,6 +21,7 @@ interface FeedPost {
   dislikes: number;
   comments: number;
   rethinks: number;
+  userReaction?: 'like' | 'dislike';
   created_at: string;
   score?: number;
 }
