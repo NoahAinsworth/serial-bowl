@@ -124,11 +124,13 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 src={cerealBowlLogo} 
                 alt="Serial Bowl" 
                 className="h-16 w-16 dark:hidden"
+                style={{ display: theme === 'upside_down' ? 'none' : '' }}
               />
               <img 
                 src={cerealBowlLogoWhite} 
                 alt="Serial Bowl" 
                 className="h-16 w-16 hidden dark:block"
+                style={{ display: theme === 'upside_down' ? 'block' : '' }}
               />
             </>
           )}
