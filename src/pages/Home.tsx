@@ -15,7 +15,7 @@ export default function Home() {
   const navigate = useNavigate();
   const [feedType, setFeedType] = useState('trending');
   const [contentType, setContentType] = useState('all');
-  const { posts, loading, error, refetch } = useFeed(feedType, contentType);
+  const { posts, loading, refetch } = useFeed(feedType, contentType);
   const [userHideSpoilers, setUserHideSpoilers] = useState(true);
   const [strictSafety, setStrictSafety] = useState(false);
 
@@ -127,15 +127,15 @@ export default function Home() {
         </TabsList>
 
         {/* Content Type Tabs */}
-        <div className="sticky top-[52px] z-10 bg-background/80 backdrop-blur-lg border-b border-border/30 py-2 px-4">
+        <div className="sticky top-[52px] z-10 bg-background/80 backdrop-blur-lg border-b border-border/30">
           <Tabs value={contentType} onValueChange={setContentType} className="w-full">
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="thoughts">
+            <TabsList className="w-full grid grid-cols-3 rounded-none bg-transparent">
+              <TabsTrigger value="all" className="rounded-none">All</TabsTrigger>
+              <TabsTrigger value="thoughts" className="rounded-none">
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Thoughts
               </TabsTrigger>
-              <TabsTrigger value="reviews">
+              <TabsTrigger value="reviews" className="rounded-none">
                 <Star className="h-4 w-4 mr-2" />
                 Reviews
               </TabsTrigger>
@@ -148,10 +148,6 @@ export default function Home() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : error ? (
-            <div className="p-12 text-center">
-              <p className="text-destructive">Error: {error}</p>
             </div>
           ) : posts.length === 0 ? (
             <div className="p-12 text-center">
@@ -190,10 +186,6 @@ export default function Home() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : error ? (
-            <div className="p-12 text-center">
-              <p className="text-destructive">Error: {error}</p>
-            </div>
           ) : posts.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-muted-foreground">{currentMessage}</p>
@@ -230,10 +222,6 @@ export default function Home() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : error ? (
-            <div className="p-12 text-center">
-              <p className="text-destructive">Error: {error}</p>
             </div>
           ) : posts.length === 0 ? (
             <div className="p-12 text-center">

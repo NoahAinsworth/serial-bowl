@@ -14,8 +14,10 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     
+    // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     
+    // Create client with user's token to respect RLS
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: authHeader ? { Authorization: authHeader } : {}
@@ -24,8 +26,7 @@ Deno.serve(async (req) => {
 
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'trending';
-    const contentType = url.searchParams.get('contentType') || 'all';
-    const limit = 50;
+    const limit = parseInt(url.searchParams.get('limit') || '20');
     
     let userId: string | null = null;
     
@@ -34,206 +35,418 @@ Deno.serve(async (req) => {
       userId = user?.id || null;
     }
 
-    console.log(`Feed: tab=${tab}, type=${contentType}, user=${userId || 'anon'}`);
+    console.log(`Fetching feed for tab: ${tab}, user: ${userId || 'anonymous'}`);
 
-    // Get thoughts and reviews separately
-    let allPosts: any[] = [];
+    let posts: any[] = [];
 
-    if (contentType === 'all' || contentType === 'thoughts') {
-      const { data: thoughts } = await supabase
-        .from('thoughts')
-        .select(`
-          id,
-          user_id,
-          text_content,
-          is_spoiler,
-          created_at,
-          content_id,
-          profiles!thoughts_user_id_fkey (
-            id,
-            handle,
-            avatar_url
-          ),
-          content (
-            id,
-            title,
-            poster_url,
-            external_id,
-            kind,
-            metadata
-          )
-        `)
-        .eq('moderation_status', 'approved')
+    if (tab === 'trending') {
+      // Global trending - get all posts and calculate scores
+      const { data: allPosts } = await supabase
+        .from('v_posts')
+        .select('*')
         .order('created_at', { ascending: false })
-        .limit(limit);
+        .limit(100);
 
-      if (thoughts) {
-        allPosts.push(...thoughts.map(t => ({ ...t, type: 'thought' })));
-      }
-    }
-
-    if (contentType === 'all' || contentType === 'reviews') {
-      const { data: reviews } = await supabase
-        .from('reviews')
-        .select(`
-          id,
-          user_id,
-          review_text,
-          rating,
-          is_spoiler,
-          created_at,
-          content_id,
-          profiles!reviews_user_id_fkey (
-            id,
-            handle,
-            avatar_url
-          ),
-          content (
-            id,
-            title,
-            poster_url,
-            external_id,
-            kind,
-            metadata
-          )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (reviews) {
-        allPosts.push(...reviews.map(r => ({ ...r, type: 'review' })));
-      }
-    }
-
-    // Filter by following if needed
-    if (tab === 'following') {
-      if (!userId) {
-        return new Response(
-          JSON.stringify({ tab, posts: [], count: 0 }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      const { data: follows } = await supabase
-        .from('follows')
-        .select('following_id')
-        .eq('follower_id', userId)
-        .eq('status', 'accepted');
-
-      if (!follows || follows.length === 0) {
-        return new Response(
-          JSON.stringify({ tab, posts: [], count: 0 }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      const followingIds = follows.map(f => f.following_id);
-      allPosts = allPosts.filter(p => followingIds.includes(p.user_id));
-    }
-
-    // Sort by created_at
-    allPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-    // Calculate scores and add interaction counts
-    const now = new Date();
-    const hydratedPosts = await Promise.all(
-      allPosts.slice(0, limit).map(async (post) => {
-        try {
-          // Get reactions
+      if (allPosts && allPosts.length > 0) {
+        const now = new Date();
+        
+        // Fetch interaction counts for each post
+        const scoredPosts = await Promise.all(allPosts.map(async (p) => {
           const { data: reactions } = await supabase
             .from('reactions')
             .select('reaction_type')
-            .eq('thought_id', post.id);
-
-          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+            .eq('thought_id', p.id);
           
-          const { count: dislikeCount } = await supabase
-            .from('thought_dislikes')
-            .select('*', { count: 'exact', head: true })
-            .eq('thought_id', post.id);
-          
-          const dislikes = dislikeCount || 0;
-
           const { data: comments } = await supabase
             .from('comments')
             .select('id')
-            .eq('thought_id', post.id);
-
+            .eq('thought_id', p.id);
+          
+          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+          const { count: dislikeCount } = await supabase
+            .from('thought_dislikes')
+            .select('*', { count: 'exact', head: true })
+            .eq('thought_id', p.id);
+          const dislikes = dislikeCount || 0;
           const commentCount = comments?.length || 0;
 
-          // Calculate score
-          let score = 0;
-          if (tab === 'trending') {
-            const createdAt = new Date(post.created_at);
-            const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
-            const numerator = (likes * 3) - (dislikes * 2) + commentCount;
-            const denominator = Math.pow(ageHours + 2, 1.3);
-            score = numerator / denominator;
-          } else if (tab === 'hot-takes' || tab === 'hot') {
-            score = dislikes - likes;
-          }
-
-          // Check user reaction
-          let userReaction: 'like' | 'dislike' | undefined = undefined;
-          if (userId) {
-            const { data: userLike } = await supabase
-              .from('reactions')
-              .select('reaction_type')
-              .eq('thought_id', post.id)
-              .eq('user_id', userId)
-              .eq('reaction_type', 'like')
-              .maybeSingle();
-
-            const { data: userDislike } = await supabase
-              .from('thought_dislikes')
-              .select('id')
-              .eq('thought_id', post.id)
-              .eq('user_id', userId)
-              .maybeSingle();
-
-            if (userLike) userReaction = 'like';
-            else if (userDislike) userReaction = 'dislike';
-          }
-
+          const createdAt = new Date(p.created_at);
+          const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+          
+          // score = (like_count * 3 – dislike_count * 2 + comment_count) / POWER(age_hours + 2, 1.3)
+          const numerator = (likes * 3) - (dislikes * 2) + commentCount;
+          const denominator = Math.pow(ageHours + 2, 1.3);
+          const score = numerator / denominator;
+          
           return {
-            id: post.id,
-            type: post.type,
-            user: post.profiles,
-            content: post.content,
-            text: post.type === 'thought' ? post.text_content : post.review_text,
-            is_spoiler: post.is_spoiler || false,
-            rating: post.type === 'review' ? post.rating : null,
+            post_id: p.id,
+            post_type: p.type,
+            created_at: p.created_at,
             likes,
             dislikes,
             comments: commentCount,
-            rethinks: 0,
-            userReaction,
-            created_at: post.created_at,
+            reshares: 0,
+            views: 0,
             score
           };
-        } catch (err) {
-          console.error('Error hydrating post:', post.id, err);
-          return null;
+        }));
+
+        scoredPosts.sort((a, b) => b.score - a.score);
+        posts = scoredPosts.slice(0, limit);
+      }
+
+    } else if (tab === 'hot-takes' || tab === 'hot') {
+      // Hot Takes - where dislikes > likes
+      const { data: allPosts } = await supabase
+        .from('v_posts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (allPosts && allPosts.length > 0) {
+        // Fetch interaction counts for each post
+        const scoredPosts = await Promise.all(allPosts.map(async (p) => {
+          const { data: reactions } = await supabase
+            .from('reactions')
+            .select('reaction_type')
+            .eq('thought_id', p.id);
+          
+          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+          const { count: dislikeCount } = await supabase
+            .from('thought_dislikes')
+            .select('*', { count: 'exact', head: true })
+            .eq('thought_id', p.id);
+          const dislikes = dislikeCount || 0;
+
+          return {
+            post_id: p.id,
+            post_type: p.type,
+            created_at: p.created_at,
+            likes,
+            dislikes,
+            comments: 0,
+            reshares: 0,
+            views: 0,
+            score: dislikes
+          };
+        }));
+
+        // Filter for dislikes > likes and sort
+        const hotTakes = scoredPosts
+          .filter(p => p.dislikes > p.likes)
+          .sort((a, b) => {
+            if (b.score !== a.score) {
+              return b.score - a.score;
+            }
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          });
+
+        posts = hotTakes.slice(0, limit);
+      }
+
+    } else if (tab === 'reviews') {
+      // Reviews only - get all reviews and calculate scores
+      const { data: allPosts } = await supabase
+        .from('v_posts')
+        .select('*')
+        .eq('type', 'review')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (allPosts && allPosts.length > 0) {
+        const now = new Date();
+        
+        const scoredPosts = await Promise.all(allPosts.map(async (p) => {
+          const { data: reactions } = await supabase
+            .from('reactions')
+            .select('reaction_type')
+            .eq('thought_id', p.id);
+          
+          const { data: comments } = await supabase
+            .from('comments')
+            .select('id')
+            .eq('thought_id', p.id);
+          
+          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+          const { count: dislikeCount } = await supabase
+            .from('thought_dislikes')
+            .select('*', { count: 'exact', head: true })
+            .eq('thought_id', p.id);
+          const dislikes = dislikeCount || 0;
+          const commentCount = comments?.length || 0;
+
+          const createdAt = new Date(p.created_at);
+          const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+          const numerator = (likes * 3) - (dislikes * 2) + commentCount;
+          const denominator = Math.pow(ageHours + 2, 1.3);
+          
+          return {
+            post_id: p.id,
+            post_type: p.type,
+            created_at: p.created_at,
+            likes,
+            dislikes,
+            comments: commentCount,
+            reshares: 0,
+            views: 0,
+            score: numerator / denominator
+          };
+        }));
+
+        scoredPosts.sort((a, b) => b.score - a.score);
+        posts = scoredPosts.slice(0, limit);
+      }
+
+    } else if (tab === 'following') {
+      // Following feed - posts from users you follow, newest first
+      if (!userId) {
+        posts = [];
+      } else {
+        // Get list of users the current user follows
+        const { data: follows } = await supabase
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', userId)
+          .eq('status', 'accepted');
+
+        if (follows && follows.length > 0) {
+          const followingIds = follows.map(f => f.following_id);
+          
+          // Get posts from followed users via v_posts
+          const { data: followedPosts } = await supabase
+            .from('v_posts')
+            .select('*')
+            .in('author_id', followingIds)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+          if (followedPosts && followedPosts.length > 0) {
+            // Map to popularity format
+            posts = followedPosts.map(p => ({
+              post_id: p.id,
+              post_type: p.type,
+              created_at: p.created_at,
+              likes: 0,
+              dislikes: 0,
+              comments: 0,
+              reshares: 0,
+              views: 0,
+              score: 0
+            }));
+          }
         }
+      }
+    } else if (tab === 'binge') {
+      // Personalized feed
+      if (!userId) {
+        // Not logged in - use trending instead
+        const { data: trending } = await supabase
+          .from('v_post_popularity')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100);
+
+        if (trending) {
+          const now = new Date();
+          const scored = trending.map(p => {
+            const createdAt = new Date(p.created_at);
+            const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+            const base = 3 * p.likes + 4 * p.comments + 5 * p.reshares + 0.25 * p.views - 6 * p.dislikes;
+            const decay = Math.exp(-ageHours / 36);
+            return {
+              ...p,
+              score: base * decay
+            };
+          });
+
+          scored.sort((a, b) => b.score - a.score);
+          posts = scored.slice(0, limit);
+        }
+      } else {
+        // Check if we have recent scores (< 10 minutes old)
+        const { data: recentScores } = await supabase
+          .from('feed_scores')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('computed_at', new Date(Date.now() - 10 * 60 * 1000).toISOString())
+          .order('score', { ascending: false })
+          .limit(limit);
+
+        if (recentScores && recentScores.length >= 10) {
+          // Use cached scores
+          posts = recentScores;
+        } else {
+          // Trigger async refresh using anon key
+          const supabaseServiceUrl = Deno.env.get('SUPABASE_URL')!;
+          const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+          
+          fetch(`${supabaseServiceUrl}/functions/v1/compute-feed-scores`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId })
+          }).catch(err => console.error('Background refresh failed:', err));
+
+          // Return current cache or fallback to trending
+          if (recentScores && recentScores.length > 0) {
+            posts = recentScores;
+          } else {
+            // No personalized content yet - use trending
+            const { data: trending } = await supabase
+              .from('v_post_popularity')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(100);
+            
+            if (trending) {
+              const now = new Date();
+              const scored = trending.map(p => {
+                const createdAt = new Date(p.created_at);
+                const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+                const base = 3 * p.likes + 4 * p.comments + 5 * p.reshares + 0.25 * p.views - 6 * p.dislikes;
+                const decay = Math.exp(-ageHours / 36);
+                return {
+                  ...p,
+                  score: base * decay
+                };
+              });
+
+              scored.sort((a, b) => b.score - a.score);
+              posts = scored.slice(0, limit);
+            }
+          }
+        }
+      }
+    }
+
+    // Hydrate posts with full data
+    const hydratedPosts = await Promise.all(
+      posts.map(async (p) => {
+        const postId = p.post_id || p.id;
+        const postType = p.post_type || p.type;
+
+        // Get full post data
+        const table = postType === 'thought' ? 'thoughts' : 'reviews';
+        const { data: postData } = await supabase
+          .from(table)
+          .select(`
+            *,
+            profiles!${table}_user_id_fkey (
+              id,
+              handle,
+              avatar_url
+            ),
+            content (
+              id,
+              title,
+              poster_url,
+              external_id,
+              kind,
+              metadata
+            )
+          `)
+          .eq('id', postId)
+          .single();
+
+        if (!postData) return null;
+
+        // Get rating if review
+        let rating = null;
+        if (postType === 'review') {
+          const { data: ratingData } = await supabase
+            .from('ratings')
+            .select('rating')
+            .eq('user_id', postData.user_id)
+            .eq('content_id', postData.content_id)
+            .maybeSingle();
+          rating = ratingData?.rating || null;
+        }
+
+        // Get interaction counts
+        const { data: reactions } = await supabase
+          .from('reactions')
+          .select('reaction_type')
+          .eq('thought_id', postId);
+
+        const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+        const dislikes = reactions?.filter(r => r.reaction_type === 'dislike').length || 0;
+        const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
+
+        const { data: comments } = await supabase
+          .from('comments')
+          .select('id')
+          .eq('thought_id', postId);
+
+        // Check if current user has reacted to this post
+        let userReaction: 'like' | 'dislike' | undefined = undefined;
+        if (userId) {
+          const { data: userLike } = await supabase
+            .from('reactions')
+            .select('reaction_type')
+            .eq('thought_id', postId)
+            .eq('user_id', userId)
+            .eq('reaction_type', 'like')
+            .maybeSingle();
+
+          const { data: userDislike } = await supabase
+            .from('thought_dislikes')
+            .select('id')
+            .eq('thought_id', postId)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (userLike) {
+            userReaction = 'like';
+          } else if (userDislike) {
+            userReaction = 'dislike';
+          }
+        }
+
+        return {
+          id: postId,
+          type: postType,
+          user: postData.profiles,
+          content: postData.content,
+          text: postType === 'thought' ? postData.text_content : postData.review_text,
+          is_spoiler: postData.is_spoiler || false,
+          rating,
+          likes,
+          dislikes,
+          comments: comments?.length || 0,
+          rethinks,
+          userReaction,
+          created_at: postData.created_at,
+          score: p.score
+        };
       })
     );
 
-    let validPosts = hydratedPosts.filter(p => p !== null);
+    const validPosts = hydratedPosts.filter(p => p !== null);
 
-    // Sort and filter based on tab
-    if (tab === 'trending') {
-      validPosts.sort((a, b) => b.score - a.score);
-    } else if (tab === 'hot-takes' || tab === 'hot') {
-      validPosts = validPosts.filter(p => p.dislikes > p.likes);
-      validPosts.sort((a, b) => b.score - a.score);
+    // Log impressions
+    if (userId && validPosts.length > 0) {
+      const impressions = validPosts.map((post, index) => ({
+        user_id: userId,
+        post_id: post.id,
+        post_type: post.type,
+        tab,
+        position: index
+      }));
+
+      const { error: impressionError } = await supabase
+        .from('feed_impressions')
+        .insert(impressions);
+      
+      if (impressionError) {
+        console.error('Failed to log impressions:', impressionError);
+      }
     }
-
-    console.log(`Returning ${validPosts.length} posts`);
 
     return new Response(
       JSON.stringify({ 
         tab,
-        contentType,
         posts: validPosts,
         count: validPosts.length
       }),
@@ -241,9 +454,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Feed error:', error);
+    console.error('Error serving feed:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

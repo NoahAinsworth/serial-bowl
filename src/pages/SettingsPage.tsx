@@ -161,17 +161,6 @@ export default function SettingsPage() {
         </TabsList>
 
         <TabsContent value="preferences" className="space-y-6 mt-6">
-      
-      {/* Link to Legal Page */}
-      <Card className="p-6">
-        <Button 
-          variant="outline" 
-          className="w-full touch-manipulation min-h-[44px]"
-          onClick={() => window.location.href = '/settings/legal'}
-        >
-          View Full Legal & Community Section
-        </Button>
-      </Card>
 
       {/* Appearance */}
       <Card className="p-6 space-y-4">

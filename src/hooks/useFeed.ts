@@ -102,12 +102,13 @@ export function useFeed(feedType: string, contentType: string = 'all') {
         headers['Authorization'] = `Bearer ${session.access_token}`;
       }
 
-      const url = `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${feedType}&contentType=${contentType}`;
-
-      const response = await fetch(url, { 
-        headers,
-        signal: AbortSignal.timeout(10000),
-      });
+      const response = await fetch(
+        `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${feedType}&contentType=${contentType}`,
+        { 
+          headers,
+          signal: AbortSignal.timeout(10000),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

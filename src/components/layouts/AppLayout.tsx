@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, PlusSquare, Smile, Bell, Compass, Bot, Library, Settings } from 'lucide-react';
+import { Home, PlusSquare, Smile, MessageSquare, Compass, Bot, Library, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CerealBowlIcon } from '@/components/CerealBowlIcon';
@@ -79,8 +79,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/', showBadge: false },
     { icon: Compass, label: 'Discover', path: '/discover', showBadge: false },
-    { icon: PlusSquare, label: 'New', path: '/post', showBadge: false },
-    { icon: Bell, label: 'Activity', path: '/activity', showBadge: false },
+    { icon: PlusSquare, label: 'Post', path: '/post', showBadge: false },
+    { icon: MessageSquare, label: 'Messages', path: '/messages', showBadge: unreadDMs > 0 },
     { icon: Smile, label: 'Profile', path: '/profile', showBadge: false, isProfile: true },
   ];
 
@@ -92,7 +92,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <div className="app-overlay" aria-hidden="true"></div>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-background" style={{ paddingTop: 'var(--safe-area-inset-top)' }}>
+      <header className="sticky top-0 z-40 w-full bg-background">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             {theme === 'the_one_with_the_theme' ? (
@@ -145,8 +145,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 w-full bg-background border-t border-border" style={{ paddingBottom: 'var(--safe-area-inset-bottom)' }}>
-        <div className="container flex h-16 items-center justify-around px-4" style={{ minHeight: '44px' }}>
+      <nav className="sticky bottom-0 z-40 w-full bg-background">
+        <div className="container flex h-16 items-center justify-around px-4">
           {navItems.map(({ icon: Icon, label, path, showBadge, isProfile }) => (
             <Link
               key={path}

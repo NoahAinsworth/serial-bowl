@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Trash2, ThumbsDown } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SpoilerText } from '@/components/SpoilerText';
-import { PostMenu } from '@/components/PostMenu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,6 +80,33 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
 
   const handleHidePost = () => {
     setHidden(true);
+    setShowUndo(true);
+    toast({
+      title: "Post hidden",
+      description: "Undo?",
+      action: (
+        <Button variant="outline" size="sm" onClick={() => {
+          setHidden(false);
+          setShowUndo(false);
+        }}>
+          Undo
+        </Button>
+      ),
+    });
+  };
+
+  const handleReport = () => {
+    navigate('/settings', { 
+      state: { 
+        openTab: 'legal', 
+        scrollTo: 'report',
+        reportData: {
+          reason: '',
+          description: `Reported post by ${thought.user.handle}:\n\n"${thought.content}"`,
+          userOrLink: thought.user.handle,
+        }
+      } 
+    });
   };
 
   if (hidden && !showUndo) return null;
@@ -282,13 +309,23 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              <PostMenu 
-                postId={thought.id}
-                postType="thought"
-                authorHandle={thought.user.handle}
-                textContent={thought.content}
-                onHide={handleHidePost}
-              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleHidePost}>
+                    <EyeOff className="h-4 w-4 mr-2" />
+                    Hide Post
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleReport}>
+                    <Flag className="h-4 w-4 mr-2" />
+                    Report...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           <SpoilerText content={displayContent} isSpoiler={false} />

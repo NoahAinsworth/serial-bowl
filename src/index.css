@@ -10,12 +10,6 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Safe Area Support for Mobile */
-    --safe-area-inset-top: env(safe-area-inset-top, 0px);
-    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-area-inset-left: env(safe-area-inset-left, 0px);
-    --safe-area-inset-right: env(safe-area-inset-right, 0px);
-    
     /* Modern High-End Cartoon Aesthetic - "Pixar meets Apple" */
     --background: 0 0% 100%;         /* Pure White #FFFFFF */
     --foreground: 0 0% 0%;           /* Jet Black #000000 */
@@ -1182,60 +1176,6 @@ All colors MUST be HSL.
     animation: cereal-pop 0.3s ease-in-out;
     color: hsl(var(--neon-green));
     text-shadow: 0 0 8px rgba(0, 255, 133, 0.5);
-  }
-
-  /* Mobile-First Touch Optimizations */
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Ensure minimum touch targets (44x44dp) */
-  button, a, input, select, textarea {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Remove hover states on touch devices */
-  @media (hover: none) {
-    *:hover {
-      background-color: inherit !important;
-    }
-  }
-
-  /* Safe area support */
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-
-  /* Sliding Tab Indicator */
-  [role="tablist"] {
-    position: relative;
-  }
-
-  [role="tab"][data-state="active"]::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: hsl(var(--secondary));
-    border-radius: 9999px;
-    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
-    z-index: -1;
-    animation: tab-slide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  @keyframes tab-slide {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
   }
 
 }
