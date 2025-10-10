@@ -135,6 +135,7 @@ export function PostCreationDialog({
               user_id: user.id,
               content_id: contentId,
               review_text: text,
+              rating: rating > 0 ? rating : null,
               is_spoiler: isSpoiler,
               contains_mature: containsMature || isMature,
               mature_reasons: containsMature || isMature ? reasons : [],
