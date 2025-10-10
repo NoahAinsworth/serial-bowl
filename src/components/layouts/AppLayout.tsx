@@ -94,7 +94,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Header with safe area support */}
       <header className="sticky top-0 z-40 w-full bg-background" style={{ paddingTop: 'var(--sat, 0px)' }}>
-        <div className="container flex h-16 items-center justify-center px-4">
+        <div className="container flex h-20 items-center justify-center px-4">
           {theme === 'the_one_with_the_theme' ? (
             <h1 className="friends-logo">
               <span>S</span>
@@ -121,7 +121,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <img 
               src={cerealBowlLogo} 
               alt="Serial Bowl" 
-              className="h-12 w-12"
+              className="h-16 w-16"
             />
           )}
           <div className="absolute right-4 flex items-center gap-1">
