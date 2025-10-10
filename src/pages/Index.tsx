@@ -224,7 +224,7 @@ export default function Index() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-cloud px-4">
-        <Card className="w-full max-w-md p-8 border-0">
+        <Card className="w-full max-w-md p-8">
           <div className="text-center mb-8">
             <h1 className="text-5xl font-bold mb-2 wordmark gradient-text">SERIAL BOWL</h1>
             <p className="text-muted-foreground font-medium">Your TV social network</p>
