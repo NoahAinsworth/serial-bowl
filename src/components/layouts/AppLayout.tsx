@@ -122,14 +122,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           ) : theme === 'light' || theme === 'dark' ? (
             <>
               <img 
-                src={serialBowlWordmark} 
+                src={cerealBowlLogo} 
                 alt="Serial Bowl" 
-                className="h-12 dark:hidden"
+                className="h-16 w-16 dark:hidden"
               />
               <img 
                 src={cerealBowlLogoWhite} 
                 alt="Serial Bowl" 
-                className="h-12 hidden dark:block"
+                className="h-16 w-16 hidden dark:block"
               />
             </>
           ) : (
