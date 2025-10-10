@@ -133,11 +133,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               />
             </>
           ) : (
-            <img 
-              src={serialBowlWordmark} 
-              alt="Serial Bowl" 
-              className="h-12"
-            />
+            <div className="flex items-center gap-3">
+              <CerealBowlIcon size={48} />
+              <span className="text-2xl font-bold">Serial Bowl</span>
+            </div>
           )}
           <div className="absolute right-4 flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
