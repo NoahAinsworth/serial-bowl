@@ -129,13 +129,13 @@ export default function Home() {
         {/* Content Type Tabs */}
         <div className="sticky top-[52px] z-10 bg-background/80 backdrop-blur-lg border-b border-border/30">
           <Tabs value={contentType} onValueChange={setContentType} className="w-full">
-            <TabsList className="w-full grid grid-cols-3 rounded-none bg-transparent">
-              <TabsTrigger value="all" className="rounded-none">All</TabsTrigger>
-              <TabsTrigger value="thoughts" className="rounded-none">
+            <TabsList className="w-full grid grid-cols-3 rounded-none bg-transparent border-0">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="thoughts">
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Thoughts
               </TabsTrigger>
-              <TabsTrigger value="reviews" className="rounded-none">
+              <TabsTrigger value="reviews">
                 <Star className="h-4 w-4 mr-2" />
                 Reviews
               </TabsTrigger>
