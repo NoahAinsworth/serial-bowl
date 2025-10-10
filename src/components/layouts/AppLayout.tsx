@@ -121,7 +121,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <img 
               src={cerealBowlLogo} 
               alt="Serial Bowl" 
-              className="h-16 w-16 dark:invert"
+              className="h-16 w-16"
             />
           )}
           <div className="absolute right-4 flex items-center gap-1">
