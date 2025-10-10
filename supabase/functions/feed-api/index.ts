@@ -18,30 +18,37 @@ Deno.serve(async (req) => {
     const tab = url.searchParams.get('tab') || 'trending';
     const limit = parseInt(url.searchParams.get('limit') || '20');
     
-    // Get auth token from header
+    // Get auth header
     const authHeader = req.headers.get('Authorization');
-    const token = authHeader?.replace('Bearer ', '');
     
-    // Create Supabase client with the user's token
+    // Create Supabase client with auth context
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: authHeader ? { Authorization: authHeader } : {}
+      },
+      auth: {
+        persistSession: false
       }
     });
     
-    // Get user ID from the token
+    // Get user - don't pass token, let client use the headers
     let userId: string | null = null;
     
-    if (token) {
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      if (authError) {
-        console.error('Auth error:', authError.message);
-      } else if (user) {
-        userId = user.id;
+    if (authHeader) {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error('Auth error:', error.message);
+        } else if (user) {
+          userId = user.id;
+          console.log(`Authenticated user: ${userId}`);
+        }
+      } catch (e) {
+        console.error('Exception getting user:', e);
       }
     }
 
-    console.log(`Fetching feed for tab: ${tab}, user: ${userId || 'anonymous'}`);
+    console.log(`Feed request - tab: ${tab}, user: ${userId || 'anonymous'}`);
 
     let posts: any[] = [];
 
