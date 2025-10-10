@@ -31,8 +31,15 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     
     if (authHeader) {
-      const { data: { user } } = await supabase.auth.getUser();
-      userId = user?.id || null;
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error('Auth error:', error);
+        }
+        userId = user?.id || null;
+      } catch (err) {
+        console.error('Failed to get user:', err);
+      }
     }
 
     console.log(`Fetching feed for tab: ${tab}, user: ${userId || 'anonymous'}`);
