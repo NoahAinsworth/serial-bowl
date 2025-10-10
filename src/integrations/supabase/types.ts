@@ -1488,13 +1488,21 @@ export type Database = {
         Returns: string
       }
       api_rate_and_review: {
-        Args: {
-          p_is_spoiler?: boolean
-          p_item_id: string
-          p_item_type: string
-          p_review?: string
-          p_score?: number
-        }
+        Args:
+          | {
+              p_is_spoiler?: boolean
+              p_item_id: string
+              p_item_type: string
+              p_review?: string
+              p_score?: number
+            }
+          | {
+              p_is_spoiler?: boolean
+              p_item_id: string
+              p_item_type: string
+              p_review?: string
+              p_score_any?: string
+            }
         Returns: {
           post_id: string
           rating_score: number
