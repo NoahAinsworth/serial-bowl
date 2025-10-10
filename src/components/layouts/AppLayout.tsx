@@ -91,8 +91,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Theme Overlay */}
       <div className="app-overlay" aria-hidden="true"></div>
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-background">
+      {/* Header with safe area support */}
+      <header className="sticky top-0 z-40 w-full bg-background" style={{ paddingTop: 'var(--sat, 0px)' }}>
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             {theme === 'the_one_with_the_theme' ? (
@@ -144,8 +144,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         {children}
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 w-full bg-background">
+      {/* Bottom Navigation with safe area support */}
+      <nav className="sticky bottom-0 z-40 w-full bg-background" style={{ paddingBottom: 'var(--sab, 0px)' }}>
         <div className="container flex h-16 items-center justify-around px-4">
           {navItems.map(({ icon: Icon, label, path, showBadge, isProfile }) => (
             <Link

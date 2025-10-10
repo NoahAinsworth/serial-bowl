@@ -71,4 +71,11 @@ export const env = {
   get IS_NATIVE(): boolean {
     return typeof window !== 'undefined' && !!(window as any).Capacitor;
   },
+
+  // Platform Detection
+  get PLATFORM(): 'ios' | 'android' | 'web' {
+    if (!this.IS_NATIVE) return 'web';
+    const capacitor = (window as any).Capacitor;
+    return capacitor?.getPlatform() || 'web';
+  },
 } as const;
