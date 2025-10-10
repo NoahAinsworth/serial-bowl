@@ -127,7 +127,7 @@ export default function Home() {
         </TabsList>
 
         {/* Content Type Tabs */}
-        <div className="sticky top-[52px] z-10 bg-background/80 backdrop-blur-lg border-b border-border/30">
+        <div className="sticky top-[52px] z-10 bg-background/80 backdrop-blur-lg border-b border-border/30 py-2 px-4">
           <Tabs value={contentType} onValueChange={setContentType} className="w-full">
             <TabsList className="w-full grid grid-cols-3">
               <TabsTrigger value="all">All</TabsTrigger>
