@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
+import cerealBowlLogoWhite from '@/assets/cereal-bowl-logo-white.png';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -118,11 +119,18 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <span>L</span>
             </h1>
           ) : (
-            <img 
-              src={cerealBowlLogo} 
-              alt="Serial Bowl" 
-              className="h-16 w-16 dark:[filter:invert(1)_hue-rotate(180deg)]"
-            />
+            <>
+              <img 
+                src={cerealBowlLogo} 
+                alt="Serial Bowl" 
+                className="h-16 w-16 dark:hidden"
+              />
+              <img 
+                src={cerealBowlLogoWhite} 
+                alt="Serial Bowl" 
+                className="h-16 w-16 hidden dark:block"
+              />
+            </>
           )}
           <div className="absolute right-4 flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
