@@ -234,27 +234,51 @@ Deno.serve(async (req) => {
           rating = ratingData?.rating || null;
         }
 
-        // Get interaction counts
-        const [reactionsRes, dislikesRes, commentsRes] = await Promise.all([
-          supabase.from('reactions').select('reaction_type').eq('thought_id', p.id),
-          supabase.from('thought_dislikes').select('id', { count: 'exact', head: true }).eq('thought_id', p.id),
-          supabase.from('comments').select('id').eq('thought_id', p.id)
-        ]);
-
-        const likes = reactionsRes.data?.filter(r => r.reaction_type === 'like').length || 0;
-        const dislikes = dislikesRes.count || 0;
-        const rethinks = reactionsRes.data?.filter(r => r.reaction_type === 'rethink').length || 0;
-
-        // Check user reaction
-        let userReaction: 'like' | 'dislike' | undefined;
-        if (userId) {
-          const [userLikeRes, userDislikeRes] = await Promise.all([
-            supabase.from('reactions').select('id').eq('thought_id', p.id).eq('user_id', userId).eq('reaction_type', 'like').maybeSingle(),
-            supabase.from('thought_dislikes').select('id').eq('thought_id', p.id).eq('user_id', userId).maybeSingle()
+        // Get interaction counts based on post type
+        let likes = 0, dislikes = 0, rethinks = 0, comments = 0, userReaction: 'like' | 'dislike' | undefined;
+        
+        if (p.type === 'thought') {
+          const [reactionsRes, dislikesRes, commentsRes] = await Promise.all([
+            supabase.from('reactions').select('reaction_type').eq('thought_id', p.id),
+            supabase.from('thought_dislikes').select('id', { count: 'exact', head: true }).eq('thought_id', p.id),
+            supabase.from('comments').select('id').eq('thought_id', p.id)
           ]);
-          
-          if (userLikeRes.data) userReaction = 'like';
-          else if (userDislikeRes.data) userReaction = 'dislike';
+
+          likes = reactionsRes.data?.filter(r => r.reaction_type === 'like').length || 0;
+          dislikes = dislikesRes.count || 0;
+          rethinks = reactionsRes.data?.filter(r => r.reaction_type === 'rethink').length || 0;
+          comments = commentsRes.data?.length || 0;
+
+          // Check user reaction for thoughts
+          if (userId) {
+            const [userLikeRes, userDislikeRes] = await Promise.all([
+              supabase.from('reactions').select('id').eq('thought_id', p.id).eq('user_id', userId).eq('reaction_type', 'like').maybeSingle(),
+              supabase.from('thought_dislikes').select('id').eq('thought_id', p.id).eq('user_id', userId).maybeSingle()
+            ]);
+            
+            if (userLikeRes.data) userReaction = 'like';
+            else if (userDislikeRes.data) userReaction = 'dislike';
+          }
+        } else {
+          // For reviews
+          const [likesRes, dislikesRes] = await Promise.all([
+            supabase.from('review_likes').select('id', { count: 'exact', head: true }).eq('review_id', p.id),
+            supabase.from('review_dislikes').select('id', { count: 'exact', head: true }).eq('review_id', p.id)
+          ]);
+
+          likes = likesRes.count || 0;
+          dislikes = dislikesRes.count || 0;
+
+          // Check user reaction for reviews
+          if (userId) {
+            const [userLikeRes, userDislikeRes] = await Promise.all([
+              supabase.from('review_likes').select('id').eq('review_id', p.id).eq('user_id', userId).maybeSingle(),
+              supabase.from('review_dislikes').select('id').eq('review_id', p.id).eq('user_id', userId).maybeSingle()
+            ]);
+            
+            if (userLikeRes.data) userReaction = 'like';
+            else if (userDislikeRes.data) userReaction = 'dislike';
+          }
         }
 
         return {
@@ -267,7 +291,7 @@ Deno.serve(async (req) => {
           rating,
           likes,
           dislikes,
-          comments: commentsRes.data?.length || 0,
+          comments,
           rethinks,
           userReaction,
           created_at: postData.created_at,
