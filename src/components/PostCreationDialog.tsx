@@ -35,7 +35,7 @@ export function PostCreationDialog({
   const { toast } = useToast();
   const navigate = useNavigate();
   const [text, setText] = useState('');
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(50);
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [containsMature, setContainsMature] = useState(false);
   const [submitting, setSubmitting] = useState(false);
