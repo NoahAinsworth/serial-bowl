@@ -768,7 +768,7 @@ export type Database = {
           is_spoiler: boolean
           mature_reasons: string[] | null
           rating: number | null
-          review_text: string
+          review_text: string | null
           user_id: string
         }
         Insert: {
@@ -779,7 +779,7 @@ export type Database = {
           is_spoiler?: boolean
           mature_reasons?: string[] | null
           rating?: number | null
-          review_text: string
+          review_text?: string | null
           user_id: string
         }
         Update: {
@@ -790,7 +790,7 @@ export type Database = {
           is_spoiler?: boolean
           mature_reasons?: string[] | null
           rating?: number | null
-          review_text?: string
+          review_text?: string | null
           user_id?: string
         }
         Relationships: [

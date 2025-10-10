@@ -107,7 +107,25 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review') {
-        // ALWAYS save rating if provided
+        // Detect mature content if there's text
+        const { isMature, reasons } = text.trim() ? detectMatureContent(text) : { isMature: false, reasons: [] };
+        
+        // Create review record (with or without text, as long as rating or text exists)
+        const { error: reviewError } = await supabase
+          .from('reviews')
+          .insert({
+            user_id: user.id,
+            content_id: contentId,
+            review_text: text.trim() || null,
+            rating: rating > 0 ? rating : null,
+            is_spoiler: isSpoiler,
+            contains_mature: containsMature || isMature,
+            mature_reasons: containsMature || isMature ? reasons : [],
+          });
+
+        if (reviewError) throw reviewError;
+
+        // Also save rating to ratings table if provided
         if (rating > 0) {
           const { error: ratingError } = await supabase
             .from('ratings')
@@ -132,26 +150,6 @@ export function PostCreationDialog({
             })
             .select()
             .single();
-        }
-
-        // Only create a review POST if text is provided
-        // Rating alone does NOT create a post
-        if (text.trim()) {
-          const { isMature, reasons } = detectMatureContent(text);
-          
-          const { error: reviewError } = await supabase
-            .from('reviews')
-            .insert({
-              user_id: user.id,
-              content_id: contentId,
-              review_text: text,
-              rating: rating > 0 ? rating : null,
-              is_spoiler: isSpoiler,
-              contains_mature: containsMature || isMature,
-              mature_reasons: containsMature || isMature ? reasons : [],
-            });
-
-          if (reviewError) throw reviewError;
         }
       } else {
         // Save thought
