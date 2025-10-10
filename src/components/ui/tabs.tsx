@@ -54,7 +54,7 @@ const TabsList = React.forwardRef<
     >
       {activeRect && (
         <div
-          className="absolute rounded-full shadow-[2px_2px_0px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out"
+          className="absolute rounded-full shadow-[2px_2px_0px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out z-[1]"
           style={{
             left: `${activeRect.left}px`,
             top: `${activeRect.top}px`,
