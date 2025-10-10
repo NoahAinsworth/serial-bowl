@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,6 +33,7 @@ export function PostCreationDialog({
 }: PostCreationDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [text, setText] = useState('');
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
@@ -48,6 +50,8 @@ export function PostCreationDialog({
   };
 
   const handleSubmit = async () => {
+    console.log('handleSubmit called', { user, text, rating, postType });
+    
     if (!user) {
       toast({
         title: "Sign in required",
@@ -67,6 +71,7 @@ export function PostCreationDialog({
         });
       } catch (error) {
         if (error instanceof z.ZodError) {
+          console.error('Validation error:', error);
           toast({
             title: "Validation Error",
             description: error.issues[0].message,
@@ -78,6 +83,7 @@ export function PostCreationDialog({
     }
 
     if (!text.trim() && postType === 'thought') {
+      console.log('No text for thought');
       toast({
         title: "Content required",
         description: "Please write something",
@@ -87,6 +93,7 @@ export function PostCreationDialog({
     }
 
     if (!text.trim() && !rating && postType === 'review') {
+      console.log('No text or rating for review');
       toast({
         title: "Content required",
         description: "Please add a rating or write a review",
@@ -96,6 +103,7 @@ export function PostCreationDialog({
     }
 
     setSubmitting(true);
+    console.log('Starting submission...');
 
     try {
       if (postType === 'review') {
@@ -168,6 +176,8 @@ export function PostCreationDialog({
         ? (text.trim() ? 'Review posted!' : 'Rating saved!')
         : 'Thought posted!';
 
+      console.log('Post successful!', successMsg);
+
       toast({
         title: "Success",
         description: successMsg,
@@ -179,11 +189,20 @@ export function PostCreationDialog({
       setContainsMature(false);
       onOpenChange(false);
       onSuccess?.();
-    } catch (error) {
+      
+      // Navigate to home after posting
+      navigate('/');
+    } catch (error: any) {
       console.error('Error posting:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       toast({
         title: "Error",
-        description: "Failed to post. Please try again.",
+        description: error.message || "Failed to post. Please try again.",
         variant: "destructive",
       });
     } finally {
