@@ -8,9 +8,6 @@ import { BingeBotAI } from '@/components/BingeBotAI';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
-import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
-import cerealBowlLogoWhite from '@/assets/cereal-bowl-logo-white.png';
-import serialBowlWordmark from '@/assets/serial-bowl-wordmark.png';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -96,50 +93,37 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Header with safe area support */}
       <header className="sticky top-0 z-40 w-full bg-background" style={{ paddingTop: 'var(--sat, 0px)' }}>
-        <div className="container flex h-20 items-center justify-center px-4">
-          {theme === 'the_one_with_the_theme' ? (
-            <h1 className="friends-logo">
-              <span>S</span>
-              <span className="dot dot-red">·</span>
-              <span>E</span>
-              <span className="dot dot-yellow">·</span>
-              <span>R</span>
-              <span className="dot dot-blue">·</span>
-              <span>I</span>
-              <span className="dot dot-red">·</span>
-              <span>A</span>
-              <span className="dot dot-yellow">·</span>
-              <span>L</span>
-              <span className="dot dot-blue">·</span>
-              <span>B</span>
-              <span className="dot dot-red">·</span>
-              <span>O</span>
+        <div className="container flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-2">
+            {theme === 'the_one_with_the_theme' ? (
+              <h1 className="friends-logo">
+                <span>S</span>
+                <span className="dot dot-red">·</span>
+                <span>E</span>
+                <span className="dot dot-yellow">·</span>
+                <span>R</span>
+                <span className="dot dot-blue">·</span>
+                <span>I</span>
+                <span className="dot dot-red">·</span>
+                <span>A</span>
+                <span className="dot dot-yellow">·</span>
+                <span>L</span>
+                <span className="dot dot-blue">·</span>
+                <span>B</span>
+                <span className="dot dot-red">·</span>
+                <span>O</span>
               <span className="dot dot-yellow">·</span>
               <span>W</span>
               <span className="dot dot-blue">·</span>
               <span>L</span>
             </h1>
-          ) : theme === 'light' || theme === 'dark' ? (
-            <>
-              <img 
-                src={cerealBowlLogo} 
-                alt="Serial Bowl" 
-                className="h-16 w-16 dark:hidden"
-              />
-              <img 
-                src={cerealBowlLogoWhite} 
-                alt="Serial Bowl" 
-                className="h-16 w-16 hidden dark:block"
-              />
-            </>
           ) : (
-            <img 
-              src={serialBowlWordmark} 
-              alt="Serial Bowl" 
-              className="h-12"
-            />
+            <h1 className="text-3xl font-display font-bold wordmark">
+              Serial Bowl
+            </h1>
           )}
-          <div className="absolute right-4 flex items-center gap-1">
+          </div>
+          <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
               <Library className="h-5 w-5" />
             </Button>
