@@ -552,6 +552,92 @@ export type Database = {
           },
         ]
       }
+      post_reactions: {
+        Row: {
+          created_at: string | null
+          kind: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          kind: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          kind?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          body: string | null
+          created_at: string | null
+          dislikes_count: number | null
+          id: string
+          impressions_count: number | null
+          is_spoiler: boolean | null
+          item_id: string | null
+          item_type: string | null
+          kind: string | null
+          likes_count: number | null
+          rating_percent: number | null
+          replies_count: number | null
+          reports_count: number | null
+          reshares_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          body?: string | null
+          created_at?: string | null
+          dislikes_count?: number | null
+          id?: string
+          impressions_count?: number | null
+          is_spoiler?: boolean | null
+          item_id?: string | null
+          item_type?: string | null
+          kind?: string | null
+          likes_count?: number | null
+          rating_percent?: number | null
+          replies_count?: number | null
+          reports_count?: number | null
+          reshares_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          body?: string | null
+          created_at?: string | null
+          dislikes_count?: number | null
+          id?: string
+          impressions_count?: number | null
+          is_spoiler?: boolean | null
+          item_id?: string | null
+          item_type?: string | null
+          kind?: string | null
+          likes_count?: number | null
+          rating_percent?: number | null
+          replies_count?: number | null
+          reports_count?: number | null
+          reshares_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1032,6 +1118,66 @@ export type Database = {
         }
         Relationships: []
       }
+      user_ratings: {
+        Row: {
+          item_id: string
+          item_type: string
+          score: number
+          source: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          item_id: string
+          item_type: string
+          score: number
+          source?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          item_id?: string
+          item_type?: string
+          score?: number
+          source?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_reviews: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          id: string
+          item_id: string
+          item_type: string
+          rating_percent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          item_id: string
+          item_type: string
+          rating_percent?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          item_type?: string
+          rating_percent?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1204,6 +1350,102 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_ratings_episodes: {
+        Row: {
+          item_id: string | null
+          score: number | null
+          source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          item_id?: string | null
+          score?: number | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          item_id?: string | null
+          score?: number | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profile_ratings_seasons: {
+        Row: {
+          item_id: string | null
+          score: number | null
+          source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          item_id?: string | null
+          score?: number | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          item_id?: string | null
+          score?: number | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profile_ratings_shows: {
+        Row: {
+          item_id: string | null
+          score: number | null
+          source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          item_id?: string | null
+          score?: number | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          item_id?: string | null
+          score?: number | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profile_reviews: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          id: string | null
+          item_id: string | null
+          item_type: string | null
+          rating_percent: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          id?: string | null
+          item_id?: string | null
+          item_type?: string | null
+          rating_percent?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          id?: string | null
+          item_id?: string | null
+          item_type?: string | null
+          rating_percent?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       v_post_popularity: {
         Row: {
           comments: number | null
@@ -1234,6 +1476,31 @@ export type Database = {
       }
     }
     Functions: {
+      api_create_post: {
+        Args: {
+          p_body: string
+          p_is_spoiler?: boolean
+          p_item_id?: string
+          p_item_type?: string
+          p_kind: string
+          p_rating_percent?: number
+        }
+        Returns: string
+      }
+      api_rate_and_review: {
+        Args: {
+          p_is_spoiler?: boolean
+          p_item_id: string
+          p_item_type: string
+          p_review?: string
+          p_score?: number
+        }
+        Returns: {
+          post_id: string
+          rating_score: number
+          review_id: string
+        }[]
+      }
       attention_score: {
         Args: {
           created: string
@@ -1246,6 +1513,14 @@ export type Database = {
         }
         Returns: number
       }
+      compute_season_rollup: {
+        Args: { p_season_id: string; p_user: string }
+        Returns: number
+      }
+      compute_show_rollup: {
+        Args: { p_show_id: string; p_user: string }
+        Returns: number
+      }
       exp_decay: {
         Args: { created: string; half_life_hours: number }
         Returns: number
@@ -1256,6 +1531,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      upsert_rollups: {
+        Args: { p_item_id: string; p_item_type: string; p_user: string }
+        Returns: undefined
       }
       wilson_lower_bound: {
         Args: { dislikes: number; likes: number }
