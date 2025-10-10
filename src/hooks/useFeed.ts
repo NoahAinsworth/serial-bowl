@@ -115,6 +115,8 @@ export function useFeed(feedType: string, contentType: string = 'all') {
       }
 
       const data = await response.json();
+      console.log(`Feed response for ${feedType}:`, data);
+      console.log(`Setting ${data.posts?.length || 0} posts`);
       setPosts(data.posts || []);
     } catch (err) {
       console.error('Error loading feed:', err);

@@ -16,6 +16,7 @@ export default function Home() {
   const [feedType, setFeedType] = useState('trending');
   const [contentType, setContentType] = useState('all');
   const { posts, loading, refetch } = useFeed(feedType, contentType);
+  console.log(`Home page - feedType: ${feedType}, contentType: ${contentType}, posts:`, posts.length, loading ? 'loading' : 'loaded');
   const [userHideSpoilers, setUserHideSpoilers] = useState(true);
   const [strictSafety, setStrictSafety] = useState(false);
 
