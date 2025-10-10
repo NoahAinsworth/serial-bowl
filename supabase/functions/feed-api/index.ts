@@ -17,6 +17,8 @@ Deno.serve(async (req) => {
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     
+    console.log('Auth header present:', !!authHeader);
+    
     // Create client with user's token to respect RLS
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
@@ -34,9 +36,13 @@ Deno.serve(async (req) => {
       try {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
-          console.error('Auth error:', error);
+          console.error('Auth error:', error.message);
+        } else if (user) {
+          userId = user.id;
+          console.log('Authenticated user ID:', userId);
+        } else {
+          console.log('No user found despite auth header');
         }
-        userId = user?.id || null;
       } catch (err) {
         console.error('Failed to get user:', err);
       }
