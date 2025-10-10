@@ -19,7 +19,7 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 0%;
     --primary: 0 0% 0%;              /* Black primary */
     --primary-foreground: 0 0% 100%;
-    --secondary: 47 94% 62%;         /* Cereal Bowl Yellow #FDB927 */
+    --secondary: 47 100% 60%;        /* Sunshine Yellow #FFCF33 */
     --secondary-foreground: 0 0% 0%;
     --muted: 0 0% 96%;               
     --muted-foreground: 0 0% 30%;    /* Dark grey text */
@@ -33,7 +33,7 @@ All colors MUST be HSL.
     --radius: 1.5rem;                /* 24px - big rounded corners */
 
     /* Cartoon Color Palette */
-    --sunshine-yellow: 47 94% 62%;   /* #FDB927 */
+    --sunshine-yellow: 47 100% 60%;  /* #FFCF33 */
     --cereal-red: 8 100% 67%;        /* #FF6A5A */
     --blueberry-blue: 207 99% 61%;   /* #3C9DFE */
     --emerald-green: 152 84% 41%;    /* #10C974 */
@@ -92,7 +92,7 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 100%;
     --primary: 0 0% 100%;        /* White primary */
     --primary-foreground: 0 0% 0%;
-    --secondary: 47 94% 62%;     /* Cereal Bowl Yellow */
+    --secondary: 47 100% 60%;    /* Sunshine Yellow */
     --secondary-foreground: 0 0% 0%;
     --muted: 0 0% 18%;           
     --muted-foreground: 0 0% 70%; 
