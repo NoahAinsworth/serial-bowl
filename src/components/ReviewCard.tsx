@@ -265,10 +265,16 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
                 </div>
                 {review.rating && (
                   <div className="mb-2">
-                    <RatingBadge rating={review.rating} size="sm" />
+                    <RatingBadge rating={review.rating} size="md" />
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {!review.content && review.rating && (
+            <div className="mb-3">
+              <RatingBadge rating={review.rating} size="md" />
             </div>
           )}
 
