@@ -39,156 +39,158 @@ Deno.serve(async (req) => {
 
     let posts: any[] = [];
 
+    // Helper to get all posts (thoughts + reviews)
+    const getAllPosts = async () => {
+      const [thoughtsResult, reviewsResult] = await Promise.all([
+        supabase
+          .from('thoughts')
+          .select('id, user_id, created_at, moderation_status')
+          .eq('moderation_status', 'approved')
+          .order('created_at', { ascending: false })
+          .limit(50),
+        supabase
+          .from('reviews')
+          .select('id, user_id, created_at')
+          .order('created_at', { ascending: false })
+          .limit(50)
+      ]);
+
+      const thoughts = (thoughtsResult.data || []).map(t => ({ 
+        id: t.id, 
+        user_id: t.user_id,
+        type: 'thought' as const, 
+        created_at: t.created_at 
+      }));
+      const reviews = (reviewsResult.data || []).map(r => ({ 
+        id: r.id, 
+        user_id: r.user_id,
+        type: 'review' as const, 
+        created_at: r.created_at 
+      }));
+
+      return [...thoughts, ...reviews].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    };
+
     if (tab === 'trending') {
-      // Global trending - get all posts and calculate scores
-      const { data: allPosts } = await supabase
-        .from('v_posts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (allPosts && allPosts.length > 0) {
-        const now = new Date();
+      const allPosts = await getAllPosts();
+      const now = new Date();
+      
+      const scoredPosts = await Promise.all(allPosts.map(async (p) => {
+        const { data: reactions } = await supabase
+          .from('reactions')
+          .select('reaction_type')
+          .eq('thought_id', p.id);
         
-        // Fetch interaction counts for each post
-        const scoredPosts = await Promise.all(allPosts.map(async (p) => {
-          const { data: reactions } = await supabase
-            .from('reactions')
-            .select('reaction_type')
-            .eq('thought_id', p.id);
-          
-          const { data: comments } = await supabase
-            .from('comments')
-            .select('id')
-            .eq('thought_id', p.id);
-          
-          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
-          const { count: dislikeCount } = await supabase
-            .from('thought_dislikes')
-            .select('*', { count: 'exact', head: true })
-            .eq('thought_id', p.id);
-          const dislikes = dislikeCount || 0;
-          const commentCount = comments?.length || 0;
+        const { data: comments } = await supabase
+          .from('comments')
+          .select('id')
+          .eq('thought_id', p.id);
+        
+        const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+        const { count: dislikeCount } = await supabase
+          .from('thought_dislikes')
+          .select('*', { count: 'exact', head: true })
+          .eq('thought_id', p.id);
+        const dislikes = dislikeCount || 0;
+        const commentCount = comments?.length || 0;
 
-          const createdAt = new Date(p.created_at);
-          const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
-          
-          // score = (like_count * 3 – dislike_count * 2 + comment_count) / POWER(age_hours + 2, 1.3)
-          const numerator = (likes * 3) - (dislikes * 2) + commentCount;
-          const denominator = Math.pow(ageHours + 2, 1.3);
-          const score = numerator / denominator;
-          
-          return {
-            post_id: p.id,
-            post_type: p.type,
-            created_at: p.created_at,
-            likes,
-            dislikes,
-            comments: commentCount,
-            reshares: 0,
-            views: 0,
-            score
-          };
-        }));
+        const createdAt = new Date(p.created_at);
+        const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+        
+        const numerator = (likes * 3) - (dislikes * 2) + commentCount;
+        const denominator = Math.pow(ageHours + 2, 1.3);
+        const score = numerator / denominator;
+        
+        return {
+          post_id: p.id,
+          post_type: p.type,
+          created_at: p.created_at,
+          likes,
+          dislikes,
+          comments: commentCount,
+          score
+        };
+      }));
 
-        scoredPosts.sort((a, b) => b.score - a.score);
-        posts = scoredPosts.slice(0, limit);
-      }
+      scoredPosts.sort((a, b) => b.score - a.score);
+      posts = scoredPosts.slice(0, limit);
 
     } else if (tab === 'hot-takes' || tab === 'hot') {
-      // Hot Takes - where dislikes > likes
-      const { data: allPosts } = await supabase
-        .from('v_posts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
+      const allPosts = await getAllPosts();
+      
+      const scoredPosts = await Promise.all(allPosts.map(async (p) => {
+        const { data: reactions } = await supabase
+          .from('reactions')
+          .select('reaction_type')
+          .eq('thought_id', p.id);
+        
+        const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+        const { count: dislikeCount } = await supabase
+          .from('thought_dislikes')
+          .select('*', { count: 'exact', head: true })
+          .eq('thought_id', p.id);
+        const dislikes = dislikeCount || 0;
 
-      if (allPosts && allPosts.length > 0) {
-        // Fetch interaction counts for each post
-        const scoredPosts = await Promise.all(allPosts.map(async (p) => {
-          const { data: reactions } = await supabase
-            .from('reactions')
-            .select('reaction_type')
-            .eq('thought_id', p.id);
-          
-          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
-          const { count: dislikeCount } = await supabase
-            .from('thought_dislikes')
-            .select('*', { count: 'exact', head: true })
-            .eq('thought_id', p.id);
-          const dislikes = dislikeCount || 0;
+        return {
+          post_id: p.id,
+          post_type: p.type,
+          created_at: p.created_at,
+          likes,
+          dislikes,
+          comments: 0,
+          score: dislikes
+        };
+      }));
 
-          return {
-            post_id: p.id,
-            post_type: p.type,
-            created_at: p.created_at,
-            likes,
-            dislikes,
-            comments: 0,
-            reshares: 0,
-            views: 0,
-            score: dislikes
-          };
-        }));
+      const hotTakes = scoredPosts
+        .filter(p => p.dislikes > p.likes)
+        .sort((a, b) => b.score - a.score);
 
-        // Filter for dislikes > likes and sort
-        const hotTakes = scoredPosts
-          .filter(p => p.dislikes > p.likes)
-          .sort((a, b) => {
-            if (b.score !== a.score) {
-              return b.score - a.score;
-            }
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          });
-
-        posts = hotTakes.slice(0, limit);
-      }
+      posts = hotTakes.slice(0, limit);
 
     } else if (tab === 'reviews') {
-      // Reviews only - get all reviews and calculate scores
-      const { data: allPosts } = await supabase
-        .from('v_posts')
-        .select('*')
-        .eq('type', 'review')
+      const { data: allReviews } = await supabase
+        .from('reviews')
+        .select('id, user_id, created_at')
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (allPosts && allPosts.length > 0) {
+      if (allReviews && allReviews.length > 0) {
         const now = new Date();
         
-        const scoredPosts = await Promise.all(allPosts.map(async (p) => {
+        const scoredPosts = await Promise.all(allReviews.map(async (r) => {
           const { data: reactions } = await supabase
             .from('reactions')
             .select('reaction_type')
-            .eq('thought_id', p.id);
+            .eq('thought_id', r.id);
           
           const { data: comments } = await supabase
             .from('comments')
             .select('id')
-            .eq('thought_id', p.id);
+            .eq('thought_id', r.id);
           
           const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
           const { count: dislikeCount } = await supabase
             .from('thought_dislikes')
             .select('*', { count: 'exact', head: true })
-            .eq('thought_id', p.id);
+            .eq('thought_id', r.id);
           const dislikes = dislikeCount || 0;
           const commentCount = comments?.length || 0;
 
-          const createdAt = new Date(p.created_at);
+          const createdAt = new Date(r.created_at);
           const ageHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
           const numerator = (likes * 3) - (dislikes * 2) + commentCount;
           const denominator = Math.pow(ageHours + 2, 1.3);
           
           return {
-            post_id: p.id,
-            post_type: p.type,
-            created_at: p.created_at,
+            post_id: r.id,
+            post_type: 'review' as const,
+            created_at: r.created_at,
             likes,
             dislikes,
             comments: commentCount,
-            reshares: 0,
-            views: 0,
             score: numerator / denominator
           };
         }));
@@ -198,11 +200,9 @@ Deno.serve(async (req) => {
       }
 
     } else if (tab === 'following') {
-      // Following feed - posts from users you follow, newest first
       if (!userId) {
         posts = [];
       } else {
-        // Get list of users the current user follows
         const { data: follows } = await supabase
           .from('follows')
           .select('following_id')
@@ -212,28 +212,44 @@ Deno.serve(async (req) => {
         if (follows && follows.length > 0) {
           const followingIds = follows.map(f => f.following_id);
           
-          // Get posts from followed users via v_posts
-          const { data: followedPosts } = await supabase
-            .from('v_posts')
-            .select('*')
-            .in('author_id', followingIds)
-            .order('created_at', { ascending: false })
-            .limit(limit);
+          const [thoughtsResult, reviewsResult] = await Promise.all([
+            supabase
+              .from('thoughts')
+              .select('id, user_id, created_at')
+              .in('user_id', followingIds)
+              .eq('moderation_status', 'approved')
+              .order('created_at', { ascending: false })
+              .limit(limit),
+            supabase
+              .from('reviews')
+              .select('id, user_id, created_at')
+              .in('user_id', followingIds)
+              .order('created_at', { ascending: false })
+              .limit(limit)
+          ]);
 
-          if (followedPosts && followedPosts.length > 0) {
-            // Map to popularity format
-            posts = followedPosts.map(p => ({
-              post_id: p.id,
-              post_type: p.type,
-              created_at: p.created_at,
-              likes: 0,
-              dislikes: 0,
-              comments: 0,
-              reshares: 0,
-              views: 0,
-              score: 0
-            }));
-          }
+          const thoughts = (thoughtsResult.data || []).map(t => ({ 
+            post_id: t.id, 
+            post_type: 'thought' as const, 
+            created_at: t.created_at,
+            likes: 0,
+            dislikes: 0,
+            comments: 0,
+            score: 0
+          }));
+          const reviews = (reviewsResult.data || []).map(r => ({ 
+            post_id: r.id, 
+            post_type: 'review' as const, 
+            created_at: r.created_at,
+            likes: 0,
+            dislikes: 0,
+            comments: 0,
+            score: 0
+          }));
+
+          posts = [...thoughts, ...reviews]
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .slice(0, limit);
         }
       }
     } else if (tab === 'binge') {
