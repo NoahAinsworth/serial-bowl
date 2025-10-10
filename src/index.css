@@ -1211,4 +1211,31 @@ All colors MUST be HSL.
     padding-right: env(safe-area-inset-right);
   }
 
+  /* Sliding Tab Indicator */
+  [role="tablist"] {
+    position: relative;
+  }
+
+  [role="tab"][data-state="active"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: hsl(var(--secondary));
+    border-radius: 9999px;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+    z-index: -1;
+    animation: tab-slide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes tab-slide {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
 }
