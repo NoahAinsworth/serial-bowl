@@ -10,6 +10,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 import cerealBowlLogoWhite from '@/assets/cereal-bowl-logo-white.png';
+import serialBowlWordmark from '@/assets/serial-bowl-wordmark.png';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -118,21 +119,25 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <span className="dot dot-blue">·</span>
               <span>L</span>
             </h1>
-          ) : (
+          ) : theme === 'light' || theme === 'dark' ? (
             <>
               <img 
                 src={cerealBowlLogo} 
                 alt="Serial Bowl" 
                 className="h-16 w-16 dark:hidden"
-                style={{ display: theme === 'upside_down' ? 'none' : '' }}
               />
               <img 
                 src={cerealBowlLogoWhite} 
                 alt="Serial Bowl" 
                 className="h-16 w-16 hidden dark:block"
-                style={{ display: theme === 'upside_down' ? 'block' : '' }}
               />
             </>
+          ) : (
+            <img 
+              src={serialBowlWordmark} 
+              alt="Serial Bowl" 
+              className="h-12"
+            />
           )}
           <div className="absolute right-4 flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
