@@ -11,6 +11,7 @@ import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
 import { UserPosts } from '@/components/UserPosts';
 import { UserThoughts } from '@/components/UserThoughts';
+import { UserReviews } from '@/components/UserReviews';
 import { FollowRequestButton } from '@/components/FollowRequestButton';
 
 export default function UserProfilePage() {
@@ -310,7 +311,22 @@ export default function UserProfilePage() {
         ) : (
           <>
             <TabsContent value="posts" className="mt-4">
-              <UserPosts userId={userId} />
+              <Tabs defaultValue="all" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="thoughts">Thoughts</TabsTrigger>
+                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                </TabsList>
+                <TabsContent value="all">
+                  <UserPosts userId={userId} />
+                </TabsContent>
+                <TabsContent value="thoughts">
+                  <UserThoughts userId={userId} />
+                </TabsContent>
+                <TabsContent value="reviews">
+                  <UserReviews userId={userId} />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
             <TabsContent value="shows" className="mt-4">
               <UserRatings userId={userId} contentKind="show" />

@@ -205,7 +205,7 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
       {overlayType && <SafetyOverlay type={overlayType} onRevealSpoiler={() => setSpoilerRevealed(true)} />}
       <div className={`flex gap-3 ${isSpoilerHidden ? 'blur-md' : ''}`}>
         <div>
-          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.id}`)}>
+          <Avatar className="h-10 w-10 flex-shrink-0 cursor-pointer transition-transform active:scale-95" onClick={() => navigate(`/user/${review.user.handle}`)}>
             <AvatarImage src={review.user.avatar_url || undefined} alt={review.user.handle} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
               {review.user.handle[0]?.toUpperCase() || 'U'}
