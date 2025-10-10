@@ -19,29 +19,39 @@ Deno.serve(async (req) => {
     const contentType = url.searchParams.get('contentType') || 'all';
     const limit = parseInt(url.searchParams.get('limit') || '20');
     
-    // Get auth header and extract JWT
+    // Get auth header
     const authHeader = req.headers.get('Authorization');
     
-    // Create client that will use the user's auth context for RLS
+    // Create Supabase client with the auth token for RLS
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: authHeader ? { Authorization: authHeader } : {} },
       auth: { persistSession: false }
     });
     
-    // Get user ID from JWT token directly
+    // Extract user ID from JWT token
     let userId: string | null = null;
+    
     if (authHeader) {
       try {
-        // Extract token and decode to get user_id
         const token = authHeader.replace('Bearer ', '');
-        const parts = token.split('.');
-        if (parts.length === 3) {
-          const payload = JSON.parse(atob(parts[1]));
+        
+        // Decode JWT payload (middle part of JWT)
+        const base64Url = token.split('.')[1];
+        if (base64Url) {
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64).split('').map((c) => {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join('')
+          );
+          
+          const payload = JSON.parse(jsonPayload);
           userId = payload.sub || null;
-          console.log(`Authenticated as: ${userId}`);
+          
+          console.log(`User authenticated: ${userId}`);
         }
       } catch (e) {
-        console.error('Failed to decode token:', e);
+        console.error('JWT decode error:', e);
       }
     }
 
