@@ -15,36 +15,36 @@ const TabsList = React.forwardRef<
   React.useEffect(() => {
     const updateIndicator = () => {
       const list = listRef.current;
-      if (!list) {
-        console.log('TabsList: no list ref');
-        return;
-      }
+      if (!list) return;
       
       const activeTab = list.querySelector('[data-state="active"]');
-      console.log('TabsList: active tab found:', !!activeTab);
-      
       if (activeTab) {
         const rect = activeTab.getBoundingClientRect();
         const listRect = list.getBoundingClientRect();
-        const newRect = {
+        setActiveRect({
           left: rect.left - listRect.left,
           top: rect.top - listRect.top,
           width: rect.width,
           height: rect.height,
-        } as DOMRect;
-        
-        console.log('TabsList: setting activeRect:', newRect);
-        setActiveRect(newRect);
+        } as DOMRect);
       }
     };
 
+    // Initial update
     updateIndicator();
+    
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(updateIndicator, 10);
+    
     const observer = new MutationObserver(updateIndicator);
     if (listRef.current) {
       observer.observe(listRef.current, { attributes: true, subtree: true, attributeFilter: ['data-state'] });
     }
 
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, [children]);
 
   return (
