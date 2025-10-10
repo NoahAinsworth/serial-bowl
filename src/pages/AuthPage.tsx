@@ -11,11 +11,15 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { env } from '@/lib/env';
+import { useTheme } from '@/contexts/ThemeContext';
+import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
+import cerealBowlLogoWhite from '@/assets/cereal-bowl-logo-white.png';
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -111,8 +115,12 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center gradient-cloud px-4">
       <Card className="w-full max-w-md p-8 border-0">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold mb-2 wordmark gradient-text">SERIAL BOWL</h1>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img 
+            src={theme === 'dark' ? cerealBowlLogoWhite : cerealBowlLogo} 
+            alt="Serial Bowl" 
+            className="h-20 w-20 mb-4"
+          />
           <p className="text-muted-foreground font-medium">Your TV social network</p>
         </div>
 
