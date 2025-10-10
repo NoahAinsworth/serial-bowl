@@ -761,28 +761,34 @@ export type Database = {
       }
       reviews: {
         Row: {
+          contains_mature: boolean | null
           content_id: string
           created_at: string | null
           id: string
           is_spoiler: boolean
+          mature_reasons: string[] | null
           rating: number | null
           review_text: string
           user_id: string
         }
         Insert: {
+          contains_mature?: boolean | null
           content_id: string
           created_at?: string | null
           id?: string
           is_spoiler?: boolean
+          mature_reasons?: string[] | null
           rating?: number | null
           review_text: string
           user_id: string
         }
         Update: {
+          contains_mature?: boolean | null
           content_id?: string
           created_at?: string | null
           id?: string
           is_spoiler?: boolean
+          mature_reasons?: string[] | null
           rating?: number | null
           review_text?: string
           user_id?: string
@@ -842,10 +848,12 @@ export type Database = {
       }
       thoughts: {
         Row: {
+          contains_mature: boolean | null
           content_id: string | null
           created_at: string | null
           id: string
           is_spoiler: boolean
+          mature_reasons: string[] | null
           moderation_status:
             | Database["public"]["Enums"]["moderation_status"]
             | null
@@ -853,10 +861,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          contains_mature?: boolean | null
           content_id?: string | null
           created_at?: string | null
           id?: string
           is_spoiler?: boolean
+          mature_reasons?: string[] | null
           moderation_status?:
             | Database["public"]["Enums"]["moderation_status"]
             | null
@@ -864,10 +874,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          contains_mature?: boolean | null
           content_id?: string | null
           created_at?: string | null
           id?: string
           is_spoiler?: boolean
+          mature_reasons?: string[] | null
           moderation_status?:
             | Database["public"]["Enums"]["moderation_status"]
             | null
