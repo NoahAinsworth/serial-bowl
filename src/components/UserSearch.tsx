@@ -160,8 +160,7 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
                   </Avatar>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold truncate">{profile.handle}</h3>
-                  <p className="text-sm text-muted-foreground">@{profile.handle}</p>
+                  <h3 className="font-semibold truncate">@{profile.handle}</h3>
                   {profile.bio && (
                     <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
                       {profile.bio}
