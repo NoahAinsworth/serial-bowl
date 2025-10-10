@@ -17,23 +17,34 @@ Deno.serve(async (req) => {
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     
-    // Create client with user's token to respect RLS
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: authHeader ? { Authorization: authHeader } : {}
+    let userId: string | null = null;
+    let supabase;
+    
+    if (authHeader) {
+      // Create authenticated client
+      supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: {
+          headers: { Authorization: authHeader }
+        }
+      });
+      
+      // Extract user from JWT token
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      
+      if (error) {
+        console.error('Auth error:', error.message);
       }
-    });
+      
+      userId = user?.id || null;
+    } else {
+      // Create anonymous client
+      supabase = createClient(supabaseUrl, supabaseAnonKey);
+    }
 
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'trending';
     const limit = parseInt(url.searchParams.get('limit') || '20');
-    
-    let userId: string | null = null;
-    
-    if (authHeader) {
-      const { data: { user } } = await supabase.auth.getUser();
-      userId = user?.id || null;
-    }
 
     console.log(`Fetching feed for tab: ${tab}, user: ${userId || 'anonymous'}`);
 
