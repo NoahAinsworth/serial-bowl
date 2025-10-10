@@ -8,6 +8,7 @@ import { BingeBotAI } from '@/components/BingeBotAI';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
+import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -118,7 +119,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </h1>
           ) : (
             <img 
-              src="/icons/icon-192.png" 
+              src={cerealBowlLogo} 
               alt="Serial Bowl" 
               className="h-12 w-12"
             />
