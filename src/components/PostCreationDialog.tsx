@@ -127,7 +127,8 @@ export function PostCreationDialog({
 
         // Also save rating to ratings table if provided
         if (rating > 0) {
-          const { error: ratingError } = await supabase
+          console.log('💾 Saving rating:', { user_id: user.id, content_id: contentId, rating });
+          const { error: ratingError, data: ratingData } = await supabase
             .from('ratings')
             .upsert({
               user_id: user.id,
@@ -135,9 +136,15 @@ export function PostCreationDialog({
               rating,
             }, {
               onConflict: 'user_id,content_id'
-            });
+            })
+            .select();
 
-          if (ratingError) throw ratingError;
+          if (ratingError) {
+            console.error('❌ Rating error:', ratingError);
+            throw ratingError;
+          }
+
+          console.log('✅ Rating saved successfully:', ratingData);
 
           // Log rating interaction for algorithm
           await supabase
@@ -147,9 +154,7 @@ export function PostCreationDialog({
               post_id: contentId,
               post_type: 'rating',
               interaction_type: 'rate',
-            })
-            .select()
-            .single();
+            });
         }
       } else {
         // Save thought
