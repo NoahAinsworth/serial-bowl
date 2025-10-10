@@ -94,6 +94,8 @@ export function useFeed(feedType: string, contentType: string = 'all') {
 
       const { data: { session } } = await supabase.auth.getSession();
       
+      console.log('Loading feed:', { feedType, contentType, hasSession: !!session });
+      
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
@@ -102,19 +104,24 @@ export function useFeed(feedType: string, contentType: string = 'all') {
         headers['Authorization'] = `Bearer ${session.access_token}`;
       }
 
-      const response = await fetch(
-        `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${feedType}&contentType=${contentType}`,
-        { 
-          headers,
-          signal: AbortSignal.timeout(10000),
-        }
-      );
+      const url = `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${feedType}&contentType=${contentType}`;
+      console.log('Fetching from:', url);
+
+      const response = await fetch(url, { 
+        headers,
+        signal: AbortSignal.timeout(10000),
+      });
+
+      console.log('Feed response status:', response.status);
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Feed error response:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Feed data received:', { postCount: data.posts?.length, tab: data.tab });
       setPosts(data.posts || []);
     } catch (err) {
       console.error('Error loading feed:', err);

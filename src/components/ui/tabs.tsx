@@ -15,18 +15,26 @@ const TabsList = React.forwardRef<
   React.useEffect(() => {
     const updateIndicator = () => {
       const list = listRef.current;
-      if (!list) return;
+      if (!list) {
+        console.log('TabsList: no list ref');
+        return;
+      }
       
       const activeTab = list.querySelector('[data-state="active"]');
+      console.log('TabsList: active tab found:', !!activeTab);
+      
       if (activeTab) {
         const rect = activeTab.getBoundingClientRect();
         const listRect = list.getBoundingClientRect();
-        setActiveRect({
+        const newRect = {
           left: rect.left - listRect.left,
           top: rect.top - listRect.top,
           width: rect.width,
           height: rect.height,
-        } as DOMRect);
+        } as DOMRect;
+        
+        console.log('TabsList: setting activeRect:', newRect);
+        setActiveRect(newRect);
       }
     };
 
