@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, ThumbsDown, MoreVertical, EyeOff, Flag } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Heart, ThumbsDown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { SpoilerText } from '@/components/SpoilerText';
+import { PostMenu } from '@/components/PostMenu';
 import { RatingBadge } from '@/components/PercentRating';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -57,33 +57,6 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
 
   const handleHidePost = () => {
     setHidden(true);
-    setShowUndo(true);
-    toast({
-      title: "Post hidden",
-      description: "Undo?",
-      action: (
-        <Button variant="outline" size="sm" onClick={() => {
-          setHidden(false);
-          setShowUndo(false);
-        }}>
-          Undo
-        </Button>
-      ),
-    });
-  };
-
-  const handleReport = () => {
-    navigate('/settings', { 
-      state: { 
-        openTab: 'legal', 
-        scrollTo: 'report',
-        reportData: {
-          reason: '',
-          description: `Reported review by ${review.user.handle}${review.content ? ` for ${review.content.title}` : ''}:\n\n"${review.text}"${review.rating ? `\n\nRating: ${review.rating}%` : ''}`,
-          userOrLink: review.user.handle,
-        }
-      } 
-    });
   };
 
   if (hidden && !showUndo) return null;
@@ -223,23 +196,13 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
                 {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
               </span>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={handleHidePost}>
-                  <EyeOff className="h-4 w-4 mr-2" />
-                  Hide Post
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleReport}>
-                  <Flag className="h-4 w-4 mr-2" />
-                  Report...
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <PostMenu 
+              postId={review.id}
+              postType="review"
+              authorHandle={review.user.handle}
+              textContent={review.text}
+              onHide={handleHidePost}
+            />
           </div>
 
           {review.content && (
