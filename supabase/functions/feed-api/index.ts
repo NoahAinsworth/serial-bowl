@@ -19,20 +19,30 @@ Deno.serve(async (req) => {
     const contentType = url.searchParams.get('contentType') || 'all';
     const limit = parseInt(url.searchParams.get('limit') || '20');
     
-    // Get auth header
+    // Get auth header and extract JWT
     const authHeader = req.headers.get('Authorization');
     
-    // Create client with proper auth
+    // Create client that will use the user's auth context for RLS
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: authHeader ? { Authorization: authHeader } : {} },
-      auth: { persistSession: false, autoRefreshToken: false }
+      auth: { persistSession: false }
     });
     
-    // Get user from session
+    // Get user ID from JWT token directly
     let userId: string | null = null;
     if (authHeader) {
-      const { data: { user } } = await supabase.auth.getUser();
-      userId = user?.id || null;
+      try {
+        // Extract token and decode to get user_id
+        const token = authHeader.replace('Bearer ', '');
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          userId = payload.sub || null;
+          console.log(`Authenticated as: ${userId}`);
+        }
+      } catch (e) {
+        console.error('Failed to decode token:', e);
+      }
     }
 
     console.log(`Feed: tab=${tab}, type=${contentType}, user=${userId || 'anon'}`);
