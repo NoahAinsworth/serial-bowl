@@ -222,16 +222,10 @@ Deno.serve(async (req) => {
 
         if (!postData) return null;
 
-        // Get rating for reviews
+        // For reviews, use the rating from the review itself
         let rating = null;
         if (p.type === 'review') {
-          const { data: ratingData } = await supabase
-            .from('ratings')
-            .select('rating')
-            .eq('user_id', postData.user_id)
-            .eq('content_id', postData.content_id)
-            .maybeSingle();
-          rating = ratingData?.rating || null;
+          rating = postData.rating || null;
         }
 
         // Get interaction counts based on post type
