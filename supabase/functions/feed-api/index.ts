@@ -12,20 +12,26 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Get user from auth header
+    const authHeader = req.headers.get('Authorization');
+    
+    // Create client with user's token to respect RLS
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: authHeader ? { Authorization: authHeader } : {}
+      }
+    });
 
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'trending';
     const limit = parseInt(url.searchParams.get('limit') || '20');
     
-    // Get user from auth header
-    const authHeader = req.headers.get('Authorization');
     let userId: string | null = null;
     
     if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user } } = await supabase.auth.getUser(token);
+      const { data: { user } } = await supabase.auth.getUser();
       userId = user?.id || null;
     }
 
@@ -270,11 +276,14 @@ Deno.serve(async (req) => {
           // Use cached scores
           posts = recentScores;
         } else {
-          // Trigger async refresh
-          fetch(`${supabaseUrl}/functions/v1/compute-feed-scores`, {
+          // Trigger async refresh using anon key
+          const supabaseServiceUrl = Deno.env.get('SUPABASE_URL')!;
+          const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+          
+          fetch(`${supabaseServiceUrl}/functions/v1/compute-feed-scores`, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${supabaseKey}`,
+              'Authorization': `Bearer ${supabaseServiceKey}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({ userId })
