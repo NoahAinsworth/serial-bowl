@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
+import { UserPosts } from '@/components/UserPosts';
 import { UserThoughts } from '@/components/UserThoughts';
 import { FollowRequestButton } from '@/components/FollowRequestButton';
 
@@ -28,7 +29,7 @@ export default function UserProfilePage() {
     showCount: 0,
     seasonCount: 0,
     episodeCount: 0,
-    thoughtCount: 0,
+    postCount: 0,
     followers: 0,
     following: 0,
   });
@@ -102,7 +103,7 @@ export default function UserProfilePage() {
         showCount: 0,
         seasonCount: 0,
         episodeCount: 0,
-        thoughtCount: 0,
+        postCount: 0,
         followers: 0,
         following: 0,
       });
@@ -125,10 +126,18 @@ export default function UserProfilePage() {
     const seasonCount = ratings?.filter(r => contentMap.get(r.content_id) === 'season').length || 0;
     const episodeCount = ratings?.filter(r => contentMap.get(r.content_id) === 'episode').length || 0;
 
+    // Get count of both thoughts and reviews for total post count
     const { count: thoughtCount } = await supabase
       .from('thoughts')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', profileData.id);
+
+    const { count: reviewCount } = await supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', profileData.id);
+
+    const postCount = (thoughtCount || 0) + (reviewCount || 0);
 
     const { count: followers } = await supabase
       .from('follows')
@@ -150,7 +159,7 @@ export default function UserProfilePage() {
       showCount,
       seasonCount,
       episodeCount,
-      thoughtCount: thoughtCount || 0,
+      postCount,
       followers: followers || 0,
       following: following || 0,
     });
@@ -282,9 +291,9 @@ export default function UserProfilePage() {
         </div>
       </Card>
 
-      <Tabs defaultValue="thoughts" className="w-full">
+      <Tabs defaultValue="posts" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="thoughts">Thoughts ({profile.thoughtCount})</TabsTrigger>
+          <TabsTrigger value="posts">Posts ({profile.postCount})</TabsTrigger>
           <TabsTrigger value="shows">Shows ({profile.showCount})</TabsTrigger>
           <TabsTrigger value="seasons">Seasons ({profile.seasonCount})</TabsTrigger>
           <TabsTrigger value="episodes">Eps ({profile.episodeCount})</TabsTrigger>
@@ -294,14 +303,14 @@ export default function UserProfilePage() {
             <Card className="p-8">
               <h3 className="text-xl font-semibold mb-2">This Account is Private</h3>
               <p className="text-muted-foreground">
-                Follow this account to see their thoughts and activity
+                Follow this account to see their posts and activity
               </p>
             </Card>
           </div>
         ) : (
           <>
-            <TabsContent value="thoughts" className="mt-4">
-              <UserThoughts userId={userId} />
+            <TabsContent value="posts" className="mt-4">
+              <UserPosts userId={userId} />
             </TabsContent>
             <TabsContent value="shows" className="mt-4">
               <UserRatings userId={userId} contentKind="show" />
