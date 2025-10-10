@@ -280,28 +280,26 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
 
           <SpoilerText content={displayText} isSpoiler={false} />
 
-          {(review.likes !== undefined || review.dislikes !== undefined) && (
-            <div className="flex items-center gap-6 text-muted-foreground mt-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLike}
-                className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
-              >
-                <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
-                <span className="text-sm">{localLikes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDislike}
-                className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
-              >
-                <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
-                <span className="text-sm">{localDislikes}</span>
-              </Button>
-            </div>
-          )}
+          <div className="flex items-center gap-6 text-muted-foreground mt-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLike}
+              className={`transition-all duration-200 ${localReaction === 'like' ? 'text-primary' : ''}`}
+            >
+              <Heart className={`h-4 w-4 mr-1 ${localReaction === 'like' ? 'fill-primary' : ''}`} />
+              <span className="text-sm">{localLikes}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDislike}
+              className={`transition-all duration-200 ${localReaction === 'dislike' ? 'text-destructive' : ''}`}
+            >
+              <ThumbsDown className={`h-4 w-4 mr-1 ${localReaction === 'dislike' ? 'fill-destructive' : ''}`} />
+              <span className="text-sm">{localDislikes}</span>
+            </Button>
+          </div>
         </div>
       </div>
     </article>
