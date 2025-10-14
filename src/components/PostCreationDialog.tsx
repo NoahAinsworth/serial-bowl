@@ -151,16 +151,9 @@ export function PostCreationDialog({
         if (thoughtError) throw thoughtError;
       }
 
-      // Different success messages based on what was saved
-      const successMsg = postType === 'review' 
-        ? (text.trim() ? 'Review posted!' : 'Rating saved!')
-        : 'Thought posted!';
-
-      console.log('Post successful!', successMsg);
-
       toast({
-        title: "Success",
-        description: successMsg,
+        title: "Posted!",
+        description: "Your post has been published",
       });
 
       setText('');
@@ -170,8 +163,8 @@ export function PostCreationDialog({
       onOpenChange(false);
       onSuccess?.();
       
-      // Navigate to home after posting
-      navigate('/');
+      // Navigate to home after short delay so user sees the toast
+      setTimeout(() => navigate('/'), 150);
     } catch (error: any) {
       console.error('Error posting:', error);
       console.error('Error details:', {

@@ -586,6 +586,7 @@ export type Database = {
           author_id: string
           body: string | null
           created_at: string | null
+          deleted_at: string | null
           dislikes_count: number | null
           id: string
           impressions_count: number | null
@@ -604,6 +605,7 @@ export type Database = {
           author_id: string
           body?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           dislikes_count?: number | null
           id?: string
           impressions_count?: number | null
@@ -622,6 +624,7 @@ export type Database = {
           author_id?: string
           body?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           dislikes_count?: number | null
           id?: string
           impressions_count?: number | null
@@ -1532,6 +1535,20 @@ export type Database = {
       exp_decay: {
         Args: { created: string; half_life_hours: number }
         Returns: number
+      }
+      feed_recent_popular: {
+        Args: { limit_count?: number }
+        Returns: {
+          post_id: string
+          score: number
+        }[]
+      }
+      feed_trending_rt: {
+        Args: { cursor_score?: number; limit_count?: number }
+        Returns: {
+          post_id: string
+          score: number
+        }[]
       }
       has_role: {
         Args: {

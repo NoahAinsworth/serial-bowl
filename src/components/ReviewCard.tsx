@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, ThumbsDown, MoreVertical, EyeOff, Flag } from 'lucide-react';
+import { Heart, ThumbsDown, MoreVertical, EyeOff, Flag, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { SpoilerText } from '@/components/SpoilerText';
@@ -70,6 +70,34 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
         </Button>
       ),
     });
+  };
+
+  const handleDelete = async () => {
+    if (!user || user.id !== review.user.id) return;
+    
+    try {
+      // Hard delete the review
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', review.id);
+      
+      if (error) throw error;
+      
+      setHidden(true);
+      toast({
+        title: "Review deleted",
+        description: "Your review has been removed",
+      });
+      
+      onDelete?.();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete review",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleReport = () => {
@@ -236,6 +264,12 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                {user?.id === review.user.id && (
+                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleHidePost}>
                   <EyeOff className="h-4 w-4 mr-2" />
                   Hide Post

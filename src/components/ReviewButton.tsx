@@ -68,12 +68,15 @@ export function ReviewButton({
       if (reviewError) throw reviewError;
 
       toast({
-        title: "Success",
-        description: "Your review has been saved!",
+        title: "Posted!",
+        description: "Your review has been published",
       });
 
       setOpen(false);
       onReviewSubmit?.();
+      
+      // Navigate to home after short delay
+      setTimeout(() => window.location.href = '/', 150);
     } catch (error: any) {
       toast({
         title: "Error",
