@@ -19,13 +19,16 @@ export async function createThought(params: CreateThoughtParams) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
+  // Direct insert into posts table
   const { data, error } = await supabase
-    .from('thoughts')
+    .from('posts' as any)
     .insert({
-      user_id: user.id,
-      text_content: params.body,
-      content_id: params.contentId || null,
+      author_id: user.id,
+      kind: 'thought',
+      body: params.body,
       is_spoiler: params.hasSpoilers || false,
+      has_spoilers: params.hasSpoilers || false,
+      has_mature: params.hasMature || false,
     })
     .select()
     .single();

@@ -244,7 +244,7 @@ export default function Home() {
           ) : (
             <div className="px-4">
               {posts
-                .filter(post => !strictSafety || !post.contains_mature)
+                .filter(post => !strictSafety || !post.has_mature)
                 .map((post) => (
                   <PostCard 
                     key={post.id} 
@@ -272,7 +272,7 @@ export default function Home() {
           ) : (
             <div className="px-4">
               {posts
-                .filter(post => !strictSafety || !post.contains_mature)
+                .filter(post => !strictSafety || !post.has_mature)
                 .map((post) => (
                   <PostCard 
                     key={post.id} 
@@ -300,7 +300,7 @@ export default function Home() {
           ) : (
             <div className="px-4">
               {posts
-                .filter(post => !strictSafety || !post.contains_mature)
+                .filter(post => !strictSafety || !post.has_mature)
                 .map((post) => (
                   <PostCard 
                     key={post.id} 
@@ -328,7 +328,7 @@ export default function Home() {
           ) : (
             <div className="px-4">
               {posts
-                .filter(post => !strictSafety || !post.contains_mature)
+                .filter(post => !strictSafety || !post.has_mature)
                 .map((post) => (
                   <PostCard 
                     key={post.id} 
@@ -356,7 +356,7 @@ export default function Home() {
           ) : (
             <div className="px-4">
               {posts
-                .filter(post => !strictSafety || !post.contains_mature)
+                .filter(post => !strictSafety || !post.has_mature)
                 .map((post) => (
                   <PostCard 
                     key={post.id} 

@@ -4,26 +4,25 @@ import * as feedsApi from '@/api/feeds';
 
 interface FeedPost {
   id: string;
-  type: 'thought' | 'review';
+  kind: 'thought' | 'review' | 'rating';
   user: {
     id: string;
     handle: string;
     avatar_url: string | null;
   };
-  content: any;
-  text: string;
-  is_spoiler?: boolean;
-  contains_mature?: boolean;
-  mature_reasons?: string[];
-  visibility?: string;
-  rating: number | null;
-  likes: number;
-  dislikes: number;
-  comments: number;
-  rethinks: number;
+  body: string | null;
+  item_type: string | null;
+  item_id: string | null;
+  rating_percent: number | null;
+  is_spoiler: boolean;
+  has_spoilers: boolean;
+  has_mature: boolean;
+  likes_count: number;
+  dislikes_count: number;
+  replies_count: number;
+  reshares_count: number;
   userReaction?: 'like' | 'dislike';
   created_at: string;
-  score?: number;
 }
 
 export function useFeed(feedType: string, contentType: string = 'all') {
@@ -34,7 +33,7 @@ export function useFeed(feedType: string, contentType: string = 'all') {
   useEffect(() => {
     loadFeed();
 
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates on posts table
     const channel = supabase
       .channel('feed-updates')
       .on(
@@ -42,7 +41,7 @@ export function useFeed(feedType: string, contentType: string = 'all') {
         {
           event: '*',
           schema: 'public',
-          table: 'thoughts'
+          table: 'posts'
         },
         () => {
           loadFeed();
@@ -53,29 +52,7 @@ export function useFeed(feedType: string, contentType: string = 'all') {
         {
           event: '*',
           schema: 'public',
-          table: 'reviews'
-        },
-        () => {
-          loadFeed();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'reactions'
-        },
-        () => {
-          loadFeed();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'comments'
+          table: 'post_reactions'
         },
         () => {
           loadFeed();
@@ -93,7 +70,7 @@ export function useFeed(feedType: string, contentType: string = 'all') {
       setLoading(true);
       setError(null);
 
-      // Use new client-side API
+      // Fetch posts using database feed functions
       let rawPosts: any[] = [];
       
       switch (feedType) {
@@ -110,88 +87,66 @@ export function useFeed(feedType: string, contentType: string = 'all') {
           rawPosts = await feedsApi.getNew();
           break;
         case 'for-you':
-          rawPosts = await feedsApi.getForYou();
-          break;
         default:
-          rawPosts = await feedsApi.getNew();
+          rawPosts = await feedsApi.getForYou();
       }
 
-      // Transform to FeedPost format
+      // Get user data and check reactions for each post
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const transformedPosts: FeedPost[] = await Promise.all(
         rawPosts.map(async (post) => {
           // Get user profile
           const { data: profile } = await supabase
             .from('profiles')
             .select('id, handle, avatar_url')
-            .eq('id', post.user_id)
+            .eq('id', post.author_id)
             .maybeSingle();
 
-          let likes = 0;
-          let dislikes = 0;
-
-          // Count reactions based on post type
-          if (post.type === 'thought') {
-            const { data: likesData } = await supabase
-              .from('reactions')
-              .select('id', { count: 'exact', head: true })
-              .eq('thought_id', post.id)
-              .eq('reaction_type', 'like');
+          // Check user's reaction
+          let userReaction: 'like' | 'dislike' | undefined;
+          if (user) {
+            const { data: reaction } = await supabase
+              .from('post_reactions' as any)
+              .select('kind')
+              .eq('post_id', post.id)
+              .eq('user_id', user.id)
+              .maybeSingle();
             
-            const { data: dislikesData } = await supabase
-              .from('thought_dislikes')
-              .select('id', { count: 'exact', head: true })
-              .eq('thought_id', post.id);
-
-            likes = likesData?.length || 0;
-            dislikes = dislikesData?.length || 0;
-          } else {
-            const { data: likesData } = await supabase
-              .from('review_likes')
-              .select('id', { count: 'exact', head: true })
-              .eq('review_id', post.id);
-            
-            const { data: dislikesData } = await supabase
-              .from('review_dislikes')
-              .select('id', { count: 'exact', head: true })
-              .eq('review_id', post.id);
-
-            likes = likesData?.length || 0;
-            dislikes = dislikesData?.length || 0;
+            if (reaction) {
+              userReaction = reaction.kind as 'like' | 'dislike';
+            }
           }
-
-          // Count comments
-          const { count: commentsCount } = await supabase
-            .from('comments')
-            .select('*', { count: 'exact', head: true })
-            .eq('thought_id', post.id);
 
           return {
             id: post.id,
-            type: post.type,
-            user: profile || { id: post.user_id, handle: 'Unknown', avatar_url: null },
-            content: post,
-            text: post.type === 'thought' ? post.text_content : post.review_text,
-            is_spoiler: post.is_spoiler,
-            contains_mature: post.contains_mature,
-            rating: post.type === 'review' ? post.rating : null,
-            likes,
-            dislikes,
-            comments: commentsCount || 0,
-            rethinks: 0,
+            kind: post.kind,
+            user: profile || { id: post.author_id, handle: 'Unknown', avatar_url: null },
+            body: post.body,
+            item_type: post.item_type,
+            item_id: post.item_id,
+            rating_percent: post.rating_percent,
+            is_spoiler: post.is_spoiler || false,
+            has_spoilers: post.has_spoilers || false,
+            has_mature: post.has_mature || false,
+            likes_count: post.likes_count || 0,
+            dislikes_count: post.dislikes_count || 0,
+            replies_count: post.replies_count || 0,
+            reshares_count: post.reshares_count || 0,
+            userReaction,
             created_at: post.created_at,
           };
         })
       );
 
-      // Filter by content type
+      // Filter by content type if needed
       let filtered = transformedPosts;
       if (contentType === 'thoughts') {
-        filtered = transformedPosts.filter(p => p.type === 'thought');
+        filtered = transformedPosts.filter(p => p.kind === 'thought');
       } else if (contentType === 'reviews') {
-        filtered = transformedPosts.filter(p => p.type === 'review');
+        filtered = transformedPosts.filter(p => p.kind === 'review');
       }
 
-      console.log(`Setting ${filtered.length} posts for ${feedType}`);
       setPosts(filtered);
     } catch (err) {
       console.error('Error loading feed:', err);
