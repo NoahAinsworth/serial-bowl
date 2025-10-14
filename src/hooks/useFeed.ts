@@ -1,29 +1,37 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { env } from '@/lib/env';
+import * as feedsAPI from '@/api/feeds';
 
 interface FeedPost {
   id: string;
-  type: 'thought' | 'review';
-  user: {
+  author_id: string;
+  kind: string;
+  body: string | null;
+  item_type: string | null;
+  item_id: string | null;
+  rating_percent: number | null;
+  is_spoiler: boolean;
+  likes_count: number;
+  dislikes_count: number;
+  replies_count: number;
+  reshares_count: number;
+  created_at: string;
+  author?: {
     id: string;
     handle: string;
-    avatar_url: string | null;
+    avatar_url?: string | null;
   };
-  content: any;
-  text: string;
-  is_spoiler?: boolean;
-  contains_mature?: boolean;
-  mature_reasons?: string[];
-  visibility?: string;
-  rating: number | null;
-  likes: number;
-  dislikes: number;
-  comments: number;
-  rethinks: number;
+  user_reaction?: 'like' | 'dislike' | null;
+  // Legacy mappings for compatibility
+  type?: 'thought' | 'review';
+  user?: any;
+  text?: string;
+  rating?: number | null;
+  likes?: number;
+  dislikes?: number;
+  comments?: number;
   userReaction?: 'like' | 'dislike';
-  created_at: string;
-  score?: number;
+  contains_mature?: boolean;
 }
 
 export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-takes', contentType: string = 'all') {
@@ -34,7 +42,7 @@ export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-ta
   useEffect(() => {
     loadFeed();
 
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates for posts
     const channel = supabase
       .channel('feed-updates')
       .on(
@@ -42,7 +50,7 @@ export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-ta
         {
           event: '*',
           schema: 'public',
-          table: 'thoughts'
+          table: 'posts'
         },
         () => {
           loadFeed();
@@ -53,29 +61,7 @@ export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-ta
         {
           event: '*',
           schema: 'public',
-          table: 'reviews'
-        },
-        () => {
-          loadFeed();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'reactions'
-        },
-        () => {
-          loadFeed();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'comments'
+          table: 'post_reactions'
         },
         () => {
           loadFeed();
@@ -93,32 +79,48 @@ export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-ta
       setLoading(true);
       setError(null);
 
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`;
+      let feedPosts: feedsAPI.FeedPost[] = [];
+
+      // Call appropriate feed function
+      switch (feedType) {
+        case 'following':
+          feedPosts = await feedsAPI.getFollowing({ limit: 50 });
+          break;
+        case 'trending':
+          feedPosts = await feedsAPI.getTrending({ limit: 50 });
+          break;
+        case 'hot-takes':
+          feedPosts = await feedsAPI.getHotTakes({ limit: 50 });
+          break;
+        case 'for-you':
+        default:
+          feedPosts = await feedsAPI.getForYou({ limit: 50 });
+          break;
       }
 
-      const response = await fetch(
-        `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${feedType}&contentType=${contentType}`,
-        { 
-          headers,
-          signal: AbortSignal.timeout(10000),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Filter by content type if needed
+      let filteredPosts = feedPosts;
+      if (contentType === 'thoughts') {
+        filteredPosts = feedPosts.filter(p => p.kind === 'thought');
+      } else if (contentType === 'reviews') {
+        filteredPosts = feedPosts.filter(p => p.kind === 'review');
       }
 
-      const data = await response.json();
-      console.log(`Feed response for ${feedType}:`, data);
-      console.log(`Setting ${data.posts?.length || 0} posts`);
-      setPosts(data.posts || []);
+      // Map to legacy format for compatibility with strict type requirements
+      const mappedPosts = filteredPosts.map(post => ({
+        ...post,
+        type: post.kind as 'thought' | 'review',
+        user: post.author || { id: post.author_id, handle: 'unknown', avatar_url: null },
+        text: post.body || '',
+        rating: post.rating_percent || 0,
+        likes: post.likes_count || 0,
+        dislikes: post.dislikes_count || 0,
+        comments: post.replies_count || 0,
+        userReaction: post.user_reaction || undefined,
+        content: post.body || '',
+      }));
+
+      setPosts(mappedPosts);
     } catch (err) {
       console.error('Error loading feed:', err);
       setError(err instanceof Error ? err.message : 'Failed to load feed');
