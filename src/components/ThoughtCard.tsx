@@ -17,12 +17,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { CommentsSection } from '@/components/CommentsSection';
 import { SafetyOverlay } from '@/components/SafetyOverlay';
 import { replaceProfanity } from '@/utils/profanityFilter';
+import * as postsAPI from '@/api/posts';
 
 interface ThoughtCardProps {
   thought: {
@@ -130,40 +130,15 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
     }
 
     try {
-      if (localReaction === type) {
-        await supabase
-          .from('reactions')
-          .delete()
-          .eq('thought_id', thought.id)
-          .eq('user_id', user.id)
-          .eq('reaction_type', type);
+      const newReaction = localReaction === type ? undefined : type;
+      await postsAPI.reactToPost(thought.id, newReaction);
 
-        if (type === 'like') setLocalLikes(prev => prev - 1);
-        setLocalReaction(undefined);
-      } else {
-        if (localReaction === 'dislike') {
-          await supabase
-            .from('thought_dislikes')
-            .delete()
-            .eq('thought_id', thought.id)
-            .eq('user_id', user.id);
-
-          setLocalDislikes(prev => prev - 1);
-        }
-
-        await supabase
-          .from('reactions')
-          .insert({
-            thought_id: thought.id,
-            user_id: user.id,
-            reaction_type: type,
-          });
-
-        if (type === 'like') setLocalLikes(prev => prev + 1);
-        setLocalReaction(type);
+      if (newReaction === 'like') {
+        setLocalLikes(prev => localReaction === 'like' ? prev - 1 : prev + 1);
+        if (localReaction === 'dislike') setLocalDislikes(prev => prev - 1);
       }
-
-      // Don't trigger immediate refetch - let realtime updates handle it
+      setLocalReaction(newReaction);
+      onReactionChange?.();
     } catch (error) {
       toast({
         title: "Error",
@@ -184,41 +159,17 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
     }
 
     try {
-      const isDisliked = localReaction === 'dislike';
+      const newReaction = localReaction === 'dislike' ? undefined : 'dislike';
+      await postsAPI.reactToPost(thought.id, newReaction);
 
-      if (isDisliked) {
-        await supabase
-          .from('thought_dislikes')
-          .delete()
-          .eq('thought_id', thought.id)
-          .eq('user_id', user.id);
-
-        setLocalDislikes(prev => prev - 1);
-        setLocalReaction(undefined);
+      if (newReaction === 'dislike') {
+        setLocalDislikes(prev => localReaction === 'dislike' ? prev - 1 : prev + 1);
+        if (localReaction === 'like') setLocalLikes(prev => prev - 1);
       } else {
-        if (localReaction === 'like') {
-          await supabase
-            .from('reactions')
-            .delete()
-            .eq('thought_id', thought.id)
-            .eq('user_id', user.id)
-            .eq('reaction_type', 'like');
-
-          setLocalLikes(prev => prev - 1);
-        }
-
-        await supabase
-          .from('thought_dislikes')
-          .insert({
-            thought_id: thought.id,
-            user_id: user.id,
-          });
-
-        setLocalDislikes(prev => prev + 1);
-        setLocalReaction('dislike');
+        setLocalDislikes(prev => prev - 1);
       }
-
-      // Don't trigger immediate refetch - let realtime updates handle it
+      setLocalReaction(newReaction);
+      onReactionChange?.();
     } catch (error) {
       toast({
         title: "Error",
@@ -233,13 +184,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
 
     setDeleting(true);
     try {
-      const { error } = await supabase
-        .from('thoughts')
-        .delete()
-        .eq('id', thought.id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
+      await postsAPI.deletePost(thought.id);
 
       toast({
         title: "Thought deleted",

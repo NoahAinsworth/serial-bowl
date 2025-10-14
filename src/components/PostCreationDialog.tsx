@@ -6,13 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { PercentRating } from '@/components/PercentRating';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { postSchema } from '@/lib/validation';
 import { z } from 'zod';
 import { detectMatureContent } from '@/utils/profanityFilter';
+import * as postsAPI from '@/api/posts';
 
 interface PostCreationDialogProps {
   open: boolean;
@@ -107,48 +107,23 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review') {
-        // Parse contentId to get item_type and item_id
-        // Assuming contentId format is either UUID (show) or contains hierarchical info
-        // For now, we'll treat all as 'show' - you may need to adjust based on your ID format
-        const itemType = 'show'; // TODO: detect from contentId format
+        const itemType = 'show';
         const itemId = contentId;
         
-        // Use the new api_rate_and_review function
-        const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
-          p_item_type: itemType,
-          p_item_id: itemId,
-          p_score_any: rating > 0 ? rating.toString() : null,
-          p_review: text.trim() || null,
-          p_is_spoiler: isSpoiler,
+        await postsAPI.createReview({
+          item_type: itemType,
+          item_id: itemId,
+          rating_percent: rating > 0 ? rating : undefined,
+          body: text.trim() || undefined,
+          is_spoiler: isSpoiler,
         });
-
-        if (reviewError) throw reviewError;
-
-        // Log interaction for algorithm (fire and forget)
-        if (rating > 0) {
-          supabase.from('interactions').insert({
-            user_id: user.id,
-            post_id: contentId,
-            post_type: 'rating',
-            interaction_type: 'rate',
-          });
-        }
       } else {
-        // Save thought
-        const { isMature, reasons } = detectMatureContent(text);
-        
-        const { error: thoughtError } = await supabase
-          .from('thoughts')
-          .insert({
-            user_id: user.id,
-            content_id: contentId,
-            text_content: text,
-            is_spoiler: isSpoiler,
-            contains_mature: containsMature || isMature,
-            mature_reasons: containsMature || isMature ? reasons : [],
-          });
-
-        if (thoughtError) throw thoughtError;
+        await postsAPI.createThought({
+          item_type: 'show',
+          item_id: contentId,
+          body: text,
+          is_spoiler: isSpoiler,
+        });
       }
 
       toast({

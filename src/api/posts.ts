@@ -1,18 +1,25 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export interface CreateThoughtParams {
-  itemType: 'show' | 'season' | 'episode';
-  itemId: string;
+  itemType?: 'show' | 'season' | 'episode';
+  itemId?: string;
+  item_type?: 'show' | 'season' | 'episode';
+  item_id?: string;
   body: string;
+  is_spoiler?: boolean;
   hasSpoilers?: boolean;
   hasMature?: boolean;
 }
 
 export interface CreateReviewParams {
-  itemType: 'show' | 'season' | 'episode';
-  itemId: string;
-  body: string;
-  ratingPercent: number;
+  itemType?: 'show' | 'season' | 'episode';
+  itemId?: string;
+  item_type?: 'show' | 'season' | 'episode';
+  item_id?: string;
+  body?: string;
+  rating_percent?: number;
+  ratingPercent?: number;
+  is_spoiler?: boolean;
   hasSpoilers?: boolean;
   hasMature?: boolean;
 }
@@ -30,10 +37,9 @@ export async function createThought(params: CreateThoughtParams) {
       author_id: user.id,
       kind: 'thought',
       body: params.body,
-      item_type: params.itemType,
-      item_id: params.itemId,
-      is_spoiler: params.hasSpoilers || false,
-      // Note: has_mature is not in current schema, using is_spoiler only
+      item_type: params.item_type || params.itemType,
+      item_id: params.item_id || params.itemId,
+      is_spoiler: params.is_spoiler || params.hasSpoilers || false,
     })
     .select()
     .single();
@@ -56,10 +62,10 @@ export async function createReview(params: CreateReviewParams) {
       author_id: user.id,
       kind: 'review',
       body: params.body,
-      item_type: params.itemType,
-      item_id: params.itemId,
-      rating_percent: params.ratingPercent,
-      is_spoiler: params.hasSpoilers || false,
+      item_type: params.item_type || params.itemType,
+      item_id: params.item_id || params.itemId,
+      rating_percent: params.rating_percent || params.ratingPercent,
+      is_spoiler: params.is_spoiler || params.hasSpoilers || false,
     })
     .select()
     .single();
@@ -118,6 +124,17 @@ export async function removeReaction(postId: string) {
     .eq('post_id', postId);
 
   if (error) throw error;
+}
+
+/**
+ * React to a post (wrapper for easier component usage)
+ */
+export async function reactToPost(postId: string, reaction: 'like' | 'dislike' | undefined) {
+  if (reaction) {
+    await react(postId, reaction);
+  } else {
+    await removeReaction(postId);
+  }
 }
 
 /**
