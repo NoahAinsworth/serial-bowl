@@ -50,8 +50,8 @@ function AppRouter() {
     <div className="min-h-screen bg-background text-foreground">
       <OfflineBanner />
       <Routes>
-                <Route path="/" element={<AppLayout><Home /></AppLayout>} />
-                <Route path="/index" element={<AppLayout><Index /></AppLayout>} />
+                <Route path="/" element={<AppLayout><Index /></AppLayout>} />
+                <Route path="/home" element={<AppLayout><Home /></AppLayout>} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/search" element={<AppLayout><SearchPage /></AppLayout>} />
                 <Route path="/show/:id" element={<AppLayout><ShowDetailPage /></AppLayout>} />
