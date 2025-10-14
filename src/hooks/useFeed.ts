@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { env } from '@/lib/env';
+import * as feedsApi from '@/api/feeds';
 
 interface FeedPost {
   id: string;
@@ -93,32 +93,81 @@ export function useFeed(feedType: string, contentType: string = 'all') {
       setLoading(true);
       setError(null);
 
-      const { data: { session } } = await supabase.auth.getSession();
+      // Use new client-side API
+      let rawPosts: any[] = [];
       
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`;
+      switch (feedType) {
+        case 'following':
+          rawPosts = await feedsApi.getFollowing();
+          break;
+        case 'trending':
+          rawPosts = await feedsApi.getTrending();
+          break;
+        case 'hot-takes':
+          rawPosts = await feedsApi.getHotTakes();
+          break;
+        default:
+          rawPosts = await feedsApi.getNew();
       }
 
-      const response = await fetch(
-        `${env.SUPABASE_URL}/functions/v1/feed-api?tab=${feedType}&contentType=${contentType}`,
-        { 
-          headers,
-          signal: AbortSignal.timeout(10000),
-        }
+      // Transform to FeedPost format
+      const transformedPosts: FeedPost[] = await Promise.all(
+        rawPosts.map(async (post) => {
+          // Get user profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id, handle, avatar_url')
+            .eq('id', post.user_id)
+            .maybeSingle();
+
+          // Count reactions - use raw query to avoid type complexity
+          const reactionsQuery = supabase
+            .from('reactions')
+            .select('reaction_type');
+          
+          const reactionField = post.type === 'thought' ? 'thought_id' : 'review_id';
+          const { data: reactionsData } = await (reactionsQuery as any).eq(reactionField, post.id);
+          const reactions = reactionsData || [];
+
+          const likes = reactions.filter((r: any) => r.reaction_type === 'like').length;
+          const dislikes = reactions.filter((r: any) => r.reaction_type === 'dislike').length;
+
+          // Count comments - use raw query to avoid type complexity
+          const commentsQuery = supabase
+            .from('comments')
+            .select('*', { count: 'exact', head: true });
+          
+          const commentField = post.type === 'thought' ? 'thought_id' : 'review_id';
+          const { count: commentsCount } = await (commentsQuery as any).eq(commentField, post.id);
+
+          return {
+            id: post.id,
+            type: post.type,
+            user: profile || { id: post.user_id, handle: 'Unknown', avatar_url: null },
+            content: post,
+            text: post.type === 'thought' ? post.text_content : post.review_text,
+            is_spoiler: post.is_spoiler,
+            contains_mature: post.contains_mature,
+            rating: post.type === 'review' ? post.rating : null,
+            likes,
+            dislikes,
+            comments: commentsCount || 0,
+            rethinks: 0,
+            created_at: post.created_at,
+          };
+        })
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Filter by content type
+      let filtered = transformedPosts;
+      if (contentType === 'thoughts') {
+        filtered = transformedPosts.filter(p => p.type === 'thought');
+      } else if (contentType === 'reviews') {
+        filtered = transformedPosts.filter(p => p.type === 'review');
       }
 
-      const data = await response.json();
-      console.log(`Feed response for ${feedType}:`, data);
-      console.log(`Setting ${data.posts?.length || 0} posts`);
-      setPosts(data.posts || []);
+      console.log(`Setting ${filtered.length} posts for ${feedType}`);
+      setPosts(filtered);
     } catch (err) {
       console.error('Error loading feed:', err);
       setError(err instanceof Error ? err.message : 'Failed to load feed');
