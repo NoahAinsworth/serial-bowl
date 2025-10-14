@@ -316,6 +316,53 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_group: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_group?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_group?: boolean | null
+        }
+        Relationships: []
+      }
       custom_lists: {
         Row: {
           created_at: string | null
@@ -389,6 +436,54 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      episodes: {
+        Row: {
+          dominant_hex: string | null
+          episode_number: number
+          id: number
+          metadata: Json | null
+          season_id: number | null
+          season_number: number
+          show_id: number | null
+          title: string | null
+        }
+        Insert: {
+          dominant_hex?: string | null
+          episode_number: number
+          id: number
+          metadata?: Json | null
+          season_id?: number | null
+          season_number: number
+          show_id?: number | null
+          title?: string | null
+        }
+        Update: {
+          dominant_hex?: string | null
+          episode_number?: number
+          id?: number
+          metadata?: Json | null
+          season_id?: number | null
+          season_number?: number
+          show_id?: number | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "episodes_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
             referencedColumns: ["id"]
           },
         ]
@@ -552,6 +647,80 @@ export type Database = {
           },
         ]
       }
+      message_reads: {
+        Row: {
+          message_id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          message_id: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          message_id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string | null
+          conversation_id: string | null
+          created_at: string | null
+          deleted_at: string | null
+          edited_at: string | null
+          id: string
+          post_id: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          post_id?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          post_id?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_reactions: {
         Row: {
           created_at: string | null
@@ -588,6 +757,8 @@ export type Database = {
           created_at: string | null
           deleted_at: string | null
           dislikes_count: number | null
+          has_mature: boolean | null
+          has_spoilers: boolean | null
           id: string
           impressions_count: number | null
           is_spoiler: boolean | null
@@ -607,6 +778,8 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           dislikes_count?: number | null
+          has_mature?: boolean | null
+          has_spoilers?: boolean | null
           id?: string
           impressions_count?: number | null
           is_spoiler?: boolean | null
@@ -626,6 +799,8 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           dislikes_count?: number | null
+          has_mature?: boolean | null
+          has_spoilers?: boolean | null
           id?: string
           impressions_count?: number | null
           is_spoiler?: boolean | null
@@ -898,6 +1073,68 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seasons: {
+        Row: {
+          dominant_hex: string | null
+          id: number
+          metadata: Json | null
+          poster_url: string | null
+          season_number: number
+          show_id: number | null
+        }
+        Insert: {
+          dominant_hex?: string | null
+          id: number
+          metadata?: Json | null
+          poster_url?: string | null
+          season_number: number
+          show_id?: number | null
+        }
+        Update: {
+          dominant_hex?: string | null
+          id?: number
+          metadata?: Json | null
+          poster_url?: string | null
+          season_number?: number
+          show_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seasons_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shows: {
+        Row: {
+          dominant_hex: string | null
+          id: number
+          metadata: Json | null
+          poster_url: string | null
+          title: string
+          year: number | null
+        }
+        Insert: {
+          dominant_hex?: string | null
+          id: number
+          metadata?: Json | null
+          poster_url?: string | null
+          title: string
+          year?: number | null
+        }
+        Update: {
+          dominant_hex?: string | null
+          id?: number
+          metadata?: Json | null
+          poster_url?: string | null
+          title?: string
+          year?: number | null
+        }
+        Relationships: []
       }
       thought_dislikes: {
         Row: {
@@ -1536,6 +1773,13 @@ export type Database = {
         Args: { created: string; half_life_hours: number }
         Returns: number
       }
+      feed_hot_takes: {
+        Args: { cursor_score?: number; limit_count?: number }
+        Returns: {
+          controversy: number
+          post_id: string
+        }[]
+      }
       feed_recent_popular: {
         Args: { limit_count?: number }
         Returns: {
@@ -1571,6 +1815,7 @@ export type Database = {
       content_kind: "show" | "season" | "episode"
       follow_status: "pending" | "accepted" | "blocked"
       moderation_status: "pending" | "approved" | "rejected"
+      post_kind: "thought" | "review"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1702,6 +1947,7 @@ export const Constants = {
       content_kind: ["show", "season", "episode"],
       follow_status: ["pending", "accepted", "blocked"],
       moderation_status: ["pending", "approved", "rejected"],
+      post_kind: ["thought", "review"],
     },
   },
 } as const
