@@ -106,6 +106,12 @@ export function useFeed(feedType: string, contentType: string = 'all') {
         case 'hot-takes':
           rawPosts = await feedsApi.getHotTakes();
           break;
+        case 'new':
+          rawPosts = await feedsApi.getNew();
+          break;
+        case 'for-you':
+          rawPosts = await feedsApi.getForYou();
+          break;
         default:
           rawPosts = await feedsApi.getNew();
       }
