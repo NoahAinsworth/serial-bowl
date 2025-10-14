@@ -33,6 +33,7 @@ import FollowersPage from "./pages/FollowersPage";
 import FollowingPage from "./pages/FollowingPage";
 import BingePage from "./pages/BingePage";
 import NotFound from "./pages/NotFound";
+import DownloadSchema from "./pages/DownloadSchema";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +78,7 @@ function AppRouter() {
                 <Route path="/following" element={<AppLayout><FollowingPage /></AppLayout>} />
                 <Route path="/user/:userId/following" element={<AppLayout><FollowingPage /></AppLayout>} />
                 <Route path="/binge" element={<AppLayout><BingePage /></AppLayout>} />
+                <Route path="/download-schema" element={<DownloadSchema />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
     </div>
