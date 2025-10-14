@@ -1773,10 +1773,24 @@ export type Database = {
         Args: { created: string; half_life_hours: number }
         Returns: number
       }
+      feed_following: {
+        Args: { cursor_ts?: string; limit_count?: number; uid: string }
+        Returns: {
+          created_at: string
+          post_id: string
+        }[]
+      }
       feed_hot_takes: {
         Args: { cursor_score?: number; limit_count?: number }
         Returns: {
           controversy: number
+          post_id: string
+        }[]
+      }
+      feed_new: {
+        Args: { cursor_ts?: string; limit_count?: number }
+        Returns: {
+          created_at: string
           post_id: string
         }[]
       }

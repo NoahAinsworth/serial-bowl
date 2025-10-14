@@ -110,7 +110,8 @@ export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-ta
         likes: post.likes_count || 0,
         dislikes: post.dislikes_count || 0,
         comments: post.replies_count || 0,
-        is_spoiler: post.is_spoiler,
+        is_spoiler: (post as any).has_spoilers || post.is_spoiler || false,
+        contains_mature: (post as any).has_mature || false,
         userReaction: post.user_reaction || undefined,
         created_at: post.created_at,
       }));
