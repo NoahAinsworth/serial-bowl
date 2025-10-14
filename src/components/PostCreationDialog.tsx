@@ -35,7 +35,7 @@ export function PostCreationDialog({
   const { toast } = useToast();
   const navigate = useNavigate();
   const [text, setText] = useState('');
-  const [rating, setRating] = useState(50);
+  const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [containsMature, setContainsMature] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -107,28 +107,9 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review') {
-        // Detect mature content if there's text
-        const { isMature, reasons } = text.trim() ? detectMatureContent(text) : { isMature: false, reasons: [] };
-        
-        // Create review record (with or without text, as long as rating or text exists)
-        const { error: reviewError } = await supabase
-          .from('reviews')
-          .insert({
-            user_id: user.id,
-            content_id: contentId,
-            review_text: text.trim() || null,
-            rating: rating > 0 ? rating : null,
-            is_spoiler: isSpoiler,
-            contains_mature: containsMature || isMature,
-            mature_reasons: containsMature || isMature ? reasons : [],
-          });
-
-        if (reviewError) throw reviewError;
-
-        // Also save rating to ratings table if provided
+        // ALWAYS save rating if provided
         if (rating > 0) {
-          console.log('💾 Saving rating:', { user_id: user.id, content_id: contentId, rating });
-          const { error: ratingError, data: ratingData } = await supabase
+          const { error: ratingError } = await supabase
             .from('ratings')
             .upsert({
               user_id: user.id,
@@ -136,15 +117,9 @@ export function PostCreationDialog({
               rating,
             }, {
               onConflict: 'user_id,content_id'
-            })
-            .select();
+            });
 
-          if (ratingError) {
-            console.error('❌ Rating error:', ratingError);
-            throw ratingError;
-          }
-
-          console.log('✅ Rating saved successfully:', ratingData);
+          if (ratingError) throw ratingError;
 
           // Log rating interaction for algorithm
           await supabase
@@ -154,7 +129,29 @@ export function PostCreationDialog({
               post_id: contentId,
               post_type: 'rating',
               interaction_type: 'rate',
+            })
+            .select()
+            .single();
+        }
+
+        // Only create a review POST if text is provided
+        // Rating alone does NOT create a post
+        if (text.trim()) {
+          const { isMature, reasons } = detectMatureContent(text);
+          
+          const { error: reviewError } = await supabase
+            .from('reviews')
+            .insert({
+              user_id: user.id,
+              content_id: contentId,
+              review_text: text,
+              rating: rating > 0 ? rating : null,
+              is_spoiler: isSpoiler,
+              contains_mature: containsMature || isMature,
+              mature_reasons: containsMature || isMature ? reasons : [],
             });
+
+          if (reviewError) throw reviewError;
         }
       } else {
         // Save thought
