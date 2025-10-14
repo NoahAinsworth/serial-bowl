@@ -2,40 +2,29 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import * as feedsAPI from '@/api/feeds';
 
-interface FeedPost {
+// Legacy format for compatibility with existing card components  
+interface LegacyFeedPost {
   id: string;
-  author_id: string;
-  kind: string;
-  body: string | null;
-  item_type: string | null;
-  item_id: string | null;
-  rating_percent: number | null;
-  is_spoiler: boolean;
-  likes_count: number;
-  dislikes_count: number;
-  replies_count: number;
-  reshares_count: number;
-  created_at: string;
-  author?: {
+  type: 'thought' | 'review';
+  user: {
     id: string;
     handle: string;
     avatar_url?: string | null;
   };
-  user_reaction?: 'like' | 'dislike' | null;
-  // Legacy mappings for compatibility
-  type?: 'thought' | 'review';
-  user?: any;
-  text?: string;
-  rating?: number | null;
-  likes?: number;
-  dislikes?: number;
-  comments?: number;
-  userReaction?: 'like' | 'dislike';
+  content: string;
+  text: string;
+  rating: number;
+  likes: number;
+  dislikes: number;
+  comments: number;
+  is_spoiler?: boolean;
   contains_mature?: boolean;
+  userReaction?: 'like' | 'dislike';
+  created_at: string;
 }
 
 export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-takes', contentType: string = 'all') {
-  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [posts, setPosts] = useState<LegacyFeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,18 +95,24 @@ export function useFeed(feedType: 'for-you' | 'following' | 'trending' | 'hot-ta
         filteredPosts = feedPosts.filter(p => p.kind === 'review');
       }
 
-      // Map to legacy format for compatibility with strict type requirements
-      const mappedPosts = filteredPosts.map(post => ({
-        ...post,
+      // Map to strict legacy format for compatibility
+      const mappedPosts: LegacyFeedPost[] = filteredPosts.map(post => ({
+        id: post.id,
         type: post.kind as 'thought' | 'review',
-        user: post.author || { id: post.author_id, handle: 'unknown', avatar_url: null },
+        user: post.author || { 
+          id: post.author_id, 
+          handle: 'unknown', 
+          avatar_url: null 
+        },
+        content: post.body || '',
         text: post.body || '',
         rating: post.rating_percent || 0,
         likes: post.likes_count || 0,
         dislikes: post.dislikes_count || 0,
         comments: post.replies_count || 0,
+        is_spoiler: post.is_spoiler,
         userReaction: post.user_reaction || undefined,
-        content: post.body || '',
+        created_at: post.created_at,
       }));
 
       setPosts(mappedPosts);

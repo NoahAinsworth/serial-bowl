@@ -166,11 +166,7 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={{
-                      ...post,
-                      content: post.text,
-                      user: post.user
-                    }} 
+                    thought={post} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -179,11 +175,7 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={{
-                      ...post,
-                      text: post.text,
-                      user: post.user
-                    }} 
+                    review={post as any} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 
@@ -211,11 +203,7 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={{
-                      ...post,
-                      content: post.text,
-                      user: post.user
-                    }} 
+                    thought={post} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -224,11 +212,7 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={{
-                      ...post,
-                      text: post.text,
-                      user: post.user
-                    }} 
+                    review={post as any} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 
@@ -256,11 +240,7 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={{
-                      ...post,
-                      content: post.text,
-                      user: post.user
-                    }} 
+                    thought={post} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -269,11 +249,7 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={{
-                      ...post,
-                      text: post.text,
-                      user: post.user
-                    }} 
+                    review={post as any} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 
@@ -301,11 +277,7 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={{
-                      ...post,
-                      content: post.text,
-                      user: post.user
-                    }} 
+                    thought={post} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -314,11 +286,7 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={{
-                      ...post,
-                      text: post.text,
-                      user: post.user
-                    }} 
+                    review={post as any} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 
@@ -346,11 +314,7 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={{
-                      ...post,
-                      content: post.text,
-                      user: post.user
-                    }} 
+                    thought={post} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -359,11 +323,7 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={{
-                      ...post,
-                      text: post.text,
-                      user: post.user
-                    }} 
+                    review={post as any} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 
