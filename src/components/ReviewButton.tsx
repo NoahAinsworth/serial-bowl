@@ -52,31 +52,27 @@ export function ReviewButton({
     setSubmitting(true);
 
     try {
-      // Parse contentId to determine item_type
-      const itemType = 'show'; // TODO: detect from contentId format
-      const itemId = contentId;
-
-      // Use the new api_rate_and_review function
-      const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
-        p_item_type: itemType,
-        p_item_id: itemId,
-        p_score_any: rating > 0 ? rating.toString() : null,
-        p_review: review.trim() || null,
-        p_is_spoiler: false,
-      });
+      // Upsert the review (trigger will auto-sync rating to ratings table)
+      const { error: reviewError } = await supabase
+        .from('reviews')
+        .upsert({
+          user_id: user.id,
+          content_id: contentId,
+          review_text: review.trim(),
+          rating: rating > 0 ? rating : null,
+        }, {
+          onConflict: 'user_id,content_id'
+        });
 
       if (reviewError) throw reviewError;
 
       toast({
-        title: "Posted!",
-        description: "Your review has been published",
+        title: "Success",
+        description: "Your review has been saved!",
       });
 
       setOpen(false);
       onReviewSubmit?.();
-      
-      // Navigate to home after short delay
-      setTimeout(() => window.location.href = '/', 150);
     } catch (error: any) {
       toast({
         title: "Error",

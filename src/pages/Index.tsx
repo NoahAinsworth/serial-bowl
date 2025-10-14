@@ -21,7 +21,7 @@ export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('for-you');
+  const [activeTab, setActiveTab] = useState('trending');
   const [postType, setPostType] = useState<'all' | 'thoughts' | 'reviews'>('all');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -29,24 +29,21 @@ export default function Index() {
   const [handle, setHandle] = useState('');
   
   // Use the feed hook for each tab
-  const forYouFeed = useFeed('for-you');
-  const followingFeed = useFeed('following');
   const trendingFeed = useFeed('trending');
-  const hotTakesFeed = useFeed('hot-takes');
+  const hotTakesFeed = useFeed('hot');
+  const followingFeed = useFeed('following');
 
   // Map tab to appropriate feed
   const getFeedForTab = () => {
     switch (activeTab) {
-      case 'for-you':
-        return forYouFeed;
-      case 'following':
-        return followingFeed;
       case 'trending':
         return trendingFeed;
       case 'hot-takes':
         return hotTakesFeed;
+      case 'following':
+        return followingFeed;
       default:
-        return forYouFeed;
+        return trendingFeed;
     }
   };
 
@@ -400,19 +397,7 @@ export default function Index() {
         </div>
       )}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-4 mb-6">
-          <TabsTrigger 
-            value="for-you" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-          >
-            For You
-          </TabsTrigger>
-          <TabsTrigger 
-            value="following" 
-            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-          >
-            Following
-          </TabsTrigger>
+        <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger 
             value="trending" 
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
@@ -424,6 +409,12 @@ export default function Index() {
             className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
           >
             Hot Takes
+          </TabsTrigger>
+          <TabsTrigger 
+            value="following" 
+            className="transition-all data-[state=active]:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+          >
+            Following
           </TabsTrigger>
         </TabsList>
 
@@ -458,20 +449,16 @@ export default function Index() {
             </div>
           </div>
 
-          <TabsContent value="for-you" className="mt-0">
-            {renderFeedContent(forYouFeed)}
-          </TabsContent>
-
-          <TabsContent value="following" className="mt-0">
-            {renderFeedContent(followingFeed)}
-          </TabsContent>
-
           <TabsContent value="trending" className="mt-0">
-            {renderFeedContent(trendingFeed)}
+            {renderFeedContent(currentFeed)}
           </TabsContent>
 
           <TabsContent value="hot-takes" className="mt-0">
             {renderFeedContent(hotTakesFeed)}
+          </TabsContent>
+
+          <TabsContent value="following" className="mt-0">
+            {renderFeedContent(followingFeed)}
           </TabsContent>
         </div>
 

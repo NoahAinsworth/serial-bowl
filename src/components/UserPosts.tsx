@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import * as feedsAPI from '@/api/feeds';
 
 interface UserPostsProps {
   userId?: string;
@@ -23,39 +23,156 @@ export function UserPosts({ userId }: UserPostsProps) {
   const loadPosts = async () => {
     if (!userId) return;
 
-    try {
-      // Use the new feed API to get user posts
-      // For now, we'll use getNew and filter by user (not ideal, but works)
-      // TODO: Add a getUserPosts function to the feeds API
-      const allPosts = await feedsAPI.getNew({ limit: 100 });
-      const userPosts = allPosts.filter(p => p.author_id === userId);
+    // Fetch thoughts
+    const { data: thoughtsData } = await supabase
+      .from('thoughts')
+      .select(`
+        id,
+        user_id,
+        text_content,
+        content_id,
+        created_at,
+        is_spoiler,
+        profiles!thoughts_user_id_fkey (
+          id,
+          handle,
+          avatar_url
+        ),
+        content (
+          id,
+          title,
+          kind,
+          external_id,
+          metadata,
+          poster_url
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
 
-      // Map to legacy format
-      const mappedPosts = userPosts.map(post => ({
-        id: post.id,
-        type: post.kind === 'thought' ? 'thought' : 'review',
-        user: post.author || {
-          id: post.author_id,
-          handle: 'unknown',
-          avatar_url: null,
-        },
-        content: post.kind === 'thought' ? post.body : '',
-        text: post.body || '',
-        rating: post.rating_percent || 0,
-        likes: post.likes_count || 0,
-        dislikes: post.dislikes_count || 0,
-        comments: post.replies_count || 0,
-        is_spoiler: post.is_spoiler,
-        userReaction: post.user_reaction,
-        created_at: post.created_at,
-      }));
+    // Fetch reviews
+    const { data: reviewsData } = await supabase
+      .from('reviews')
+      .select(`
+        id,
+        user_id,
+        review_text,
+        rating,
+        created_at,
+        is_spoiler,
+        content_id,
+        profiles!reviews_user_id_fkey (
+          id,
+          handle,
+          avatar_url
+        ),
+        content (
+          id,
+          title,
+          kind,
+          external_id,
+          metadata,
+          poster_url
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
 
-      setPosts(mappedPosts);
-    } catch (err) {
-      console.error('Error loading posts:', err);
-    } finally {
-      setLoading(false);
-    }
+    // Process thoughts
+    const thoughtsWithCounts = await Promise.all(
+      (thoughtsData || []).map(async (thought: any) => {
+        const { data: reactions } = await supabase
+          .from('reactions')
+          .select('reaction_type')
+          .eq('thought_id', thought.id);
+
+        const { data: comments } = await supabase
+          .from('comments')
+          .select('id')
+          .eq('thought_id', thought.id);
+
+        const { data: userReaction } = await supabase
+          .from('reactions')
+          .select('reaction_type')
+          .eq('thought_id', thought.id)
+          .eq('user_id', user?.id || '')
+          .maybeSingle();
+
+        const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
+        const dislikes = reactions?.filter(r => r.reaction_type === 'dislike').length || 0;
+        const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
+
+        return {
+          id: thought.id,
+          type: 'thought' as const,
+          user: thought.profiles,
+          text: thought.text_content,
+          content: thought.content,
+          is_spoiler: thought.is_spoiler,
+          likes,
+          dislikes,
+          comments: comments?.length || 0,
+          rethinks,
+          userReaction: userReaction?.reaction_type,
+          created_at: thought.created_at,
+        };
+      })
+    );
+
+    // Process reviews
+    const reviewsWithCounts = await Promise.all(
+      (reviewsData || []).map(async (review: any) => {
+        const { count: likesCount } = await supabase
+          .from('review_likes')
+          .select('id', { count: 'exact', head: true })
+          .eq('review_id', review.id);
+
+        const { count: dislikesCount } = await supabase
+          .from('review_dislikes')
+          .select('id', { count: 'exact', head: true })
+          .eq('review_id', review.id);
+
+        const { data: userLike } = await supabase
+          .from('review_likes')
+          .select('id')
+          .eq('review_id', review.id)
+          .eq('user_id', user?.id || '')
+          .maybeSingle();
+
+        const { data: userDislike } = await supabase
+          .from('review_dislikes')
+          .select('id')
+          .eq('review_id', review.id)
+          .eq('user_id', user?.id || '')
+          .maybeSingle();
+
+        return {
+          id: review.id,
+          type: 'review' as const,
+          user: review.profiles,
+          text: review.review_text,
+          content: review.content,
+          is_spoiler: review.is_spoiler,
+          rating: review.rating,
+          likes: likesCount || 0,
+          dislikes: dislikesCount || 0,
+          comments: 0,
+          rethinks: 0,
+          userReaction: userLike ? 'like' : userDislike ? 'dislike' : undefined,
+          created_at: review.created_at,
+        };
+      })
+    );
+
+    // Combine and sort by date
+    const allPosts = [...thoughtsWithCounts, ...reviewsWithCounts].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    setPosts(allPosts);
+    setLoading(false);
   };
 
   if (loading) {

@@ -13,7 +13,7 @@ import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
 export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [feedType, setFeedType] = useState<'for-you' | 'following' | 'trending' | 'hot-takes'>('for-you');
+  const [feedType, setFeedType] = useState('trending');
   const [contentType, setContentType] = useState('all');
   const { posts, loading, refetch } = useFeed(feedType, contentType);
   console.log(`Home page - feedType: ${feedType}, contentType: ${contentType}, posts:`, posts.length, loading ? 'loading' : 'loaded');
@@ -76,10 +76,9 @@ export default function Home() {
   }
 
   const emptyMessages = {
-    'for-you': { all: 'No posts yet. Start following people or create your first post!', thoughts: 'No thoughts yet.', reviews: 'No reviews yet.' },
-    following: { all: 'Follow users to see their posts!', thoughts: 'Follow users to see their thoughts!', reviews: 'Follow users to see their reviews!' },
     trending: { all: 'No trending posts yet.', thoughts: 'No trending thoughts yet.', reviews: 'No trending reviews yet.' },
-    'hot-takes': { all: 'No hot takes yet.', thoughts: 'No controversial thoughts yet.', reviews: 'No controversial reviews yet.' }
+    'hot-takes': { all: 'No hot takes yet.', thoughts: 'No controversial thoughts yet.', reviews: 'No controversial reviews yet.' },
+    following: { all: 'Follow users to see their posts!', thoughts: 'Follow users to see their thoughts!', reviews: 'Follow users to see their reviews!' }
   };
 
   const currentMessage = emptyMessages[feedType as keyof typeof emptyMessages]?.[contentType as keyof typeof emptyMessages.trending] || 'No posts yet.';
@@ -112,22 +111,19 @@ export default function Home() {
       </div>
 
       {/* Feed Type Tabs */}
-      <Tabs value={feedType} onValueChange={(value) => setFeedType(value as 'for-you' | 'following' | 'trending' | 'hot-takes')} className="w-full">
-        <TabsList className="w-full grid grid-cols-4 mb-0 sticky top-0 z-10 bg-background/80 backdrop-blur-lg rounded-none border-b border-border/30">
-          <TabsTrigger value="for-you" className="text-xs sm:text-sm">
-            For You
-          </TabsTrigger>
-          <TabsTrigger value="following" className="text-xs sm:text-sm">
-            <Users className="h-4 w-4 mr-1 sm:mr-2" />
-            Following
-          </TabsTrigger>
-          <TabsTrigger value="trending" className="text-xs sm:text-sm">
-            <TrendingUp className="h-4 w-4 mr-1 sm:mr-2" />
+      <Tabs value={feedType} onValueChange={setFeedType} className="w-full">
+        <TabsList className="w-full grid grid-cols-3 mb-0 sticky top-0 z-10 bg-background/80 backdrop-blur-lg rounded-none border-b border-border/30">
+          <TabsTrigger value="trending">
+            <TrendingUp className="h-4 w-4 mr-2" />
             Trending
           </TabsTrigger>
-          <TabsTrigger value="hot-takes" className="text-xs sm:text-sm">
-            <Flame className="h-4 w-4 mr-1 sm:mr-2" />
+          <TabsTrigger value="hot-takes">
+            <Flame className="h-4 w-4 mr-2" />
             Hot Takes
+          </TabsTrigger>
+          <TabsTrigger value="following">
+            <Users className="h-4 w-4 mr-2" />
+            Following
           </TabsTrigger>
         </TabsList>
 
@@ -149,80 +145,6 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <TabsContent value="for-you" className="space-y-0 mt-0">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : posts.length === 0 ? (
-            <div className="p-12 text-center">
-              <p className="text-muted-foreground">{currentMessage}</p>
-            </div>
-          ) : (
-            <div className="px-4">
-              {posts
-                .filter(post => !strictSafety || !post.contains_mature)
-                .map((post) => 
-                post.type === 'thought' ? (
-                  <ThoughtCard 
-                    key={post.id} 
-                    thought={post} 
-                    userHideSpoilers={userHideSpoilers} 
-                    strictSafety={strictSafety}
-                    onReactionChange={refetch} 
-                    onDelete={refetch} 
-                  />
-                ) : (
-                  <ReviewCard 
-                    key={post.id} 
-                    review={post as any} 
-                    userHideSpoilers={userHideSpoilers} 
-                    strictSafety={strictSafety}
-                    onDelete={refetch} 
-                  />
-                )
-              )}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="following" className="space-y-0 mt-0">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : posts.length === 0 ? (
-            <div className="p-12 text-center">
-              <p className="text-muted-foreground">{currentMessage}</p>
-            </div>
-          ) : (
-            <div className="px-4">
-              {posts
-                .filter(post => !strictSafety || !post.contains_mature)
-                .map((post) => 
-                post.type === 'thought' ? (
-                  <ThoughtCard 
-                    key={post.id} 
-                    thought={post} 
-                    userHideSpoilers={userHideSpoilers} 
-                    strictSafety={strictSafety}
-                    onReactionChange={refetch} 
-                    onDelete={refetch} 
-                  />
-                ) : (
-                  <ReviewCard 
-                    key={post.id} 
-                    review={post as any} 
-                    userHideSpoilers={userHideSpoilers} 
-                    strictSafety={strictSafety}
-                    onDelete={refetch} 
-                  />
-                )
-              )}
-            </div>
-          )}
-        </TabsContent>
-
         <TabsContent value="trending" className="space-y-0 mt-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -240,7 +162,11 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={post} 
+                    thought={{
+                      ...post,
+                      content: post.text,
+                      user: post.user
+                    }} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -249,7 +175,11 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={post as any} 
+                    review={{
+                      ...post,
+                      text: post.text,
+                      user: post.user
+                    }} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 
@@ -277,7 +207,11 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={post} 
+                    thought={{
+                      ...post,
+                      content: post.text,
+                      user: post.user
+                    }} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -286,7 +220,11 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={post as any} 
+                    review={{
+                      ...post,
+                      text: post.text,
+                      user: post.user
+                    }} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 
@@ -314,7 +252,11 @@ export default function Home() {
                 post.type === 'thought' ? (
                   <ThoughtCard 
                     key={post.id} 
-                    thought={post} 
+                    thought={{
+                      ...post,
+                      content: post.text,
+                      user: post.user
+                    }} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onReactionChange={refetch} 
@@ -323,7 +265,11 @@ export default function Home() {
                 ) : (
                   <ReviewCard 
                     key={post.id} 
-                    review={post as any} 
+                    review={{
+                      ...post,
+                      text: post.text,
+                      user: post.user
+                    }} 
                     userHideSpoilers={userHideSpoilers} 
                     strictSafety={strictSafety}
                     onDelete={refetch} 

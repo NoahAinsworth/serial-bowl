@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, ThumbsDown, MoreVertical, EyeOff, Flag, Trash2 } from 'lucide-react';
+import { Heart, ThumbsDown, MoreVertical, EyeOff, Flag } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { SpoilerText } from '@/components/SpoilerText';
 import { RatingBadge } from '@/components/PercentRating';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { SafetyOverlay } from '@/components/SafetyOverlay';
 import { replaceProfanity } from '@/utils/profanityFilter';
-import * as postsAPI from '@/api/posts';
 
 interface ReviewCardProps {
   review: {
@@ -72,28 +72,6 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
     });
   };
 
-  const handleDelete = async () => {
-    if (!user || user.id !== review.user.id) return;
-    
-    try {
-      await postsAPI.deletePost(review.id);
-      
-      setHidden(true);
-      toast({
-        title: "Review deleted",
-        description: "Your review has been removed",
-      });
-      
-      onDelete?.();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete review",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleReport = () => {
     navigate('/settings', { 
       state: { 
@@ -129,16 +107,38 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
     }
 
     try {
-      const newReaction = localReaction === 'like' ? undefined : 'like';
-      await postsAPI.reactToPost(review.id, newReaction);
+      const isLiked = localReaction === 'like';
 
-      if (newReaction === 'like') {
-        setLocalLikes(prev => prev + 1);
-        if (localReaction === 'dislike') setLocalDislikes(prev => prev - 1);
-      } else {
+      if (isLiked) {
+        await supabase
+          .from('review_likes')
+          .delete()
+          .eq('review_id', review.id)
+          .eq('user_id', user.id);
+
         setLocalLikes(prev => prev - 1);
+        setLocalReaction(undefined);
+      } else {
+        if (localReaction === 'dislike') {
+          await supabase
+            .from('review_dislikes')
+            .delete()
+            .eq('review_id', review.id)
+            .eq('user_id', user.id);
+
+          setLocalDislikes(prev => prev - 1);
+        }
+
+        await supabase
+          .from('review_likes')
+          .insert({
+            review_id: review.id,
+            user_id: user.id,
+          });
+
+        setLocalLikes(prev => prev + 1);
+        setLocalReaction('like');
       }
-      setLocalReaction(newReaction);
     } catch (error) {
       toast({
         title: "Error",
@@ -159,16 +159,38 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
     }
 
     try {
-      const newReaction = localReaction === 'dislike' ? undefined : 'dislike';
-      await postsAPI.reactToPost(review.id, newReaction);
+      const isDisliked = localReaction === 'dislike';
 
-      if (newReaction === 'dislike') {
-        setLocalDislikes(prev => prev + 1);
-        if (localReaction === 'like') setLocalLikes(prev => prev - 1);
-      } else {
+      if (isDisliked) {
+        await supabase
+          .from('review_dislikes')
+          .delete()
+          .eq('review_id', review.id)
+          .eq('user_id', user.id);
+
         setLocalDislikes(prev => prev - 1);
+        setLocalReaction(undefined);
+      } else {
+        if (localReaction === 'like') {
+          await supabase
+            .from('review_likes')
+            .delete()
+            .eq('review_id', review.id)
+            .eq('user_id', user.id);
+
+          setLocalLikes(prev => prev - 1);
+        }
+
+        await supabase
+          .from('review_dislikes')
+          .insert({
+            review_id: review.id,
+            user_id: user.id,
+          });
+
+        setLocalDislikes(prev => prev + 1);
+        setLocalReaction('dislike');
       }
-      setLocalReaction(newReaction);
     } catch (error) {
       toast({
         title: "Error",
@@ -192,16 +214,10 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
               <span className="font-semibold text-foreground">
                 {review.user.handle}
               </span>
-              {review.rating && (
-                <>
-                  <span className="text-muted-foreground text-sm">·</span>
-                  <RatingBadge rating={review.rating} size="sm" />
-                </>
-              )}
               <span className="text-muted-foreground text-sm">·</span>
               <span className="text-muted-foreground text-sm">
                 {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
@@ -214,12 +230,6 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                {user?.id === review.user.id && (
-                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuItem onClick={handleHidePost}>
                   <EyeOff className="h-4 w-4 mr-2" />
                   Hide Post

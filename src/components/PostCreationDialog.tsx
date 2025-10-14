@@ -6,13 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { PercentRating } from '@/components/PercentRating';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { postSchema } from '@/lib/validation';
 import { z } from 'zod';
 import { detectMatureContent } from '@/utils/profanityFilter';
-import * as postsAPI from '@/api/posts';
 
 interface PostCreationDialogProps {
   open: boolean;
@@ -107,28 +107,83 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review') {
-        const itemType = 'show';
-        const itemId = contentId;
+        // Detect mature content if there's text
+        const { isMature, reasons } = text.trim() ? detectMatureContent(text) : { isMature: false, reasons: [] };
         
-        await postsAPI.createReview({
-          item_type: itemType,
-          item_id: itemId,
-          rating_percent: rating > 0 ? rating : undefined,
-          body: text.trim() || undefined,
-          is_spoiler: isSpoiler,
-        });
+        // Create review record (with or without text, as long as rating or text exists)
+        const { error: reviewError } = await supabase
+          .from('reviews')
+          .insert({
+            user_id: user.id,
+            content_id: contentId,
+            review_text: text.trim() || null,
+            rating: rating > 0 ? rating : null,
+            is_spoiler: isSpoiler,
+            contains_mature: containsMature || isMature,
+            mature_reasons: containsMature || isMature ? reasons : [],
+          });
+
+        if (reviewError) throw reviewError;
+
+        // Also save rating to ratings table if provided
+        if (rating > 0) {
+          console.log('💾 Saving rating:', { user_id: user.id, content_id: contentId, rating });
+          const { error: ratingError, data: ratingData } = await supabase
+            .from('ratings')
+            .upsert({
+              user_id: user.id,
+              content_id: contentId,
+              rating,
+            }, {
+              onConflict: 'user_id,content_id'
+            })
+            .select();
+
+          if (ratingError) {
+            console.error('❌ Rating error:', ratingError);
+            throw ratingError;
+          }
+
+          console.log('✅ Rating saved successfully:', ratingData);
+
+          // Log rating interaction for algorithm
+          await supabase
+            .from('interactions')
+            .insert({
+              user_id: user.id,
+              post_id: contentId,
+              post_type: 'rating',
+              interaction_type: 'rate',
+            });
+        }
       } else {
-        await postsAPI.createThought({
-          item_type: 'show',
-          item_id: contentId,
-          body: text,
-          is_spoiler: isSpoiler,
-        });
+        // Save thought
+        const { isMature, reasons } = detectMatureContent(text);
+        
+        const { error: thoughtError } = await supabase
+          .from('thoughts')
+          .insert({
+            user_id: user.id,
+            content_id: contentId,
+            text_content: text,
+            is_spoiler: isSpoiler,
+            contains_mature: containsMature || isMature,
+            mature_reasons: containsMature || isMature ? reasons : [],
+          });
+
+        if (thoughtError) throw thoughtError;
       }
 
+      // Different success messages based on what was saved
+      const successMsg = postType === 'review' 
+        ? (text.trim() ? 'Review posted!' : 'Rating saved!')
+        : 'Thought posted!';
+
+      console.log('Post successful!', successMsg);
+
       toast({
-        title: "Posted!",
-        description: "Your post has been published",
+        title: "Success",
+        description: successMsg,
       });
 
       setText('');
@@ -138,8 +193,8 @@ export function PostCreationDialog({
       onOpenChange(false);
       onSuccess?.();
       
-      // Navigate to home after short delay so user sees the toast
-      setTimeout(() => navigate('/'), 150);
+      // Navigate to home after posting
+      navigate('/');
     } catch (error: any) {
       console.error('Error posting:', error);
       console.error('Error details:', {

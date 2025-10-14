@@ -26,39 +26,24 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
     }
 
     const { data, error } = await supabase
-      .from('user_ratings')
-      .select('*')
+      .from('ratings')
+      .select(`
+        rating,
+        created_at,
+        content:content_id (
+          id,
+          external_id,
+          title,
+          poster_url,
+          kind
+        )
+      `)
       .eq('user_id', userId)
-      .eq('item_type', contentKind)
-      .order('updated_at', { ascending: false });
+      .eq('content.kind', contentKind)
+      .order('created_at', { ascending: false });
 
     if (!error && data) {
-      // Fetch show details from tvdb_shows cache
-      const itemIds = data.map(r => parseInt(r.item_id.split(':')[0]));
-      const { data: showsData } = await supabase
-        .from('tvdb_shows')
-        .select('tvdb_id, name, json')
-        .in('tvdb_id', itemIds);
-
-      const showsMap = new Map(showsData?.map(s => [s.tvdb_id, s]) || []);
-
-      const enrichedData = data.map(rating => {
-        const showId = parseInt(rating.item_id.split(':')[0]);
-        const show = showsMap.get(showId);
-        const jsonData = show?.json as any;
-        return {
-          ...rating,
-          content: {
-            id: rating.item_id,
-            external_id: rating.item_id,
-            title: show?.name || 'Unknown',
-            poster_url: jsonData?.image || null,
-            kind: contentKind
-          }
-        };
-      });
-
-      setRatings(enrichedData);
+      setRatings(data);
     }
 
     setLoading(false);
@@ -117,7 +102,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
                 </div>
               )}
               <div className="absolute top-2 right-2">
-                <RatingBadge rating={rating.score} size="sm" />
+                <RatingBadge rating={Math.round(rating.rating)} size="sm" />
               </div>
             </div>
             <div className="p-3">
