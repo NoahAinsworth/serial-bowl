@@ -126,25 +126,44 @@ export function useFeed(feedType: string, contentType: string = 'all') {
             .eq('id', post.user_id)
             .maybeSingle();
 
-          // Count reactions - use raw query to avoid type complexity
-          const reactionsQuery = supabase
-            .from('reactions')
-            .select('reaction_type');
-          
-          const reactionField = post.type === 'thought' ? 'thought_id' : 'review_id';
-          const { data: reactionsData } = await (reactionsQuery as any).eq(reactionField, post.id);
-          const reactions = reactionsData || [];
+          let likes = 0;
+          let dislikes = 0;
 
-          const likes = reactions.filter((r: any) => r.reaction_type === 'like').length;
-          const dislikes = reactions.filter((r: any) => r.reaction_type === 'dislike').length;
+          // Count reactions based on post type
+          if (post.type === 'thought') {
+            const { data: likesData } = await supabase
+              .from('reactions')
+              .select('id', { count: 'exact', head: true })
+              .eq('thought_id', post.id)
+              .eq('reaction_type', 'like');
+            
+            const { data: dislikesData } = await supabase
+              .from('thought_dislikes')
+              .select('id', { count: 'exact', head: true })
+              .eq('thought_id', post.id);
 
-          // Count comments - use raw query to avoid type complexity
-          const commentsQuery = supabase
+            likes = likesData?.length || 0;
+            dislikes = dislikesData?.length || 0;
+          } else {
+            const { data: likesData } = await supabase
+              .from('review_likes')
+              .select('id', { count: 'exact', head: true })
+              .eq('review_id', post.id);
+            
+            const { data: dislikesData } = await supabase
+              .from('review_dislikes')
+              .select('id', { count: 'exact', head: true })
+              .eq('review_id', post.id);
+
+            likes = likesData?.length || 0;
+            dislikes = dislikesData?.length || 0;
+          }
+
+          // Count comments
+          const { count: commentsCount } = await supabase
             .from('comments')
-            .select('*', { count: 'exact', head: true });
-          
-          const commentField = post.type === 'thought' ? 'thought_id' : 'review_id';
-          const { count: commentsCount } = await (commentsQuery as any).eq(commentField, post.id);
+            .select('*', { count: 'exact', head: true })
+            .eq('thought_id', post.id);
 
           return {
             id: post.id,
