@@ -214,10 +214,16 @@ export function ReviewCard({ review, userHideSpoilers = true, strictSafety = fal
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-foreground">
                 {review.user.handle}
               </span>
+              {review.rating && (
+                <>
+                  <span className="text-muted-foreground text-sm">·</span>
+                  <RatingBadge rating={review.rating} size="sm" />
+                </>
+              )}
               <span className="text-muted-foreground text-sm">·</span>
               <span className="text-muted-foreground text-sm">
                 {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
