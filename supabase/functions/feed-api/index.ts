@@ -57,62 +57,72 @@ Deno.serve(async (req) => {
 
     console.log(`Feed: tab=${tab}, type=${contentType}, user=${userId || 'anon'}`);
 
-    // Determine which view to query based on tab
-    let viewName = 'feed_for_you';
-    switch(tab) {
-      case 'for-you':
-        viewName = 'feed_for_you';
-        break;
-      case 'following':
-        viewName = 'feed_following';
-        break;
-      case 'trending':
-        viewName = 'feed_trending';
-        break;
-      case 'hot-takes':
-        viewName = 'feed_hot_takes';
-        break;
-      default:
-        viewName = 'feed_for_you';
+    let postIds: string[] = [];
+    
+    // Fetch post IDs based on tab using new RPC functions
+    if (tab === 'trending') {
+      // Try trending first
+      const { data: trendingData, error: trendingError } = await supabase
+        .rpc('feed_trending_rt', { limit_count: limit, cursor_score: null });
+      
+      if (!trendingError && trendingData && trendingData.length > 0) {
+        postIds = trendingData.map((item: any) => item.post_id);
+        console.log(`Fetched ${postIds.length} posts from feed_trending_rt`);
+      } else {
+        // Fallback to recent popular
+        const { data: fallbackData } = await supabase
+          .rpc('feed_recent_popular', { limit_count: limit });
+        postIds = fallbackData?.map((item: any) => item.post_id) || [];
+        console.log(`Trending empty, using fallback: ${postIds.length} posts from feed_recent_popular`);
+      }
+    } else if (tab === 'hot-takes') {
+      const { data: hotTakesData } = await supabase
+        .rpc('feed_hot_takes', { limit_count: limit, cursor_score: null });
+      postIds = hotTakesData?.map((item: any) => item.post_id) || [];
+      console.log(`Fetched ${postIds.length} posts from feed_hot_takes`);
+    } else if (tab === 'following') {
+      // Following uses existing view
+      const { data: viewPosts } = await supabase
+        .from('feed_following')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      postIds = viewPosts?.map((p: any) => p.id) || [];
+      console.log(`Fetched ${postIds.length} posts from feed_following`);
+    } else {
+      // For You - use trending with some mixing logic
+      const { data: forYouData } = await supabase
+        .from('feed_for_you')
+        .select('id')
+        .order('rank_score', { ascending: false })
+        .limit(limit);
+      postIds = forYouData?.map((p: any) => p.id) || [];
+      console.log(`Fetched ${postIds.length} posts from feed_for_you`);
     }
 
-    // Fetch posts from the appropriate view
-    const { data: viewPosts, error: viewError } = await supabase
-      .from(viewName)
-      .select('*')
-      .order('rank_score', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (viewError) {
-      console.error(`Error fetching from ${viewName}:`, viewError);
-      throw viewError;
+    if (postIds.length === 0) {
+      console.log('No posts found, returning empty array');
+      return new Response(
+        JSON.stringify({ tab, posts: [], count: 0 }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log(`Fetched ${viewPosts?.length || 0} posts from ${viewName}`);
-
-    // Filter by content type if specified
-    let filteredPosts = viewPosts || [];
-    if (contentType !== 'all') {
-      const targetType = contentType === 'thoughts' ? 'thought' : 'review';
-      filteredPosts = filteredPosts.filter(p => p.post_type === targetType);
-    }
-
-    // Hydrate posts with full data
+    // Hydrate posts with full data from the posts table
     const hydratedPosts = await Promise.all(
-      filteredPosts.map(async (post) => {
-        const isThought = post.post_type === 'thought';
-        const tableName = isThought ? 'thoughts' : 'reviews';
-        
-        // Fetch the full post data
-        const { data: fullPost } = await supabase
-          .from(tableName)
+      postIds.map(async (postId) => {
+        // Get post from posts table
+        const { data: post } = await supabase
+          .from('posts')
           .select('*')
-          .eq('id', post.id)
+          .eq('id', postId)
+          .is('deleted_at', null)
           .single();
 
-        if (!fullPost) return null;
+        if (!post) return null;
 
+        const isThought = post.kind === 'thought';
+        
         // Fetch user profile
         const { data: profile } = await supabase
           .from('profiles')
@@ -120,63 +130,52 @@ Deno.serve(async (req) => {
           .eq('id', post.author_id)
           .single();
 
-        // Fetch content details
-        const { data: content } = await supabase
-          .from('content')
-          .select('*')
-          .eq('id', isThought ? fullPost.content_id : fullPost.content_id)
-          .maybeSingle();
-
-        // Get interaction counts
-        const likeTable = isThought ? 'reactions' : 'review_likes';
-        const dislikeTable = isThought ? 'thought_dislikes' : 'review_dislikes';
-        const likeFilter = isThought ? { thought_id: post.id, reaction_type: 'like' } : { review_id: post.id };
-        const dislikeFilter = isThought ? { thought_id: post.id } : { review_id: post.id };
-
-        const [likesResult, dislikesResult, commentsResult, resharesResult] = await Promise.all([
-          supabase.from(likeTable).select('id', { count: 'exact', head: true }).match(likeFilter),
-          supabase.from(dislikeTable).select('id', { count: 'exact', head: true }).match(dislikeFilter),
-          isThought ? supabase.from('comments').select('id', { count: 'exact', head: true }).eq('thought_id', post.id) : Promise.resolve({ count: 0 }),
-          supabase.from('reshares').select('id', { count: 'exact', head: true }).match({ post_id: post.id, post_type: post.post_type })
-        ]);
+        // Get content details if item_type and item_id exist
+        let content = null;
+        if (post.item_type && post.item_id) {
+          // For now, return basic content info - you can enhance this later
+          content = {
+            id: post.item_id,
+            title: 'Content', // TODO: fetch from TVDB cache
+            kind: post.item_type
+          };
+        }
 
         // Get user's reaction if authenticated
         let userReaction: 'like' | 'dislike' | undefined;
         if (userId) {
-          if (isThought) {
-            const { data: reaction } = await supabase
-              .from('reactions')
-              .select('reaction_type')
-              .eq('thought_id', post.id)
-              .eq('user_id', userId)
-              .maybeSingle();
-            userReaction = reaction?.reaction_type as 'like' | 'dislike' | undefined;
-          } else {
-            const [likeData, dislikeData] = await Promise.all([
-              supabase.from('review_likes').select('id').eq('review_id', post.id).eq('user_id', userId).maybeSingle(),
-              supabase.from('review_dislikes').select('id').eq('review_id', post.id).eq('user_id', userId).maybeSingle()
-            ]);
-            userReaction = likeData.data ? 'like' : (dislikeData.data ? 'dislike' : undefined);
-          }
+          const { data: reaction } = await supabase
+            .from('post_reactions')
+            .select('kind')
+            .eq('post_id', post.id)
+            .eq('user_id', userId)
+            .maybeSingle();
+          userReaction = reaction?.kind as 'like' | 'dislike' | undefined;
+        }
+
+        // Filter by content type if needed
+        if (contentType !== 'all') {
+          const targetType = contentType === 'thoughts' ? 'thought' : 'review';
+          if (post.kind !== targetType) return null;
         }
 
         return {
           id: post.id,
-          type: post.post_type,
+          type: post.kind,
           user: profile || { id: post.author_id, handle: 'Unknown', avatar_url: null },
-          content: content,
-          text: isThought ? fullPost.text_content : fullPost.review_text,
-          is_spoiler: fullPost.is_spoiler || false,
-          contains_mature: fullPost.contains_mature || false,
-          mature_reasons: fullPost.mature_reasons || [],
-          rating: isThought ? null : fullPost.rating,
-          likes: likesResult.count || 0,
-          dislikes: dislikesResult.count || 0,
-          comments: commentsResult.count || 0,
-          rethinks: resharesResult.count || 0,
+          content,
+          text: post.body,
+          is_spoiler: post.is_spoiler || false,
+          contains_mature: post.has_mature || false,
+          mature_reasons: [],
+          rating: post.rating_percent,
+          likes: post.likes_count || 0,
+          dislikes: post.dislikes_count || 0,
+          comments: post.replies_count || 0,
+          rethinks: post.reshares_count || 0,
           userReaction,
           created_at: post.created_at,
-          score: post.rank_score
+          score: 0
         };
       })
     );
