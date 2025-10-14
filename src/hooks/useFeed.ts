@@ -111,7 +111,7 @@ export function useFeed(feedType: string, contentType: string = 'all') {
               .select('kind')
               .eq('post_id', post.id)
               .eq('user_id', user.id)
-              .maybeSingle();
+              .maybeSingle() as any;
             
             if (reaction) {
               userReaction = reaction.kind as 'like' | 'dislike';
