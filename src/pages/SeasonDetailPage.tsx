@@ -218,7 +218,7 @@ export default function SeasonDetailPage() {
           onOpenChange={setPostDialogOpen}
           postType={postType}
           itemType="season"
-          itemId={parseInt(`${showId}${seasonNumber.padStart(2, '0')}`)}
+          itemId={`${showId}:${seasonNumber}`}
           contentTitle={`Season ${seasonNumber}`}
           onSuccess={() => {
             setPostDialogOpen(false);

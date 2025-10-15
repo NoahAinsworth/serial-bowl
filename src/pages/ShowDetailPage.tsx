@@ -142,7 +142,7 @@ export default function ShowDetailPage() {
         onOpenChange={setShowReviewDialog}
         postType="review"
         itemType="show"
-        itemId={id ? parseInt(id) : undefined}
+        itemId={id}
         contentTitle={show.name}
       />
     </div>

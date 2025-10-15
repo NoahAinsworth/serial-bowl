@@ -17,7 +17,7 @@ interface PostCreationDialogProps {
   onOpenChange: (open: boolean) => void;
   postType: 'review' | 'thought';
   itemType?: 'show' | 'season' | 'episode';
-  itemId?: number;
+  itemId?: string;
   contentTitle: string;
   onSuccess?: () => void;
 }
@@ -62,7 +62,7 @@ export function PostCreationDialog({
         // Use the database function that handles both rating and review in one transaction
         const { data, error } = await supabase.rpc('api_rate_and_review', {
           p_item_type: itemType,
-          p_item_id: String(itemId),
+          p_item_id: itemId,
           p_score_any: String(rating),
           p_review: text.trim() || null,
           p_is_spoiler: hasSpoilers,

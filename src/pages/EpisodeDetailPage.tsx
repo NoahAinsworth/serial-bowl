@@ -209,7 +209,7 @@ export default function EpisodeDetailPage() {
           onOpenChange={setPostDialogOpen}
           postType={postType}
           itemType="episode"
-          itemId={parseInt(`${showId}${seasonNumber.padStart(2, '0')}${episodeNumber.padStart(2, '0')}`)}
+          itemId={`${showId}:${seasonNumber}:${episodeNumber}`}
           contentTitle={episode.name}
           onSuccess={() => {
             setPostDialogOpen(false);
