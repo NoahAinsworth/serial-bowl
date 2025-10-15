@@ -336,7 +336,7 @@ export default function DiscoverPage() {
                       <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-semibold">@{user.handle}</p>
+                      <p className="font-semibold">{user.handle}</p>
                       {user.bio && <p className="text-sm text-muted-foreground line-clamp-1">{user.bio}</p>}
                     </div>
                   </div>

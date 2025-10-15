@@ -289,7 +289,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               className="font-semibold hover:underline cursor-pointer"
               onClick={() => navigate(`/profile/${post.user.handle}`)}
             >
-              @{post.user.handle}
+              {post.user.handle}
             </span>
             <span className="text-xs text-muted-foreground">
               {new Date(post.created_at).toLocaleDateString()}
@@ -424,13 +424,13 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               <Button key={u.id} variant="ghost" className="w-full justify-start" onClick={async () => {
                 try {
                   await sharePost(post.id, u.id);
-                  toast.success(`Shared with @${u.handle}`);
+                  toast.success(`Shared with ${u.handle}`);
                   setShowShareDialog(false);
                 } catch {
                   toast.error('Failed to share');
                 }
               }}>
-                @{u.handle}
+                {u.handle}
               </Button>
             ))}
           </div>

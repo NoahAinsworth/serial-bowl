@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { createThought } from '@/api/posts';
 import { toast } from 'sonner';
 import cerealBowlLogo from '@/assets/cereal-bowl-simple.png';
-import serialBowlWordmark from '@/assets/serial-bowl-wordmark.png';
+import serialBowlWordmark from '@/assets/serial-bowl-wordmark-new.png';
 
 export default function Home() {
   const { user } = useAuth();
@@ -116,9 +116,7 @@ export default function Home() {
     <div className="max-w-2xl mx-auto pb-6 px-4">
       {/* Serial Bowl Wordmark */}
       <div className="flex justify-center py-6">
-        <h1 className="text-4xl font-bold font-accent tracking-wider bg-gradient-to-r from-primary via-lavender to-primary bg-clip-text text-transparent">
-          SERIAL BOWL
-        </h1>
+        <img src={serialBowlWordmark} alt="Serial Bowl" className="h-12" />
       </div>
 
       {/* Pour a Thought Bar */}
