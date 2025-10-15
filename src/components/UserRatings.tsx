@@ -36,18 +36,25 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
     }
 
     const allRatings = await getUserRatings(userId);
+    console.log('All ratings:', allRatings);
+    
     // Filter by content kind
     const filtered = allRatings.filter(r => r.item_type === contentKind);
+    console.log('Filtered ratings:', filtered);
     
     // Fetch content titles from content table
     const enrichedRatings = await Promise.all(
       filtered.map(async (rating) => {
-        const { data: content } = await supabase
+        console.log('Fetching content for:', rating.item_id, rating.item_type);
+        
+        const { data: content, error } = await supabase
           .from('content')
           .select('title, poster_url')
           .eq('external_id', rating.item_id)
           .eq('kind', rating.item_type as 'show' | 'season' | 'episode')
           .maybeSingle();
+        
+        console.log('Content result:', { rating: rating.item_id, content, error });
         
         return {
           ...rating,
@@ -57,6 +64,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
       })
     );
     
+    console.log('Enriched ratings:', enrichedRatings);
     setRatings(enrichedRatings);
     setLoading(false);
   };
