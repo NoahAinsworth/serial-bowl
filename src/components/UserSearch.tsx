@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UserPlus, UserMinus, Loader2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MessageRequestDialog } from './MessageRequestDialog';
+import { ensureConversation } from '@/api/messages';
 
 interface UserSearchProps {
   showMessageButton?: boolean;
@@ -21,6 +23,8 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
   const [following, setFollowing] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; handle: string } | null>(null);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -117,19 +121,47 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
     );
   }
 
-  const handleMessage = (userId: string) => {
-    navigate(`/dms/${userId}`);
+  const handleMessage = async (userId: string, userHandle: string) => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to send messages",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const conversationId = await ensureConversation(userId);
+      
+      if (conversationId) {
+        // Conversation exists or was created (mutual followers)
+        navigate(`/dms/${userId}`);
+      } else {
+        // Need to send a message request
+        setSelectedUser({ id: userId, handle: userHandle });
+        setRequestDialogOpen(true);
+      }
+    } catch (error) {
+      console.error('Error checking conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start conversation",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <Input
-        type="text"
-        placeholder="Search users by handle..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full"
-      />
+    <>
+      <div className="space-y-4">
+        <Input
+          type="text"
+          placeholder="Search users by handle..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full"
+        />
 
       {searchQuery.trim() && users.length === 0 && !loading && (
         <div className="text-center text-muted-foreground py-8">
@@ -174,7 +206,7 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleMessage(profile.id)}
+                      onClick={() => handleMessage(profile.id, profile.handle)}
                     >
                       <MessageCircle className="h-4 w-4" />
                     </Button>
@@ -203,5 +235,15 @@ export function UserSearch({ showMessageButton = false }: UserSearchProps) {
         ))}
       </div>
     </div>
+
+    {selectedUser && (
+      <MessageRequestDialog
+        open={requestDialogOpen}
+        onOpenChange={setRequestDialogOpen}
+        recipientHandle={selectedUser.handle}
+        recipientId={selectedUser.id}
+      />
+    )}
+  </>
   );
 }

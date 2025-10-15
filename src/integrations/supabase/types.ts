@@ -737,6 +737,33 @@ export type Database = {
           },
         ]
       }
+      message_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          recipient_id: string
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          recipient_id: string
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          recipient_id?: string
+          sender_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string | null
