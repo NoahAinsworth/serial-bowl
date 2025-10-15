@@ -4,6 +4,7 @@ import { getUserRatings } from '@/api/ratings';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { RatingBadge } from '@/components/PercentRating';
+import { supabase } from '@/lib/supabase';
 
 interface UserRatingsProps {
   userId?: string;
@@ -15,6 +16,8 @@ interface RatingWithMetadata {
   item_id: string;
   score: number;
   updated_at: string;
+  title?: string;
+  poster_url?: string;
 }
 
 export function UserRatings({ userId, contentKind }: UserRatingsProps) {
@@ -35,7 +38,26 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
     const allRatings = await getUserRatings(userId);
     // Filter by content kind
     const filtered = allRatings.filter(r => r.item_type === contentKind);
-    setRatings(filtered);
+    
+    // Fetch content titles from content table
+    const enrichedRatings = await Promise.all(
+      filtered.map(async (rating) => {
+        const { data: content } = await supabase
+          .from('content')
+          .select('title, poster_url')
+          .eq('external_id', rating.item_id)
+          .eq('kind', rating.item_type as 'show' | 'season' | 'episode')
+          .maybeSingle();
+        
+        return {
+          ...rating,
+          title: content?.title || `${rating.item_type} ${rating.item_id}`,
+          poster_url: content?.poster_url,
+        };
+      })
+    );
+    
+    setRatings(enrichedRatings);
     setLoading(false);
   };
 
@@ -76,16 +98,25 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
           onClick={() => handleClick(rating)}
         >
           <div className="aspect-[2/3] bg-muted relative flex items-center justify-center">
-            <div className="text-center p-4">
-              <p className="text-sm font-semibold line-clamp-3">{rating.item_id}</p>
-            </div>
+            {rating.poster_url ? (
+              <img 
+                src={rating.poster_url} 
+                alt={rating.title} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="text-center p-4">
+                <p className="text-sm font-semibold line-clamp-3">{rating.title}</p>
+              </div>
+            )}
             <div className="absolute top-2 right-2">
               <RatingBadge rating={rating.score} size="sm" />
             </div>
           </div>
           <div className="p-3">
+            <p className="text-xs font-semibold line-clamp-2 mb-1">{rating.title}</p>
             <p className="text-xs text-muted-foreground">
-              {contentKind} • {new Date(rating.updated_at).toLocaleDateString()}
+              {new Date(rating.updated_at).toLocaleDateString()}
             </p>
           </div>
         </Card>

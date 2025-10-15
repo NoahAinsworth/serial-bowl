@@ -61,14 +61,15 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   // Load content info for reviews
   useEffect(() => {
     async function loadContentInfo() {
-      if (!post.item_id) return;
+      if (!post.item_id || !post.item_type) return;
 
       try {
         const { data, error } = await supabase
           .from('content')
           .select('title, external_id, kind')
-          .eq('id', post.item_id)
-          .single();
+          .eq('external_id', post.item_id)
+          .eq('kind', post.item_type as 'show' | 'season' | 'episode')
+          .maybeSingle();
 
         if (data && !error) {
           setContentInfo({ 
@@ -83,7 +84,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
     }
 
     loadContentInfo();
-  }, [post.item_id]);
+  }, [post.item_id, post.item_type]);
 
   useEffect(() => {
     if (showShareDialog) {
