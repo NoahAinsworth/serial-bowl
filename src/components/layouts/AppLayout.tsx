@@ -1,21 +1,8 @@
 import { ReactNode, useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, Search, PlusSquare, MessageSquare, User, TrendingUp, Flame, Users, Clock, Settings, Library } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, PlusSquare, MessageSquare, User, Search, Settings, Library } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from '@/components/ui/sidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -23,12 +10,12 @@ interface AppLayoutProps {
   children: ReactNode;
 }
 
-function AppSidebar() {
-  const { user } = useAuth();
+export const AppLayout = ({ children }: AppLayoutProps) => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const { state } = useSidebar();
-  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const { user } = useAuth();
   const [unreadDMs, setUnreadDMs] = useState(0);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   useEffect(() => {
     if (user) {
@@ -69,113 +56,64 @@ function AppSidebar() {
     setUnreadDMs(count || 0);
   };
 
-  const mainItems = [
-    { title: 'Home', url: '/', icon: Home },
-    { title: 'Discover', url: '/discover', icon: Search },
-    { title: 'Post', url: '/post', icon: PlusSquare },
-    { title: 'Messages', url: '/messages', icon: MessageSquare, badge: unreadDMs },
+  const navItems = [
+    { icon: Home, label: 'Home', path: '/home' },
+    { icon: Search, label: 'Discover', path: '/discover' },
+    { icon: PlusSquare, label: 'Post', path: '/post' },
+    { icon: MessageSquare, label: 'Messages', path: '/messages', badge: unreadDMs },
+    { icon: User, label: 'Profile', path: '/profile' },
   ];
 
-  const libraryItems = [
-    { title: 'Watchlist', url: '/watchlist', icon: Library },
-    { title: 'Profile', url: '/profile', icon: User },
-    { title: 'Settings', url: '/settings', icon: Settings },
-  ];
-
-  const isCollapsed = state === 'collapsed';
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-muted/50';
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <Sidebar collapsible="icon" className="border-r">
-      <SidebarContent>
-        {/* User Section */}
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => navigate('/profile')} className="h-14">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={avatarUrl} />
-                  <AvatarFallback>{user?.email?.[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
-                {!isCollapsed && (
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="text-sm font-semibold truncate">{user?.email?.split('@')[0]}</span>
-                    <span className="text-xs text-muted-foreground truncate">View Profile</span>
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center justify-between px-4">
+          <h1 className="text-xl font-bold">Serial Bowl</h1>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
+              <Library className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav className="sticky bottom-0 z-40 border-t bg-background">
+        <div className="flex h-16 items-center justify-around px-2">
+          {navItems.map(({ icon: Icon, label, path, badge }) => (
+            <Link
+              key={path}
+              to={path}
+              className={`flex flex-col items-center gap-1 transition-all relative px-3 py-2 rounded-lg ${
+                isActive(path)
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className="relative">
+                <Icon className="h-6 w-6" />
+                {badge && badge > 0 && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
+                    {badge}
                   </div>
                 )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigate</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="h-5 w-5" />
-                      {!isCollapsed && <span>{item.title}</span>}
-                      {item.badge && item.badge > 0 && !isCollapsed && (
-                        <span className="ml-auto bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-xs font-bold">
-                          {item.badge}
-                        </span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Library */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Library</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {libraryItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls}>
-                      <item.icon className="h-5 w-5" />
-                      {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-}
-
-export const AppLayout = ({ children }: AppLayoutProps) => {
-  return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <div className="flex flex-col flex-1 w-full">
-          {/* Global Header */}
-          <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 items-center gap-4 px-4">
-              <SidebarTrigger />
-              <h1 className="text-xl font-bold">Serial Bowl</h1>
-            </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="flex-1 overflow-y-auto">
-            {children}
-          </main>
+              </div>
+              <span className="text-xs">{label}</span>
+            </Link>
+          ))}
         </div>
-      </div>
-    </SidebarProvider>
+      </nav>
+    </div>
   );
 };
