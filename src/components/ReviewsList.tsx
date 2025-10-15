@@ -36,63 +36,8 @@ export function ReviewsList({ contentId }: ReviewsListProps) {
   }, [contentId]);
 
   const loadReviews = async () => {
-    const { data: reviewsData } = await supabase
-      .from('reviews')
-      .select(`
-        id,
-        review_text,
-        rating,
-        created_at,
-        user_id,
-        profiles!reviews_user_id_fkey (
-          id,
-          handle,
-          avatar_url
-        )
-      `)
-      .eq('content_id', contentId)
-      .not('review_text', 'is', null)
-      .order('created_at', { ascending: false });
-
-    if (reviewsData) {
-      // Get likes for each review
-      const reviewsWithLikes = await Promise.all(
-        reviewsData.map(async (review: any) => {
-          const { count } = await supabase
-            .from('review_likes')
-            .select('*', { count: 'exact', head: true })
-            .eq('review_id', review.id);
-
-          let userLiked = false;
-          if (user) {
-            const { data } = await supabase
-              .from('review_likes')
-              .select('id')
-              .eq('review_id', review.id)
-              .eq('user_id', user.id)
-              .single();
-            userLiked = !!data;
-          }
-
-          return {
-            id: review.id,
-            review_text: review.review_text,
-            rating: review.rating,
-            created_at: review.created_at,
-            user: {
-              id: review.profiles.id,
-              handle: review.profiles.handle,
-              avatar_url: review.profiles.avatar_url,
-            },
-            likes_count: count || 0,
-            user_liked: userLiked,
-          };
-        })
-      );
-
-      setReviews(reviewsWithLikes);
-    }
-
+    // Reviews are now stored in posts table with kind='review'
+    // Temporarily disabled - needs to be rebuilt with new data model
     setLoading(false);
   };
 

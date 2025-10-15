@@ -113,19 +113,13 @@ export default function UserProfilePage() {
     }
 
     const { data: ratings } = await supabase
-      .from('ratings')
-      .select('content_id')
+      .from('user_ratings')
+      .select('item_type, item_id')
       .eq('user_id', profileData.id);
-
-    const { data: allContent } = await supabase
-      .from('content')
-      .select('id, kind');
-
-    const contentMap = new Map(allContent?.map(c => [c.id, c.kind]));
     
-    const showCount = ratings?.filter(r => contentMap.get(r.content_id) === 'show').length || 0;
-    const seasonCount = ratings?.filter(r => contentMap.get(r.content_id) === 'season').length || 0;
-    const episodeCount = ratings?.filter(r => contentMap.get(r.content_id) === 'episode').length || 0;
+    const showCount = ratings?.filter(r => r.item_type === 'show').length || 0;
+    const seasonCount = ratings?.filter(r => r.item_type === 'season').length || 0;
+    const episodeCount = ratings?.filter(r => r.item_type === 'episode').length || 0;
 
     // Get count of both thoughts and reviews for total post count
     const { count: thoughtCount } = await supabase
@@ -134,9 +128,10 @@ export default function UserProfilePage() {
       .eq('user_id', profileData.id);
 
     const { count: reviewCount } = await supabase
-      .from('reviews')
+      .from('posts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', profileData.id);
+      .eq('author_id', profileData.id)
+      .eq('kind', 'review');
 
     const postCount = (thoughtCount || 0) + (reviewCount || 0);
 

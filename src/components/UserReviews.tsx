@@ -24,24 +24,18 @@ export function UserReviews({ userId }: UserReviewsProps) {
       return;
     }
 
-    // Get reviews
+    // Get reviews from posts table
     const { data: reviewsData, error } = await supabase
-      .from('reviews')
-      .select(`
-        id,
-        review_text,
-        rating,
-        created_at,
-        content:content_id (
-          id,
-          external_id,
-          title,
-          poster_url,
-          kind
-        )
-      `)
-      .eq('user_id', userId)
+      .from('posts')
+      .select('id, body, rating_percent, created_at, item_type, item_id')
+      .eq('author_id', userId)
+      .eq('kind', 'review')
+      .not('body', 'is', null)
       .order('created_at', { ascending: false });
+
+    // Convert to expected format - reviews are now in posts
+    // This is a placeholder - we need show/season/episode data
+    const reviewsFormatted = reviewsData || [];
 
     if (!error && reviewsData) {
       setReviews(reviewsData);

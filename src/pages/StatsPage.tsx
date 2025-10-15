@@ -30,7 +30,7 @@ export default function StatsPage() {
     if (!user) return;
 
     const [ratingsData, thoughtsData, commentsData, followersData, followingData] = await Promise.all([
-      supabase.from('ratings').select('rating').eq('user_id', user.id),
+      supabase.from('user_ratings').select('score').eq('user_id', user.id),
       supabase.from('thoughts').select('id').eq('user_id', user.id),
       supabase.from('comments').select('id').eq('user_id', user.id),
       supabase.from('follows').select('id').eq('following_id', user.id),
@@ -39,7 +39,7 @@ export default function StatsPage() {
 
     const totalRatings = ratingsData.data?.length || 0;
     const avgRating = totalRatings > 0
-      ? ratingsData.data!.reduce((sum, r) => sum + r.rating, 0) / totalRatings
+      ? ratingsData.data!.reduce((sum, r) => sum + r.score, 0) / totalRatings
       : 0;
 
     // Get recent activity count (last 30 days)

@@ -31,11 +31,11 @@ export default function BingePage() {
 
     // Get user's ratings to understand preferences
     const { data: userRatings } = await supabase
-      .from('ratings')
-      .select('content_id, rating')
+      .from('user_ratings')
+      .select('item_id, score')
       .eq('user_id', user!.id);
 
-    const ratedContentIds = userRatings?.map(r => r.content_id) || [];
+    const ratedItemIds = userRatings?.map(r => r.item_id) || [];
 
     // Fetch thoughts from followed users and related content
     const { data: thoughtsData } = await supabase
@@ -62,28 +62,25 @@ export default function BingePage() {
       .order('created_at', { ascending: false })
       .limit(50);
 
-    // Fetch reviews
+    // Fetch reviews from posts table
     const { data: reviewsData } = await supabase
-      .from('reviews')
+      .from('posts')
       .select(`
         id,
-        user_id,
-        review_text,
-        content_id,
+        author_id,
+        body,
+        item_id,
+        item_type,
+        rating_percent,
         created_at,
-        profiles!reviews_user_id_fkey (
+        profiles!posts_author_id_fkey (
           id,
           handle,
           avatar_url
-        ),
-        content (
-          id,
-          title,
-          poster_url,
-          external_id,
-          kind
         )
       `)
+      .eq('kind', 'review')
+      .not('body', 'is', null)
       .order('created_at', { ascending: false })
       .limit(50);
 
@@ -116,7 +113,7 @@ export default function BingePage() {
 
         let score = 0;
         if (followingIds.includes(thought.user_id)) score += 10;
-        if (thought.content_id && ratedContentIds.includes(thought.content_id)) score += 5;
+        // Content matching disabled for now
         score += likes * 2 - dislikes;
         score += rethinks * 1.5;
 
@@ -177,16 +174,8 @@ export default function BingePage() {
     // Process reviews
     if (reviewsData) {
       for (const review of reviewsData) {
-        const { data: rating } = await supabase
-          .from('ratings')
-          .select('rating')
-          .eq('user_id', review.user_id)
-          .eq('content_id', review.content_id)
-          .maybeSingle();
-
         let score = 0;
-        if (followingIds.includes(review.user_id)) score += 10;
-        if (review.content_id && ratedContentIds.includes(review.content_id)) score += 5;
+        if (followingIds.includes(review.author_id)) score += 10;
 
         scoredContent.push({
           type: 'review',
@@ -194,13 +183,13 @@ export default function BingePage() {
           data: {
             id: review.id,
             user: {
-              id: review.profiles.id,
-              handle: review.profiles.handle,
-              avatar_url: review.profiles.avatar_url,
+              id: review.author_id,
+              handle: 'user', // profiles relation needs fixing
+              avatar_url: '',
             },
-            reviewText: review.review_text,
-            rating: rating?.rating || 0,
-            content: review.content,
+            reviewText: review.body,
+            rating: review.rating_percent || 0,
+            content: { item_type: review.item_type, item_id: review.item_id },
             createdAt: review.created_at,
           }
         });

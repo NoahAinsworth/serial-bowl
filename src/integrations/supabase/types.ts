@@ -849,45 +849,6 @@ export type Database = {
         }
         Relationships: []
       }
-      ratings: {
-        Row: {
-          content_id: string
-          created_at: string | null
-          id: string
-          rating: number
-          user_id: string
-        }
-        Insert: {
-          content_id: string
-          created_at?: string | null
-          id?: string
-          rating: number
-          user_id: string
-        }
-        Update: {
-          content_id?: string
-          created_at?: string | null
-          id?: string
-          rating?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ratings_content_id_fkey"
-            columns: ["content_id"]
-            isOneToOne: false
-            referencedRelation: "content"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ratings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       reactions: {
         Row: {
           created_at: string | null
@@ -972,13 +933,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "review_dislikes_review_id_fkey"
-            columns: ["review_id"]
-            isOneToOne: false
-            referencedRelation: "reviews"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "review_dislikes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1008,65 +962,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "review_likes_review_id_fkey"
-            columns: ["review_id"]
-            isOneToOne: false
-            referencedRelation: "reviews"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "review_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      reviews: {
-        Row: {
-          contains_mature: boolean | null
-          content_id: string
-          created_at: string | null
-          id: string
-          is_spoiler: boolean
-          mature_reasons: string[] | null
-          rating: number | null
-          review_text: string | null
-          user_id: string
-        }
-        Insert: {
-          contains_mature?: boolean | null
-          content_id: string
-          created_at?: string | null
-          id?: string
-          is_spoiler?: boolean
-          mature_reasons?: string[] | null
-          rating?: number | null
-          review_text?: string | null
-          user_id: string
-        }
-        Update: {
-          contains_mature?: boolean | null
-          content_id?: string
-          created_at?: string | null
-          id?: string
-          is_spoiler?: boolean
-          mature_reasons?: string[] | null
-          rating?: number | null
-          review_text?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_content_id_fkey"
-            columns: ["content_id"]
-            isOneToOne: false
-            referencedRelation: "content"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -1518,78 +1414,6 @@ export type Database = {
       }
     }
     Views: {
-      feed_following: {
-        Row: {
-          author_id: string | null
-          comments: number | null
-          created_at: string | null
-          dislikes: number | null
-          id: string | null
-          likes: number | null
-          post_type: string | null
-          rank_score: number | null
-          rating: number | null
-          reshares: number | null
-          show_id: string | null
-          text: string | null
-          views: number | null
-        }
-        Relationships: []
-      }
-      feed_for_you: {
-        Row: {
-          author_id: string | null
-          comments: number | null
-          created_at: string | null
-          dislikes: number | null
-          id: string | null
-          likes: number | null
-          post_type: string | null
-          rank_score: number | null
-          rating: number | null
-          reshares: number | null
-          show_id: string | null
-          text: string | null
-          views: number | null
-        }
-        Relationships: []
-      }
-      feed_hot_takes: {
-        Row: {
-          author_id: string | null
-          comments: number | null
-          created_at: string | null
-          dislikes: number | null
-          id: string | null
-          likes: number | null
-          post_type: string | null
-          rank_score: number | null
-          rating: number | null
-          reshares: number | null
-          show_id: string | null
-          text: string | null
-          views: number | null
-        }
-        Relationships: []
-      }
-      feed_trending: {
-        Row: {
-          author_id: string | null
-          comments: number | null
-          created_at: string | null
-          dislikes: number | null
-          id: string | null
-          likes: number | null
-          post_type: string | null
-          rank_score: number | null
-          rating: number | null
-          reshares: number | null
-          show_id: string | null
-          text: string | null
-          views: number | null
-        }
-        Relationships: []
-      }
       profile_ratings_episodes: {
         Row: {
           item_id: string | null
@@ -1683,34 +1507,6 @@ export type Database = {
           rating_percent?: number | null
           updated_at?: string | null
           user_id?: string | null
-        }
-        Relationships: []
-      }
-      v_post_popularity: {
-        Row: {
-          comments: number | null
-          created_at: string | null
-          dislikes: number | null
-          likes: number | null
-          post_id: string | null
-          post_type: string | null
-          reshares: number | null
-          views: number | null
-        }
-        Relationships: []
-      }
-      v_posts: {
-        Row: {
-          author_id: string | null
-          created_at: string | null
-          id: string | null
-          moderation_status:
-            | Database["public"]["Enums"]["moderation_status"]
-            | null
-          rating: number | null
-          show_id: string | null
-          text: string | null
-          type: string | null
         }
         Relationships: []
       }

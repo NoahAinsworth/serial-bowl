@@ -26,52 +26,9 @@ export function TrendingShows() {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const { data } = await supabase
-      .from('ratings')
-      .select(`
-        content_id,
-        rating,
-        content (
-          id,
-          title,
-          poster_url,
-          external_id,
-          kind
-        )
-      `)
-      .eq('content.kind', 'show')
-      .gte('created_at', sevenDaysAgo.toISOString())
-      .limit(100);
-
-    if (data) {
-      // Aggregate by show
-      const showMap = new Map<string, TrendingShow>();
-      
-      data.forEach((rating: any) => {
-        if (!rating.content) return;
-        
-        const show = showMap.get(rating.content_id) || {
-          content_id: rating.content_id,
-          title: rating.content.title,
-          poster_url: rating.content.poster_url,
-          external_id: rating.content.external_id,
-          rating_count: 0,
-          avg_rating: 0,
-        };
-
-        show.rating_count++;
-        show.avg_rating = ((show.avg_rating * (show.rating_count - 1)) + rating.rating) / show.rating_count;
-        
-        showMap.set(rating.content_id, show);
-      });
-
-      // Sort by rating count
-      const trending = Array.from(showMap.values())
-        .sort((a, b) => b.rating_count - a.rating_count)
-        .slice(0, 5);
-
-      setShows(trending);
-    }
+    // Trending shows feature needs to be rebuilt with new data model
+    // Temporarily disabled
+    return;
   };
 
   if (shows.length === 0) return null;
