@@ -64,11 +64,28 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
       if (!post.item_id || !post.item_type) return;
 
       try {
+        // For episodes and seasons, parse the item_id format (e.g., "425082:1" or "425082:1:3")
+        const parts = post.item_id.split(':');
+        let searchId = post.item_id;
+        let searchType = post.item_type;
+        
+        // Handle different ID formats
+        if (post.item_type === 'episode' && parts.length === 3) {
+          // Format: showId:seasonNum:episodeNum
+          searchId = post.item_id; // Keep full format
+        } else if (post.item_type === 'season' && parts.length === 2) {
+          // Format: showId:seasonNum
+          searchId = post.item_id; // Keep full format
+        } else if (post.item_type === 'show') {
+          // Format: showId
+          searchId = parts[0];
+        }
+
         const { data, error } = await supabase
           .from('content')
           .select('title, external_id, kind')
-          .eq('external_id', post.item_id)
-          .eq('kind', post.item_type as 'show' | 'season' | 'episode')
+          .eq('external_id', searchId)
+          .eq('kind', searchType as 'show' | 'season' | 'episode')
           .maybeSingle();
 
         if (data && !error) {
@@ -77,6 +94,21 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             type: data.kind as 'show' | 'season' | 'episode',
             externalId: data.external_id 
           });
+        } else {
+          // Fallback: Create a readable title from the ID
+          if (post.item_type === 'episode' && parts.length === 3) {
+            setContentInfo({
+              title: `Season ${parts[1]}, Episode ${parts[2]}`,
+              type: 'episode',
+              externalId: post.item_id
+            });
+          } else if (post.item_type === 'season' && parts.length === 2) {
+            setContentInfo({
+              title: `Season ${parts[1]}`,
+              type: 'season',
+              externalId: post.item_id
+            });
+          }
         }
       } catch (error) {
         console.error('Failed to load content info:', error);
