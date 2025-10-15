@@ -389,7 +389,9 @@ export default function PostPage() {
         await createThought({ 
           body: content.trim(), 
           hasSpoilers: isSpoiler, 
-          hasMature: containsMature 
+          hasMature: containsMature,
+          itemType: selectedContent?.kind,
+          itemId: selectedContent?.external_id,
         });
         
         toast({

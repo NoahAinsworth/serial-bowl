@@ -4,6 +4,8 @@ export interface CreateThoughtParams {
   body: string;
   hasSpoilers?: boolean;
   hasMature?: boolean;
+  itemType?: string;
+  itemId?: string;
 }
 
 export async function getUserId(): Promise<string | null> {
@@ -23,6 +25,8 @@ export async function createThought(params: CreateThoughtParams) {
       body: params.body,
       has_spoilers: params.hasSpoilers || false,
       has_mature: params.hasMature || false,
+      item_type: params.itemType || null,
+      item_id: params.itemId || null,
     }])
     .select()
     .single();
