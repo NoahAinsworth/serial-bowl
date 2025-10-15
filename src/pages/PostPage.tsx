@@ -95,12 +95,15 @@ export default function PostPage() {
       // Format episode title with show name and season/episode numbers
       const episodeTitle = `${selectedShow!.name} — S${String(episode.seasonNumber).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}: ${episode.name}`;
       
+      // CORRECT FORMAT: showId:seasonNum:episodeNum
+      const formattedEpisodeId = `${selectedShow!.id}:${episode.seasonNumber}:${episode.number}`;
+      
       // Create/get episode content entry
       let { data: content, error: fetchError } = await supabase
         .from('content')
         .select('id, title, kind, external_id')
         .eq('external_src', 'thetvdb')
-        .eq('external_id', episode.id.toString())
+        .eq('external_id', formattedEpisodeId)
         .eq('kind', 'episode')
         .maybeSingle();
 
@@ -118,7 +121,7 @@ export default function PostPage() {
           .from('content')
           .insert({
             external_src: 'thetvdb',
-            external_id: episode.id.toString(),
+            external_id: formattedEpisodeId,
             kind: 'episode',
             title: episodeTitle,
             poster_url: episode.image,
@@ -129,6 +132,7 @@ export default function PostPage() {
               show_name: selectedShow!.name,
               season_number: episode.seasonNumber,
               episode_number: episode.number,
+              tvdb_episode_id: episode.id,
             }
           })
           .select('id, title, kind, external_id')
@@ -165,12 +169,15 @@ export default function PostPage() {
 
   const handleSelectSeasonAsTag = async (season: TVSeason) => {
     try {
+      // CORRECT FORMAT: showId:seasonNum
+      const formattedSeasonId = `${selectedShow!.id}:${season.number}`;
+      
       // Create/get season content entry
       let { data: content, error: fetchError } = await supabase
         .from('content')
         .select('id, title, kind, external_id')
         .eq('external_src', 'thetvdb')
-        .eq('external_id', season.id.toString())
+        .eq('external_id', formattedSeasonId)
         .eq('kind', 'season')
         .maybeSingle();
 
@@ -188,13 +195,14 @@ export default function PostPage() {
           .from('content')
           .insert({
             external_src: 'thetvdb',
-            external_id: season.id.toString(),
+            external_id: formattedSeasonId,
             kind: 'season',
             title: season.name,
             metadata: {
               show_id: selectedShow!.id,
               show_name: selectedShow!.name,
               season_number: season.number,
+              tvdb_season_id: season.id,
             }
           })
           .select('id, title, kind, external_id')
@@ -421,7 +429,10 @@ export default function PostPage() {
 
       // Extract item_type and item_id from selectedContent
       const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
-      const itemId = (selectedContent as any).external_id || selectedContent.id;
+      // Use external_id which now has the correctly formatted ID
+      const itemId = (selectedContent as any).external_id;
+
+      console.log('[PostPage] Submitting review with itemType:', itemType, 'itemId:', itemId);
 
       const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
         p_item_type: itemType,
