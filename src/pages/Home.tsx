@@ -12,7 +12,6 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { detectMatureContent } from '@/utils/profanityFilter';
 import cerealBowlLogo from '@/assets/cereal-bowl-simple.png';
 import cerealBowlIcon from '@/assets/cereal-bowl-icon.png';
 import serialBowlWordmark from '@/assets/serial-bowl-wordmark-new.png';
@@ -30,14 +29,6 @@ export default function Home() {
   const [strictSafety, setStrictSafety] = useState(false);
   const [hasSpoilers, setHasSpoilers] = useState(false);
   const [hasMature, setHasMature] = useState(false);
-
-  const handleThoughtTextChange = (value: string) => {
-    setThoughtText(value);
-    const { isMature } = detectMatureContent(value);
-    if (isMature && !hasMature) {
-      setHasMature(true);
-    }
-  };
 
   // Load user settings
   useEffect(() => {
@@ -161,7 +152,7 @@ export default function Home() {
           <Input
             placeholder="Pour a thought..."
             value={thoughtText}
-            onChange={(e) => handleThoughtTextChange(e.target.value)}
+            onChange={(e) => setThoughtText(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleThoughtSubmit()}
             disabled={posting}
           />

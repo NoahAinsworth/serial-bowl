@@ -32,15 +32,6 @@ export default function PostPage() {
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [containsMature, setContainsMature] = useState(false);
-
-  // Auto-detect mature content
-  const handleContentChange = (value: string) => {
-    setContent(value);
-    const { isMature } = detectMatureContent(value);
-    if (isMature && !containsMature) {
-      setContainsMature(true);
-    }
-  };
   
   // For hierarchical selection
   const [selectedShow, setSelectedShow] = useState<any | null>(null);
@@ -480,7 +471,7 @@ export default function PostPage() {
               <Textarea
                 placeholder="What's on your mind about TV?"
                 value={content}
-                onChange={(e) => handleContentChange(e.target.value)}
+                onChange={(e) => setContent(e.target.value)}
                 className="min-h-[150px] resize-none"
                 maxLength={500}
               />
@@ -531,7 +522,7 @@ export default function PostPage() {
               <Textarea
                 placeholder="Share your thoughts about this show..."
                 value={content}
-                onChange={(e) => handleContentChange(e.target.value)}
+                onChange={(e) => setContent(e.target.value)}
                 className="min-h-[150px] resize-none"
                 maxLength={500}
               />
