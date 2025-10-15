@@ -7,9 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Send } from 'lucide-react';
+import { Send, Pencil } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { DMReactions } from '@/components/DMReactions';
+import { EditDMDialog } from '@/components/EditDMDialog';
 
 interface Message {
   id: string;
@@ -19,6 +20,7 @@ interface Message {
   post_id?: string;
   created_at: string;
   read: boolean;
+  edited_at?: string | null;
 }
 
 export default function DMThreadPage() {
@@ -29,6 +31,8 @@ export default function DMThreadPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [otherUser, setOtherUser] = useState<{ handle: string; avatar_url: string | null } | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -201,22 +205,46 @@ export default function DMThreadPage() {
                 className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-scale-in`}
               >
                 <div className="flex flex-col">
-                  <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      isSent
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    {message.post_id && (
-                      <div className="mb-2 p-2 bg-background/20 rounded border border-border/50">
-                        <p className="text-xs opacity-80">Shared a post</p>
-                      </div>
+                  <div className="relative group">
+                    <div
+                      className={`max-w-[70%] rounded-lg p-3 ${
+                        isSent
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      {message.post_id && (
+                        <div className="mb-2 p-2 bg-background/20 rounded border border-border/50">
+                          <p className="text-xs opacity-80">Shared a post</p>
+                        </div>
+                      )}
+                      {message.text_content && (
+                        <div>
+                          <p className="break-words">{message.text_content}</p>
+                          {message.edited_at && (
+                            <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                              Edited
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                        {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                    {isSent && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -right-10 top-0 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                        onClick={() => {
+                          setEditingMessage(message);
+                          setShowEditDialog(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                     )}
-                    {message.text_content && <p className="break-words">{message.text_content}</p>}
-                    <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                    </p>
                   </div>
                   
                   {/* Emoji reactions */}
@@ -250,6 +278,15 @@ export default function DMThreadPage() {
           <Send className="h-4 w-4" />
         </Button>
       </div>
+
+      {editingMessage && (
+        <EditDMDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          dm={editingMessage}
+          onSuccess={loadMessages}
+        />
+      )}
     </div>
   );
 }

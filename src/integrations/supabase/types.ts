@@ -398,6 +398,35 @@ export type Database = {
           },
         ]
       }
+      dm_edit_history: {
+        Row: {
+          dm_id: string
+          edited_at: string
+          id: string
+          previous_text_content: string
+        }
+        Insert: {
+          dm_id: string
+          edited_at?: string
+          id?: string
+          previous_text_content: string
+        }
+        Update: {
+          dm_id?: string
+          edited_at?: string
+          id?: string
+          previous_text_content?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_edit_history_dm_id_fkey"
+            columns: ["dm_id"]
+            isOneToOne: false
+            referencedRelation: "dms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dm_reactions: {
         Row: {
           created_at: string
@@ -433,6 +462,7 @@ export type Database = {
       dms: {
         Row: {
           created_at: string | null
+          edited_at: string | null
           id: string
           read: boolean | null
           recipient_id: string
@@ -441,6 +471,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          edited_at?: string | null
           id?: string
           read?: boolean | null
           recipient_id: string
@@ -449,6 +480,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          edited_at?: string | null
           id?: string
           read?: boolean | null
           recipient_id?: string
@@ -753,6 +785,38 @@ export type Database = {
           },
         ]
       }
+      post_edit_history: {
+        Row: {
+          edited_at: string
+          id: string
+          post_id: string
+          previous_body: string | null
+          previous_rating_percent: number | null
+        }
+        Insert: {
+          edited_at?: string
+          id?: string
+          post_id: string
+          previous_body?: string | null
+          previous_rating_percent?: number | null
+        }
+        Update: {
+          edited_at?: string
+          id?: string
+          post_id?: string
+          previous_body?: string | null
+          previous_rating_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_edit_history_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_reactions: {
         Row: {
           created_at: string | null
@@ -789,6 +853,7 @@ export type Database = {
           created_at: string | null
           deleted_at: string | null
           dislikes_count: number | null
+          edited_at: string | null
           has_mature: boolean | null
           has_spoilers: boolean | null
           id: string
@@ -810,6 +875,7 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           dislikes_count?: number | null
+          edited_at?: string | null
           has_mature?: boolean | null
           has_spoilers?: boolean | null
           id?: string
@@ -831,6 +897,7 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           dislikes_count?: number | null
+          edited_at?: string | null
           has_mature?: boolean | null
           has_spoilers?: boolean | null
           id?: string

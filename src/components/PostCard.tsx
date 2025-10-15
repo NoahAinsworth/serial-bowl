@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send, Tv } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send, Tv, Pencil } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -13,6 +13,7 @@ import { sharePost } from '@/api/messages';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { replaceProfanity } from '@/utils/profanityFilter';
+import { EditPostDialog } from '@/components/EditPostDialog';
 
 interface PostCardProps {
   post: {
@@ -36,6 +37,7 @@ interface PostCardProps {
     reshares_count: number;
     userReaction?: 'like' | 'dislike';
     created_at: string;
+    edited_at?: string | null;
   };
   userHideSpoilers: boolean;
   strictSafety: boolean;
@@ -54,6 +56,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [revealSpoiler, setRevealSpoiler] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
   const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode'; externalId: string } | null>(null);
   
@@ -335,7 +338,12 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               Report
             </DropdownMenuItem>
             {isOwner && (
-              <AlertDialog>
+              <>
+                <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Trash2 className="h-4 w-4 mr-2" />
@@ -355,6 +363,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -419,7 +428,14 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                 <span className="font-medium">{contentInfo.title}</span>
               </div>
             )}
-            {post.body && <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>}
+            {post.body && (
+              <div>
+                <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>
+                {post.edited_at && (
+                  <p className="text-xs text-muted-foreground mt-1">Edited</p>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
@@ -480,6 +496,13 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
           </div>
         </DialogContent>
       </Dialog>
+
+      <EditPostDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        post={post}
+        onSuccess={onReactionChange || (() => {})}
+      />
     </article>
   );
 }
