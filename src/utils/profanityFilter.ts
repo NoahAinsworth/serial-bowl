@@ -7,9 +7,6 @@ const profanityWords = [
   /\bp+[\*\-_]*u+[\*\-_]*s+[\*\-_]*s+[\*\-_]*y+/gi,
   /\bc+[\*\-_]*o+[\*\-_]*c+[\*\-_]*k+/gi,
   /\bb+[\*\-_]*i+[\*\-_]*t+[\*\-_]*c+[\*\-_]*h+/gi,
-  /\ba+[\*\-_]*s+[\*\-_]*s+/gi,
-  /\bd+[\*\-_]*a+[\*\-_]*m+[\*\-_]*n+/gi,
-  /\bg+[\*\-_]*o+[\*\-_]*d+[\*\-_]*d+[\*\-_]*a+[\*\-_]*m+[\*\-_]*n+/gi,
 ];
 
 export function replaceProfanity(text: string): string {
