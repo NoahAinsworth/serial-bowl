@@ -81,7 +81,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
         const { data, error } = await supabase
           .from('content')
-          .select('title, external_id, kind')
+          .select('title, external_id, kind, metadata')
           .eq('external_id', post.item_id)
           .eq('kind', post.item_type as 'show' | 'season' | 'episode')
           .maybeSingle();
@@ -95,14 +95,34 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
         } else {
           // Fallback: Create a readable title from the ID
           if (post.item_type === 'episode') {
+            // For episodes, try to fetch show name
+            const showId = parts[0];
+            const { data: showData } = await supabase
+              .from('content')
+              .select('title')
+              .eq('external_id', showId)
+              .eq('kind', 'show')
+              .maybeSingle();
+
+            const showName = showData?.title || 'Show';
             setContentInfo({
-              title: `Season ${parts[1]}, Episode ${parts[2]}`,
+              title: `${showName} - S${parts[1]}E${parts[2]}`,
               type: 'episode',
               externalId: post.item_id
             });
           } else if (post.item_type === 'season') {
+            // For seasons, fetch show name
+            const showId = parts[0];
+            const { data: showData } = await supabase
+              .from('content')
+              .select('title')
+              .eq('external_id', showId)
+              .eq('kind', 'show')
+              .maybeSingle();
+
+            const showName = showData?.title || 'Show';
             setContentInfo({
-              title: `Season ${parts[1]}`,
+              title: `${showName} - Season ${parts[1]}`,
               type: 'season',
               externalId: post.item_id
             });

@@ -191,13 +191,14 @@ export default function PostPage() {
       }
 
       if (!content) {
+        const seasonTitle = `${selectedShow!.name} - ${season.name}`;
         const { data: newContent, error: insertError } = await supabase
           .from('content')
           .insert({
             external_src: 'thetvdb',
             external_id: formattedSeasonId,
             kind: 'season',
-            title: season.name,
+            title: seasonTitle,
             metadata: {
               show_id: selectedShow!.id,
               show_name: selectedShow!.name,
