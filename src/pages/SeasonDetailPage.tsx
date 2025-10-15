@@ -28,6 +28,9 @@ export default function SeasonDetailPage() {
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
 
+  // Debug: Log the itemId being used
+  console.log('SeasonDetailPage - showId:', showId, 'seasonNumber:', seasonNumber, 'itemId:', `${showId}:${seasonNumber}`);
+
   useEffect(() => {
     if (showId && seasonNumber) {
       loadEpisodes(parseInt(showId), parseInt(seasonNumber));
