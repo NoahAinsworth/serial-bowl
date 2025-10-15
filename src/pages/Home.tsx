@@ -121,7 +121,7 @@ export default function Home() {
 
       {/* Pour a Thought Bar */}
       <div className="mb-6 bg-card border rounded-lg p-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 mb-3">
           <Input
             placeholder="Pour a thought..."
             value={thoughtText}
@@ -132,6 +132,19 @@ export default function Home() {
           <Button onClick={handleThoughtSubmit} disabled={posting || !thoughtText.trim()}>
             {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Post'}
           </Button>
+        </div>
+        <div className="flex gap-2 justify-center">
+          {['🔥', '😂', '🤯', '😭', '❤️'].map((emoji) => (
+            <Button
+              key={emoji}
+              variant="outline"
+              size="sm"
+              onClick={() => handleEmojiPost(emoji)}
+              disabled={posting}
+            >
+              {emoji}
+            </Button>
+          ))}
         </div>
       </div>
 
