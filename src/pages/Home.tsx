@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { createThought } from '@/api/posts';
 import { toast } from 'sonner';
 import cerealBowlLogo from '@/assets/cereal-bowl-simple.png';
+import cerealBowlIcon from '@/assets/cereal-bowl-icon.png';
 import serialBowlWordmark from '@/assets/serial-bowl-wordmark-new.png';
 
 export default function Home() {
@@ -114,6 +115,15 @@ export default function Home() {
 
   return (
     <div className="max-w-2xl mx-auto pb-6 px-4">
+      {/* Animated Cereal Bowl Logo */}
+      <div className="flex justify-center pt-8 pb-4">
+        <img 
+          src={cerealBowlIcon} 
+          alt="Cereal Bowl" 
+          className="w-20 h-20 animate-[scale-in_0.5s_ease-out,gentle-bounce_2s_ease-in-out_0.5s_infinite]"
+        />
+      </div>
+
       {/* Pour a Thought Bar */}
       <div className="mb-6 bg-card border rounded-lg p-4">
         <div className="flex gap-2 mb-3">
