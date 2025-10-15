@@ -9,6 +9,7 @@ import { PostCard } from '@/components/PostCard';
 import { Loader2 } from 'lucide-react';
 import { createThought } from '@/api/posts';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 import cerealBowlLogo from '@/assets/cereal-bowl-simple.png';
 import cerealBowlIcon from '@/assets/cereal-bowl-icon.png';
 import serialBowlWordmark from '@/assets/serial-bowl-wordmark-new.png';
@@ -22,6 +23,24 @@ export default function Home() {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [thoughtText, setThoughtText] = useState('');
   const [posting, setPosting] = useState(false);
+  const [userHideSpoilers, setUserHideSpoilers] = useState(true);
+
+  // Load user settings
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('settings')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.settings) {
+            const settings = data.settings as any;
+            setUserHideSpoilers(settings?.safety?.hide_spoilers ?? true);
+          }
+        });
+    }
+  }, [user]);
 
   // Scroll to top when coming from post creation
   useEffect(() => {
@@ -172,7 +191,7 @@ export default function Home() {
                     user: post.author,
                     is_spoiler: post.has_spoilers,
                   }}
-                  userHideSpoilers={true}
+                  userHideSpoilers={userHideSpoilers}
                   strictSafety={false}
                   onReactionChange={refetch}
                   onDelete={refetch}
