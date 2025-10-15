@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { createThought, createReview } from '@/api/posts';
-import { saveRating } from '@/api/ratings';
+import { createThought } from '@/api/posts';
+import { supabase } from '@/api/supabase';
 
 interface PostCreationDialogProps {
   open: boolean;
@@ -59,21 +59,18 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review' && itemType && itemId) {
-        // Save rating first
-        if (rating) {
-          await saveRating({ itemType, itemId, percent: rating });
-        }
+        // Use the database function that handles both rating and review in one transaction
+        const { data, error } = await supabase.rpc('api_rate_and_review', {
+          p_item_type: itemType,
+          p_item_id: String(itemId),
+          p_score_any: String(rating),
+          p_review: text.trim() || null,
+          p_is_spoiler: hasSpoilers,
+        });
 
-        // Create review post if text exists
+        if (error) throw error;
+
         if (text.trim()) {
-          await createReview({
-            itemType,
-            itemId,
-            ratingPercent: rating,
-            body: text.trim(),
-            hasSpoilers,
-            hasMature,
-          });
           toast.success('Review posted!');
         } else {
           toast.success('Rating saved!');
