@@ -509,37 +509,41 @@ All colors MUST be HSL.
     bottom: -8px;
   }
 
-  /* Friends Theme Wordmark - Clean pixel with colorful dots */
+  /* Friends Theme Wordmark - Clean pixel with single colorful dots between letters */
   .the_one_with_the_theme .wordmark {
     font-family: 'Press Start 2P', monospace;
     font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.05em;
     font-size: 0.75rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
-  }
-  
-  .the_one_with_the_theme .wordmark::before {
-    content: '• • • • • • • • • •';
-    position: absolute;
-    left: 0.45em;
-    top: 50%;
-    transform: translateY(-50%);
-    letter-spacing: 0.84em;
-    font-size: 0.5em;
-    background: linear-gradient(90deg, 
-      hsl(var(--friends-yellow)) 0%, hsl(var(--friends-yellow)) 10%,
-      hsl(var(--friends-orange)) 20%, hsl(var(--friends-orange)) 30%,
-      hsl(var(--friends-purple)) 40%, hsl(var(--friends-purple)) 50%,
-      hsl(var(--friends-lavender)) 60%, hsl(var(--friends-lavender)) 70%,
-      hsl(var(--friends-yellow)) 80%, hsl(var(--friends-yellow)) 90%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    pointer-events: none;
+    word-spacing: 0.6em;
+    background-image: 
+      radial-gradient(circle, hsl(var(--friends-yellow)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-orange)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-purple)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-lavender)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-yellow)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-orange)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-purple)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-lavender)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-yellow)) 1.5px, transparent 1.5px),
+      radial-gradient(circle, hsl(var(--friends-orange)) 1.5px, transparent 1.5px);
+    background-size: 3px 3px;
+    background-position: 
+      0.5em center,
+      1.05em center,
+      1.6em center,
+      2.15em center,
+      2.7em center,
+      3.25em center,
+      3.8em center,
+      4.45em center,
+      5.0em center,
+      5.55em center;
+    background-repeat: no-repeat;
   }
 
 
