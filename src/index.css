@@ -514,20 +514,34 @@ All colors MUST be HSL.
     font-family: 'Press Start 2P', monospace;
     font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 1.2em;
+    letter-spacing: 0.3em;
     font-size: 0.75rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
-    background-image: 
-      radial-gradient(circle, hsl(var(--friends-yellow)) 2px, transparent 2px),
-      radial-gradient(circle, hsl(var(--friends-orange)) 2px, transparent 2px),
-      radial-gradient(circle, hsl(var(--friends-purple)) 2px, transparent 2px),
-      radial-gradient(circle, hsl(var(--friends-lavender)) 2px, transparent 2px);
-    background-size: 1.2em 100%;
-    background-position: 0.6em center, 1.8em center, 3em center, 4.2em center;
-    background-repeat: no-repeat;
   }
+  
+  .the_one_with_the_theme .wordmark::before {
+    content: '• • • • • • • • • •';
+    position: absolute;
+    left: 0.45em;
+    top: 50%;
+    transform: translateY(-50%);
+    letter-spacing: 0.84em;
+    font-size: 0.5em;
+    background: linear-gradient(90deg, 
+      hsl(var(--friends-yellow)) 0%, hsl(var(--friends-yellow)) 10%,
+      hsl(var(--friends-orange)) 20%, hsl(var(--friends-orange)) 30%,
+      hsl(var(--friends-purple)) 40%, hsl(var(--friends-purple)) 50%,
+      hsl(var(--friends-lavender)) 60%, hsl(var(--friends-lavender)) 70%,
+      hsl(var(--friends-yellow)) 80%, hsl(var(--friends-yellow)) 90%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    pointer-events: none;
+  }
+
 
 
   /* Blue Crystal Wordmark - Breaking Bad Style */
