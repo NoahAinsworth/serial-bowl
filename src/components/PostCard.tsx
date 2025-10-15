@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -6,8 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { sharePost } from '@/api/messages';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -50,8 +52,18 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [deleted, setDeleted] = useState(false);
   const [revealSpoiler, setRevealSpoiler] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [users, setUsers] = useState<any[]>([]);
   
   const isOwner = user?.id === post.user.id;
+
+  useEffect(() => {
+    if (showShareDialog) {
+      supabase.from('profiles').select('id, handle').limit(50).then(({ data }) => {
+        if (data) setUsers(data.filter(u => u.id !== user?.id));
+      });
+    }
+  }, [showShareDialog, user]);
 
   const typeConfig = {
     thought: {
@@ -215,6 +227,10 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               <EyeOff className="h-4 w-4 mr-2" />
               Hide post
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
+              <Send className="h-4 w-4 mr-2" />
+              Share to Friend
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleReport}>
               <Flag className="h-4 w-4 mr-2" />
               Report
@@ -295,10 +311,30 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
           <span>{localComments}</span>
         </Button>
 
-        <Button variant="ghost" size="sm" className="gap-2 ml-auto" onClick={handleShare}>
-          <Send className="h-4 w-4" />
-        </Button>
       </div>
+
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share to Friend</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            {users.map(u => (
+              <Button key={u.id} variant="ghost" className="w-full justify-start" onClick={async () => {
+                try {
+                  await sharePost(post.id, u.id);
+                  toast.success(`Shared with @${u.handle}`);
+                  setShowShareDialog(false);
+                } catch {
+                  toast.error('Failed to share');
+                }
+              }}>
+                @{u.handle}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </article>
   );
 }

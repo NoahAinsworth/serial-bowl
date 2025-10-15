@@ -4,75 +4,120 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { tvdbFetch } from "@/lib/tvdb";
 import { normalizeSeries, ShowCard } from "@/lib/shows";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("browse");
+  const [showSearchOverlay, setShowSearchOverlay] = useState(false);
   
   const [searchResults, setSearchResults] = useState<ShowCard[]>([]);
-  const [popularShows, setPopularShows] = useState<ShowCard[]>([]);
+  const [trendingShows, setTrendingShows] = useState<ShowCard[]>([]);
+  const [newShows, setNewShows] = useState<ShowCard[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [trendingPage, setTrendingPage] = useState(0);
+  const [newPage, setNewPage] = useState(0);
+  const [searchPage, setSearchPage] = useState(0);
+  const [hasMoreTrending, setHasMoreTrending] = useState(true);
+  const [hasMoreNew, setHasMoreNew] = useState(true);
+  const [hasMoreSearch, setHasMoreSearch] = useState(true);
   
-  const observerTarget = useRef<HTMLDivElement>(null);
+  const trendingObserver = useRef<HTMLDivElement>(null);
+  const newObserver = useRef<HTMLDivElement>(null);
+  const searchObserver = useRef<HTMLDivElement>(null);
   
-  // Popular search terms to rotate through for diverse content
-  const popularSearchTerms = [
-    'breaking', 'game', 'stranger', 'office', 'friends', 'walking', 
-    'house', 'last', 'dragon', 'witcher', 'dark', 'crown', 'boys'
-  ];
-
-  // Load popular shows when Browse tab is active and no search
+  // Load trending & new shows on mount
   useEffect(() => {
-    if (activeTab === "browse" && !searchQuery.trim()) {
-      loadPopularShows();
+    if (activeTab === "browse") {
+      loadTrendingShows();
+      loadNewShows();
     }
   }, [activeTab]);
 
-  // Infinite scroll observer
+  // Horizontal scroll observers for rails
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const trendingObs = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading && !searchQuery.trim() && activeTab === "browse") {
-          setPage((prev) => prev + 1);
+        if (entries[0].isIntersecting && hasMoreTrending && !loading) {
+          setTrendingPage((prev) => prev + 1);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.5 }
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    const newObs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreNew && !loading) {
+          setNewPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.5 }
+    );
 
-    return () => observer.disconnect();
-  }, [hasMore, loading, searchQuery, activeTab]);
+    if (trendingObserver.current) trendingObs.observe(trendingObserver.current);
+    if (newObserver.current) newObs.observe(newObserver.current);
 
-  // Load more when page changes
+    return () => {
+      trendingObs.disconnect();
+      newObs.disconnect();
+    };
+  }, [hasMoreTrending, hasMoreNew, loading]);
+
+  // Search overlay scroll observer
   useEffect(() => {
-    if (page > 0 && !searchQuery.trim() && activeTab === "browse") {
-      loadPopularShows();
-    }
-  }, [page]);
+    if (!showSearchOverlay) return;
 
-  // Search shows when query changes and on Browse tab
+    const searchObs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreSearch && !loading && searchQuery.trim()) {
+          setSearchPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (searchObserver.current) searchObs.observe(searchObserver.current);
+
+    return () => searchObs.disconnect();
+  }, [showSearchOverlay, hasMoreSearch, loading, searchQuery]);
+
+  // Load more when pages change
   useEffect(() => {
-    if (activeTab === "browse") {
+    if (trendingPage > 0) loadTrendingShows();
+  }, [trendingPage]);
+
+  useEffect(() => {
+    if (newPage > 0) loadNewShows();
+  }, [newPage]);
+
+  useEffect(() => {
+    if (searchPage > 0 && searchQuery.trim()) searchShowsOverlay();
+  }, [searchPage]);
+
+  // Debounced search in overlay
+  useEffect(() => {
+    if (!showSearchOverlay) return;
+    
+    const timer = setTimeout(() => {
       if (searchQuery.trim()) {
-        searchShows();
+        setSearchPage(0);
+        setSearchResults([]);
+        searchShowsOverlay();
       } else {
         setSearchResults([]);
       }
-    }
-  }, [searchQuery, activeTab]);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, showSearchOverlay]);
 
   // Search users when query changes and on Users tab
   useEffect(() => {
@@ -83,19 +128,17 @@ export default function DiscoverPage() {
     }
   }, [searchQuery, activeTab]);
 
-  async function loadPopularShows() {
+  async function loadTrendingShows() {
     if (loading) return;
     
     setLoading(true);
     try {
-      // Use TVDB's filter endpoint to get popular series sorted by score
-      const response = await tvdbFetch(`/series/filter?page=${page}&sort=score&sortType=desc`);
-      const showsData = Array.isArray(response) ? response : [];
+      const results = await tvdbFetch(`/series/filter?page=${trendingPage}&sort=score&sortType=desc`);
+      const showsData = Array.isArray(results) ? results : [];
       const normalized = showsData.map(normalizeSeries);
       
-      setPopularShows((prev) => {
+      setTrendingShows((prev) => {
         const combined = [...prev, ...normalized];
-        // Remove duplicates by id
         const seen = new Set();
         return combined.filter((show: any) => {
           if (seen.has(show.id)) return false;
@@ -104,29 +147,68 @@ export default function DiscoverPage() {
         });
       });
       
-      if (normalized.length < 20) {
-        setHasMore(false);
-      }
+      if (normalized.length < 20) setHasMoreTrending(false);
     } catch (error) {
-      console.error("Error loading popular shows:", error);
+      console.error("Error loading trending shows:", error);
       toast.error("Failed to load shows");
-      setHasMore(false);
     } finally {
       setLoading(false);
     }
   }
 
-  async function searchShows() {
+  async function loadNewShows() {
+    if (loading) return;
+    
     setLoading(true);
     try {
-      console.log('Searching for:', searchQuery);
-      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20`);
-      console.log('Search results:', results);
+      const currentYear = new Date().getFullYear();
+      const results = await tvdbFetch(`/search?query=${currentYear}&type=series&limit=20&page=${newPage}`);
       const showsData = Array.isArray(results) ? results : [];
-      console.log('Shows data array:', showsData);
       const normalized = showsData.map(normalizeSeries);
-      console.log('Normalized shows:', normalized);
-      setSearchResults(normalized);
+      
+      setNewShows((prev) => {
+        const combined = [...prev, ...normalized];
+        const seen = new Set();
+        return combined.filter((show: any) => {
+          if (seen.has(show.id)) return false;
+          seen.add(show.id);
+          return true;
+        });
+      });
+      
+      if (normalized.length < 20) setHasMoreNew(false);
+    } catch (error) {
+      console.error("Error loading new shows:", error);
+      toast.error("Failed to load shows");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function searchShowsOverlay() {
+    if (loading) return;
+    
+    setLoading(true);
+    try {
+      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20&page=${searchPage}`);
+      const showsData = Array.isArray(results) ? results : [];
+      const normalized = showsData.map(normalizeSeries);
+      
+      if (searchPage === 0) {
+        setSearchResults(normalized);
+      } else {
+        setSearchResults((prev) => {
+          const combined = [...prev, ...normalized];
+          const seen = new Set();
+          return combined.filter((show: any) => {
+            if (seen.has(show.id)) return false;
+            seen.add(show.id);
+            return true;
+          });
+        });
+      }
+      
+      if (normalized.length < 20) setHasMoreSearch(false);
     } catch (error) {
       console.error("Error searching shows:", error);
       toast.error("Failed to search shows");
@@ -155,18 +237,20 @@ export default function DiscoverPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl pb-20">
-      <h1 className="text-3xl font-bold mb-6">Discover</h1>
+    <>
+      <div className="container mx-auto px-4 py-6 max-w-7xl pb-20">
+        <h1 className="text-3xl font-bold mb-6">Discover</h1>
 
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={activeTab === "browse" ? "Search shows..." : "Search users..."}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={activeTab === "browse" ? "Search shows..." : "Search users..."}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => activeTab === "browse" && setShowSearchOverlay(true)}
+            className="pl-10"
+          />
+        </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Saturday Morning Wavy Background */}
@@ -178,45 +262,49 @@ export default function DiscoverPage() {
         </TabsList>
 
         <TabsContent value="browse">
-          {searchQuery.trim() ? (
-            // Show search results
-            <>
-              {!loading && searchResults.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  No shows found
-                </div>
-              )}
-
-              {searchResults.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {searchResults.map((show) => (
-                    <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            // Show popular shows
-            <>
-              {popularShows.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {popularShows.map((show) => (
-                    <ShowCardComponent key={show.id} show={show} onClick={() => navigate(`/show/${show.id}`)} />
-                  ))}
-                </div>
-              )}
-              
-              <div ref={observerTarget} className="h-4 mt-4" />
-            </>
-          )}
-          
-          {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-              {[...Array(10)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[2/3]" />
-              ))}
+          {/* Trending Shows Rail */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Trending Shows</h2>
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                {trendingShows.map((show) => (
+                  <div key={show.id} className="flex-shrink-0 w-32 sm:w-40">
+                    <ShowCardComponent show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                  </div>
+                ))}
+                <div ref={trendingObserver} className="flex-shrink-0 w-4" />
+                {loading && (
+                  <>
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="flex-shrink-0 w-32 sm:w-40 aspect-[2/3]" />
+                    ))}
+                  </>
+                )}
+              </div>
             </div>
-          )}
+          </div>
+
+          {/* New Shows Rail */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">New Shows</h2>
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                {newShows.map((show) => (
+                  <div key={show.id} className="flex-shrink-0 w-32 sm:w-40">
+                    <ShowCardComponent show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                  </div>
+                ))}
+                <div ref={newObserver} className="flex-shrink-0 w-4" />
+                {loading && (
+                  <>
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="flex-shrink-0 w-32 sm:w-40 aspect-[2/3]" />
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="users">
@@ -265,6 +353,71 @@ export default function DiscoverPage() {
         </TabsContent>
       </Tabs>
     </div>
+
+    {/* Search Overlay */}
+    {showSearchOverlay && (
+      <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
+          <div className="flex items-center gap-4 mb-6">
+            <Button variant="ghost" size="icon" onClick={() => {
+              setShowSearchOverlay(false);
+              setSearchQuery("");
+              setSearchResults([]);
+            }}>
+              <X className="h-6 w-6" />
+            </Button>
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search shows..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {!searchQuery.trim() && (
+            <div className="text-center py-12 text-muted-foreground">
+              Start typing to search...
+            </div>
+          )}
+
+          {searchQuery.trim() && !loading && searchResults.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              No shows found
+            </div>
+          )}
+
+          {searchResults.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {searchResults.map((show) => (
+                <ShowCardComponent 
+                  key={show.id} 
+                  show={show} 
+                  onClick={() => {
+                    setShowSearchOverlay(false);
+                    navigate(`/show/${show.id}`);
+                  }} 
+                />
+              ))}
+            </div>
+          )}
+
+          <div ref={searchObserver} className="h-4 mt-4" />
+
+          {loading && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="aspect-[2/3]" />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 

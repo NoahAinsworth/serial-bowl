@@ -6,12 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Edit, Loader2, Share2, MessageSquare, Plus, X } from 'lucide-react';
+import { Edit, Loader2, Share2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { UserRatings } from '@/components/UserRatings';
-import { UserThoughts } from '@/components/UserThoughts';
+import { UserPosts } from '@/components/UserPosts';
+import { UnifiedRatings } from '@/components/UnifiedRatings';
 import { UserLists } from '@/components/UserLists';
-import { UserReviews } from '@/components/UserReviews';
 import { FollowRequestsList } from '@/components/FollowRequestsList';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
@@ -21,7 +20,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 
 export default function ProfilePage() {
@@ -42,7 +40,6 @@ export default function ProfilePage() {
   const [top3Shows, setTop3Shows] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchingShows, setSearchingShows] = useState(false);
-  const [postType, setPostType] = useState<'all' | 'thoughts' | 'reviews'>('all');
 
   useEffect(() => {
     if (!user) {
@@ -406,65 +403,18 @@ export default function ProfilePage() {
 
       {/* Tabs Section */}
       <Tabs defaultValue="posts" className="w-full mt-0">
-        <TabsList className="w-full grid grid-cols-5 rounded-none bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+        <TabsList className="w-full grid grid-cols-3 rounded-none bg-background/80 backdrop-blur-lg sticky top-0 z-10">
           <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="shows">Shows</TabsTrigger>
-          <TabsTrigger value="seasons">Seasons</TabsTrigger>
-          <TabsTrigger value="episodes">Episodes</TabsTrigger>
+          <TabsTrigger value="ratings">Ratings</TabsTrigger>
           <TabsTrigger value="lists">Lists</TabsTrigger>
         </TabsList>
 
         <TabsContent value="posts" className="mt-0 px-4">
-          {/* Secondary Filter Tabs */}
-          <div className="mb-4">
-            <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full">
-              <button
-                onClick={() => setPostType('all')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'all' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setPostType('thoughts')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'thoughts' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                Thoughts
-              </button>
-              <button
-                onClick={() => setPostType('reviews')}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${
-                  postType === 'reviews' ? 'bg-background text-foreground shadow-sm' : ''
-                }`}
-              >
-                Reviews
-              </button>
-            </div>
-          </div>
-
-          {postType === 'all' && (
-            <div className="space-y-6">
-              <UserThoughts userId={user!.id} />
-              <UserReviews userId={user!.id} />
-            </div>
-          )}
-          {postType === 'thoughts' && <UserThoughts userId={user!.id} />}
-          {postType === 'reviews' && <UserReviews userId={user!.id} />}
+          <UserPosts userId={user!.id} />
         </TabsContent>
 
-        <TabsContent value="shows" className="mt-0 px-4">
-          <UserRatings userId={user!.id} contentKind="show" />
-        </TabsContent>
-
-        <TabsContent value="seasons" className="mt-0 px-4">
-          <UserRatings userId={user!.id} contentKind="season" />
-        </TabsContent>
-
-        <TabsContent value="episodes" className="mt-0 px-4">
-          <UserRatings userId={user!.id} contentKind="episode" />
+        <TabsContent value="ratings" className="mt-0 px-4">
+          <UnifiedRatings userId={user!.id} />
         </TabsContent>
 
         <TabsContent value="lists" className="mt-0 px-4">

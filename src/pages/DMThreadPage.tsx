@@ -15,6 +15,7 @@ interface Message {
   sender_id: string;
   recipient_id?: string;
   text_content: string;
+  post_id?: string;
   created_at: string;
   read: boolean;
 }
@@ -206,7 +207,12 @@ export default function DMThreadPage() {
                         : 'bg-muted'
                     }`}
                   >
-                    <p className="break-words">{message.text_content}</p>
+                    {message.post_id && (
+                      <div className="mb-2 p-2 bg-background/20 rounded border border-border/50">
+                        <p className="text-xs opacity-80">Shared a post</p>
+                      </div>
+                    )}
+                    {message.text_content && <p className="break-words">{message.text_content}</p>}
                     <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                       {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                     </p>
