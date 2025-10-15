@@ -112,7 +112,7 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center gradient-cloud px-4">
       <Card className="w-full max-w-md p-8 border-0">
         <div className="text-center mb-8">
-          <p className="text-muted-foreground font-medium">Your TV social network</p>
+          <p className="text-muted-foreground font-medium">Your bingeing experience awaits!</p>
         </div>
 
         <Tabs defaultValue="signin" className="w-full">
