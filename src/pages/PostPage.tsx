@@ -25,7 +25,7 @@ export default function PostPage() {
   const [content, setContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedContent, setSelectedContent] = useState<{ id: string; title: string; kind: string } | null>(null);
+  const [selectedContent, setSelectedContent] = useState<{ id: string; title: string; kind: string; external_id?: string } | null>(null);
   const [searching, setSearching] = useState(false);
   const [posting, setPosting] = useState(false);
   const [rating, setRating] = useState(0);
@@ -98,7 +98,7 @@ export default function PostPage() {
       // Create/get episode content entry
       let { data: content, error: fetchError } = await supabase
         .from('content')
-        .select('id, title, kind')
+        .select('id, title, kind, external_id')
         .eq('external_src', 'thetvdb')
         .eq('external_id', episode.id.toString())
         .eq('kind', 'episode')
@@ -131,7 +131,7 @@ export default function PostPage() {
               episode_number: episode.number,
             }
           })
-          .select('id, title, kind')
+          .select('id, title, kind, external_id')
           .single();
         
         if (insertError) {
@@ -168,7 +168,7 @@ export default function PostPage() {
       // Create/get season content entry
       let { data: content, error: fetchError } = await supabase
         .from('content')
-        .select('id, title, kind')
+        .select('id, title, kind, external_id')
         .eq('external_src', 'thetvdb')
         .eq('external_id', season.id.toString())
         .eq('kind', 'season')
@@ -197,7 +197,7 @@ export default function PostPage() {
               season_number: season.number,
             }
           })
-          .select('id, title, kind')
+          .select('id, title, kind, external_id')
           .single();
         
         if (insertError) {
@@ -234,7 +234,7 @@ export default function PostPage() {
       // Get or create show content entry
       let { data: content, error: fetchError } = await supabase
         .from('content')
-        .select('id, title, kind')
+        .select('id, title, kind, external_id')
         .eq('external_src', 'thetvdb')
         .eq('external_id', show.id.toString())
         .eq('kind', 'show')
@@ -263,7 +263,7 @@ export default function PostPage() {
               overview: show.overview
             }
           })
-          .select('id, title, kind')
+          .select('id, title, kind, external_id')
           .single();
         
         if (insertError) {
@@ -421,7 +421,7 @@ export default function PostPage() {
 
       // Extract item_type and item_id from selectedContent
       const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
-      const itemId = selectedContent.id; 
+      const itemId = (selectedContent as any).external_id || selectedContent.id;
 
       const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
         p_item_type: itemType,
