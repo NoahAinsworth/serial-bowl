@@ -97,19 +97,16 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const typeConfig = {
     thought: {
       label: 'Thought',
-      emoji: '💜',
       color: 'bg-purple-500/10 text-purple-500 border-purple-500/30',
       glow: 'shadow-purple-500/10'
     },
     review: {
       label: 'Review',
-      emoji: '🟡',
       color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30',
       glow: 'shadow-yellow-500/10'
     },
     rating: {
       label: 'Rating',
-      emoji: '💚',
       color: 'bg-green-500/10 text-green-500 border-green-500/30',
       glow: 'shadow-green-500/10'
     }
@@ -220,7 +217,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
       config.glow
     )}>
       <Badge variant="outline" className={cn("absolute top-3 right-14 text-xs font-semibold", config.color)}>
-        {config.emoji} {config.label}
+        {config.label}
       </Badge>
 
       {/* User Header */}
