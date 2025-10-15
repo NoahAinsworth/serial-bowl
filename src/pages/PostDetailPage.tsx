@@ -63,6 +63,11 @@ export default function PostDetailPage() {
 
       setPost({
         ...postData,
+        user: {
+          id: postData.profiles.id,
+          handle: postData.profiles.handle,
+          avatar_url: postData.profiles.avatar_url
+        },
         likes,
         dislikes,
         userReaction,
