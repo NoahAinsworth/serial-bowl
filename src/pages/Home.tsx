@@ -145,11 +145,11 @@ export default function Home() {
 
       {/* Feed Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedType)}>
-        <TabsList className="w-full mb-6">
-          <TabsTrigger value="trending" className="flex-1">Trending</TabsTrigger>
-          <TabsTrigger value="hot-takes" className="flex-1">Hot Takes</TabsTrigger>
-          <TabsTrigger value="following" className="flex-1">Following</TabsTrigger>
-          <TabsTrigger value="new" className="flex-1">New</TabsTrigger>
+        <TabsList className="w-full mb-6 grid grid-cols-4">
+          <TabsTrigger value="trending">Trending</TabsTrigger>
+          <TabsTrigger value="hot-takes">Hot Takes</TabsTrigger>
+          <TabsTrigger value="following">Following</TabsTrigger>
+          <TabsTrigger value="new">New</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">

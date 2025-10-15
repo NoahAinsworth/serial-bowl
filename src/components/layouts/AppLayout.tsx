@@ -60,7 +60,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: Home, label: 'Home', path: '/home' },
     { icon: Search, label: 'Discover', path: '/discover' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
-    { icon: MessageSquare, label: 'Messages', path: '/messages', badge: unreadDMs },
+    { icon: MessageSquare, label: 'Messages', path: '/dms', badge: unreadDMs },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 
