@@ -42,7 +42,7 @@ export default function EpisodeDetailPage() {
     
     if (foundEpisode) {
       setEpisode(foundEpisode);
-      await loadContentAndRating(foundEpisode.id.toString());
+      await loadContentAndRating(`${seriesId}:${season}:${epNum}`);
     }
   };
 

@@ -38,7 +38,7 @@ export default function SeasonDetailPage() {
     const episodesData = await fetchEpisodes(seriesId, season);
     setEpisodes(episodesData);
     
-    await loadContentAndRating(`${seriesId}-S${season}`);
+    await loadContentAndRating(`${seriesId}:${season}`);
   };
 
   const loadContentAndRating = async (externalId: string) => {
