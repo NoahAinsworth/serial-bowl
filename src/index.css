@@ -509,6 +509,27 @@ All colors MUST be HSL.
     bottom: -8px;
   }
 
+  /* Friends Theme Wordmark - Clean pixel with colorful dots */
+  .the_one_with_the_theme .wordmark {
+    font-family: 'Press Start 2P', monospace;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1.2em;
+    font-size: 0.75rem;
+    color: hsl(var(--foreground));
+    position: relative;
+    display: inline-block;
+    background-image: 
+      radial-gradient(circle, hsl(var(--friends-yellow)) 2px, transparent 2px),
+      radial-gradient(circle, hsl(var(--friends-orange)) 2px, transparent 2px),
+      radial-gradient(circle, hsl(var(--friends-purple)) 2px, transparent 2px),
+      radial-gradient(circle, hsl(var(--friends-lavender)) 2px, transparent 2px);
+    background-size: 1.2em 100%;
+    background-position: 0.6em center, 1.8em center, 3em center, 4.2em center;
+    background-repeat: no-repeat;
+  }
+
+
   /* Blue Crystal Wordmark - Breaking Bad Style */
   .blue_crystal .wordmark {
     font-family: 'Oswald', 'Bebas Neue', sans-serif;
