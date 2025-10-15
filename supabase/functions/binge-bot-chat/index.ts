@@ -1,0 +1,579 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// TVDB v4 API with token caching
+const TVDB_BASE = "https://api4.thetvdb.com/v4";
+let cachedToken: { token: string; expiresAt: number } | null = null;
+
+async function getTvdbToken(): Promise<string> {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    return cachedToken.token;
+  }
+
+  const apiKey = Deno.env.get("TVDB_API_KEY");
+  if (!apiKey) throw new Error("TVDB_API_KEY not configured");
+
+  const res = await fetch(`${TVDB_BASE}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ apikey: apiKey }),
+  });
+
+  if (!res.ok) throw new Error(`TVDB login failed: ${res.status}`);
+
+  const { data } = await res.json();
+  cachedToken = {
+    token: data.token,
+    expiresAt: Date.now() + 27 * 24 * 60 * 60 * 1000,
+  };
+  
+  return data.token;
+}
+
+async function tvdbFetch(path: string) {
+  let token = await getTvdbToken();
+  let res = await fetch(`${TVDB_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+  });
+
+  if (res.status === 401) {
+    cachedToken = null;
+    token = await getTvdbToken();
+    res = await fetch(`${TVDB_BASE}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    });
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`TVDB error: ${res.status} ${text}`);
+  }
+
+  const json = await res.json();
+  return json.data || json;
+}
+
+// Scope check
+const NON_TV_HINTS = [
+  "stocks", "politics", "weather", "sports", "recipe", "medical", "math",
+  "programming", "crypto", "finance", "cars", "travel", "news", "history",
+  "science", "school", "homework"
+];
+
+function isOutOfScope(text: string): boolean {
+  const lower = text.toLowerCase();
+  return NON_TV_HINTS.some(word => lower.includes(word));
+}
+
+const SYSTEM_PROMPT = `You are Binge Bot, a helpful TV show assistant with web search access. Current date: October 9, 2025.
+
+CRITICAL - YOUR CAPABILITIES:
+✓ You HAVE web search access through Google Search - use it freely for current information
+✓ You HAVE access to TVDB database for verified show information
+✓ You CAN answer questions about trending shows, recent releases, and current TV news
+
+WHEN TO USE EACH SOURCE:
+
+1. USE TVDB DATA (when provided in context):
+   - For specific show details: release dates, episode counts, cast, status
+   - TVDB data is marked as "=== VERIFIED TVDB DATABASE ===" in your context
+   - This is your PRIMARY source for factual show information
+   - If TVDB shows "Status: Continuing" or no air date, the content hasn't been released yet
+
+2. USE WEB SEARCH (your google_search_retrieval tool):
+   - For trending shows and what's popular NOW
+   - For recent news, announcements, release date rumors
+   - For recommendations and "what to watch" questions
+   - When user asks about "trending", "popular", "latest news", "what's hot"
+   - For supplemental context not in TVDB data
+
+3. FORMATTING REQUIREMENTS:
+   - ALWAYS wrap show/season/episode names in [brackets]:
+     * Shows: [Peacemaker]
+     * Seasons: [Peacemaker Season 2]
+     * Episodes: [Peacemaker S02E01] or [Peacemaker S02E05 - Monkey Dory]
+
+4. RESPONSE STYLE:
+   - Keep responses concise (2-4 sentences)
+   - Provide 3-5 relevant follow-up suggestions
+   - Be confident - you have the tools to answer trending/current questions!
+
+Example responses:
+Q: "What's trending right now?"
+A: "Let me search for the latest trending shows..." [then use web search]
+
+Q: "When does Peacemaker Season 2 come out?"
+A: [Use TVDB data if available, otherwise web search for latest news]
+
+Q: "Recommend a thriller"
+A: "Let me find some popular thrillers for you..." [use web search for current recommendations]`;
+
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { sessionId, messages } = await req.json();
+    
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
+    const tvdbApiKey = Deno.env.get("TVDB_API_KEY")!;
+    const tvdbPin = Deno.env.get("TVDB_PIN"); // Optional
+    
+    console.log("Environment check:", {
+      hasLovableKey: !!lovableApiKey,
+      hasTvdbKey: !!tvdbApiKey,
+      hasTvdbPin: !!tvdbPin,
+    });
+    
+    if (!lovableApiKey) throw new Error("LOVABLE_API_KEY not configured");
+    if (!tvdbApiKey) throw new Error("TVDB_API_KEY not configured");
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get user from auth header & fetch profile
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.replace("Bearer ", "");
+    
+    let user = null;
+    let userProfile: any = null;
+    
+    if (token) {
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
+      if (!authError && authUser) {
+        user = authUser;
+        
+        // Fetch user profile with settings and preferences
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('settings')
+          .eq('id', user.id)
+          .single();
+        
+        const { data: prefs } = await supabase
+          .from('user_prefs')
+          .select('genres, shows')
+          .eq('user_id', user.id)
+          .single();
+        
+        const { data: progress } = await supabase
+          .from('watched')
+          .select('content_id, watched_at')
+          .eq('user_id', user.id)
+          .order('watched_at', { ascending: false })
+          .limit(10);
+        
+        userProfile = {
+          hide_spoilers: profile?.settings?.hide_spoilers ?? true,
+          favorite_genres: prefs?.genres ?? [],
+          favorite_shows: prefs?.shows ?? [],
+          recent_progress: progress ?? []
+        };
+      }
+    }
+
+    // Check for out-of-scope topics
+    const userQuery = messages[messages.length - 1].content;
+    if (isOutOfScope(userQuery)) {
+      return new Response(
+        JSON.stringify({ 
+          sessionId, 
+          message: "I'm here for TV topics only—shows, seasons, episodes, and TV-related celebrity info.",
+          entities: [],
+          followUps: [
+            "Who played <character>?",
+            "List episodes for Season 1",
+            "What season did they first appear?"
+          ]
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Try to extract show names and fetch TVDB data
+    let tvdbContext = "";
+    try {
+      const showData = await fetchTVDBContextForQuery(userQuery);
+      if (showData) {
+        tvdbContext = `\n\n=== VERIFIED TVDB DATABASE ===\nThis is the ONLY factual information you should use. Do NOT use your training data for facts.\n\n${showData}\n\n=== END TVDB DATA ===\n\nREMEMBER: Only use the above TVDB data for factual information. If something is not in this data, say you don't have confirmed information.`;
+        console.log("TVDB context fetched successfully:", showData.substring(0, 200));
+      } else {
+        console.log("No TVDB context found for query:", userQuery);
+      }
+    } catch (err) {
+      console.error("TVDB context fetch error:", err);
+      // Continue without TVDB data
+    }
+
+    // Add user context to system prompt if available
+    let contextualPrompt = SYSTEM_PROMPT + tvdbContext;
+    if (userProfile) {
+      contextualPrompt += `\n\nUSER CONTEXT:
+- Spoiler protection: ${userProfile.hide_spoilers ? 'ENABLED - Be very careful about spoilers!' : 'DISABLED - User is okay with spoilers'}
+- Favorite genres: ${userProfile.favorite_genres.join(', ') || 'None set'}
+- Favorite shows: ${userProfile.favorite_shows.join(', ') || 'None set'}
+- Recent activity: User has tracked ${userProfile.recent_progress.length} items recently
+
+Use this context to personalize recommendations and respect spoiler preferences.`;
+    }
+
+    // Create session if needed (only if user is authenticated)
+    let actualSessionId = sessionId;
+    if (!actualSessionId && user) {
+      const { data: newSession, error: sessionError } = await supabase
+        .from("chat_sessions")
+        .insert({ user_id: user.id })
+        .select()
+        .single();
+      
+      if (sessionError) {
+        console.error("Session creation error:", sessionError);
+        throw new Error("Failed to create chat session");
+      }
+      
+      actualSessionId = newSession.id;
+    }
+
+    // Save user message (only if we have a session)
+    if (actualSessionId) {
+      await supabase.from("chat_messages").insert({
+        session_id: actualSessionId,
+        role: "user",
+        content: userQuery,
+      });
+    }
+
+    // Call Gemini with web search grounding - no tools, just natural conversation
+    const geminiMessages = [
+      { role: "system", content: contextualPrompt },
+      ...messages
+    ];
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: geminiMessages,
+        // Enable Google Search grounding for current info
+        tools: [{ type: "google_search_retrieval" }]
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error("AI error:", aiResponse.status, errorText);
+      
+      if (aiResponse.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+      if (aiResponse.status === 402) {
+        throw new Error("Payment required. Please add credits to your workspace.");
+      }
+      throw new Error("AI request failed");
+    }
+
+    const result = await aiResponse.json();
+    console.log("AI response:", JSON.stringify(result).substring(0, 300));
+
+    const assistantMessage = result.choices?.[0]?.message?.content || 
+                            "I had trouble generating a response. Please try again.";
+    
+    console.log("Assistant message:", assistantMessage);
+
+    // Now look up any shows mentioned to get TVDB IDs for deep linking
+    const entities = await resolveEntitiesWithTVDB(assistantMessage);
+    
+    // Generate follow-up suggestions
+    const followUps = generateFollowUps(userQuery, assistantMessage);
+
+    // Save assistant message (only if we have a session)
+    if (actualSessionId) {
+      await supabase.from("chat_messages").insert({
+        session_id: actualSessionId,
+        role: "assistant",
+        content: assistantMessage,
+      });
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        sessionId: actualSessionId, 
+        message: assistantMessage,
+        entities,
+        followUps
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Chat error:", error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Extract potential show names from user query and fetch TVDB data
+async function fetchTVDBContextForQuery(query: string): Promise<string | null> {
+  console.log("Extracting show name from query:", query);
+  
+  // Try multiple extraction strategies
+  let extractedShow: string | null = null;
+  
+  // Strategy 1: Quoted strings
+  const quotedMatch = query.match(/"([^"]+)"|'([^']+)'/);
+  if (quotedMatch) {
+    extractedShow = quotedMatch[1] || quotedMatch[2];
+    console.log("Found quoted show name:", extractedShow);
+  }
+  
+  // Strategy 2: Common patterns
+  if (!extractedShow) {
+    const patterns = [
+      /(?:about|for|of|watch|watching|seen|see|is|did|does|has|when|where)\s+([A-Z][A-Za-z0-9\s&:'-]+?)(?:\?|$|,|\s+season|\s+episode|\s+air|\s+release|\s+premiere)/i,
+      /^([A-Z][A-Za-z0-9\s&:'-]+?)\s+(?:season|episode|premiered|air|release|s\d+|out)/i,
+      /([A-Z][A-Za-z0-9\s&:'-]+?)\s+(?:season\s+\d+|s\d+)/i,
+    ];
+    
+    for (const pattern of patterns) {
+      const match = query.match(pattern);
+      if (match && match[1]) {
+        extractedShow = match[1].trim();
+        console.log("Found show via pattern:", extractedShow);
+        break;
+      }
+    }
+  }
+  
+  if (!extractedShow) {
+    console.log("Could not extract show name from query");
+    return null;
+  }
+  
+  try {
+    console.log("Searching TVDB for:", extractedShow);
+    
+    // Search TVDB for the show
+    const searchResults = await tvdbFetch(`/search?query=${encodeURIComponent(extractedShow)}&type=series`);
+    
+    if (!searchResults || searchResults.length === 0) {
+      console.log("No TVDB results found for:", extractedShow);
+      return null;
+    }
+    
+    const show = searchResults[0];
+    const showId = show.tvdb_id || show.id;
+    console.log("Found show in TVDB:", show.name, "ID:", showId);
+    
+    // Fetch detailed show info with extended data
+    const details = await tvdbFetch(`/series/${showId}/extended`);
+    console.log("Fetched show details:", {
+      name: details.name,
+      status: details.status,
+      firstAired: details.firstAired,
+      seasons: details.seasons?.length
+    });
+    
+    // Build comprehensive context
+    let context = `Show: ${details.name} (TVDB ID: ${showId})\n`;
+    context += `Status: ${details.status || 'Unknown'}\n`;
+    
+    if (details.firstAired) {
+      context += `First Aired: ${details.firstAired}\n`;
+    } else {
+      context += `First Aired: Not yet announced\n`;
+    }
+    
+    if (details.nextAired) {
+      context += `Next Episode Airs: ${details.nextAired}\n`;
+    }
+    
+    if (details.originalNetwork) {
+      context += `Network: ${details.originalNetwork}\n`;
+    }
+    
+    if (details.overview) {
+      context += `Overview: ${details.overview.substring(0, 300)}${details.overview.length > 300 ? '...' : ''}\n`;
+    }
+    
+    // Season information
+    if (details.seasons && details.seasons.length > 0) {
+      context += `\nTotal Seasons: ${details.seasons.length}\n`;
+      context += `Seasons:\n`;
+      
+      for (const season of details.seasons) {
+        context += `- Season ${season.number}`;
+        if (season.name && season.name !== `Season ${season.number}`) {
+          context += `: ${season.name}`;
+        }
+        if (season.type?.name) {
+          context += ` (${season.type.name})`;
+        }
+        context += `\n`;
+      }
+    }
+    
+    // Try to fetch episode data for the latest season
+    if (details.latestSeason) {
+      try {
+        const episodes = await tvdbFetch(`/series/${showId}/episodes/default?season=${details.latestSeason}`);
+        if (episodes?.episodes && episodes.episodes.length > 0) {
+          context += `\nSeason ${details.latestSeason} Episodes (${episodes.episodes.length} total):\n`;
+          
+          // Show last 5 episodes or all if fewer
+          const episodesToShow = episodes.episodes.slice(-5);
+          for (const ep of episodesToShow) {
+            const seasonNum = String(details.latestSeason).padStart(2, '0');
+            const epNum = String(ep.number).padStart(2, '0');
+            context += `- S${seasonNum}E${epNum}: ${ep.name || 'TBA'}`;
+            if (ep.aired) {
+              context += ` (Aired: ${ep.aired})`;
+            } else {
+              context += ` (Not yet aired)`;
+            }
+            context += `\n`;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch episodes:", err);
+      }
+    }
+    
+    console.log("Generated TVDB context length:", context.length);
+    return context;
+    
+  } catch (err) {
+    console.error("TVDB context fetch error:", err);
+    return null;
+  }
+}
+
+// Extract [bracketed] show names and look them up in TVDB for deep linking
+async function resolveEntitiesWithTVDB(message: string): Promise<any[]> {
+  const entities: any[] = [];
+  const bracketRegex = /\[([^\]]+)\]/g;
+  const matches = [...message.matchAll(bracketRegex)];
+  
+  for (const match of matches) {
+    const entityName = match[1];
+    
+    // Extract show name (remove season/episode info)
+    let showName = entityName;
+    let seasonNum: number | undefined;
+    let episodeNum: number | undefined;
+    
+    // Check for patterns like "Show S02E01", "Show S02E01 - Title", "Show S02E01: Title", or "Show Season 2"
+    const seasonEpisodeWithTitleMatch = entityName.match(/^(.+?)\s+S(\d+)E(\d+)\s*(?:[-:]\s*.+)?$/i);
+    const seasonMatch = entityName.match(/^(.+?)\s+Season\s+(\d+)$/i);
+    
+    if (seasonEpisodeWithTitleMatch) {
+      const match = seasonEpisodeWithTitleMatch;
+      showName = match[1];
+      seasonNum = parseInt(match[2]);
+      episodeNum = parseInt(match[3]);
+    } else if (seasonMatch) {
+      showName = seasonMatch[1];
+      seasonNum = parseInt(seasonMatch[2]);
+    }
+    
+    try {
+      // Look up show in TVDB
+      const searchResults = await tvdbFetch(`/search?query=${encodeURIComponent(showName)}&type=series`);
+      if (searchResults && searchResults.length > 0) {
+        const show = searchResults[0];
+        
+        entities.push({
+          type: episodeNum !== undefined ? "episode" : seasonNum !== undefined ? "season" : "show",
+          name: entityName,
+          externalId: String(show.tvdb_id || show.id),
+          seasonNumber: seasonNum,
+          episodeId: episodeNum !== undefined ? String(episodeNum) : undefined
+        });
+      }
+    } catch (err) {
+      console.error(`Failed to look up ${showName} in TVDB:`, err);
+      // Still add entity but without TVDB ID
+      entities.push({
+        type: "show",
+        name: entityName
+      });
+    }
+  }
+  
+  return entities;
+}
+
+// Helper to generate contextual follow-ups
+function generateFollowUps(lastQ: string, assistantMsg: string): string[] {
+  const lower = lastQ.toLowerCase();
+  const msgLower = assistantMsg.toLowerCase();
+  
+  // Extract show names from brackets in the response
+  const showMatches = [...assistantMsg.matchAll(/\[([^\]]+)\]/g)];
+  const firstShow = showMatches.length > 0 ? showMatches[0][1] : null;
+  
+  if (/who played|actor|actress|cast/i.test(lower)) {
+    return [
+      "Who else was in that show?",
+      firstShow ? `Open [${firstShow}]` : "Tell me more about the show",
+      "What other shows were they in?",
+      "Best episodes featuring this character"
+    ];
+  }
+  
+  if (/(what|which) episode|episode where/i.test(lower)) {
+    return [
+      "List all season episodes",
+      "Give a spoiler-free summary",
+      "Who guest-starred in that episode?",
+      firstShow ? `Open [${firstShow}]` : "Tell me about the show"
+    ];
+  }
+  
+  if (/season/i.test(lower)) {
+    return [
+      "How many episodes in that season?",
+      "When did that season air?",
+      "Who joined the cast in that season?",
+      firstShow ? `Open [${firstShow}]` : "List all seasons"
+    ];
+  }
+  
+  if (/is.*out|release|premiere|airing/i.test(lower)) {
+    return [
+      "List all episodes",
+      "When does the finale air?",
+      firstShow ? `Open [${firstShow}]` : "Tell me more",
+      "Set a reminder for new episodes"
+    ];
+  }
+  
+  if (firstShow) {
+    return [
+      `Open [${firstShow}]`,
+      `Who's in [${firstShow}]?`,
+      `Best episodes of [${firstShow}]`,
+      `When did [${firstShow}] premiere?`
+    ];
+  }
+  
+  return [
+    "Search for a TV show",
+    "What's trending right now?",
+    "Recommend a thriller series",
+    "Who played <character>?"
+  ];
+}
