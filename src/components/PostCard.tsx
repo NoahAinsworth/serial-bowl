@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { sharePost } from '@/api/messages';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { replaceProfanity } from '@/utils/profanityFilter';
 
 interface PostCardProps {
   post: {
@@ -267,7 +268,9 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const shouldHideSpoiler = userHideSpoilers && post.has_spoilers && !revealSpoiler;
   const shouldHideMature = strictSafety && post.has_mature;
   const shouldHide = shouldHideSpoiler || shouldHideMature;
-  const displayText = post.body || '';
+  
+  // Apply profanity filter if strict safety is on
+  const displayText = strictSafety ? replaceProfanity(post.body || '') : (post.body || '');
   
   const getSpoilerWarningText = () => {
     if (!contentInfo) return 'This contains spoilers';
