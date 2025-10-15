@@ -20,24 +20,29 @@ export default function DiscoverPage() {
   
   const [searchResults, setSearchResults] = useState<ShowCard[]>([]);
   const [trendingShows, setTrendingShows] = useState<ShowCard[]>([]);
+  const [popularShows, setPopularShows] = useState<ShowCard[]>([]);
   const [newShows, setNewShows] = useState<ShowCard[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [trendingPage, setTrendingPage] = useState(0);
+  const [popularPage, setPopularPage] = useState(0);
   const [newPage, setNewPage] = useState(0);
   const [searchPage, setSearchPage] = useState(0);
   const [hasMoreTrending, setHasMoreTrending] = useState(true);
+  const [hasMorePopular, setHasMorePopular] = useState(true);
   const [hasMoreNew, setHasMoreNew] = useState(true);
   const [hasMoreSearch, setHasMoreSearch] = useState(true);
   
   const trendingObserver = useRef<HTMLDivElement>(null);
+  const popularObserver = useRef<HTMLDivElement>(null);
   const newObserver = useRef<HTMLDivElement>(null);
   const searchObserver = useRef<HTMLDivElement>(null);
   
-  // Load trending & new shows on mount
+  // Load trending, popular & new shows on mount
   useEffect(() => {
     if (activeTab === "browse") {
       loadTrendingShows();
+      loadPopularShows();
       loadNewShows();
     }
   }, [activeTab]);
@@ -53,6 +58,15 @@ export default function DiscoverPage() {
       { threshold: 0.5 }
     );
 
+    const popularObs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMorePopular && !loading) {
+          setPopularPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
     const newObs = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMoreNew && !loading) {
@@ -63,13 +77,15 @@ export default function DiscoverPage() {
     );
 
     if (trendingObserver.current) trendingObs.observe(trendingObserver.current);
+    if (popularObserver.current) popularObs.observe(popularObserver.current);
     if (newObserver.current) newObs.observe(newObserver.current);
 
     return () => {
       trendingObs.disconnect();
+      popularObs.disconnect();
       newObs.disconnect();
     };
-  }, [hasMoreTrending, hasMoreNew, loading]);
+  }, [hasMoreTrending, hasMorePopular, hasMoreNew, loading]);
 
   // Search overlay scroll observer
   useEffect(() => {
@@ -93,6 +109,10 @@ export default function DiscoverPage() {
   useEffect(() => {
     if (trendingPage > 0) loadTrendingShows();
   }, [trendingPage]);
+
+  useEffect(() => {
+    if (popularPage > 0) loadPopularShows();
+  }, [popularPage]);
 
   useEffect(() => {
     if (newPage > 0) loadNewShows();
@@ -150,6 +170,35 @@ export default function DiscoverPage() {
       if (normalized.length < 20) setHasMoreTrending(false);
     } catch (error) {
       console.error("Error loading trending shows:", error);
+      toast.error("Failed to load shows");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadPopularShows() {
+    if (loading) return;
+    
+    setLoading(true);
+    try {
+      // Get most popular shows using TVDB's popularity metric
+      const results = await tvdbFetch(`/series/filter?page=${popularPage}&sort=popularity&sortType=desc`);
+      const showsData = Array.isArray(results) ? results : [];
+      const normalized = showsData.map(normalizeSeries);
+      
+      setPopularShows((prev) => {
+        const combined = [...prev, ...normalized];
+        const seen = new Set();
+        return combined.filter((show: any) => {
+          if (seen.has(show.id)) return false;
+          seen.add(show.id);
+          return true;
+        });
+      });
+      
+      if (normalized.length < 20) setHasMorePopular(false);
+    } catch (error) {
+      console.error("Error loading popular shows:", error);
       toast.error("Failed to load shows");
     } finally {
       setLoading(false);
@@ -273,6 +322,28 @@ export default function DiscoverPage() {
                   </div>
                 ))}
                 <div ref={trendingObserver} className="flex-shrink-0 w-4" />
+                {loading && (
+                  <>
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="flex-shrink-0 w-32 sm:w-40 aspect-[2/3]" />
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Most Popular Shows Rail */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Most Popular</h2>
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                {popularShows.map((show) => (
+                  <div key={show.id} className="flex-shrink-0 w-32 sm:w-40">
+                    <ShowCardComponent show={show} onClick={() => navigate(`/show/${show.id}`)} />
+                  </div>
+                ))}
+                <div ref={popularObserver} className="flex-shrink-0 w-4" />
                 {loading && (
                   <>
                     {[...Array(5)].map((_, i) => (
