@@ -8,7 +8,7 @@ import { useTVDB } from '@/hooks/useTVDB';
 export default function EpisodeDetailPage() {
   const { id, seasonNum, episodeNum } = useParams<{ id: string; seasonNum: string; episodeNum: string }>();
   const navigate = useNavigate();
-  const { getShowDetails, getEpisodeDetails } = useTVDB();
+  const { fetchShow, fetchEpisodes } = useTVDB();
   const [show, setShow] = useState<any>(null);
   const [episode, setEpisode] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -19,12 +19,12 @@ export default function EpisodeDetailPage() {
 
       setLoading(true);
       try {
-        const [showData, episodeData] = await Promise.all([
-          getShowDetails(id),
-          getEpisodeDetails(id, parseInt(seasonNum), parseInt(episodeNum))
-        ]);
+        const showData = await fetchShow(parseInt(id));
+        const episodesData = await fetchEpisodes(parseInt(id), parseInt(seasonNum));
+        const episodeData = episodesData.find(ep => ep.number === parseInt(episodeNum));
+        
         setShow(showData);
-        setEpisode(episodeData);
+        setEpisode(episodeData || null);
       } catch (error) {
         console.error('Error loading episode:', error);
       } finally {
