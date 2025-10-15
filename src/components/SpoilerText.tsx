@@ -5,14 +5,19 @@ import { Button } from '@/components/ui/button';
 interface SpoilerTextProps {
   content: string;
   isSpoiler?: boolean;
+  spoilerTitle?: string;
 }
 
-export function SpoilerText({ content, isSpoiler = false }: SpoilerTextProps) {
+export function SpoilerText({ content, isSpoiler = false, spoilerTitle }: SpoilerTextProps) {
   const [revealed, setRevealed] = useState(!isSpoiler);
 
   if (!isSpoiler) {
     return <p className="text-foreground">{content}</p>;
   }
+
+  const warningText = spoilerTitle 
+    ? `This contains spoilers for ${spoilerTitle}` 
+    : 'This contains spoilers';
 
   return (
     <div className="relative">
@@ -20,15 +25,14 @@ export function SpoilerText({ content, isSpoiler = false }: SpoilerTextProps) {
         {content}
       </p>
       {!revealed && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/80 backdrop-blur-sm p-4">
+          <p className="text-sm text-muted-foreground text-center">⚠️ {warningText}</p>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setRevealed(true)}
-            className="bg-background/80 backdrop-blur-sm"
           >
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            Reveal Spoiler
+            Reveal
           </Button>
         </div>
       )}

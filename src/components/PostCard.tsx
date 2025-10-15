@@ -266,6 +266,11 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
   const shouldHide = userHideSpoilers && post.has_spoilers && !revealSpoiler;
   const displayText = post.body || '';
+  
+  const getSpoilerWarningText = () => {
+    if (!contentInfo) return 'This contains spoilers';
+    return `This contains spoilers for ${contentInfo.title}`;
+  };
 
   return (
     <article className={cn(
@@ -346,8 +351,8 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
       {/* Content */}
       <div className="mb-3">
         {shouldHide ? (
-          <div className="p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">⚠️ Spoiler warning</p>
+          <div className="p-4 bg-muted/50 rounded-lg text-center">
+            <p className="text-sm text-muted-foreground mb-2">⚠️ {getSpoilerWarningText()}</p>
             <Button size="sm" variant="outline" onClick={() => setRevealSpoiler(true)}>
               Reveal
             </Button>
@@ -407,7 +412,12 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
           <span>{localDislikes}</span>
         </Button>
         
-        <Button variant="ghost" size="sm" className="gap-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="gap-2"
+          onClick={() => navigate(`/post/${post.id}`)}
+        >
           <MessageCircle className="h-4 w-4" />
           <span>{localComments}</span>
         </Button>
