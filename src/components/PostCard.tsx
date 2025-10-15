@@ -272,6 +272,15 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   // Apply profanity filter if strict safety is on
   const displayText = strictSafety ? replaceProfanity(post.body || '') : (post.body || '');
   
+  // Debug logging
+  console.log('PostCard Debug:', {
+    postId: post.id,
+    strictSafety,
+    originalBody: post.body,
+    displayText,
+    hasMature: post.has_mature
+  });
+  
   const getSpoilerWarningText = () => {
     if (!contentInfo) return 'This contains spoilers';
     return `This contains spoilers for ${contentInfo.title}`;
