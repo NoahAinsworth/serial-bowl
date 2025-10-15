@@ -102,8 +102,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             >
               <div className="relative">
                 <Icon className="h-6 w-6" />
-                {badge && badge > 0 && (
-                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500"></div>
+                {label === 'Messages' && badge && badge > 0 && (
+                  <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500"></div>
                 )}
               </div>
               <span className="text-xs">{label}</span>
