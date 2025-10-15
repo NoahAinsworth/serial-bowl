@@ -27,6 +27,7 @@ export default function Home() {
   const [thoughtText, setThoughtText] = useState('');
   const [posting, setPosting] = useState(false);
   const [userHideSpoilers, setUserHideSpoilers] = useState(true);
+  const [strictSafety, setStrictSafety] = useState(false);
   const [hasSpoilers, setHasSpoilers] = useState(false);
   const [hasMature, setHasMature] = useState(false);
 
@@ -50,6 +51,7 @@ export default function Home() {
           if (data?.settings) {
             const settings = data.settings as any;
             setUserHideSpoilers(settings?.safety?.hide_spoilers ?? true);
+            setStrictSafety(settings?.safety?.strict_safety ?? false);
           }
         });
     }
@@ -229,7 +231,7 @@ export default function Home() {
                     is_spoiler: post.has_spoilers,
                   }}
                   userHideSpoilers={userHideSpoilers}
-                  strictSafety={false}
+                  strictSafety={strictSafety}
                   onReactionChange={refetch}
                   onDelete={refetch}
                 />
