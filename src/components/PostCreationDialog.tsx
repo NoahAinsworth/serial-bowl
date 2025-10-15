@@ -1,3 +1,4 @@
+// v2.0 - Fixed itemId format
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -58,8 +59,8 @@ export function PostCreationDialog({
     setSubmitting(true);
 
     try {
+      console.log('[v2.0] Creating review with itemType:', itemType, 'itemId:', itemId, 'rating:', rating);
       if (postType === 'review' && itemType && itemId) {
-        console.log('Creating review with:', { itemType, itemId, rating });
         // Use the database function that handles both rating and review in one transaction
         const { data, error } = await supabase.rpc('api_rate_and_review', {
           p_item_type: itemType,
