@@ -181,6 +181,7 @@ export default function SettingsPage() {
             <SelectContent>
               <SelectItem value="light">Light</SelectItem>
               <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="stars_hollow">Stars Hollow ☕🍂</SelectItem>
               <SelectItem value="green_wireframe">Green Wireframe (Y2K) 💻</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>
               <SelectItem value="the_one_with_the_theme">The One with the Theme</SelectItem>
