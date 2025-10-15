@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, PlusSquare, MessageSquare, User, Search, Settings, Library } from 'lucide-react';
+import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,7 +61,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: Search, label: 'Discover', path: '/discover' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
     { icon: MessageSquare, label: 'Messages', path: '/messages', showDot: unreadDMs > 0 },
-    { icon: User, label: 'Profile', path: '/profile' },
+    { icon: Smile, label: 'Profile', path: '/profile' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
