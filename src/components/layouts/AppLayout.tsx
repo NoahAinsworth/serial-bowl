@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import FallingLeaves from '@/components/FallingLeaves';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -67,51 +68,54 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center justify-between px-4">
-          <h1 className="wordmark">Serial Bowl</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
-              <Library className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
-              <Settings className="h-5 w-5" />
-            </Button>
+    <>
+      <div className="flex flex-col h-screen bg-background">
+        {/* Header */}
+        <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center justify-between px-4">
+            <h1 className="wordmark">Serial Bowl</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
+                <Library className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
 
-      {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 border-t bg-background">
-        <div className="flex h-16 items-center justify-around px-2">
-          {navItems.map(({ icon: Icon, label, path, showDot }) => (
-            <Link
-              key={path}
-              to={path}
-              className={`flex flex-col items-center gap-1 transition-all relative px-3 py-2 rounded-lg ${
-                isActive(path)
-                  ? 'text-primary font-semibold'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <div className="relative">
-                <Icon className="h-6 w-6" />
-                {showDot && (
-                  <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500"></div>
-                )}
-              </div>
-              <span className="text-xs">{label}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
-    </div>
+        {/* Bottom Navigation */}
+        <nav className="sticky bottom-0 z-40 border-t bg-background">
+          <div className="flex h-16 items-center justify-around px-2">
+            {navItems.map(({ icon: Icon, label, path, showDot }) => (
+              <Link
+                key={path}
+                to={path}
+                className={`flex flex-col items-center gap-1 transition-all relative px-3 py-2 rounded-lg ${
+                  isActive(path)
+                    ? 'text-primary font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <div className="relative">
+                  <Icon className="h-6 w-6" />
+                  {showDot && (
+                    <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500"></div>
+                  )}
+                </div>
+                <span className="text-xs">{label}</span>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      </div>
+      <FallingLeaves count={12} />
+    </>
   );
 };
