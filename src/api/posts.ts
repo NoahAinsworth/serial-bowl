@@ -1,35 +1,33 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, getUserId } from './supabase';
 
 export interface CreateThoughtParams {
-  contentId?: string;
   body: string;
   hasSpoilers?: boolean;
   hasMature?: boolean;
 }
 
 export interface CreateReviewParams {
-  contentId: string;
-  body: string;
+  itemType: 'show' | 'season' | 'episode';
+  itemId: number;
   ratingPercent: number;
+  body?: string;
   hasSpoilers?: boolean;
   hasMature?: boolean;
 }
 
 export async function createThought(params: CreateThoughtParams) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const userId = await getUserId();
+  if (!userId) throw new Error('Not authenticated');
 
-  // Direct insert into posts table
   const { data, error } = await supabase
-    .from('posts' as any)
-    .insert({
-      author_id: user.id,
-      kind: 'thought',
+    .from('posts')
+    .insert([{
+      author_id: userId,
+      kind: 'thought' as any,
       body: params.body,
-      is_spoiler: params.hasSpoilers || false,
       has_spoilers: params.hasSpoilers || false,
       has_mature: params.hasMature || false,
-    })
+    }])
     .select()
     .single();
 
@@ -38,18 +36,21 @@ export async function createThought(params: CreateThoughtParams) {
 }
 
 export async function createReview(params: CreateReviewParams) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const userId = await getUserId();
+  if (!userId) throw new Error('Not authenticated');
 
   const { data, error } = await supabase
-    .from('reviews')
-    .insert({
-      user_id: user.id,
-      review_text: params.body,
-      content_id: params.contentId,
-      rating: params.ratingPercent,
-      is_spoiler: params.hasSpoilers || false,
-    })
+    .from('posts')
+    .insert([{
+      author_id: userId,
+      kind: 'review' as any,
+      item_type: params.itemType,
+      item_id: String(params.itemId),
+      rating_percent: params.ratingPercent,
+      body: params.body || null,
+      has_spoilers: params.hasSpoilers || false,
+      has_mature: params.hasMature || false,
+    }])
     .select()
     .single();
 
@@ -57,81 +58,86 @@ export async function createReview(params: CreateReviewParams) {
   return data;
 }
 
-export async function deleteThought(thoughtId: string) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+export async function deletePost(postId: string) {
+  const userId = await getUserId();
+  if (!userId) throw new Error('Not authenticated');
 
+  // Soft delete
   const { error } = await supabase
-    .from('thoughts')
-    .delete()
-    .eq('id', thoughtId)
-    .eq('user_id', user.id);
+    .from('posts')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', postId)
+    .eq('author_id', userId);
 
   if (error) throw error;
 }
 
-export async function deleteReview(reviewId: string) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const { error } = await supabase
-    .from('reviews')
-    .delete()
-    .eq('id', reviewId)
-    .eq('user_id', user.id);
-
-  if (error) throw error;
-}
-
-export async function toggleReaction(thoughtId: string, reactionType: 'like' | 'dislike') {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+export async function react(postId: string, kind: 'like' | 'dislike') {
+  const userId = await getUserId();
+  if (!userId) throw new Error('Not authenticated');
 
   // Check if reaction exists
   const { data: existing } = await supabase
-    .from('reactions')
+    .from('post_reactions')
     .select()
-    .eq('thought_id', thoughtId)
-    .eq('user_id', user.id)
-    .eq('reaction_type', reactionType)
+    .eq('post_id', postId)
+    .eq('user_id', userId)
+    .eq('kind', kind)
     .maybeSingle();
 
   if (existing) {
     // Remove reaction
     const { error } = await supabase
-      .from('reactions')
+      .from('post_reactions')
       .delete()
-      .eq('id', existing.id);
+      .eq('post_id', postId)
+      .eq('user_id', userId)
+      .eq('kind', kind);
 
     if (error) throw error;
   } else {
     // Add reaction
     const { error } = await supabase
-      .from('reactions')
+      .from('post_reactions')
       .insert({
-        thought_id: thoughtId,
-        user_id: user.id,
-        reaction_type: reactionType,
+        post_id: postId,
+        user_id: userId,
+        kind,
       });
 
     if (error) throw error;
   }
 }
 
-export async function addComment(thoughtId: string, body: string) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+export async function comment(postId: string, body: string) {
+  const userId = await getUserId();
+  if (!userId) throw new Error('Not authenticated');
+
+  // Comments table still uses thought_id from old schema
+  // We'll insert using the thought_id column for backwards compatibility
+  const { data: commentData, error: commentError } = await supabase
+    .from('comments')
+    .select()
+    .limit(0);
+  
+  // Check if comments table has post_id or thought_id
+  const hasPostId = commentData !== null;
+  
+  const insertData: any = {
+    user_id: userId,
+    body,
+  };
+  
+  // Use thought_id if that's what the table has
+  insertData.thought_id = postId;
 
   const { data, error } = await supabase
     .from('comments')
-    .insert({
-      thought_id: thoughtId,
-      user_id: user.id,
-      text_content: body,
-    })
+    .insert([insertData])
     .select()
     .single();
 
   if (error) throw error;
+
   return data;
 }

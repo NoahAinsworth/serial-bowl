@@ -71,25 +71,27 @@ export function useFeed(feedType: string, contentType: string = 'all') {
       setError(null);
 
       // Fetch posts using database feed functions
-      let rawPosts: any[] = [];
+      let result: any;
       
       switch (feedType) {
         case 'following':
-          rawPosts = await feedsApi.getFollowing();
+          result = await feedsApi.getFollowing();
           break;
         case 'trending':
-          rawPosts = await feedsApi.getTrending();
+          result = await feedsApi.getTrending();
           break;
         case 'hot-takes':
-          rawPosts = await feedsApi.getHotTakes();
+          result = await feedsApi.getHotTakes();
           break;
         case 'new':
-          rawPosts = await feedsApi.getNew();
+          result = await feedsApi.getNew();
           break;
         case 'for-you':
         default:
-          rawPosts = await feedsApi.getForYou();
+          result = await feedsApi.getForYou();
       }
+
+      const rawPosts = result.posts || [];
 
       // Get user data and check reactions for each post
       const { data: { user } } = await supabase.auth.getUser();
