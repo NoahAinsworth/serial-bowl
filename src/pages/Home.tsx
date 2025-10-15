@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import cerealBowlLogo from '@/assets/cereal-bowl-simple.png';
 import cerealBowlIcon from '@/assets/cereal-bowl-icon.png';
 import serialBowlWordmark from '@/assets/serial-bowl-wordmark-new.png';
+import { CerealBowlLogo } from '@/components/CerealBowlLogo';
 
 export default function Home() {
   const { user } = useAuth();
@@ -117,10 +118,9 @@ export default function Home() {
     <div className="max-w-2xl mx-auto pb-6 px-4">
       {/* Animated Cereal Bowl Logo */}
       <div className="flex justify-center pt-8 pb-4">
-        <img 
-          src={cerealBowlIcon} 
-          alt="Cereal Bowl" 
-          className="w-20 h-20 animate-[scale-in_0.5s_ease-out,gentle-bounce_2s_ease-in-out_0.5s_infinite]"
+        <CerealBowlLogo 
+          size={80}
+          className="animate-[scale-in_0.5s_ease-out,gentle-bounce_2s_ease-in-out_0.5s_infinite]"
         />
       </div>
 
