@@ -408,19 +408,28 @@ export default function PostPage() {
         navigate('/');
       }
     } else {
-      // Post review
-      const { isMature, reasons } = detectMatureContent(content);
-      
-      const { error: reviewError } = await supabase
-        .from('reviews')
-        .insert({
-          user_id: user.id,
-          content_id: selectedContent!.id,
-          review_text: content.trim(),
-          is_spoiler: isSpoiler,
-          contains_mature: containsMature || isMature,
-          mature_reasons: containsMature || isMature ? reasons : [],
+      // Post review using the unified database function
+      if (!selectedContent) {
+        toast({
+          title: "Error",
+          description: "Please select content to review",
+          variant: "destructive",
         });
+        setPosting(false);
+        return;
+      }
+
+      // Extract item_type and item_id from selectedContent
+      const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
+      const itemId = selectedContent.id; 
+
+      const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
+        p_item_type: itemType,
+        p_item_id: itemId,
+        p_score_any: rating > 0 ? String(rating) : null,
+        p_review: content.trim() || null,
+        p_is_spoiler: isSpoiler,
+      });
 
       if (reviewError) {
         console.error('Review error:', reviewError);
@@ -433,36 +442,16 @@ export default function PostPage() {
         return;
       }
 
-      // Add/update rating
-      const { error: ratingError } = await supabase
-        .from('ratings')
-        .upsert({
-          user_id: user.id,
-          content_id: selectedContent!.id,
-          rating: rating,
-        }, {
-          onConflict: 'user_id,content_id'
-        });
-
-      if (ratingError) {
-        console.error('Rating error:', ratingError);
-        toast({
-          title: "Error",
-          description: "Failed to save rating",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Review posted!",
-        });
-        setContent('');
-        setSelectedContent(null);
-        setRating(0);
-        setIsSpoiler(false);
-        setContainsMature(false);
-        navigate('/');
-      }
+      toast({
+        title: "Success",
+        description: "Posted!",
+      });
+      setContent('');
+      setRating(0);
+      setSelectedContent(null);
+      setIsSpoiler(false);
+      setContainsMature(false);
+      navigate('/');
     }
 
     setPosting(false);
