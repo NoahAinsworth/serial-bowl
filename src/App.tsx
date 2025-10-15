@@ -69,8 +69,7 @@ function AppRouter() {
                 <Route path="/discover" element={<AppLayout><DiscoverPage /></AppLayout>} />
                 <Route path="/stats" element={<AppLayout><StatsPage /></AppLayout>} />
                 <Route path="/post" element={<AppLayout><PostPage /></AppLayout>} />
-                <Route path="/messages" element={<AppLayout><MessagesPage /></AppLayout>} />
-                <Route path="/dms" element={<AppLayout><DMsPage /></AppLayout>} />
+                <Route path="/messages" element={<AppLayout><DMsPage /></AppLayout>} />
                 <Route path="/dms/:userId" element={<AppLayout><DMThreadPage /></AppLayout>} />
                 <Route path="/followers" element={<AppLayout><FollowersPage /></AppLayout>} />
                 <Route path="/user/:userId/followers" element={<AppLayout><FollowersPage /></AppLayout>} />
