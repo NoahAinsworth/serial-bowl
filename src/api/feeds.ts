@@ -96,6 +96,7 @@ export async function getTrending(cursor?: TrendingCursor): Promise<{ posts: Fee
     .from('posts')
     .select('*')
     .is('deleted_at', null)
+    .neq('kind', 'rating') // Exclude rating-only posts from feed
     .limit(100); // Fetch more to sort client-side
 
   if (error) throw error;
@@ -142,6 +143,7 @@ export async function getHotTakes(cursor?: HotTakesCursor): Promise<{ posts: Fee
     .from('posts')
     .select('*')
     .is('deleted_at', null)
+    .neq('kind', 'rating') // Exclude rating-only posts from feed
     .limit(200); // Fetch more to filter
 
   if (error) throw error;
@@ -201,6 +203,7 @@ export async function getFollowing(cursor?: TimeCursor): Promise<{ posts: FeedPo
     .select('*')
     .in('author_id', followingIds)
     .is('deleted_at', null)
+    .neq('kind', 'rating') // Exclude rating-only posts from feed
     .order('created_at', { ascending: false })
     .order('id', { ascending: false });
 
@@ -230,6 +233,7 @@ export async function getNew(cursor?: TimeCursor): Promise<{ posts: FeedPost[]; 
     .from('posts')
     .select('*')
     .is('deleted_at', null)
+    .neq('kind', 'rating') // Exclude rating-only posts from feed
     .order('created_at', { ascending: false })
     .order('id', { ascending: false });
 
