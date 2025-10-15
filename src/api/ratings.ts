@@ -1,9 +1,14 @@
-import { supabase, getUserId } from './supabase';
+import { supabase } from './supabase';
 
 export interface SaveRatingParams {
   itemType: 'show' | 'season' | 'episode';
   itemId: number;
   percent: number;
+}
+
+async function getUserId(): Promise<string | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id ?? null;
 }
 
 export async function saveRating(params: SaveRatingParams) {
@@ -18,6 +23,7 @@ export async function saveRating(params: SaveRatingParams) {
       item_type: params.itemType,
       item_id: String(params.itemId),
       score: params.percent,
+      source: 'manual',
       updated_at: new Date().toISOString(),
     }], {
       onConflict: 'user_id,item_type,item_id'
@@ -27,7 +33,7 @@ export async function saveRating(params: SaveRatingParams) {
 
   if (error) throw error;
 
-  // Find latest review for this item and update its rating_percent
+  // Update latest review's rating_percent if exists
   const { data: latestReview } = await supabase
     .from('posts')
     .select()
