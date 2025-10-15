@@ -6,19 +6,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { PercentRating } from '@/components/PercentRating';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { postSchema } from '@/lib/validation';
-import { z } from 'zod';
-import { detectMatureContent } from '@/utils/profanityFilter';
+import { createThought, createReview } from '@/api/posts';
+import { saveRating } from '@/api/ratings';
 
 interface PostCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   postType: 'review' | 'thought';
-  contentId: string;
+  itemType?: 'show' | 'season' | 'episode';
+  itemId?: number;
   contentTitle: string;
   onSuccess?: () => void;
 }
@@ -27,184 +26,75 @@ export function PostCreationDialog({
   open,
   onOpenChange,
   postType,
-  contentId,
+  itemType,
+  itemId,
   contentTitle,
   onSuccess,
 }: PostCreationDialogProps) {
   const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
   const [text, setText] = useState('');
-  const [rating, setRating] = useState(0);
-  const [isSpoiler, setIsSpoiler] = useState(false);
-  const [containsMature, setContainsMature] = useState(false);
+  const [rating, setRating] = useState(50);
+  const [hasSpoilers, setHasSpoilers] = useState(false);
+  const [hasMature, setHasMature] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Auto-detect mature content when text changes
-  const handleTextChange = (value: string) => {
-    setText(value);
-    const { isMature, reasons } = detectMatureContent(value);
-    if (isMature && !containsMature) {
-      setContainsMature(true);
-    }
-  };
-
   const handleSubmit = async () => {
-    console.log('handleSubmit called', { user, text, rating, postType });
-    
     if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to post",
-        variant: "destructive",
-      });
+      toast.error('Please sign in to post');
       return;
     }
 
-    // Validate with Zod schema - only validate content if there is text
-    if (text.trim()) {
-      try {
-        postSchema.parse({
-          content: text,
-          rating: rating > 0 ? rating : undefined,
-          isSpoiler,
-        });
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          console.error('Validation error:', error);
-          toast({
-            title: "Validation Error",
-            description: error.issues[0].message,
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-    }
-
-    if (!text.trim() && postType === 'thought') {
-      console.log('No text for thought');
-      toast({
-        title: "Content required",
-        description: "Please write something",
-        variant: "destructive",
-      });
+    if (postType === 'thought' && !text.trim()) {
+      toast.error('Please write something');
       return;
     }
 
-    if (!text.trim() && !rating && postType === 'review') {
-      console.log('No text or rating for review');
-      toast({
-        title: "Content required",
-        description: "Please add a rating or write a review",
-        variant: "destructive",
-      });
+    if (postType === 'review' && !text.trim() && !rating) {
+      toast.error('Please add a rating or write a review');
       return;
     }
 
     setSubmitting(true);
-    console.log('Starting submission...');
 
     try {
-      if (postType === 'review') {
-        // ALWAYS save rating if provided
-        if (rating > 0) {
-          const { error: ratingError } = await supabase
-            .from('ratings')
-            .upsert({
-              user_id: user.id,
-              content_id: contentId,
-              rating,
-            }, {
-              onConflict: 'user_id,content_id'
-            });
-
-          if (ratingError) throw ratingError;
-
-          // Log rating interaction for algorithm
-          await supabase
-            .from('interactions')
-            .insert({
-              user_id: user.id,
-              post_id: contentId,
-              post_type: 'rating',
-              interaction_type: 'rate',
-            })
-            .select()
-            .single();
+      if (postType === 'review' && itemType && itemId) {
+        // Save rating first
+        if (rating) {
+          await saveRating({ itemType, itemId, percent: rating });
         }
 
-        // Only create a review POST if text is provided
-        // Rating alone does NOT create a post
+        // Create review post if text exists
         if (text.trim()) {
-          const { isMature, reasons } = detectMatureContent(text);
-          
-          const { error: reviewError } = await supabase
-            .from('reviews')
-            .insert({
-              user_id: user.id,
-              content_id: contentId,
-              review_text: text,
-              rating: rating > 0 ? rating : null,
-              is_spoiler: isSpoiler,
-              contains_mature: containsMature || isMature,
-              mature_reasons: containsMature || isMature ? reasons : [],
-            });
-
-          if (reviewError) throw reviewError;
+          await createReview({
+            itemType,
+            itemId,
+            ratingPercent: rating,
+            body: text.trim(),
+            hasSpoilers,
+            hasMature,
+          });
+          toast.success('Review posted!');
+        } else {
+          toast.success('Rating saved!');
         }
       } else {
-        // Save thought
-        const { isMature, reasons } = detectMatureContent(text);
-        
-        const { error: thoughtError } = await supabase
-          .from('thoughts')
-          .insert({
-            user_id: user.id,
-            content_id: contentId,
-            text_content: text,
-            is_spoiler: isSpoiler,
-            contains_mature: containsMature || isMature,
-            mature_reasons: containsMature || isMature ? reasons : [],
-          });
-
-        if (thoughtError) throw thoughtError;
+        await createThought({ body: text.trim(), hasSpoilers, hasMature });
+        toast.success('Thought posted!');
       }
 
-      // Different success messages based on what was saved
-      const successMsg = postType === 'review' 
-        ? (text.trim() ? 'Review posted!' : 'Rating saved!')
-        : 'Thought posted!';
-
-      console.log('Post successful!', successMsg);
-
-      toast({
-        title: "Success",
-        description: successMsg,
-      });
-
       setText('');
-      setRating(0);
-      setIsSpoiler(false);
-      setContainsMature(false);
+      setRating(50);
+      setHasSpoilers(false);
+      setHasMature(false);
       onOpenChange(false);
       onSuccess?.();
       
-      // Navigate to home after posting
-      navigate('/');
+      // Navigate to home → New tab
+      navigate('/home', { state: { scrollToTop: true } });
     } catch (error: any) {
       console.error('Error posting:', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-      });
-      toast({
-        title: "Error",
-        description: error.message || "Failed to post. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(error.message || 'Failed to post');
     } finally {
       setSubmitting(false);
     }
@@ -224,7 +114,7 @@ export function PostCreationDialog({
           {postType === 'review' && (
             <div>
               <p className="text-sm text-muted-foreground mb-2">Rating</p>
-              <PercentRating initialRating={rating || 50} onRate={setRating} compact />
+              <PercentRating initialRating={rating} onRate={setRating} compact />
             </div>
           )}
 
@@ -232,7 +122,7 @@ export function PostCreationDialog({
             <Textarea
               placeholder={postType === 'review' ? 'Write your review...' : 'Share your thoughts...'}
               value={text}
-              onChange={(e) => handleTextChange(e.target.value)}
+              onChange={(e) => setText(e.target.value)}
               rows={6}
             />
           </div>
@@ -240,13 +130,10 @@ export function PostCreationDialog({
           <div className="flex items-center space-x-2">
             <Checkbox
               id="spoiler"
-              checked={isSpoiler}
-              onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
+              checked={hasSpoilers}
+              onCheckedChange={(checked) => setHasSpoilers(checked as boolean)}
             />
-            <Label
-              htmlFor="spoiler"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
+            <Label htmlFor="spoiler" className="text-sm">
               This contains spoilers
             </Label>
           </div>
@@ -254,13 +141,10 @@ export function PostCreationDialog({
           <div className="flex items-center space-x-2">
             <Checkbox
               id="mature"
-              checked={containsMature}
-              onCheckedChange={(checked) => setContainsMature(checked as boolean)}
+              checked={hasMature}
+              onCheckedChange={(checked) => setHasMature(checked as boolean)}
             />
-            <Label
-              htmlFor="mature"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
+            <Label htmlFor="mature" className="text-sm">
               🔞 This contains mature content
             </Label>
           </div>

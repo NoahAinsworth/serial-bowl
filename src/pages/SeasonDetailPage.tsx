@@ -220,15 +220,16 @@ export default function SeasonDetailPage() {
         </Tabs>
       )}
 
-      {contentId && (
+      {showId && seasonNumber && (
         <PostCreationDialog
           open={postDialogOpen}
           onOpenChange={setPostDialogOpen}
           postType={postType}
-          contentId={contentId}
+          itemType="season"
+          itemId={parseInt(`${showId}${seasonNumber.padStart(2, '0')}`)}
           contentTitle={`Season ${seasonNumber}`}
           onSuccess={() => {
-            // Reload data if needed
+            setPostDialogOpen(false);
           }}
         />
       )}

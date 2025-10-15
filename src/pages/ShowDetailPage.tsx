@@ -1,21 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
-import { Loader2 } from 'lucide-react';
+import { PercentRating } from '@/components/PercentRating';
+import { PostCreationDialog } from '@/components/PostCreationDialog';
+import { Loader2, MessageSquare } from 'lucide-react';
+import { saveRating, getRating } from '@/api/ratings';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export default function ShowDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { loading, fetchShow, fetchSeasons } = useTVDB();
   
   const [show, setShow] = useState<TVShow | null>(null);
   const [seasons, setSeasons] = useState<TVSeason[]>([]);
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
 
   useEffect(() => {
     if (id) {
-      const numericId = id.replace(/^series-/, '');
-      loadShow(parseInt(numericId));
+      const numericId = parseInt(id);
+      loadShow(numericId);
     }
   }, [id]);
 
@@ -25,6 +34,26 @@ export default function ShowDetailPage() {
       setShow(showData);
       const seasonsData = await fetchSeasons(showId);
       setSeasons(seasonsData);
+      
+      if (user) {
+        const rating = await getRating({ itemType: 'show', itemId: showId });
+        setUserRating(rating?.score || null);
+      }
+    }
+  };
+
+  const handleRatingChange = async (newRating: number) => {
+    if (!user || !id) {
+      toast.error('Please sign in to rate');
+      return;
+    }
+
+    try {
+      await saveRating({ itemType: 'show', itemId: parseInt(id), percent: newRating });
+      setUserRating(newRating);
+      toast.success('Rating saved!');
+    } catch (error) {
+      toast.error('Failed to save rating');
     }
   };
 
@@ -60,6 +89,24 @@ export default function ShowDetailPage() {
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2">{show.name}</h1>
             <p className="text-muted-foreground mb-4">{show.overview}</p>
+            
+            {user && (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium mb-2">Your Rating</p>
+                  <PercentRating
+                    initialRating={userRating || 50}
+                    onRate={handleRatingChange}
+                    compact
+                    showSaveButton
+                  />
+                </div>
+                <Button onClick={() => setShowReviewDialog(true)} variant="outline" className="w-full">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Write a Review
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </Card>
@@ -78,6 +125,15 @@ export default function ShowDetailPage() {
           ))}
         </div>
       </div>
+
+      <PostCreationDialog
+        open={showReviewDialog}
+        onOpenChange={setShowReviewDialog}
+        postType="review"
+        itemType="show"
+        itemId={id ? parseInt(id) : undefined}
+        contentTitle={show.name}
+      />
     </div>
   );
 }

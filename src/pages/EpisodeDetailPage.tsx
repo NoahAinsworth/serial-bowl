@@ -212,15 +212,16 @@ export default function EpisodeDetailPage() {
         </Tabs>
       )}
 
-      {contentId && episode && (
+      {showId && seasonNumber && episodeNumber && episode && (
         <PostCreationDialog
           open={postDialogOpen}
           onOpenChange={setPostDialogOpen}
           postType={postType}
-          contentId={contentId}
+          itemType="episode"
+          itemId={parseInt(`${showId}${seasonNumber.padStart(2, '0')}${episodeNumber.padStart(2, '0')}`)}
           contentTitle={episode.name}
           onSuccess={() => {
-            // Reload data if needed
+            setPostDialogOpen(false);
           }}
         />
       )}

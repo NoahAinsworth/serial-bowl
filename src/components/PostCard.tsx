@@ -256,9 +256,11 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
           </div>
         ) : (
           <>
-            {post.rating_percent !== null && (
+            {post.kind === 'review' && post.rating_percent !== null && (
               <div className="mb-2">
-                <span className="text-2xl font-bold">{post.rating_percent}%</span>
+                <span className="inline-block px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 text-sm font-bold">
+                  {post.rating_percent}%
+                </span>
               </div>
             )}
             <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>
