@@ -123,7 +123,7 @@ export default function Home() {
 
       {/* Pour a Thought Bar */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-lg border-b border-border/50 px-2 sm:px-4 py-2 sm:py-3">
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-0.5 sm:gap-2">
           <Input
             placeholder="Pour a thought… 🧠"
             value={thoughtText}
@@ -143,7 +143,7 @@ export default function Home() {
             onClick={() => handleEmojiClick('🔥')}
             disabled={posting}
             title="Fire"
-            className="h-8 w-8 sm:h-10 sm:w-10 shrink-0"
+            className="h-7 w-7 sm:h-10 sm:w-10 shrink-0 text-xs sm:text-base p-0"
           >
             🔥
           </Button>
@@ -153,7 +153,7 @@ export default function Home() {
             onClick={() => handleEmojiClick('😂')}
             disabled={posting}
             title="Laugh"
-            className="h-8 w-8 sm:h-10 sm:w-10 shrink-0"
+            className="h-7 w-7 sm:h-10 sm:w-10 shrink-0 text-xs sm:text-base p-0"
           >
             😂
           </Button>
@@ -163,7 +163,7 @@ export default function Home() {
             onClick={() => handleEmojiClick('🤯')}
             disabled={posting}
             title="Mind Blown"
-            className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 hidden xs:inline-flex"
+            className="h-7 w-7 sm:h-10 sm:w-10 shrink-0 text-xs sm:text-base p-0 hidden sm:inline-flex"
           >
             🤯
           </Button>
@@ -173,7 +173,7 @@ export default function Home() {
             onClick={() => handleEmojiClick('😭')}
             disabled={posting}
             title="Cry"
-            className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 hidden xs:inline-flex"
+            className="h-7 w-7 sm:h-10 sm:w-10 shrink-0 text-xs sm:text-base p-0 hidden md:inline-flex"
           >
             😭
           </Button>
@@ -183,7 +183,7 @@ export default function Home() {
             onClick={() => handleEmojiClick('❤️')}
             disabled={posting}
             title="Heart"
-            className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 hidden sm:inline-flex"
+            className="h-7 w-7 sm:h-10 sm:w-10 shrink-0 text-xs sm:text-base p-0 hidden md:inline-flex"
           >
             ❤️
           </Button>
