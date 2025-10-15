@@ -61,34 +61,15 @@ export function UserPosts({ userId }: UserPostsProps) {
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <div key={post.id} className="relative">
-          {/* Post Type Chip */}
-          <div className="absolute top-4 right-4 z-10">
-            {post.kind === 'thought' && (
-              <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/50">
-                Thought
-              </Badge>
-            )}
-            {post.kind === 'review' && (
-              <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-300 border-yellow-500/50">
-                Review
-              </Badge>
-            )}
-            {post.kind === 'rating' && (
-              <Badge variant="secondary" className="bg-amber-500/20 text-amber-300 border-amber-500/50">
-                Rating
-              </Badge>
-            )}
-          </div>
-          <PostCard 
-            post={{
-              ...post,
-              user: post.author // Map author to user for PostCard compatibility
-            }} 
-            userHideSpoilers={false} 
-            strictSafety={false} 
-          />
-        </div>
+        <PostCard 
+          key={post.id}
+          post={{
+            ...post,
+            user: post.author // Map author to user for PostCard compatibility
+          }} 
+          userHideSpoilers={false} 
+          strictSafety={false} 
+        />
       ))}
     </div>
   );
