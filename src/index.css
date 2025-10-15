@@ -451,13 +451,14 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Cartoon wordmark styling - colorful outlined */
+  /* Cartoon wordmark styling - colorful outlined with pixel font */
   :root .wordmark,
   .dark .wordmark {
-    font-family: var(--font-accent);
-    font-weight: 800;
+    font-family: 'Press Start 2P', monospace;
+    font-weight: 400;
     text-transform: lowercase;
     letter-spacing: 0;
+    font-size: 0.75rem;
     color: hsl(var(--secondary));
     position: relative;
     display: inline-block;
@@ -472,12 +473,13 @@ All colors MUST be HSL.
       0 2px 0 hsl(var(--foreground));
   }
 
-  /* Generic wordmark for other themes */
+  /* Generic wordmark for other themes - pixel font */
   .wordmark {
-    font-family: var(--font-accent);
-    font-weight: 800;
+    font-family: 'Press Start 2P', monospace;
+    font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: var(--letter-accent);
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
@@ -493,17 +495,17 @@ All colors MUST be HSL.
     background: hsl(var(--show-accent));
   }
 
-  /* Upside Down Wordmark - Stranger Things ITC Benguiat Style */
+  /* Upside Down Wordmark - Pixel Style */
   .upside_down .wordmark {
-    font-family: 'Cinzel', 'Palatino', serif;
-    font-weight: 700;
+    font-family: 'Press Start 2P', monospace;
+    font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
     transform: rotate(180deg);
     display: inline-block;
     position: relative;
-    text-shadow: 0 0 10px rgba(192, 0, 0, 0.6), 0 0 20px rgba(255, 123, 0, 0.3);
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.6), 0 0 20px rgba(255, 123, 0, 0.3);
   }
   
   .upside_down .wordmark::before,
