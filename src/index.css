@@ -374,6 +374,59 @@ All colors MUST be HSL.
     --fx-overlay: none;
   }
 
+  .donut_mode {
+    /* Donut Mode - Simpsons Springfield Theme */
+    --background: 201 71% 73%;        /* #87CEEB - Springfield Sky Blue */
+    --foreground: 0 0% 12%;           /* #1E1E1E - Dark text */
+    --card: 0 0% 100%;                /* #FFFFFF - White card surfaces */
+    --card-foreground: 0 0% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 222 19% 24%;           /* #2B2D42 - Deep navy for contrast */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 46 100% 53%;         /* #FFD90F - Simpsons Yellow */
+    --secondary-foreground: 0 0% 12%;
+    --muted: 210 40% 96%;             /* Light muted */
+    --muted-foreground: 222 19% 40%;
+    --accent: 333 100% 71%;           /* #FF6FAE - Donut Pink (sprinkles) */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 30% 80%;
+    --input: 210 30% 90%;
+    --ring: 46 100% 53%;
+    --radius: 1rem;
+
+    /* Extended Donut Mode Palette */
+    --simpsons-yellow: 46 100% 53%;   /* #FFD90F */
+    --donut-pink: 333 100% 71%;       /* #FF6FAE */
+    --sky-blue: 201 71% 73%;          /* #87CEEB */
+
+    /* Typography - Fun & Friendly */
+    --font-display: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+    --font-ui: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
+    --letter-display: 0.02em;
+    --font-weight-display: 700;
+    --font-weight-ui: 500;
+    
+    /* Shapes - Playful Rounded */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --btn-shape: 16px;
+    --tab-shape: 16px;
+    --stroke-width: 2px;
+    --stroke-style: solid;
+    
+    /* Effects - Bright & Fun */
+    --shadow-1: 0 2px 8px rgba(255, 217, 15, 0.15);
+    --shadow-2: 0 4px 16px rgba(255, 217, 15, 0.25);
+    --inner-glow: none;
+    --active-underline: none;
+    --img-filter: saturate(1.15) brightness(1.05);
+    --fx-overlay: none;
+  }
+
   /* Upside Down Scanline & Static Effects */
   .upside_down body::before {
     content: '';
@@ -541,6 +594,61 @@ All colors MUST be HSL.
     inset: 0;
     pointer-events: none;
     background: radial-gradient(ellipse at center, rgba(255,247,224,0.06), transparent 60%);
+  }
+
+  /* Donut Mode sky background with drifting clouds */
+  .sb-clouds {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;                 /* keep behind your app UI */
+    overflow: hidden;
+  }
+
+  /* Only show in Donut Mode */
+  :root:not(.donut_mode) .sb-clouds { 
+    display: none; 
+  }
+
+  /* Cloud sprite */
+  .sb-cloud {
+    position: absolute;
+    top: var(--top, 20vh);
+    left: -20vw;                /* start offscreen left */
+    width: 192px;
+    height: 96px;
+    background-image: var(--img);
+    background-size: contain;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,0.08));
+    opacity: var(--opacity, 0.6);
+    transform: scale(var(--scale, 1));
+    animation: sb-cloud-drift var(--duration, 35s) linear var(--delay, 0s) infinite;
+    will-change: transform;
+  }
+
+  @keyframes sb-cloud-drift {
+    0%   { transform: translateX(0) scale(var(--scale, 1)); }
+    100% { transform: translateX(120vw) scale(var(--scale, 1)); }
+  }
+
+  /* Accessibility: reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    .sb-cloud { 
+      animation: none; 
+      opacity: 0.2; 
+    }
+  }
+
+  /* Optional: subtle sprinkled vignette for fun */
+  .donut_mode .sb-clouds::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at top left, rgba(255,111,174,0.06), transparent 40%),
+      radial-gradient(ellipse at bottom right, rgba(255,217,15,0.05), transparent 45%);
   }
 
   /* Hide Lovable Badge */

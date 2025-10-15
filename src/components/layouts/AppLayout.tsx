@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import FallingLeaves from '@/components/FallingLeaves';
+import SkyClouds from '@/components/SkyClouds';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -116,6 +117,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </nav>
       </div>
       <FallingLeaves count={12} />
+      <SkyClouds count={8} />
     </>
   );
 };
