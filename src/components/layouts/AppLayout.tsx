@@ -100,12 +100,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <div className="relative flex items-center justify-center h-6 w-6">
+              <div className="relative">
                 <Icon className="h-6 w-6" />
                 {badge && badge > 0 && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
-                    {badge}
-                  </div>
+                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500"></div>
                 )}
               </div>
               <span className="text-xs">{label}</span>
