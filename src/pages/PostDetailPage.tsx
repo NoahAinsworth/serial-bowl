@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PostCard } from '@/components/PostCard';
 import { ThoughtCard } from '@/components/ThoughtCard';
 import { ReviewCard } from '@/components/ReviewCard';
+import { CommentsSection } from '@/components/CommentsSection';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
@@ -225,13 +226,16 @@ export default function PostDetailPage() {
           onDelete={() => navigate('/')}
         />
       ) : (
-        <PostCard 
-          post={post}
-          userHideSpoilers={true}
-          strictSafety={false}
-          onReactionChange={loadPost}
-          onDelete={() => navigate('/')}
-        />
+        <>
+          <PostCard 
+            post={post}
+            userHideSpoilers={true}
+            strictSafety={false}
+            onReactionChange={loadPost}
+            onDelete={() => navigate('/')}
+          />
+          <CommentsSection thoughtId={id!} />
+        </>
       )}
     </div>
   );
