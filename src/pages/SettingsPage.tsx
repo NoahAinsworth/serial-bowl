@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   
   const [settings, setSettings] = useState({
     privacy: {
@@ -126,6 +127,7 @@ export default function SettingsPage() {
         title: "Success",
         description: "Settings saved successfully",
       });
+      navigate('/profile');
     }
   };
 
