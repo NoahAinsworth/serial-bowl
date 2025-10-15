@@ -60,7 +60,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: Home, label: 'Home', path: '/home' },
     { icon: Search, label: 'Discover', path: '/discover' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
-    { icon: MessageSquare, label: 'Messages', path: '/messages', badge: unreadDMs },
+    { icon: MessageSquare, label: 'Messages', path: '/messages', showDot: unreadDMs > 0 },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 
@@ -90,7 +90,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Bottom Navigation */}
       <nav className="sticky bottom-0 z-40 border-t bg-background">
         <div className="flex h-16 items-center justify-around px-2">
-          {navItems.map(({ icon: Icon, label, path, badge }) => (
+          {navItems.map(({ icon: Icon, label, path, showDot }) => (
             <Link
               key={path}
               to={path}
@@ -102,7 +102,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             >
               <div className="relative">
                 <Icon className="h-6 w-6" />
-                {label === 'Messages' && badge && badge > 0 && (
+                {showDot && (
                   <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500"></div>
                 )}
               </div>
