@@ -2,12 +2,9 @@ import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, PlusSquare, MessageSquare, User, Search, Settings, Library } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { createThought } from '@/api/posts';
-import { toast } from 'sonner';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -19,8 +16,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { user } = useAuth();
   const [unreadDMs, setUnreadDMs] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
-  const [thoughtText, setThoughtText] = useState('');
-  const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -71,96 +66,20 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleQuickThought = async (text: string) => {
-    if (!text.trim() || posting) return;
-    
-    setPosting(true);
-    try {
-      await createThought({ body: text });
-      toast.success('Posted!');
-      setThoughtText('');
-      window.location.reload(); // Simple refresh to show new post
-    } catch (error) {
-      toast.error('Failed to post thought');
-      console.error(error);
-    } finally {
-      setPosting(false);
-    }
-  };
-
-  const handleEmojiClick = async (emoji: string) => {
-    await handleQuickThought(emoji);
-  };
-
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Pour a Thought Bar */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Pour a thought about TV… 🧠"
-            value={thoughtText}
-            onChange={(e) => setThoughtText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleQuickThought(thoughtText);
-              }
-            }}
-            disabled={posting}
-            className="flex-1"
-          />
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => handleEmojiClick('🔥')}
-            disabled={posting}
-            title="Fire"
-          >
-            🔥
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => handleEmojiClick('😂')}
-            disabled={posting}
-            title="Laugh"
-          >
-            😂
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => handleEmojiClick('🤯')}
-            disabled={posting}
-            title="Mind Blown"
-          >
-            🤯
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => handleEmojiClick('😭')}
-            disabled={posting}
-            title="Cry"
-          >
-            😭
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => handleEmojiClick('❤️')}
-            disabled={posting}
-            title="Heart"
-          >
-            ❤️
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
-            <Library className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
-            <Settings className="h-5 w-5" />
-          </Button>
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center justify-between px-4">
+          <h1 className="text-xl font-bold">Serial Bowl</h1>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
+              <Library className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
