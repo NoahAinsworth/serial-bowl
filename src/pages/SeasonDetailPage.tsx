@@ -215,7 +215,10 @@ export default function SeasonDetailPage() {
       {showId && seasonNumber && (
         <PostCreationDialog
           open={postDialogOpen}
-          onOpenChange={setPostDialogOpen}
+          onOpenChange={(open) => {
+            console.log('SeasonDetailPage passing itemId:', `${showId}:${seasonNumber}`);
+            setPostDialogOpen(open);
+          }}
           postType={postType}
           itemType="season"
           itemId={`${showId}:${seasonNumber}`}
