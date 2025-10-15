@@ -34,3 +34,17 @@ export async function getUserRatings(targetUserId?: string) {
   if (error) throw error;
   return data || [];
 }
+
+export async function deleteRating(params: { itemType: string; itemId: string }) {
+  const userId = await getUserId();
+  if (!userId) throw new Error('Not authenticated');
+
+  const { error } = await supabase
+    .from('user_ratings')
+    .delete()
+    .eq('user_id', userId)
+    .eq('item_type', params.itemType)
+    .eq('item_id', params.itemId);
+
+  if (error) throw error;
+}

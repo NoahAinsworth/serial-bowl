@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserRatings } from '@/api/ratings';
+import { getUserRatings, deleteRating } from '@/api/ratings';
 import { Card } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { RatingBadge } from '@/components/PercentRating';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 interface UserRatingsProps {
   userId?: string;
@@ -97,12 +99,32 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
     }
   };
 
+  const handleDelete = async (e: React.MouseEvent, rating: RatingWithMetadata) => {
+    e.stopPropagation();
+    
+    try {
+      await deleteRating({
+        itemType: rating.item_type,
+        itemId: rating.item_id
+      });
+      
+      setRatings(ratings.filter(r => 
+        !(r.item_type === rating.item_type && r.item_id === rating.item_id)
+      ));
+      
+      toast.success('Rating deleted');
+    } catch (error) {
+      console.error('Failed to delete rating:', error);
+      toast.error('Failed to delete rating');
+    }
+  };
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {ratings.map((rating) => (
         <Card
           key={`${rating.item_type}-${rating.item_id}`}
-          className="overflow-hidden cursor-pointer hover:border-primary transition-colors"
+          className="overflow-hidden cursor-pointer hover:border-primary transition-colors relative group"
           onClick={() => handleClick(rating)}
         >
           <div className="aspect-[2/3] bg-muted relative flex items-center justify-center">
@@ -120,6 +142,14 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
             <div className="absolute top-2 right-2">
               <RatingBadge rating={rating.score} size="sm" />
             </div>
+            <Button
+              variant="destructive"
+              size="icon"
+              className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+              onClick={(e) => handleDelete(e, rating)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
           <div className="p-3">
             <p className="text-xs font-semibold line-clamp-2 mb-1">{rating.title}</p>

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Skeleton } from './ui/skeleton';
-import { getUserRatings } from '@/api/ratings';
+import { getUserRatings, deleteRating } from '@/api/ratings';
 import { Button } from './ui/button';
-import { ChevronRight, Star } from 'lucide-react';
+import { ChevronRight, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
+import { toast } from 'sonner';
 
 interface UnifiedRatingsProps {
   userId: string;
@@ -51,6 +51,26 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
     setRatings(enrichedRatings);
     setLoading(false);
   }
+
+  const handleDelete = async (e: React.MouseEvent, rating: any) => {
+    e.stopPropagation();
+    
+    try {
+      await deleteRating({
+        itemType: rating.item_type,
+        itemId: rating.item_id
+      });
+      
+      setRatings(ratings.filter(r => 
+        !(r.item_type === rating.item_type && r.item_id === rating.item_id)
+      ));
+      
+      toast.success('Rating deleted');
+    } catch (error) {
+      console.error('Failed to delete rating:', error);
+      toast.error('Failed to delete rating');
+    }
+  };
 
   // Filter
   const filteredRatings = ratings.filter(r => {
@@ -200,7 +220,7 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
           {sortedRatings.map((rating) => (
             <div
               key={`${rating.item_type}-${rating.item_id}`}
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer"
+              className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer group"
               onClick={() => {
                 const parts = rating.item_id.split(':');
                 if (rating.item_type === 'show') {
@@ -221,6 +241,14 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                  onClick={(e) => handleDelete(e, rating)}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
                 <div className="text-lg font-bold text-primary">
                   {rating.score}%
                 </div>
