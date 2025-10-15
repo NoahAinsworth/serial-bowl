@@ -163,7 +163,7 @@ export default function ProfilePage() {
       .eq('id', user!.id);
 
     toast({
-      title: "Added to Top 3",
+      title: "Added to Favorites",
       description: `${show.name} added to slot #${slotIndex + 1}`,
     });
 
@@ -189,7 +189,7 @@ export default function ProfilePage() {
       .eq('id', user!.id);
 
     toast({
-      title: "Removed from Top 3",
+      title: "Removed from Favorites",
       description: `Show removed from slot #${slotIndex + 1}`,
     });
   };
@@ -299,7 +299,7 @@ export default function ProfilePage() {
 
       {/* Top 3 Shows Section */}
       <div className="px-4 py-6 border-b border-border/30">
-        <h2 className="text-xl font-bold text-center mb-4">Top 3</h2>
+        <h2 className="text-xl font-bold text-center mb-4">Favorites</h2>
         <Dialog open={showTop3Dialog} onOpenChange={(open) => {
           setShowTop3Dialog(open);
           if (!open) {
@@ -311,12 +311,12 @@ export default function ProfilePage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {selectedSlot !== null ? `Edit Slot #${selectedSlot + 1}` : 'Add to Top 3'}
+                {selectedSlot !== null ? `Edit Slot #${selectedSlot + 1}` : 'Add to Favorites'}
               </DialogTitle>
               <DialogDescription>
                 {selectedSlot !== null 
                   ? `Select a show for position #${selectedSlot + 1}` 
-                  : 'Search and add a show to your top 3'}
+                  : 'Search and add a show to your favorites'}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
