@@ -26,6 +26,9 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
   const navigate = useNavigate();
   const [ratings, setRatings] = useState<RatingWithMetadata[]>([]);
   const [loading, setLoading] = useState(true);
+  const [swipedId, setSwipedId] = useState<string | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   useEffect(() => {
     loadRatings();
@@ -112,6 +115,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
         !(r.item_type === rating.item_type && r.item_id === rating.item_id)
       ));
       
+      setSwipedId(null);
       toast.success('Rating deleted');
     } catch (error) {
       console.error('Failed to delete rating:', error);
@@ -119,46 +123,88 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
     }
   };
 
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = (ratingId: string) => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      setSwipedId(ratingId);
+    } else {
+      setSwipedId(null);
+    }
+  };
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {ratings.map((rating) => (
-        <Card
-          key={`${rating.item_type}-${rating.item_id}`}
-          className="overflow-hidden cursor-pointer hover:border-primary transition-colors relative group"
-          onClick={() => handleClick(rating)}
-        >
-          <div className="aspect-[2/3] bg-muted relative flex items-center justify-center">
-            {rating.poster_url ? (
-              <img 
-                src={rating.poster_url} 
-                alt={rating.title} 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="text-center p-4">
-                <p className="text-sm font-semibold line-clamp-3">{rating.title}</p>
-              </div>
-            )}
-            <div className="absolute top-2 right-2">
-              <RatingBadge rating={rating.score} size="sm" />
-            </div>
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-              onClick={(e) => handleDelete(e, rating)}
+      {ratings.map((rating) => {
+        const ratingKey = `${rating.item_type}-${rating.item_id}`;
+        const isSwiped = swipedId === ratingKey;
+        
+        return (
+          <div key={ratingKey} className="relative overflow-hidden">
+            <div 
+              className={`absolute inset-0 bg-destructive flex items-center justify-end pr-4 transition-opacity ${
+                isSwiped ? 'opacity-100' : 'opacity-0'
+              }`}
             >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => handleDelete(e, rating)}
+                className="text-destructive-foreground"
+              >
+                <Trash2 className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <Card
+              className={`cursor-pointer hover:border-primary transition-all ${
+                isSwiped ? '-translate-x-16' : 'translate-x-0'
+              }`}
+              onClick={() => handleClick(rating)}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={() => onTouchEnd(ratingKey)}
+            >
+              <div className="aspect-[2/3] bg-muted relative flex items-center justify-center">
+                {rating.poster_url ? (
+                  <img 
+                    src={rating.poster_url} 
+                    alt={rating.title} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-4">
+                    <p className="text-sm font-semibold line-clamp-3">{rating.title}</p>
+                  </div>
+                )}
+                <div className="absolute top-2 right-2">
+                  <RatingBadge rating={rating.score} size="sm" />
+                </div>
+              </div>
+              <div className="p-3">
+                <p className="text-xs font-semibold line-clamp-2 mb-1">{rating.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(rating.updated_at).toLocaleDateString()}
+                </p>
+              </div>
+            </Card>
           </div>
-          <div className="p-3">
-            <p className="text-xs font-semibold line-clamp-2 mb-1">{rating.title}</p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(rating.updated_at).toLocaleDateString()}
-            </p>
-          </div>
-        </Card>
-      ))}
+        );
+      })}
     </div>
   );
 }

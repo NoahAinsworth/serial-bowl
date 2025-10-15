@@ -20,6 +20,9 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>('all');
   const [sort, setSort] = useState<SortType>('recent');
+  const [swipedId, setSwipedId] = useState<string | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   useEffect(() => {
     loadRatings();
@@ -65,10 +68,35 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
         !(r.item_type === rating.item_type && r.item_id === rating.item_id)
       ));
       
+      setSwipedId(null);
       toast.success('Rating deleted');
     } catch (error) {
       console.error('Failed to delete rating:', error);
       toast.error('Failed to delete rating');
+    }
+  };
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = (ratingId: string) => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      setSwipedId(ratingId);
+    } else {
+      setSwipedId(null);
     }
   };
 
