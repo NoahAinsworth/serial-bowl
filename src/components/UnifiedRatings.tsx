@@ -29,8 +29,26 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
     setLoading(true);
     
     const allRatings = await getUserRatings(userId);
-    setRatings(allRatings);
     
+    // Enrich ratings with content titles
+    const enrichedRatings = await Promise.all(
+      allRatings.map(async (rating) => {
+        const { data: content } = await supabase
+          .from('content')
+          .select('title, poster_url')
+          .eq('external_id', rating.item_id)
+          .eq('kind', rating.item_type as 'show' | 'season' | 'episode')
+          .maybeSingle();
+        
+        return {
+          ...rating,
+          title: content?.title || rating.item_id,
+          poster_url: content?.poster_url,
+        };
+      })
+    );
+    
+    setRatings(enrichedRatings);
     setLoading(false);
   }
 
@@ -196,11 +214,9 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
             >
               <div className="flex-1">
                 <div className="font-medium">
-                  {rating.item_type === 'show' && `Show ${rating.item_id}`}
-                  {rating.item_type === 'season' && `Season ${rating.item_id.split(':')[1]}`}
-                  {rating.item_type === 'episode' && `Episode ${rating.item_id.split(':')[2]}`}
+                  {(rating as any).title || rating.item_id}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-muted-foreground capitalize">
                   {rating.item_type}
                 </div>
               </div>
