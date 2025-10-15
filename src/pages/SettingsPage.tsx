@@ -105,12 +105,17 @@ export default function SettingsPage() {
   const saveSettings = async () => {
     if (!user) return;
 
-    const { error } = await supabase
+    console.log('Saving settings:', settings);
+
+    const { error, data } = await supabase
       .from('profiles')
       .update({ settings })
       .eq('id', user.id);
 
+    console.log('Save result:', { error, data });
+
     if (error) {
+      console.error('Save settings error:', error);
       toast({
         title: "Error",
         description: "Failed to save settings",
