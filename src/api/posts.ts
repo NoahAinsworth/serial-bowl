@@ -6,15 +6,6 @@ export interface CreateThoughtParams {
   hasMature?: boolean;
 }
 
-export interface CreateReviewParams {
-  itemType: 'show' | 'season' | 'episode';
-  itemId: number;
-  ratingPercent: number;
-  body?: string;
-  hasSpoilers?: boolean;
-  hasMature?: boolean;
-}
-
 export async function getUserId(): Promise<string | null> {
   const { data: { user } } = await supabase.auth.getUser();
   return user?.id ?? null;
@@ -30,29 +21,6 @@ export async function createThought(params: CreateThoughtParams) {
       author_id: userId,
       kind: 'thought',
       body: params.body,
-      has_spoilers: params.hasSpoilers || false,
-      has_mature: params.hasMature || false,
-    }])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-export async function createReview(params: CreateReviewParams) {
-  const userId = await getUserId();
-  if (!userId) throw new Error('Not authenticated');
-
-  const { data, error } = await supabase
-    .from('posts')
-    .insert([{
-      author_id: userId,
-      kind: 'review',
-      item_type: params.itemType,
-      item_id: String(params.itemId),
-      rating_percent: params.ratingPercent,
-      body: params.body || null,
       has_spoilers: params.hasSpoilers || false,
       has_mature: params.hasMature || false,
     }])

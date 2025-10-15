@@ -6,7 +6,8 @@ import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { PercentRating } from '@/components/PercentRating';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
 import { Loader2, MessageSquare } from 'lucide-react';
-import { saveRating, getRating } from '@/api/ratings';
+import { getRating } from '@/api/ratings';
+import { supabase } from '@/api/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -49,10 +50,20 @@ export default function ShowDetailPage() {
     }
 
     try {
-      await saveRating({ itemType: 'show', itemId: parseInt(id), percent: newRating });
+      const { error } = await supabase.rpc('api_rate_and_review', {
+        p_item_type: 'show',
+        p_item_id: id,
+        p_score_any: String(newRating),
+        p_review: null,
+        p_is_spoiler: false,
+      });
+
+      if (error) throw error;
+
       setUserRating(newRating);
       toast.success('Rating saved!');
     } catch (error) {
+      console.error('Error saving rating:', error);
       toast.error('Failed to save rating');
     }
   };

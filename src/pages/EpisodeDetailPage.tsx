@@ -74,16 +74,17 @@ export default function EpisodeDetailPage() {
     if (content) {
       setContentId(content.id);
       
-      if (user) {
+      if (user && showId && seasonNumber && episodeNumber) {
         const { data: rating } = await supabase
-          .from('ratings')
-          .select('rating')
-          .eq('content_id', content.id)
+          .from('user_ratings')
+          .select('score')
           .eq('user_id', user.id)
-          .single();
+          .eq('item_type', 'episode')
+          .eq('item_id', `${showId}:${seasonNumber}:${episodeNumber}`)
+          .maybeSingle();
         
         if (rating) {
-          setUserRating(rating.rating);
+          setUserRating(rating.score);
         }
       }
     }
@@ -99,15 +100,15 @@ export default function EpisodeDetailPage() {
       return;
     }
 
-    if (!contentId) return;
+    if (!showId || !seasonNumber || !episodeNumber) return;
 
-    const { error } = await supabase
-      .from('ratings')
-      .upsert({
-        user_id: user.id,
-        content_id: contentId,
-        rating,
-      });
+    const { error } = await supabase.rpc('api_rate_and_review', {
+      p_item_type: 'episode',
+      p_item_id: `${showId}:${seasonNumber}:${episodeNumber}`,
+      p_score_any: String(rating),
+      p_review: null,
+      p_is_spoiler: false,
+    });
 
     if (error) {
       toast({
@@ -115,24 +116,14 @@ export default function EpisodeDetailPage() {
         description: "Failed to save rating",
         variant: "destructive",
       });
-    } else {
-      setUserRating(rating);
-      
-      // Log rating interaction for algorithm
-      await supabase
-        .from('interactions')
-        .insert({
-          user_id: user.id,
-          post_id: contentId,
-          post_type: 'rating',
-          interaction_type: 'rate',
-        });
-
-      toast({
-        title: "Success",
-        description: "Rating saved!",
-      });
+      return;
     }
+
+    setUserRating(rating);
+    toast({
+      title: "Success",
+      description: "Rating saved!",
+    });
   };
 
   if (loading && !episode) {

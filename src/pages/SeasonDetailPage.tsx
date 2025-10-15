@@ -68,16 +68,17 @@ export default function SeasonDetailPage() {
     if (content) {
       setContentId(content.id);
       
-      if (user) {
+      if (user && showId && seasonNumber) {
         const { data: rating } = await supabase
-          .from('ratings')
-          .select('rating')
-          .eq('content_id', content.id)
+          .from('user_ratings')
+          .select('score')
           .eq('user_id', user.id)
-          .single();
+          .eq('item_type', 'season')
+          .eq('item_id', `${showId}:${seasonNumber}`)
+          .maybeSingle();
         
         if (rating) {
-          setUserRating(rating.rating);
+          setUserRating(rating.score);
         }
       }
     }
@@ -93,40 +94,31 @@ export default function SeasonDetailPage() {
       return;
     }
 
-    if (!contentId) return;
+    if (!showId || !seasonNumber) return;
 
-    const { error } = await supabase
-      .from('ratings')
-      .upsert({
-        user_id: user.id,
-        content_id: contentId,
-        rating,
-      });
+    const { error } = await supabase.rpc('api_rate_and_review', {
+      p_item_type: 'season',
+      p_item_id: `${showId}:${seasonNumber}`,
+      p_score_any: String(rating),
+      p_review: null,
+      p_is_spoiler: false,
+    });
 
     if (error) {
+      console.error('Rating error:', error);
       toast({
         title: "Error",
         description: "Failed to save rating",
         variant: "destructive",
       });
-    } else {
-      setUserRating(rating);
-      
-      // Log rating interaction for algorithm
-      await supabase
-        .from('interactions')
-        .insert({
-          user_id: user.id,
-          post_id: contentId,
-          post_type: 'rating',
-          interaction_type: 'rate',
-        });
-
-      toast({
-        title: "Success",
-        description: "Rating saved!",
-      });
+      return;
     }
+
+    setUserRating(rating);
+    toast({
+      title: "Success",
+      description: "Rating saved!",
+    });
   };
 
   if (loading && episodes.length === 0) {

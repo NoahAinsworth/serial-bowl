@@ -1,59 +1,8 @@
 import { supabase } from './supabase';
 
-export interface SaveRatingParams {
-  itemType: 'show' | 'season' | 'episode';
-  itemId: number;
-  percent: number;
-}
-
 async function getUserId(): Promise<string | null> {
   const { data: { user } } = await supabase.auth.getUser();
   return user?.id ?? null;
-}
-
-export async function saveRating(params: SaveRatingParams) {
-  const userId = await getUserId();
-  if (!userId) throw new Error('Not authenticated');
-
-  // Upsert rating
-  const { data, error } = await supabase
-    .from('user_ratings')
-    .upsert([{
-      user_id: userId,
-      item_type: params.itemType,
-      item_id: String(params.itemId),
-      score: params.percent,
-      source: 'manual',
-      updated_at: new Date().toISOString(),
-    }], {
-      onConflict: 'user_id,item_type,item_id'
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-
-  // Update latest review's rating_percent if exists
-  const { data: latestReview } = await supabase
-    .from('posts')
-    .select()
-    .eq('author_id', userId)
-    .eq('kind', 'review')
-    .eq('item_type', params.itemType)
-    .eq('item_id', String(params.itemId))
-    .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (latestReview) {
-    await supabase
-      .from('posts')
-      .update({ rating_percent: params.percent })
-      .eq('id', latestReview.id);
-  }
-
-  return data;
 }
 
 export async function getRating(params: { itemType: string; itemId: number }) {
