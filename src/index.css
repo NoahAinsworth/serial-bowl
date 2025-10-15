@@ -546,6 +546,49 @@ All colors MUST be HSL.
     z-index: -1;
   }
 
+  /* Green Wireframe Wordmark - Glitchy cyber effect */
+  .green_wireframe .wordmark {
+    font-family: 'Press Start 2P', monospace;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    color: hsl(var(--neon-green));
+    position: relative;
+    display: inline-block;
+    animation: glitch 3s infinite;
+    text-shadow: 
+      0 0 5px hsl(var(--neon-green)),
+      2px 0 0 hsl(var(--electric-lime)),
+      -2px 0 0 hsl(var(--destructive));
+  }
+
+  @keyframes glitch {
+    0%, 90%, 100% {
+      transform: translate(0);
+      text-shadow: 
+        0 0 5px hsl(var(--neon-green)),
+        2px 0 0 hsl(var(--electric-lime)),
+        -2px 0 0 hsl(var(--destructive));
+    }
+    91% {
+      transform: translate(-2px, 1px);
+      text-shadow: 
+        0 0 8px hsl(var(--neon-green)),
+        3px 0 0 hsl(var(--electric-lime)),
+        -3px 0 0 hsl(var(--destructive));
+    }
+    93% {
+      transform: translate(2px, -1px);
+      text-shadow: 
+        0 0 8px hsl(var(--neon-green)),
+        -3px 0 0 hsl(var(--electric-lime)),
+        3px 0 0 hsl(var(--destructive));
+    }
+    95% {
+      transform: translate(-1px, 1px);
+    }
+  }
 
 
   /* Blue Crystal Wordmark - Breaking Bad Style */
