@@ -272,7 +272,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
       "relative py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in",
       config.glow
     )}>
-      <Badge variant="outline" className={cn("absolute top-3 right-14 text-xs font-semibold", config.color)}>
+      <Badge variant="outline" className={cn("absolute top-3 right-14 text-xs font-semibold z-10", config.color)}>
         {config.label}
       </Badge>
 
