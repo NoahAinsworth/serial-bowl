@@ -12,7 +12,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { sharePost } from '@/api/messages';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { getShow, getEpisode } from '@/api/tvdb';
 
 interface PostCardProps {
   post: {
@@ -55,25 +54,28 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [hidden, setHidden] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
-  const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode' } | null>(null);
+  const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode'; externalId: string } | null>(null);
   
   const isOwner = user?.id === post.user.id;
 
   // Load content info for reviews
   useEffect(() => {
     async function loadContentInfo() {
-      if (!post.item_type || !post.item_id) return;
+      if (!post.item_id) return;
 
       try {
-        if (post.item_type === 'show') {
-          const show = await getShow(parseInt(post.item_id));
-          if (show) setContentInfo({ title: show.title, type: 'show' });
-        } else if (post.item_type === 'episode') {
-          const episode = await getEpisode(parseInt(post.item_id));
-          if (episode) setContentInfo({ title: episode.name, type: 'episode' });
-        } else if (post.item_type === 'season') {
-          // For season, we'll just show "Season X"
-          setContentInfo({ title: `Season ${post.item_id.split(':')[1] || ''}`, type: 'season' });
+        const { data, error } = await supabase
+          .from('content')
+          .select('title, external_id, kind')
+          .eq('id', post.item_id)
+          .single();
+
+        if (data && !error) {
+          setContentInfo({ 
+            title: data.title, 
+            type: data.kind as 'show' | 'season' | 'episode',
+            externalId: data.external_id 
+          });
         }
       } catch (error) {
         console.error('Failed to load content info:', error);
@@ -81,7 +83,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
     }
 
     loadContentInfo();
-  }, [post.item_type, post.item_id]);
+  }, [post.item_id]);
 
   useEffect(() => {
     if (showShareDialog) {
@@ -309,10 +311,10 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               <div 
                 className="mb-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40"
                 onClick={() => {
-                  if (post.item_type === 'show') navigate(`/show/${post.item_id}`);
-                  else if (post.item_type === 'episode') navigate(`/episode/${post.item_id}`);
-                  else if (post.item_type === 'season') {
-                    const [showId, seasonNum] = post.item_id!.split(':');
+                  if (contentInfo.type === 'show') navigate(`/show/${contentInfo.externalId}`);
+                  else if (contentInfo.type === 'episode') navigate(`/episode/${contentInfo.externalId}`);
+                  else if (contentInfo.type === 'season') {
+                    const [showId, seasonNum] = contentInfo.externalId.split(':');
                     navigate(`/show/${showId}/season/${seasonNum}`);
                   }
                 }}
