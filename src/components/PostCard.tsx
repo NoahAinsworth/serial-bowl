@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send, Tv } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { sharePost } from '@/api/messages';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { getShow, getEpisode } from '@/api/tvdb';
 
 interface PostCardProps {
   post: {
@@ -54,8 +55,33 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [hidden, setHidden] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
+  const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode' } | null>(null);
   
   const isOwner = user?.id === post.user.id;
+
+  // Load content info for reviews
+  useEffect(() => {
+    async function loadContentInfo() {
+      if (!post.item_type || !post.item_id) return;
+
+      try {
+        if (post.item_type === 'show') {
+          const show = await getShow(parseInt(post.item_id));
+          if (show) setContentInfo({ title: show.title, type: 'show' });
+        } else if (post.item_type === 'episode') {
+          const episode = await getEpisode(parseInt(post.item_id));
+          if (episode) setContentInfo({ title: episode.name, type: 'episode' });
+        } else if (post.item_type === 'season') {
+          // For season, we'll just show "Season X"
+          setContentInfo({ title: `Season ${post.item_id.split(':')[1] || ''}`, type: 'season' });
+        }
+      } catch (error) {
+        console.error('Failed to load content info:', error);
+      }
+    }
+
+    loadContentInfo();
+  }, [post.item_type, post.item_id]);
 
   useEffect(() => {
     if (showShareDialog) {
@@ -279,7 +305,23 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                 </span>
               </div>
             )}
-            <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>
+            {contentInfo && (
+              <div 
+                className="mb-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40"
+                onClick={() => {
+                  if (post.item_type === 'show') navigate(`/show/${post.item_id}`);
+                  else if (post.item_type === 'episode') navigate(`/episode/${post.item_id}`);
+                  else if (post.item_type === 'season') {
+                    const [showId, seasonNum] = post.item_id!.split(':');
+                    navigate(`/show/${showId}/season/${seasonNum}`);
+                  }
+                }}
+              >
+                <Tv className="h-3.5 w-3.5" />
+                <span className="font-medium">{contentInfo.title}</span>
+              </div>
+            )}
+            {post.body && <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>}
           </>
         )}
       </div>
