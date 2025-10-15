@@ -341,9 +341,12 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               <div 
                 className="mb-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40"
                 onClick={() => {
-                  if (contentInfo.type === 'show') navigate(`/show/${contentInfo.externalId}`);
-                  else if (contentInfo.type === 'episode') navigate(`/episode/${contentInfo.externalId}`);
-                  else if (contentInfo.type === 'season') {
+                  if (contentInfo.type === 'show') {
+                    navigate(`/show/${contentInfo.externalId}`);
+                  } else if (contentInfo.type === 'episode') {
+                    const [showId, seasonNum, episodeNum] = contentInfo.externalId.split(':');
+                    navigate(`/show/${showId}/season/${seasonNum}/episode/${episodeNum}`);
+                  } else if (contentInfo.type === 'season') {
                     const [showId, seasonNum] = contentInfo.externalId.split(':');
                     navigate(`/show/${showId}/season/${seasonNum}`);
                   }

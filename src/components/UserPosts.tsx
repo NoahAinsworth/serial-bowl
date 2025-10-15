@@ -80,7 +80,14 @@ export function UserPosts({ userId }: UserPostsProps) {
               </Badge>
             )}
           </div>
-          <PostCard post={post} userHideSpoilers={false} strictSafety={false} />
+          <PostCard 
+            post={{
+              ...post,
+              user: post.author // Map author to user for PostCard compatibility
+            }} 
+            userHideSpoilers={false} 
+            strictSafety={false} 
+          />
         </div>
       ))}
     </div>
