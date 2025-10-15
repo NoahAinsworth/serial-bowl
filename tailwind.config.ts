@@ -81,6 +81,7 @@ export default {
         editorial: ['DM Sans', 'sans-serif'],
         futuristic: ['Orbitron', 'Space Grotesk', 'sans-serif'],
         logo: ['Lilita One', 'Fredoka One', 'cursive'],
+        pixel: ['"Press Start 2P"', 'monospace'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",
