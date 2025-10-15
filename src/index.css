@@ -458,7 +458,7 @@ All colors MUST be HSL.
     font-weight: 400;
     text-transform: lowercase;
     letter-spacing: 0.05em;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
@@ -470,7 +470,7 @@ All colors MUST be HSL.
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
