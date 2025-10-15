@@ -127,9 +127,9 @@ All colors MUST be HSL.
     --accent-foreground: 0 0% 100%;
     --destructive: 0 100% 38%;
     --destructive-foreground: 0 0% 100%;
-    --border: 276 77% 58%;           /* Purple border */
+    --border: 0 100% 50%;            /* Glowing Red border */
     --input: 0 0% 18%;
-    --ring: 0 100% 38%;
+    --ring: 0 100% 50%;
     --radius: 0.5rem;
 
     /* Extended Upside Down Palette */
@@ -155,9 +155,9 @@ All colors MUST be HSL.
     --stroke-style: solid;
     
     /* Effects - Glitchy & Eerie */
-    --shadow-1: 0 4px 12px rgba(192, 0, 0, 0.3);
-    --shadow-2: 0 8px 24px rgba(192, 0, 0, 0.4);
-    --inner-glow: inset 0 0 20px rgba(157, 78, 221, 0.2);
+    --shadow-1: 0 4px 12px rgba(255, 0, 0, 0.4), 0 0 8px rgba(255, 0, 0, 0.3);
+    --shadow-2: 0 8px 24px rgba(255, 0, 0, 0.5), 0 0 12px rgba(255, 0, 0, 0.4);
+    --inner-glow: inset 0 0 20px rgba(255, 0, 0, 0.2);
     --active-underline: none;
     --img-filter: saturate(0.7) contrast(1.1) brightness(0.9);
     --fx-overlay: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
