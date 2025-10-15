@@ -9,7 +9,7 @@ import { PostCard } from '@/components/PostCard';
 import { Loader2 } from 'lucide-react';
 import { createThought } from '@/api/posts';
 import { toast } from 'sonner';
-import cerealBowlLogo from '@/assets/cereal-bowl-logo.png';
+import cerealBowlLogo from '@/assets/cereal-bowl-simple.png';
 import serialBowlWordmark from '@/assets/serial-bowl-wordmark.png';
 
 export default function Home() {
@@ -100,13 +100,13 @@ export default function Home() {
       <div className="container max-w-2xl mx-auto py-12 px-4 text-center space-y-6">
         <div className="flex flex-col items-center gap-4">
           <img src={cerealBowlLogo} alt="Logo" className="w-32 h-32" />
-          <p className="text-xl font-medium text-muted-foreground">Your TV social network</p>
+          <p className="text-xl font-medium text-muted-foreground">Your bingeing experience awaits!</p>
         </div>
         <p className="text-muted-foreground">
           Rate shows, share thoughts, and connect with fellow TV enthusiasts
         </p>
         <Button onClick={() => navigate('/auth')} size="lg">
-          Get Started
+          Start Pouring
         </Button>
       </div>
     );
