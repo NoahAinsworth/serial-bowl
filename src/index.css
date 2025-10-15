@@ -10,37 +10,37 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Modern High-End Cartoon Aesthetic - "Pixar meets Apple" */
-    --background: 0 0% 100%;         /* Pure White #FFFFFF */
-    --foreground: 0 0% 0%;           /* Jet Black #000000 */
+    /* Vibrant Light Mode Palette */
+    --background: 215 43% 93%;       /* #E5ECF4 - Light lavender */
+    --foreground: 300 7% 3%;         /* #080708 - Deep black */
     --card: 0 0% 99%;                /* Card #FDFDFD */
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 300 7% 3%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 0 0% 0%;              /* Black primary */
+    --popover-foreground: 300 7% 3%;
+    --primary: 260 100% 65%;         /* #8A4FFF - Vibrant purple */
     --primary-foreground: 0 0% 100%;
-    --secondary: 47 100% 60%;        /* Sunshine Yellow #FFCF33 */
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 96%;               
-    --muted-foreground: 0 0% 30%;    /* Dark grey text */
-    --accent: 152 84% 41%;           /* Emerald Green #10C974 */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 8 100% 67%;       /* Cereal Red #FF6A5A */
+    --secondary: 49 93% 67%;         /* #F9DC5C - Bright yellow */
+    --secondary-foreground: 300 7% 3%;
+    --muted: 245 79% 96%;               
+    --muted-foreground: 300 7% 30%;  /* Dark grey text */
+    --accent: 245 79% 86%;           /* #C3BEF7 - Light purple */
+    --accent-foreground: 300 7% 3%;
+    --destructive: 8 100% 67%;       /* #FF6A5A - Cereal Red */
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0%;               /* Black outlines */
+    --border: 260 100% 65%;          /* Purple outlines */
     --input: 0 0% 100%;
-    --ring: 47 100% 60%;
+    --ring: 260 100% 65%;
     --radius: 1.5rem;                /* 24px - big rounded corners */
 
     /* Cartoon Color Palette */
-    --sunshine-yellow: 47 100% 60%;  /* #FFCF33 */
+    --sunshine-yellow: 49 93% 67%;   /* #F9DC5C */
     --cereal-red: 8 100% 67%;        /* #FF6A5A */
     --blueberry-blue: 207 99% 61%;   /* #3C9DFE */
     --emerald-green: 152 84% 41%;    /* #10C974 */
     --cotton-candy: 306 95% 80%;     /* #FF9BEA */
     
     /* Dynamic Show Accent System */
-    --show-accent: 47 100% 60%;
+    --show-accent: 260 100% 65%;
     
     /* Typography - Cartoon Friendly */
     --font-ui: 'Rubik', 'Poppins', 'DM Sans', -apple-system, sans-serif;
@@ -63,9 +63,9 @@ All colors MUST be HSL.
     --btn-shape: 20px;
 
     /* Elevation - Sticker Drop Shadow */
-    --shadow-1: 2px 2px 0px rgba(0, 0, 0, 0.1);
-    --shadow-2: 3px 3px 0px rgba(0, 0, 0, 1);
-    --shadow-hover: 4px 4px 0px rgba(0, 0, 0, 1);
+    --shadow-1: 2px 2px 0px rgba(138, 79, 255, 0.1);
+    --shadow-2: 3px 3px 0px rgba(138, 79, 255, 0.3);
+    --shadow-hover: 4px 4px 0px rgba(138, 79, 255, 0.4);
     --inner-glow: none;
 
     /* Motion - Bouncy & Playful */
