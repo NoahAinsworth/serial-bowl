@@ -509,41 +509,41 @@ All colors MUST be HSL.
     bottom: -8px;
   }
 
-  /* Friends Theme Wordmark - Clean pixel with single colorful dots between letters */
+  /* Friends Theme Wordmark - Like the Friends logo with dots between letters */
   .the_one_with_the_theme .wordmark {
     font-family: 'Press Start 2P', monospace;
     font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    font-size: 0.65rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
-    word-spacing: 0.6em;
-    background-image: 
-      radial-gradient(circle, hsl(var(--friends-yellow)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-orange)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-purple)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-lavender)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-yellow)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-orange)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-purple)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-lavender)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-yellow)) 1.5px, transparent 1.5px),
-      radial-gradient(circle, hsl(var(--friends-orange)) 1.5px, transparent 1.5px);
-    background-size: 3px 3px;
-    background-position: 
-      0.5em center,
-      1.05em center,
-      1.6em center,
-      2.15em center,
-      2.7em center,
-      3.25em center,
-      3.8em center,
-      4.45em center,
-      5.0em center,
-      5.55em center;
-    background-repeat: no-repeat;
+  }
+  
+  .the_one_with_the_theme .wordmark::after {
+    content: '• • • • • • • • • •';
+    position: absolute;
+    left: 0.52em;
+    top: 50%;
+    transform: translateY(-50%);
+    letter-spacing: 0.64em;
+    font-size: 1.2em;
+    background: linear-gradient(to right, 
+      hsl(var(--friends-yellow)),
+      hsl(var(--friends-orange)),
+      hsl(var(--friends-purple)),
+      hsl(var(--friends-lavender)),
+      hsl(var(--friends-yellow)),
+      hsl(var(--friends-orange)),
+      hsl(var(--friends-purple)),
+      hsl(var(--friends-lavender)),
+      hsl(var(--friends-yellow))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    z-index: -1;
   }
 
 
