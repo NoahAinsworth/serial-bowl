@@ -451,26 +451,26 @@ All colors MUST be HSL.
     text-transform: none;
   }
 
-  /* Cartoon wordmark - clean pixel font */
+  /* Cartoon wordmark - modern clean font */
   :root .wordmark,
   .dark .wordmark {
-    font-family: 'Press Start 2P', monospace;
-    font-weight: 400;
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-weight: 700;
     text-transform: lowercase;
-    letter-spacing: 0.05em;
-    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    font-size: 1.1rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
   }
 
-  /* Generic wordmark - clean pixel font */
+  /* Generic wordmark - modern clean font */
   .wordmark {
-    font-family: 'Press Start 2P', monospace;
-    font-weight: 400;
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    font-size: 1.1rem;
     color: hsl(var(--foreground));
     position: relative;
     display: inline-block;
