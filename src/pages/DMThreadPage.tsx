@@ -7,10 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Pencil } from 'lucide-react';
+import { Send, Pencil, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { DMReactions } from '@/components/DMReactions';
 import { EditDMDialog } from '@/components/EditDMDialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Message {
   id: string;
@@ -33,6 +34,8 @@ export default function DMThreadPage() {
   const [otherUser, setOtherUser] = useState<{ handle: string; avatar_url: string | null } | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
+  const [editHistories, setEditHistories] = useState<Record<string, any[]>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -134,6 +137,20 @@ export default function DMThreadPage() {
       .eq('read', false);
   };
 
+  const loadEditHistory = async (dmId: string) => {
+    if (editHistories[dmId]) return;
+    
+    const { data } = await supabase
+      .from('dm_edit_history')
+      .select('*')
+      .eq('dm_id', dmId)
+      .order('edited_at', { ascending: false });
+    
+    if (data) {
+      setEditHistories(prev => ({ ...prev, [dmId]: data }));
+    }
+  };
+
   const handleSend = async () => {
     if (!user || !userId || !newMessage.trim()) return;
 
@@ -222,9 +239,30 @@ export default function DMThreadPage() {
                         <div>
                           <p className="break-words">{message.text_content}</p>
                           {message.edited_at && (
-                            <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                              Edited
-                            </p>
+                            <Collapsible 
+                              open={expandedHistory === message.id} 
+                              onOpenChange={(open) => {
+                                setExpandedHistory(open ? message.id : null);
+                                if (open) loadEditHistory(message.id);
+                              }}
+                            >
+                              <CollapsibleTrigger className={`text-xs mt-1 hover:underline cursor-pointer flex items-center gap-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                                <Clock className="h-3 w-3" />
+                                Edited
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="mt-2">
+                                <div className={`space-y-2 pl-3 border-l-2 ${isSent ? 'border-primary-foreground/20' : 'border-border'}`}>
+                                  {editHistories[message.id]?.map((edit) => (
+                                    <div key={edit.id} className="text-sm">
+                                      <div className={`text-xs mb-1 ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+                                        {new Date(edit.edited_at).toLocaleString()}
+                                      </div>
+                                      <div className={`whitespace-pre-wrap ${isSent ? 'text-primary-foreground/80' : 'opacity-80'}`}>{edit.previous_text_content}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
                           )}
                         </div>
                       )}

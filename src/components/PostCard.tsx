@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send, Tv, Pencil } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send, Tv, Pencil, Clock } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { replaceProfanity } from '@/utils/profanityFilter';
 import { EditPostDialog } from '@/components/EditPostDialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface PostCardProps {
   post: {
@@ -57,6 +58,8 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [hidden, setHidden] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showEditHistory, setShowEditHistory] = useState(false);
+  const [editHistory, setEditHistory] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode'; externalId: string } | null>(null);
   
@@ -153,6 +156,22 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
       });
     }
   }, [showShareDialog, user]);
+
+  const loadEditHistory = async () => {
+    const { data } = await supabase
+      .from('post_edit_history')
+      .select('*')
+      .eq('post_id', post.id)
+      .order('edited_at', { ascending: false });
+    
+    if (data) setEditHistory(data);
+  };
+
+  useEffect(() => {
+    if (showEditHistory && editHistory.length === 0) {
+      loadEditHistory();
+    }
+  }, [showEditHistory]);
 
   const typeConfig = {
     thought: {
@@ -432,7 +451,24 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               <div>
                 <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>
                 {post.edited_at && (
-                  <p className="text-xs text-muted-foreground mt-1">Edited</p>
+                  <Collapsible open={showEditHistory} onOpenChange={setShowEditHistory}>
+                    <CollapsibleTrigger className="text-xs text-muted-foreground mt-1 hover:underline cursor-pointer flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      Edited
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-2">
+                      <div className="space-y-2 pl-4 border-l-2 border-muted">
+                        {editHistory.map((edit) => (
+                          <div key={edit.id} className="text-sm">
+                            <div className="text-xs text-muted-foreground mb-1">
+                              {new Date(edit.edited_at).toLocaleString()}
+                            </div>
+                            <div className="text-muted-foreground whitespace-pre-wrap">{edit.previous_body}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 )}
               </div>
             )}
