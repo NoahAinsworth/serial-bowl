@@ -10,6 +10,8 @@ import { Loader2 } from 'lucide-react';
 import { createThought } from '@/api/posts';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import cerealBowlLogo from '@/assets/cereal-bowl-simple.png';
 import cerealBowlIcon from '@/assets/cereal-bowl-icon.png';
 import serialBowlWordmark from '@/assets/serial-bowl-wordmark-new.png';
@@ -24,6 +26,8 @@ export default function Home() {
   const [thoughtText, setThoughtText] = useState('');
   const [posting, setPosting] = useState(false);
   const [userHideSpoilers, setUserHideSpoilers] = useState(true);
+  const [hasSpoilers, setHasSpoilers] = useState(false);
+  const [hasMature, setHasMature] = useState(false);
 
   // Load user settings
   useEffect(() => {
@@ -100,9 +104,11 @@ export default function Home() {
 
     setPosting(true);
     try {
-      await createThought({ body: thoughtText.trim() });
+      await createThought({ body: thoughtText.trim(), hasSpoilers, hasMature });
       toast.success('Posted!');
       setThoughtText('');
+      setHasSpoilers(false);
+      setHasMature(false);
       setActiveTab('new');
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -147,6 +153,28 @@ export default function Home() {
           <Button onClick={handleThoughtSubmit} disabled={posting || !thoughtText.trim()}>
             {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Post'}
           </Button>
+        </div>
+        <div className="flex gap-3 mb-3 text-sm">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="spoiler"
+              checked={hasSpoilers}
+              onCheckedChange={(checked) => setHasSpoilers(checked as boolean)}
+            />
+            <Label htmlFor="spoiler" className="text-sm cursor-pointer">
+              Contains spoilers
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="mature"
+              checked={hasMature}
+              onCheckedChange={(checked) => setHasMature(checked as boolean)}
+            />
+            <Label htmlFor="mature" className="text-sm cursor-pointer">
+              🔞 Mature content
+            </Label>
+          </div>
         </div>
         <div className="flex gap-2 justify-center">
           {['🔥', '😂', '🤯', '😭', '❤️'].map((emoji) => (
