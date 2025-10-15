@@ -29,6 +29,7 @@ export function UserPosts({ userId }: UserPostsProps) {
       `)
       .eq('author_id', userId)
       .is('deleted_at', null)
+      .neq('kind', 'rating') // Exclude rating-only posts, show reviews and thoughts
       .order('created_at', { ascending: false })
       .limit(50);
 
