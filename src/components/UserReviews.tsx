@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { Card } from '@/components/ui/card';
+import { PostCard } from '@/components/PostCard';
 import { Loader2 } from 'lucide-react';
-import { RatingBadge } from '@/components/PercentRating';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserReviewsProps {
   userId?: string;
@@ -11,8 +11,27 @@ interface UserReviewsProps {
 
 export function UserReviews({ userId }: UserReviewsProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userHideSpoilers, setUserHideSpoilers] = useState(true);
+
+  // Load user's spoiler settings
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('settings')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.settings) {
+            const settings = data.settings as any;
+            setUserHideSpoilers(settings?.safety?.hide_spoilers ?? true);
+          }
+        });
+    }
+  }, [user]);
 
   useEffect(() => {
     loadReviews();
@@ -24,18 +43,18 @@ export function UserReviews({ userId }: UserReviewsProps) {
       return;
     }
 
-    // Get reviews from posts table
+    // Get reviews from posts table with author info
     const { data: reviewsData, error } = await supabase
       .from('posts')
-      .select('id, body, rating_percent, created_at, item_type, item_id')
+      .select(`
+        *,
+        author:profiles!posts_author_id_fkey(id, handle, avatar_url)
+      `)
       .eq('author_id', userId)
       .eq('kind', 'review')
       .not('body', 'is', null)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
-
-    // Convert to expected format - reviews are now in posts
-    // This is a placeholder - we need show/season/episode data
-    const reviewsFormatted = reviewsData || [];
 
     if (!error && reviewsData) {
       setReviews(reviewsData);
@@ -60,57 +79,19 @@ export function UserReviews({ userId }: UserReviewsProps) {
     );
   }
 
-  const handleClick = (content: any) => {
-    if (!content) return;
-    
-    const kind = content.kind;
-    if (kind === 'show') {
-      navigate(`/show/${content.external_id}`);
-    } else if (kind === 'season') {
-      navigate(`/season/${content.external_id}`);
-    } else if (kind === 'episode') {
-      navigate(`/episode/${content.external_id}`);
-    }
-  };
-
   return (
     <div className="space-y-4">
-      {reviews.map((review: any) => {
-        const content = review.content;
-        if (!content) return null;
-
-        return (
-          <Card
-            key={review.id}
-            className="p-4 cursor-pointer hover:border-primary transition-colors"
-            onClick={() => handleClick(content)}
-          >
-            <div className="flex gap-4">
-              {content.poster_url && (
-                <img
-                  src={content.poster_url}
-                  alt={content.title}
-                  className="w-20 h-28 object-cover rounded"
-                />
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-bold text-lg truncate">{content.title}</h3>
-                  {review.rating && (
-                    <RatingBadge rating={review.rating} size="sm" />
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {review.review_text}
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {new Date(review.created_at).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          </Card>
-        );
-      })}
+      {reviews.map((review) => (
+        <PostCard
+          key={review.id}
+          post={{
+            ...review,
+            user: review.author
+          }}
+          userHideSpoilers={userHideSpoilers}
+          strictSafety={false}
+        />
+      ))}
     </div>
   );
 }

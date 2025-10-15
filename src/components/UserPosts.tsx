@@ -3,14 +3,34 @@ import { supabase } from '@/lib/supabase';
 import { PostCard } from '@/components/PostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserPostsProps {
   userId?: string;
 }
 
 export function UserPosts({ userId }: UserPostsProps) {
+  const { user } = useAuth();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userHideSpoilers, setUserHideSpoilers] = useState(true);
+
+  // Load user's spoiler settings
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('settings')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.settings) {
+            const settings = data.settings as any;
+            setUserHideSpoilers(settings?.safety?.hide_spoilers ?? true);
+          }
+        });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (userId) {
@@ -67,7 +87,7 @@ export function UserPosts({ userId }: UserPostsProps) {
             ...post,
             user: post.author // Map author to user for PostCard compatibility
           }} 
-          userHideSpoilers={false} 
+          userHideSpoilers={userHideSpoilers} 
           strictSafety={false} 
         />
       ))}
