@@ -14,6 +14,7 @@ import { useTVDB, TVSeason, TVEpisode } from '@/hooks/useTVDB';
 import { X, Loader2 } from 'lucide-react';
 import { PercentRating } from '@/components/PercentRating';
 import { detectMatureContent } from '@/utils/profanityFilter';
+import { createThought } from '@/api/posts';
 
 export default function PostPage() {
   const navigate = useNavigate();
@@ -384,28 +385,13 @@ export default function PostPage() {
     }
 
     if (postType === 'thought') {
-      const { isMature, reasons } = detectMatureContent(content);
-      
-      const { error } = await supabase
-        .from('thoughts')
-        .insert({
-          user_id: user.id,
-          content_id: selectedContent?.id || null,
-          text_content: content.trim(),
-          is_spoiler: isSpoiler,
-          contains_mature: containsMature || isMature,
-          mature_reasons: containsMature || isMature ? reasons : [],
-          moderation_status: 'approved',
-        } as any);
-
-      if (error) {
-        console.error('Post error:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to post thought",
-          variant: "destructive",
+      try {
+        await createThought({ 
+          body: content.trim(), 
+          hasSpoilers: isSpoiler, 
+          hasMature: containsMature 
         });
-      } else {
+        
         toast({
           title: "Success",
           description: "Thought posted!",
@@ -415,6 +401,13 @@ export default function PostPage() {
         setIsSpoiler(false);
         setContainsMature(false);
         navigate('/');
+      } catch (error: any) {
+        console.error('Post error:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to post thought",
+          variant: "destructive",
+        });
       }
     } else {
       // Post review using the unified database function
