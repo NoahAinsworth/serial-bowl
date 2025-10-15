@@ -69,7 +69,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <>
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen bg-background relative z-10">
         {/* Header */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-14 items-center justify-between px-4">
