@@ -264,12 +264,21 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
   if (deleted || hidden) return null;
 
-  const shouldHide = userHideSpoilers && post.has_spoilers && !revealSpoiler;
+  const shouldHideSpoiler = userHideSpoilers && post.has_spoilers && !revealSpoiler;
+  const shouldHideMature = strictSafety && post.has_mature;
+  const shouldHide = shouldHideSpoiler || shouldHideMature;
   const displayText = post.body || '';
   
   const getSpoilerWarningText = () => {
     if (!contentInfo) return 'This contains spoilers';
     return `This contains spoilers for ${contentInfo.title}`;
+  };
+
+  const getWarningText = () => {
+    if (shouldHideMature && shouldHideSpoiler) return '🔞 ⚠️ Contains mature content and spoilers';
+    if (shouldHideMature) return '🔞 Contains mature content';
+    if (shouldHideSpoiler) return `⚠️ ${getSpoilerWarningText()}`;
+    return '';
   };
 
   return (
@@ -352,10 +361,32 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
       <div className="mb-3">
         {shouldHide ? (
           <div className="p-4 bg-muted/50 rounded-lg text-center">
-            <p className="text-sm text-muted-foreground mb-2">⚠️ {getSpoilerWarningText()}</p>
-            <Button size="sm" variant="outline" onClick={() => setRevealSpoiler(true)}>
-              Reveal
-            </Button>
+            <p className="text-sm text-muted-foreground mb-2">{getWarningText()}</p>
+            {shouldHideMature && shouldHideSpoiler && (
+              <p className="text-xs text-muted-foreground mb-2">
+                Turn OFF Strict Safety Mode to view mature content
+              </p>
+            )}
+            {shouldHideMature && !shouldHideSpoiler && (
+              <p className="text-xs text-muted-foreground mb-2">
+                Turn OFF Strict Safety Mode in settings to view
+              </p>
+            )}
+            {!shouldHideMature && shouldHideSpoiler && (
+              <Button size="sm" variant="outline" onClick={() => setRevealSpoiler(true)}>
+                Reveal Spoiler
+              </Button>
+            )}
+            {shouldHideMature && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => navigate('/settings')}
+                className="mt-2"
+              >
+                Open Safety Settings
+              </Button>
+            )}
           </div>
         ) : (
           <>
