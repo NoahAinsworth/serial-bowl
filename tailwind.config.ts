@@ -80,6 +80,7 @@ export default {
         ui: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'],
         editorial: ['DM Sans', 'sans-serif'],
         futuristic: ['Orbitron', 'Space Grotesk', 'sans-serif'],
+        logo: ['Lilita One', 'Fredoka One', 'cursive'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",
