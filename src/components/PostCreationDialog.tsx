@@ -59,6 +59,7 @@ export function PostCreationDialog({
 
     try {
       if (postType === 'review' && itemType && itemId) {
+        console.log('Creating review with:', { itemType, itemId, rating });
         // Use the database function that handles both rating and review in one transaction
         const { data, error } = await supabase.rpc('api_rate_and_review', {
           p_item_type: itemType,
