@@ -83,30 +83,30 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Cartoon Dark Mode */
-    --background: 0 0% 8%;       /* #141414 */
-    --foreground: 0 0% 100%;     /* White */
-    --card: 0 0% 12%;            /* #1F1F1F */
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 0 0% 100%;        /* White primary */
-    --primary-foreground: 0 0% 0%;
-    --secondary: 47 100% 60%;    /* Sunshine Yellow */
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 18%;           
-    --muted-foreground: 0 0% 70%; 
-    --accent: 152 84% 41%;       /* Emerald Green */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 8 100% 67%;   /* Cereal Red */
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 100%;         /* White outlines in dark mode */
-    --input: 0 0% 12%;
-    --ring: 47 100% 60%;
+    /* Vibrant Dark Mode Palette */
+    --background: 300 7% 3%;         /* #080708 - Deep black */
+    --foreground: 215 43% 93%;       /* #E5ECF4 - Light lavender */
+    --card: 300 7% 8%;               /* Slightly lighter black */
+    --card-foreground: 215 43% 93%;
+    --popover: 300 7% 3%;
+    --popover-foreground: 215 43% 93%;
+    --primary: 260 100% 65%;         /* #8A4FFF - Vibrant purple */
+    --primary-foreground: 215 43% 93%;
+    --secondary: 49 93% 67%;         /* #F9DC5C - Bright yellow */
+    --secondary-foreground: 300 7% 3%;
+    --muted: 245 79% 20%;            
+    --muted-foreground: 215 43% 70%; 
+    --accent: 245 79% 86%;           /* #C3BEF7 - Light purple */
+    --accent-foreground: 300 7% 3%;
+    --destructive: 8 100% 67%;       /* Cereal Red */
+    --destructive-foreground: 215 43% 93%;
+    --border: 260 100% 65%;          /* Purple outlines */
+    --input: 300 7% 12%;
+    --ring: 260 100% 65%;
     
     /* Sticker Drop Shadow Dark */
-    --shadow-2: 3px 3px 0px rgba(255, 255, 255, 0.2);
-    --shadow-hover: 4px 4px 0px rgba(255, 255, 255, 0.3);
+    --shadow-2: 3px 3px 0px rgba(138, 79, 255, 0.3);
+    --shadow-hover: 4px 4px 0px rgba(138, 79, 255, 0.4);
   }
 
   .upside_down {
