@@ -392,9 +392,9 @@ All colors MUST be HSL.
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 210 30% 80%;
-    --input: 210 30% 90%;
-    --ring: 46 100% 53%;
+    --border: 333 60% 85%;            /* Pink-tinted borders */
+    --input: 333 40% 95%;             /* Soft pink input backgrounds */
+    --ring: 333 100% 71%;             /* Pink focus rings */
     --radius: 1rem;
 
     /* Extended Donut Mode Palette */
@@ -418,13 +418,13 @@ All colors MUST be HSL.
     --stroke-width: 2px;
     --stroke-style: solid;
     
-    /* Effects - Bright & Fun */
-    --shadow-1: 0 2px 8px rgba(255, 217, 15, 0.15);
-    --shadow-2: 0 4px 16px rgba(255, 217, 15, 0.25);
-    --inner-glow: none;
-    --active-underline: none;
+    /* Effects - Bright & Fun with Pink Sprinkles */
+    --shadow-1: 0 2px 8px rgba(255, 111, 174, 0.2);
+    --shadow-2: 0 4px 16px rgba(255, 111, 174, 0.3);
+    --inner-glow: 0 0 20px rgba(255, 111, 174, 0.15);
+    --active-underline: 2px solid hsl(var(--donut-pink));
     --img-filter: saturate(1.15) brightness(1.05);
-    --fx-overlay: none;
+    --fx-overlay: radial-gradient(circle at 20% 50%, rgba(255, 111, 174, 0.08), transparent 40%);
   }
 
   /* Upside Down Scanline & Static Effects */
