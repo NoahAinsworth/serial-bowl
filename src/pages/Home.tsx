@@ -114,16 +114,7 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-6 px-4">
-      {/* Animated Cereal Bowl Logo */}
-      <div className="flex justify-center pt-8 pb-4">
-        <img 
-          src={cerealBowlIcon} 
-          alt="Cereal Bowl" 
-          className="w-20 h-20 animate-[scale-in_0.5s_ease-out,gentle-bounce_2s_ease-in-out_0.5s_infinite]"
-        />
-      </div>
-
+    <div className="max-w-2xl mx-auto pb-6 px-4 pt-6">
       {/* Pour a Thought Bar */}
       <div className="mb-6 bg-card border rounded-lg p-4">
         <div className="flex gap-2 mb-3">
