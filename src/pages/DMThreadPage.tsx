@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { DMReactions } from '@/components/DMReactions';
 
 interface Message {
   id: string;
@@ -217,6 +218,14 @@ export default function DMThreadPage() {
                       {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                     </p>
                   </div>
+                  
+                  {/* Emoji reactions */}
+                  <DMReactions 
+                    dmId={message.id} 
+                    senderId={message.sender_id}
+                    recipientId={message.recipient_id || userId || ''}
+                  />
+                  
                   {isSent && isLastMessage && (
                     <span className={`text-xs mt-1 ${isSent ? 'text-right text-muted-foreground' : ''}`}>
                       {message.read ? '✓ Read' : '✓ Sent'}
