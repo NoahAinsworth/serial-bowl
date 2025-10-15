@@ -556,37 +556,45 @@ All colors MUST be HSL.
     color: hsl(var(--neon-green));
     position: relative;
     display: inline-block;
-    animation: glitch 3s infinite;
-    text-shadow: 
-      0 0 5px hsl(var(--neon-green)),
-      2px 0 0 hsl(var(--electric-lime)),
-      -2px 0 0 hsl(var(--destructive));
+    animation: glitch 2s infinite;
   }
 
   @keyframes glitch {
-    0%, 90%, 100% {
+    0%, 85%, 100% {
       transform: translate(0);
-      text-shadow: 
-        0 0 5px hsl(var(--neon-green)),
-        2px 0 0 hsl(var(--electric-lime)),
-        -2px 0 0 hsl(var(--destructive));
+      text-shadow: 0 0 5px hsl(var(--neon-green));
     }
-    91% {
-      transform: translate(-2px, 1px);
+    86% {
+      transform: translate(-3px, 2px);
       text-shadow: 
         0 0 8px hsl(var(--neon-green)),
+        4px 0 0 hsl(var(--electric-lime)),
+        -4px 0 0 hsl(var(--destructive));
+    }
+    87% {
+      transform: translate(3px, -2px);
+      text-shadow: 
+        0 0 8px hsl(var(--neon-green)),
+        -4px 0 0 hsl(var(--electric-lime)),
+        4px 0 0 hsl(var(--destructive));
+    }
+    88% {
+      transform: translate(-2px, -1px);
+      text-shadow: 
+        0 0 10px hsl(var(--neon-green)),
         3px 0 0 hsl(var(--electric-lime)),
         -3px 0 0 hsl(var(--destructive));
     }
-    93% {
-      transform: translate(2px, -1px);
+    89% {
+      transform: translate(2px, 1px);
       text-shadow: 
-        0 0 8px hsl(var(--neon-green)),
+        0 0 10px hsl(var(--neon-green)),
         -3px 0 0 hsl(var(--electric-lime)),
         3px 0 0 hsl(var(--destructive));
     }
-    95% {
-      transform: translate(-1px, 1px);
+    90% {
+      transform: translate(0);
+      text-shadow: 0 0 5px hsl(var(--neon-green));
     }
   }
 
