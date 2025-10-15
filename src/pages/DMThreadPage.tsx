@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Pencil, Clock } from 'lucide-react';
+import { Send, Pencil, Clock, ChevronDown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { DMReactions } from '@/components/DMReactions';
 import { EditDMDialog } from '@/components/EditDMDialog';
@@ -138,14 +138,19 @@ export default function DMThreadPage() {
   };
 
   const loadEditHistory = async (dmId: string) => {
-    if (editHistories[dmId]) return;
+    if (editHistories[dmId]) {
+      console.log('Edit history already loaded for:', dmId);
+      return;
+    }
     
-    const { data } = await supabase
+    console.log('Loading edit history for DM:', dmId);
+    const { data, error } = await supabase
       .from('dm_edit_history')
       .select('*')
       .eq('dm_id', dmId)
       .order('edited_at', { ascending: false });
     
+    console.log('DM edit history data:', data, 'error:', error);
     if (data) {
       setEditHistories(prev => ({ ...prev, [dmId]: data }));
     }
@@ -242,24 +247,32 @@ export default function DMThreadPage() {
                             <Collapsible 
                               open={expandedHistory === message.id} 
                               onOpenChange={(open) => {
+                                console.log('DM Collapsible changing to:', open, 'for message:', message.id);
                                 setExpandedHistory(open ? message.id : null);
                                 if (open) loadEditHistory(message.id);
                               }}
                             >
-                              <CollapsibleTrigger className={`text-xs mt-1 hover:underline cursor-pointer flex items-center gap-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                              <CollapsibleTrigger className={`text-xs mt-1 hover:underline cursor-pointer flex items-center gap-1 transition-colors ${isSent ? 'text-primary-foreground/70 hover:text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
                                 <Clock className="h-3 w-3" />
                                 Edited
+                                <ChevronDown className={`h-3 w-3 transition-transform ${expandedHistory === message.id ? 'rotate-180' : ''}`} />
                               </CollapsibleTrigger>
                               <CollapsibleContent className="mt-2">
                                 <div className={`space-y-2 pl-3 border-l-2 ${isSent ? 'border-primary-foreground/20' : 'border-border'}`}>
-                                  {editHistories[message.id]?.map((edit) => (
-                                    <div key={edit.id} className="text-sm">
-                                      <div className={`text-xs mb-1 ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
-                                        {new Date(edit.edited_at).toLocaleString()}
+                                  {!editHistories[message.id] ? (
+                                    <p className={`text-xs ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>Loading history...</p>
+                                  ) : editHistories[message.id].length === 0 ? (
+                                    <p className={`text-xs ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>No edit history</p>
+                                  ) : (
+                                    editHistories[message.id].map((edit) => (
+                                      <div key={edit.id} className="text-sm">
+                                        <div className={`text-xs mb-1 ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+                                          {new Date(edit.edited_at).toLocaleString()}
+                                        </div>
+                                        <div className={`whitespace-pre-wrap ${isSent ? 'text-primary-foreground/80' : 'opacity-80'}`}>{edit.previous_text_content}</div>
                                       </div>
-                                      <div className={`whitespace-pre-wrap ${isSent ? 'text-primary-foreground/80' : 'opacity-80'}`}>{edit.previous_text_content}</div>
-                                    </div>
-                                  ))}
+                                    ))
+                                  )}
                                 </div>
                               </CollapsibleContent>
                             </Collapsible>

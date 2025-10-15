@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send, Tv, Pencil, Clock } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, Send, Tv, Pencil, Clock, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -158,17 +158,20 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   }, [showShareDialog, user]);
 
   const loadEditHistory = async () => {
-    const { data } = await supabase
+    console.log('Loading edit history for post:', post.id);
+    const { data, error } = await supabase
       .from('post_edit_history')
       .select('*')
       .eq('post_id', post.id)
       .order('edited_at', { ascending: false });
     
+    console.log('Edit history data:', data, 'error:', error);
     if (data) setEditHistory(data);
   };
 
   useEffect(() => {
     if (showEditHistory && editHistory.length === 0) {
+      console.log('Fetching edit history because showEditHistory is true');
       loadEditHistory();
     }
   }, [showEditHistory]);
@@ -451,21 +454,29 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               <div>
                 <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>
                 {post.edited_at && (
-                  <Collapsible open={showEditHistory} onOpenChange={setShowEditHistory}>
-                    <CollapsibleTrigger className="text-xs text-muted-foreground mt-1 hover:underline cursor-pointer flex items-center gap-1">
+                  <Collapsible open={showEditHistory} onOpenChange={(open) => {
+                    console.log('Collapsible state changing to:', open);
+                    setShowEditHistory(open);
+                  }}>
+                    <CollapsibleTrigger className="text-xs text-muted-foreground mt-1 hover:underline cursor-pointer flex items-center gap-1 hover:text-foreground transition-colors">
                       <Clock className="h-3 w-3" />
                       Edited
+                      <ChevronDown className={`h-3 w-3 transition-transform ${showEditHistory ? 'rotate-180' : ''}`} />
                     </CollapsibleTrigger>
                     <CollapsibleContent className="mt-2">
                       <div className="space-y-2 pl-4 border-l-2 border-muted">
-                        {editHistory.map((edit) => (
-                          <div key={edit.id} className="text-sm">
-                            <div className="text-xs text-muted-foreground mb-1">
-                              {new Date(edit.edited_at).toLocaleString()}
+                        {editHistory.length === 0 ? (
+                          <p className="text-xs text-muted-foreground">Loading history...</p>
+                        ) : (
+                          editHistory.map((edit) => (
+                            <div key={edit.id} className="text-sm">
+                              <div className="text-xs text-muted-foreground mb-1">
+                                {new Date(edit.edited_at).toLocaleString()}
+                              </div>
+                              <div className="text-muted-foreground whitespace-pre-wrap">{edit.previous_body}</div>
                             </div>
-                            <div className="text-muted-foreground whitespace-pre-wrap">{edit.previous_body}</div>
-                          </div>
-                        ))}
+                          ))
+                        )}
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
