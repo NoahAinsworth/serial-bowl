@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { useTVDB, TVShow, TVSeason } from '@/hooks/useTVDB';
 import { PercentRating } from '@/components/PercentRating';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
-import { Loader2, MessageSquare } from 'lucide-react';
+import { PostTypeSelector } from '@/components/PostTypeSelector';
+import { ReviewsList } from '@/components/ReviewsList';
+import { ThoughtsList } from '@/components/ThoughtsList';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2 } from 'lucide-react';
 import { getRating } from '@/api/ratings';
 import { supabase } from '@/api/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,7 +23,9 @@ export default function ShowDetailPage() {
   const [show, setShow] = useState<TVShow | null>(null);
   const [seasons, setSeasons] = useState<TVSeason[]>([]);
   const [userRating, setUserRating] = useState<number | null>(null);
-  const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [showPostDialog, setShowPostDialog] = useState(false);
+  const [postType, setPostType] = useState<'review' | 'thought'>('review');
+  const [contentId, setContentId] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -36,10 +41,41 @@ export default function ShowDetailPage() {
       const seasonsData = await fetchSeasons(showId);
       setSeasons(seasonsData);
       
-      if (user) {
-        const rating = await getRating({ itemType: 'show', itemId: showId });
-        setUserRating(rating?.score || null);
-      }
+      await loadContentAndRating(showId.toString());
+    }
+  };
+
+  const loadContentAndRating = async (externalId: string) => {
+    const { data: existingContent } = await supabase
+      .from('content')
+      .select('id')
+      .eq('external_id', externalId)
+      .eq('kind', 'show')
+      .single();
+
+    let dbContentId = existingContent?.id;
+
+    if (!existingContent && show) {
+      const { data: newContent } = await supabase
+        .from('content')
+        .insert({
+          external_id: externalId,
+          kind: 'show',
+          title: show.name,
+          poster_url: show.image,
+        })
+        .select('id')
+        .single();
+      dbContentId = newContent?.id;
+    }
+
+    if (dbContentId) {
+      setContentId(dbContentId);
+    }
+
+    if (user) {
+      const rating = await getRating({ itemType: 'show', itemId: parseInt(externalId) });
+      setUserRating(rating?.score || null);
     }
   };
 
@@ -112,10 +148,16 @@ export default function ShowDetailPage() {
                     showSaveButton
                   />
                 </div>
-                <Button onClick={() => setShowReviewDialog(true)} variant="outline" className="w-full">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Write a Review
-                </Button>
+                <PostTypeSelector
+                  onReviewClick={() => {
+                    setPostType('review');
+                    setShowPostDialog(true);
+                  }}
+                  onThoughtClick={() => {
+                    setPostType('thought');
+                    setShowPostDialog(true);
+                  }}
+                />
               </div>
             )}
           </div>
@@ -137,10 +179,25 @@ export default function ShowDetailPage() {
         </div>
       </div>
 
+      {contentId && (
+        <Tabs defaultValue="reviews" className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="reviews" className="flex-1">Reviews</TabsTrigger>
+            <TabsTrigger value="thoughts" className="flex-1">Thoughts</TabsTrigger>
+          </TabsList>
+          <TabsContent value="reviews">
+            <ReviewsList contentId={contentId} />
+          </TabsContent>
+          <TabsContent value="thoughts">
+            <ThoughtsList contentId={contentId} />
+          </TabsContent>
+        </Tabs>
+      )}
+
       <PostCreationDialog
-        open={showReviewDialog}
-        onOpenChange={setShowReviewDialog}
-        postType="review"
+        open={showPostDialog}
+        onOpenChange={setShowPostDialog}
+        postType={postType}
         itemType="show"
         itemId={id}
         contentTitle={show.name}
