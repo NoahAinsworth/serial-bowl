@@ -1699,6 +1699,10 @@ export type Database = {
         Args: { p_show_id: string; p_user: string }
         Returns: number
       }
+      detect_mature_content: {
+        Args: { text_body: string }
+        Returns: Json
+      }
       exp_decay: {
         Args: { created: string; half_life_hours: number }
         Returns: number
