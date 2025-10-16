@@ -266,7 +266,7 @@ export default function ProfilePage() {
 
             {/* Bio */}
             {profile?.bio && (
-              <p className="text-sm mb-4 text-muted-foreground">{profile.bio}</p>
+              <p className="text-sm mb-4 text-foreground/80 font-medium">{profile.bio}</p>
             )}
 
             {/* Counts Row */}
@@ -275,22 +275,22 @@ export default function ProfilePage() {
                 className="hover:underline"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
               >
-                <span className="font-bold text-foreground">{stats.thoughtsCount}</span>{' '}
-                <span className="text-muted-foreground">Thoughts</span>
+                <span className="font-bold text-foreground text-base">{stats.thoughtsCount}</span>{' '}
+                <span className="text-foreground/70 font-medium">Thoughts</span>
               </button>
               <button 
                 className="hover:underline"
                 onClick={() => navigate('/followers')}
               >
-                <span className="font-bold text-foreground">{stats.followersCount}</span>{' '}
-                <span className="text-muted-foreground">Followers</span>
+                <span className="font-bold text-foreground text-base">{stats.followersCount}</span>{' '}
+                <span className="text-foreground/70 font-medium">Followers</span>
               </button>
               <button 
                 className="hover:underline"
                 onClick={() => navigate('/following')}
               >
-                <span className="font-bold text-foreground">{stats.followingCount}</span>{' '}
-                <span className="text-muted-foreground">Following</span>
+                <span className="font-bold text-foreground text-base">{stats.followingCount}</span>{' '}
+                <span className="text-foreground/70 font-medium">Following</span>
               </button>
             </div>
           </div>
@@ -392,7 +392,7 @@ export default function ProfilePage() {
                     )}
                   </div>
                 </div>
-                <p className="text-xs font-medium truncate">
+                <p className="text-sm font-semibold text-foreground">
                   {show?.title || 'Empty Slot'}
                 </p>
               </div>

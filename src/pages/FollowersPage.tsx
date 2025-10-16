@@ -184,7 +184,7 @@ export default function FollowersPage() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">{follower.handle}</p>
+                      <p className="font-semibold text-foreground">{follower.handle}</p>
                       {follower.is_private && (
                         <Badge variant="outline" className="text-xs">Private</Badge>
                       )}

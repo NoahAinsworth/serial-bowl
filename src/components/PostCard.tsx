@@ -328,12 +328,12 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span 
-              className="font-semibold hover:underline cursor-pointer"
+              className="font-bold text-foreground hover:underline cursor-pointer"
               onClick={() => navigate(`/profile/${post.user.handle}`)}
             >
               {post.user.handle}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-foreground/60">
               {new Date(post.created_at).toLocaleDateString()}
             </span>
           </div>
@@ -452,7 +452,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             )}
             {post.body && (
               <div>
-                <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>
+                <p className="text-base whitespace-pre-wrap break-words text-foreground font-medium leading-relaxed">{displayText}</p>
                 {post.edited_at && (
                   <Collapsible open={showEditHistory} onOpenChange={(open) => {
                     console.log('Collapsible state changing to:', open);

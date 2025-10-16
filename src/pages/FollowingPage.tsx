@@ -156,7 +156,7 @@ export default function FollowingPage() {
                     </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium">{followingUser.handle}</p>
+                        <p className="font-semibold text-foreground">{followingUser.handle}</p>
                         {status === 'pending' && (
                           <Badge variant="outline" className="text-xs">Pending</Badge>
                         )}
