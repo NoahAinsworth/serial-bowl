@@ -183,10 +183,9 @@ export default function SettingsPage() {
               <SelectItem value="dark">Dark</SelectItem>
               <SelectItem value="green_wireframe">Green Wireframe</SelectItem>
               <SelectItem value="donut_mode">Donut Mode</SelectItem>
-              <SelectItem value="stars_hollow">Stars Hollow</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>
               <SelectItem value="the_one_with_the_theme">The One with the Theme</SelectItem>
-              <SelectItem value="upper_east_side">💋 Upper East Side</SelectItem>
+              <SelectItem value="upper_east_side">Upper East Side</SelectItem>
             </SelectContent>
           </Select>
         </div>
