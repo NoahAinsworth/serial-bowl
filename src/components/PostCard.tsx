@@ -310,10 +310,6 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
       "relative py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in",
       config.glow
     )}>
-      <Badge variant="outline" className={cn("absolute top-3 right-14 text-xs font-semibold z-10", config.color)}>
-        {config.label}
-      </Badge>
-
       {/* User Header */}
       <div className="flex items-start gap-3 mb-3">
         <Avatar className="h-10 w-10 cursor-pointer" onClick={() => navigate(`/profile/${post.user.handle}`)}>
@@ -322,14 +318,17 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
         </Avatar>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span 
               className="font-bold text-foreground hover:underline cursor-pointer"
               onClick={() => navigate(`/profile/${post.user.handle}`)}
             >
               {post.user.handle}
             </span>
-            <span className="text-sm text-foreground/60">
+            <Badge variant="outline" className={cn("text-xs font-semibold shrink-0", config.color)}>
+              {config.label}
+            </Badge>
+            <span className="text-sm text-foreground/60 shrink-0">
               {new Date(post.created_at).toLocaleDateString()}
             </span>
           </div>
