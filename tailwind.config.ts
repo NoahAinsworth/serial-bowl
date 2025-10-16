@@ -82,6 +82,7 @@ export default {
         futuristic: ['Orbitron', 'Space Grotesk', 'sans-serif'],
         logo: ['Lilita One', 'Fredoka One', 'cursive'],
         pixel: ['"Press Start 2P"', 'monospace'],
+        playfair: ['Playfair Display', 'serif'],
       },
       borderRadius: {
         lg: "var(--radius-lg)",

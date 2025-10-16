@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import FallingLeaves from '@/components/FallingLeaves';
 import SkyClouds from '@/components/SkyClouds';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [unreadDMs, setUnreadDMs] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
 
@@ -74,7 +76,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         {/* Header */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-14 items-center justify-between px-4">
-            <h1 className="wordmark">Serial Bowl</h1>
+            {theme === 'upper_east_side' ? (
+              <h1 className="wordmark upper-east-wordmark">
+                <span className="xoxo-text">xoxo,&nbsp;</span>
+                <span className="brand-text">Serial Bowl</span>
+              </h1>
+            ) : (
+              <h1 className="wordmark">Serial Bowl</h1>
+            )}
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
                 <Library className="h-5 w-5" />
