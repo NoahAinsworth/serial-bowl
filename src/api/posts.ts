@@ -1,4 +1,9 @@
 import { supabase } from './supabase';
+import { z } from 'zod';
+
+// Validation schemas
+const postBodySchema = z.string().trim().min(1, 'Content is required').max(1000, 'Content must be less than 1000 characters');
+const commentBodySchema = z.string().trim().min(1, 'Comment cannot be empty').max(500, 'Comment must be less than 500 characters');
 
 export interface CreateThoughtParams {
   body: string;
@@ -17,12 +22,15 @@ export async function createThought(params: CreateThoughtParams) {
   const userId = await getUserId();
   if (!userId) throw new Error('Not authenticated');
 
+  // Validate input
+  const validatedBody = postBodySchema.parse(params.body);
+
   const { data, error } = await supabase
     .from('posts')
     .insert([{
       author_id: userId,
       kind: 'thought',
-      body: params.body,
+      body: validatedBody,
       has_spoilers: params.hasSpoilers || false,
       has_mature: params.hasMature || false,
       item_type: params.itemType || null,
@@ -89,12 +97,15 @@ export async function comment(postId: string, body: string) {
   const userId = await getUserId();
   if (!userId) throw new Error('Not authenticated');
 
+  // Validate input
+  const validatedBody = commentBodySchema.parse(body);
+
   const { data, error } = await supabase
     .from('comments')
     .insert([{
       user_id: userId,
       thought_id: postId,
-      text_content: body,
+      text_content: validatedBody,
     }])
     .select()
     .single();

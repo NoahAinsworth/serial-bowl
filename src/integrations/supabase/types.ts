@@ -1745,6 +1745,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_conversation_participant: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
       upsert_rollups: {
         Args: { p_item_id: string; p_item_type: string; p_user: string }
         Returns: undefined

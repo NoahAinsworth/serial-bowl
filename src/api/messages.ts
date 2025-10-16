@@ -1,4 +1,8 @@
 import { supabase } from '@/lib/supabase';
+import { z } from 'zod';
+
+// Validation schemas
+const messageBodySchema = z.string().trim().min(1, 'Message cannot be empty').max(2000, 'Message must be less than 2000 characters');
 
 async function getUserId(): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -30,12 +34,15 @@ async function checkMutualFollow(userId: string, otherUserId: string): Promise<b
 export async function sendMessageRequest(recipientId: string, message: string) {
   const userId = await getUserId();
 
+  // Validate input
+  const validatedMessage = messageBodySchema.parse(message);
+
   const { error } = await supabase
     .from('message_requests')
     .insert({
       sender_id: userId,
       recipient_id: recipientId,
-      message,
+      message: validatedMessage,
       status: 'pending',
     });
 
@@ -144,12 +151,15 @@ export async function ensureConversation(otherUserId: string): Promise<string | 
 export async function sendMessage(conversationId: string, body: string, postId?: string) {
   const userId = await getUserId();
 
+  // Validate input (allow empty for post shares)
+  const validatedBody = body ? messageBodySchema.parse(body) : '';
+
   const { error } = await supabase
     .from('messages')
     .insert({
       conversation_id: conversationId,
       sender_id: userId,
-      body,
+      body: validatedBody,
       post_id: postId || null,
     });
 
