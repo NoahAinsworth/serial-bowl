@@ -29,7 +29,6 @@ class TVDBClient {
       this.tokenExpiry = now + 24 * 60 * 60 * 1000; // 24 hours
       this.client.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
     } catch (error) {
-      console.error('TVDB authentication failed:', error);
       throw error;
     }
   }
@@ -76,7 +75,6 @@ function normalizeShow(show: any) {
 // Export convenience functions
 export async function searchShows(query: string) {
   const results = await tvdbClient.searchShows(query);
-  console.log('[searchShows] Raw results:', results.slice(0, 2));
   const mapped = results.map((show: any) => ({
     id: show.tvdb_id,
     tvdb_id: show.tvdb_id,
@@ -87,7 +85,6 @@ export async function searchShows(query: string) {
     firstAired: show.first_air_time || '',
     year: show.first_air_time?.split('-')[0] || '',
   }));
-  console.log('[searchShows] Mapped results:', mapped.slice(0, 2));
   return mapped;
 }
 
@@ -101,16 +98,11 @@ export async function fetchBrowseShows(page = 1) {
   ];
   
   const searchTerm = searchTerms[(page - 1) % searchTerms.length];
-  console.log('[fetchBrowseShows] Page:', page, 'Searching for:', searchTerm);
   
   const results = await tvdbClient.searchShows(searchTerm);
-  console.log('[fetchBrowseShows] Raw results:', results.length, 'shows');
-  console.log('[fetchBrowseShows] First result:', results[0]);
   
   // Take first 20 results
   const normalized = results.slice(0, 20).map(normalizeShow);
-  console.log('[fetchBrowseShows] Normalized:', normalized.length, 'shows');
-  console.log('[fetchBrowseShows] First normalized:', normalized[0]);
   
   return normalized;
 }

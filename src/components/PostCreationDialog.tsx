@@ -60,7 +60,6 @@ export function PostCreationDialog({
     setSubmitting(true);
 
     try {
-      console.log('[v2.0] Creating review with itemType:', itemType, 'itemId:', itemId, 'rating:', rating);
       if (postType === 'review' && itemType && itemId) {
         // Replace profanity before sending to database
         const cleanedText = text.trim() ? replaceProfanity(text.trim()) : null;
@@ -96,7 +95,6 @@ export function PostCreationDialog({
       // Navigate to home → New tab
       navigate('/home', { state: { scrollToTop: true } });
     } catch (error: any) {
-      console.error('Error posting:', error);
       toast.error(error.message || 'Failed to post');
     } finally {
       setSubmitting(false);

@@ -39,12 +39,10 @@ export default function Home() {
         .eq('id', user.id)
         .single()
         .then(({ data }) => {
-          console.log('Home: Loading settings', data?.settings);
           if (data?.settings) {
             const settings = data.settings as any;
             const hideSpoilers = settings?.safety?.hide_spoilers ?? true;
             const filterMature = settings?.safety?.strict_safety ?? false;
-            console.log('Home: Loaded safety settings', { hideSpoilers, filterMature });
             setUserHideSpoilers(hideSpoilers);
             setStrictSafety(filterMature);
           }
