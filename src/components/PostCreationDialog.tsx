@@ -81,7 +81,13 @@ export function PostCreationDialog({
           toast.success('Rating saved!');
         }
       } else {
-        await createThought({ body: text.trim(), hasSpoilers, hasMature });
+        await createThought({ 
+          body: text.trim(), 
+          hasSpoilers, 
+          hasMature,
+          itemType,
+          itemId,
+        });
         toast.success('Thought posted!');
       }
 
