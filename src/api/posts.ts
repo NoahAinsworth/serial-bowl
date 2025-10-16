@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { z } from 'zod';
+import { replaceProfanity } from '@/utils/profanityFilter';
 
 // Validation schemas
 const postBodySchema = z.string().trim().min(1, 'Content is required').max(1000, 'Content must be less than 1000 characters');
@@ -24,13 +25,16 @@ export async function createThought(params: CreateThoughtParams) {
 
   // Validate input
   const validatedBody = postBodySchema.parse(params.body);
+  
+  // Replace profanity with (BLEEP) before sending to database
+  const cleanedBody = replaceProfanity(validatedBody);
 
   const { data, error } = await supabase
     .from('posts')
     .insert([{
       author_id: userId,
       kind: 'thought',
-      body: validatedBody,
+      body: cleanedBody,
       has_spoilers: params.hasSpoilers || false,
       has_mature: params.hasMature || false,
       item_type: params.itemType || null,
@@ -99,13 +103,16 @@ export async function comment(postId: string, body: string) {
 
   // Validate input
   const validatedBody = commentBodySchema.parse(body);
+  
+  // Replace profanity with (BLEEP) before sending to database
+  const cleanedBody = replaceProfanity(validatedBody);
 
   const { data, error } = await supabase
     .from('comments')
     .insert([{
       user_id: userId,
       thought_id: postId,
-      text_content: validatedBody,
+      text_content: cleanedBody,
     }])
     .select()
     .single();

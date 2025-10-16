@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { createThought } from '@/api/posts';
 import { supabase } from '@/api/supabase';
+import { replaceProfanity } from '@/utils/profanityFilter';
 
 interface PostCreationDialogProps {
   open: boolean;
@@ -61,12 +62,15 @@ export function PostCreationDialog({
     try {
       console.log('[v2.0] Creating review with itemType:', itemType, 'itemId:', itemId, 'rating:', rating);
       if (postType === 'review' && itemType && itemId) {
+        // Replace profanity before sending to database
+        const cleanedText = text.trim() ? replaceProfanity(text.trim()) : null;
+        
         // Use the database function that handles both rating and review in one transaction
         const { data, error } = await supabase.rpc('api_rate_and_review', {
           p_item_type: itemType,
           p_item_id: itemId,
           p_score_any: String(rating),
-          p_review: text.trim() || null,
+          p_review: cleanedText,
           p_is_spoiler: hasSpoilers,
         });
 
