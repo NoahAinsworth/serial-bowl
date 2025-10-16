@@ -82,7 +82,6 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
         if (!isValidFormat) {
           // Old/malformed data - hide the link
-          console.warn('Invalid item_id format:', post.item_id, 'for type:', post.item_type);
           return;
         }
 
@@ -142,7 +141,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
           }
         }
       } catch (error) {
-        console.error('Failed to load content info:', error);
+        // Failed to load content info
       }
     }
 
@@ -158,20 +157,17 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   }, [showShareDialog, user]);
 
   const loadEditHistory = async () => {
-    console.log('Loading edit history for post:', post.id);
     const { data, error } = await supabase
       .from('post_edit_history')
       .select('*')
       .eq('post_id', post.id)
       .order('edited_at', { ascending: false });
     
-    console.log('Edit history data:', data, 'error:', error);
     if (data) setEditHistory(data);
   };
 
   useEffect(() => {
     if (showEditHistory && editHistory.length === 0) {
-      console.log('Fetching edit history because showEditHistory is true');
       loadEditHistory();
     }
   }, [showEditHistory]);
@@ -454,10 +450,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               <div>
                 <p className="text-base whitespace-pre-wrap break-words text-foreground font-medium leading-relaxed">{displayText}</p>
                 {post.edited_at && (
-                  <Collapsible open={showEditHistory} onOpenChange={(open) => {
-                    console.log('Collapsible state changing to:', open);
-                    setShowEditHistory(open);
-                  }}>
+                  <Collapsible open={showEditHistory} onOpenChange={setShowEditHistory}>
                     <CollapsibleTrigger className="text-xs text-muted-foreground mt-1 hover:underline cursor-pointer flex items-center gap-1 hover:text-foreground transition-colors">
                       <Clock className="h-3 w-3" />
                       Edited

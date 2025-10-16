@@ -16,8 +16,6 @@ function uniqueById<T extends { id: number }>(arr: T[]) {
 }
 
 export async function fetchPopularShows(): Promise<ShowCard[]> {
-  console.log('[fetchPopularShows] Starting...');
-  
   // Search for popular terms to get diverse, actual shows
   const searchTerms = ['the', 'new', 'star', 'game', 'house'];
   const allShows: any[] = [];
@@ -28,24 +26,19 @@ export async function fetchPopularShows(): Promise<ShowCard[]> {
       const shows = Array.isArray(results) ? results : [];
       allShows.push(...shows);
     } catch (error) {
-      console.error(`[fetchPopularShows] Error searching "${term}":`, error);
+      // Search failed - continue with other terms
     }
   }
-  
-  console.log('[fetchPopularShows] Total search results:', allShows.length);
   
   // Deduplicate and sort by score
   const unique = uniqueById(allShows);
   const sorted = unique.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   const result = sorted.slice(0, 40).map(normalizeSeries);
   
-  console.log('[fetchPopularShows] Final result:', result.length);
   return result;
 }
 
 export async function fetchNewShows(): Promise<ShowCard[]> {
-  console.log('[fetchNewShows] Starting...');
-  
   // Get recent year shows
   const currentYear = new Date().getFullYear();
   const allShows: any[] = [];
@@ -57,11 +50,9 @@ export async function fetchNewShows(): Promise<ShowCard[]> {
       const shows = Array.isArray(results) ? results : [];
       allShows.push(...shows);
     } catch (error) {
-      console.error(`[fetchNewShows] Error searching year ${year}:`, error);
+      // Search failed - continue with other years
     }
   }
-  
-  console.log('[fetchNewShows] Total search results:', allShows.length);
   
   // Filter to shows with recent first air date
   const oneYearAgo = new Date();
@@ -73,8 +64,6 @@ export async function fetchNewShows(): Promise<ShowCard[]> {
     return new Date(firstAired) >= oneYearAgo;
   });
   
-  console.log('[fetchNewShows] Recent shows:', recentShows.length);
-  
   // Sort by first aired date (newest first)
   const sorted = recentShows.sort((a, b) => {
     const dateA = new Date(a.first_air_time || a.firstAired || 0);
@@ -85,7 +74,6 @@ export async function fetchNewShows(): Promise<ShowCard[]> {
   const unique = uniqueById(sorted);
   const result = unique.slice(0, 40).map(normalizeSeries);
   
-  console.log('[fetchNewShows] Final result:', result.length);
   return result;
 }
 

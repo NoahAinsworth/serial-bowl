@@ -139,18 +139,15 @@ export default function DMThreadPage() {
 
   const loadEditHistory = async (dmId: string) => {
     if (editHistories[dmId]) {
-      console.log('Edit history already loaded for:', dmId);
       return;
     }
     
-    console.log('Loading edit history for DM:', dmId);
     const { data, error } = await supabase
       .from('dm_edit_history')
       .select('*')
       .eq('dm_id', dmId)
       .order('edited_at', { ascending: false });
     
-    console.log('DM edit history data:', data, 'error:', error);
     if (data) {
       setEditHistories(prev => ({ ...prev, [dmId]: data }));
     }
@@ -247,7 +244,6 @@ export default function DMThreadPage() {
                             <Collapsible 
                               open={expandedHistory === message.id} 
                               onOpenChange={(open) => {
-                                console.log('DM Collapsible changing to:', open, 'for message:', message.id);
                                 setExpandedHistory(open ? message.id : null);
                                 if (open) loadEditHistory(message.id);
                               }}
