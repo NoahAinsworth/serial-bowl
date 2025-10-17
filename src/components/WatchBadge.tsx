@@ -13,10 +13,12 @@ const BADGE_CONFIG = {
   'Binge Legend': { emoji: '🌀', shortLabel: 'Legend' },
 };
 
-export function WatchBadge({ badgeTier, hoursWatched, compact = false }: WatchBadgeProps) {
-  if (!FEATURE_WATCH_AND_BADGES || !badgeTier) return null;
+export function WatchBadge({ badgeTier, hoursWatched = 0, compact = false }: WatchBadgeProps) {
+  if (!FEATURE_WATCH_AND_BADGES) return null;
 
-  const config = BADGE_CONFIG[badgeTier as keyof typeof BADGE_CONFIG] || { emoji: '🍿', shortLabel: 'Viewer' };
+  // Default to Casual Viewer if no badge tier yet
+  const tier = badgeTier || 'Casual Viewer';
+  const config = BADGE_CONFIG[tier as keyof typeof BADGE_CONFIG] || { emoji: '🍿', shortLabel: 'Casual' };
   
   if (compact) {
     return (
@@ -29,11 +31,11 @@ export function WatchBadge({ badgeTier, hoursWatched, compact = false }: WatchBa
 
   return (
     <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-      <span>{hoursWatched?.toFixed(1) || '0.0'} hrs watched</span>
+      <span>{hoursWatched.toFixed(1)} hrs watched</span>
       <span>•</span>
       <span className="inline-flex items-center gap-1">
         <span>{config.emoji}</span>
-        <span>{badgeTier}</span>
+        <span>{tier}</span>
       </span>
     </div>
   );
