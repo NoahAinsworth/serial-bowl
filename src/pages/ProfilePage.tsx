@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Edit, Loader2, Share2, X } from 'lucide-react';
+import { Edit, Loader2, Share2, X, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserPosts } from '@/components/UserPosts';
 import { UnifiedRatings } from '@/components/UnifiedRatings';
@@ -14,6 +14,10 @@ import { UserLists } from '@/components/UserLists';
 import { FollowRequestsList } from '@/components/FollowRequestsList';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
+import { BadgeDisplay } from '@/components/BadgeDisplay';
+import { useWatchStats } from '@/hooks/useWatchStats';
+import { recalculateWatchHours } from '@/lib/watchHours';
+import { FEATURES } from '@/lib/features';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +38,8 @@ export default function ProfilePage() {
     followersCount: 0,
     followingCount: 0,
   });
+  const { stats: watchStats, refresh: refreshWatchStats } = useWatchStats();
+  const [recalculating, setRecalculating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showTop3Dialog, setShowTop3Dialog] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
@@ -267,6 +273,39 @@ export default function ProfilePage() {
             {/* Bio */}
             {profile?.bio && (
               <p className="text-sm mb-4 text-foreground/80 font-medium">{profile.bio}</p>
+            )}
+
+            {/* Watch Stats */}
+            {FEATURES.WATCH_AND_BADGES && (
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-sm mb-3">
+                <span className="text-muted-foreground font-medium">
+                  {watchStats.hoursWatched} hrs watched
+                </span>
+                <span className="text-muted-foreground">•</span>
+                <BadgeDisplay badge={watchStats.badgeTier} variant="compact" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={async () => {
+                    if (!user) return;
+                    setRecalculating(true);
+                    try {
+                      await recalculateWatchHours(user.id);
+                      await refreshWatchStats();
+                      toast({ title: "Watch hours recalculated!" });
+                    } catch (error) {
+                      toast({ title: "Failed to recalculate", variant: "destructive" });
+                    } finally {
+                      setRecalculating(false);
+                    }
+                  }}
+                  disabled={recalculating}
+                  title="Recalculate watch hours"
+                >
+                  <RefreshCw className={`h-3 w-3 ${recalculating ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
             )}
 
             {/* Counts Row */}
