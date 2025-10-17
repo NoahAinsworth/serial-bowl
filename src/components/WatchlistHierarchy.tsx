@@ -92,121 +92,135 @@ export function WatchlistHierarchy({ items, type, onRemove }: WatchlistHierarchy
         const showItem = data.show;
 
         return (
-          <Card key={showId} className="p-0 overflow-hidden">
-            {/* Show Level */}
-            {showItem && (
-              <div className="p-4 bg-card/50">
-                <div className="flex items-start gap-3">
-                  {hasSeasons && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 mt-1"
-                      onClick={() => toggleShow(showId)}
-                    >
-                      {openShows.has(showId) ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </Button>
-                  )}
-                  {showItem.content.poster_url && (
-                    <img
-                      src={showItem.content.poster_url}
-                      alt={showItem.content.title}
-                      className="w-16 h-24 object-cover rounded"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <h3 
-                      className="font-semibold text-lg cursor-pointer hover:text-primary transition-colors"
-                      onClick={() => navigate(`/show/${showItem.content.external_id}`)}
-                    >
-                      {showItem.content.title}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onRemove(showItem.id, showItem.content.title)}
+          <Collapsible key={showId} open={openShows.has(showId)} onOpenChange={() => toggleShow(showId)}>
+            <Card className="p-0 overflow-hidden">
+              {/* Show Level */}
+              {showItem && (
+                <div className="p-4 bg-card/50">
+                  <div className="flex items-start gap-3">
+                    {hasSeasons && (
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 mt-1"
+                        >
+                          {openShows.has(showId) ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                    )}
+                    {showItem.content.poster_url && (
+                      <img
+                        src={showItem.content.poster_url}
+                        alt={showItem.content.title}
+                        className="w-16 h-24 object-cover rounded"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h3 
+                        className="font-semibold text-lg cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => navigate(`/show/${showItem.content.external_id}`)}
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        {showItem.content.title}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onRemove(showItem.id, showItem.content.title)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Seasons Level */}
-            {hasSeasons && openShows.has(showId) && (
-              <div className="border-t border-border/20">
-                {Object.entries(data.seasons).map(([seasonId, seasonData]) => {
-                  const hasEpisodes = seasonData.episodes.length > 0;
-                  const seasonItem = seasonData.season;
+              {/* Seasons Level */}
+              {hasSeasons && (
+                <CollapsibleContent>
+                  <div className="border-t border-border/20">
+                    {Object.entries(data.seasons).map(([seasonId, seasonData]) => {
+                      const hasEpisodes = seasonData.episodes.length > 0;
+                      const seasonItem = seasonData.season;
 
-                  return (
-                    <div key={seasonId} className="border-b border-border/10 last:border-b-0">
-                      {seasonItem && (
-                        <div className="p-3 pl-16 bg-muted/30">
-                          <div className="flex items-center gap-2">
-                            {hasEpisodes && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => toggleSeason(seasonId)}
-                              >
-                                {openSeasons.has(seasonId) ? (
-                                  <ChevronDown className="h-3 w-3" />
-                                ) : (
-                                  <ChevronRight className="h-3 w-3" />
-                                )}
-                              </Button>
-                            )}
-                            <span className="font-medium">{seasonItem.content.title}</span>
-                            <div className="flex items-center gap-2 ml-auto">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onRemove(seasonItem.id, seasonItem.content.title)}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Episodes Level */}
-                      {hasEpisodes && openSeasons.has(seasonId) && (
-                        <div className="bg-muted/10">
-                          {seasonData.episodes.map((episode) => (
-                            <div
-                              key={episode.id}
-                              className="p-2 pl-24 border-t border-border/10 flex items-center justify-between"
-                            >
-                              <span className="text-sm">{episode.content.title}</span>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => onRemove(episode.id, episode.content.title)}
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
+                      return (
+                        <Collapsible 
+                          key={seasonId} 
+                          open={openSeasons.has(seasonId)} 
+                          onOpenChange={() => toggleSeason(seasonId)}
+                        >
+                          <div className="border-b border-border/10 last:border-b-0">
+                            {seasonItem && (
+                              <div className="p-3 pl-16 bg-muted/30">
+                                <div className="flex items-center gap-2">
+                                  {hasEpisodes && (
+                                    <CollapsibleTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6"
+                                      >
+                                        {openSeasons.has(seasonId) ? (
+                                          <ChevronDown className="h-3 w-3" />
+                                        ) : (
+                                          <ChevronRight className="h-3 w-3" />
+                                        )}
+                                      </Button>
+                                    </CollapsibleTrigger>
+                                  )}
+                                  <span className="font-medium">{seasonItem.content.title}</span>
+                                  <div className="flex items-center gap-2 ml-auto">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => onRemove(seasonItem.id, seasonItem.content.title)}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </Card>
+                            )}
+
+                            {/* Episodes Level */}
+                            {hasEpisodes && (
+                              <CollapsibleContent>
+                                <div className="bg-muted/10">
+                                  {seasonData.episodes.map((episode) => (
+                                    <div
+                                      key={episode.id}
+                                      className="p-2 pl-24 border-t border-border/10 flex items-center justify-between"
+                                    >
+                                      <span className="text-sm">{episode.content.title}</span>
+                                      <div className="flex items-center gap-2">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => onRemove(episode.id, episode.content.title)}
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </CollapsibleContent>
+                            )}
+                          </div>
+                        </Collapsible>
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
+              )}
+            </Card>
+          </Collapsible>
         );
       })}
     </div>
