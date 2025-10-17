@@ -85,19 +85,17 @@ export function WatchlistButton({ contentId, showTitle }: WatchlistButtonProps) 
       onClick={toggleWatchlist}
       disabled={loading}
       size="sm"
-      className="flex-1 text-xs sm:text-sm"
+      className="flex-1 text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3"
     >
       {isInWatchlist ? (
         <>
-          <BookmarkCheck className="h-4 w-4 mr-1 sm:mr-2" />
-          <span className="hidden xs:inline">In Watchlist</span>
-          <span className="xs:hidden">Saved</span>
+          <BookmarkCheck className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+          <span>Watchlist</span>
         </>
       ) : (
         <>
-          <BookmarkPlus className="h-4 w-4 mr-1 sm:mr-2" />
-          <span className="hidden xs:inline">Add to Watchlist</span>
-          <span className="xs:hidden">Watchlist</span>
+          <BookmarkPlus className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+          <span>Watchlist</span>
         </>
       )}
     </Button>
