@@ -1815,14 +1815,6 @@ export type Database = {
         Args: { p_show_id: string; p_user: string }
         Returns: number
       }
-      consolidate_episodes_to_season: {
-        Args: { p_season_content_id: string; p_user_id: string }
-        Returns: undefined
-      }
-      consolidate_seasons_to_show: {
-        Args: { p_show_content_id: string; p_user_id: string }
-        Returns: undefined
-      }
       detect_mature_content: {
         Args: { text_body: string }
         Returns: Json
@@ -1880,6 +1872,14 @@ export type Database = {
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
+      }
+      mark_season_episodes_watched: {
+        Args: { p_season_number: number; p_show_id: string; p_user_id: string }
+        Returns: number
+      }
+      mark_show_episodes_watched: {
+        Args: { p_show_id: string; p_user_id: string }
+        Returns: number
       }
       update_season_episode_count: {
         Args: { p_episode_count: number; p_season_external_id: string }

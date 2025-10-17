@@ -75,62 +75,83 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
           });
         }
       } else {
-        // Check content type and consolidate if needed
+        // Check content type to handle season/show marking
         const { data: content } = await supabase
           .from('content')
-          .select('kind')
+          .select('kind, external_id')
           .eq('id', contentId)
           .single();
 
-        // If marking a season as watched, consolidate any individual episode watches
+        let episodesAdded = 0;
+
+        // If marking a season, insert all missing episodes for that season
         if (content?.kind === 'season') {
           setLastBulkToggle(Date.now());
-          await supabase.rpc('consolidate_episodes_to_season', {
+          
+          // Extract show ID and season number from external_id (format: showId:seasonNum)
+          const parts = content.external_id.split(':');
+          const showId = parts[0];
+          const seasonNumber = parseInt(parts[1]);
+          
+          const { data: result } = await supabase.rpc('mark_season_episodes_watched', {
             p_user_id: user.id,
-            p_season_content_id: contentId
+            p_show_id: showId,
+            p_season_number: seasonNumber
           });
+          
+          episodesAdded = result || 0;
         }
         
-        // If marking a show as watched, consolidate all season and episode watches
+        // If marking a show, insert all missing episodes for entire show
         if (content?.kind === 'show') {
           setLastBulkToggle(Date.now());
-          await supabase.rpc('consolidate_seasons_to_show', {
+          
+          const { data: result } = await supabase.rpc('mark_show_episodes_watched', {
             p_user_id: user.id,
-            p_show_content_id: contentId
+            p_show_id: content.external_id
           });
+          
+          episodesAdded = result || 0;
         }
 
+        // For individual episodes or after bulk marking, insert/update the watch entry
         const { error } = await supabase
           .from('watched')
           .insert({
             user_id: user.id,
             content_id: contentId,
             watched_at: new Date().toISOString(),
-          });
+          })
+          .select()
+          .single();
 
         if (!error) {
           setIsWatched(true);
           
-          // Get updated binge points if feature is enabled
+          // Show appropriate toast based on what was marked
           if (flags.BINGE_POINTS) {
-            // Fetch season episode counts if it's a season
             if (content?.kind === 'season') {
               const { data: seasonCounts } = await supabase
                 .from('season_episode_counts')
                 .select('episode_count')
-                .eq('external_id', content.kind)
+                .eq('external_id', content.external_id)
                 .single();
               
               const episodeCount = seasonCounts?.episode_count || 0;
               const bonus = episodeCount >= 14 ? 15 : episodeCount >= 7 ? 10 : 5;
+              
               toast({
                 title: "Season complete!",
-                description: `+${bonus} Binge Points earned! 🎉`,
+                description: episodesAdded > 0 
+                  ? `+${episodesAdded} episodes marked • +${bonus} bonus = ${episodesAdded + bonus} Binge Points! 🎉`
+                  : `Season already complete • +${bonus} Binge Points! 🎉`,
               });
             } else if (content?.kind === 'show') {
               toast({
                 title: "Show complete!",
-                description: "+100 Binge Points earned! 🏆",
+                description: episodesAdded > 0
+                  ? `+${episodesAdded} episodes marked • +100 bonus = ${episodesAdded + 100} Binge Points! 🏆`
+                  : `Show already complete • +100 Binge Points! 🏆`,
               });
             } else {
               toast({
