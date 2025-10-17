@@ -86,17 +86,19 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
       onClick={toggleWatched}
       disabled={loading}
       size="sm"
-      className="flex-1"
+      className="flex-1 text-xs sm:text-sm"
     >
       {isWatched ? (
         <>
-          <Eye className="h-4 w-4 mr-2" />
-          Watched
+          <Eye className="h-4 w-4 mr-1 sm:mr-2" />
+          <span className="hidden xs:inline">Watched</span>
+          <span className="xs:hidden">Seen</span>
         </>
       ) : (
         <>
-          <EyeOff className="h-4 w-4 mr-2" />
-          Mark as Watched
+          <EyeOff className="h-4 w-4 mr-1 sm:mr-2" />
+          <span className="hidden xs:inline">Mark as Watched</span>
+          <span className="xs:hidden">Watch</span>
         </>
       )}
     </Button>

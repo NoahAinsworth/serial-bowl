@@ -139,7 +139,7 @@ export default function SeasonDetailPage() {
         <h1 className="text-3xl font-bold mb-4 neon-glow">Season {seasonNumber}</h1>
         <div className="space-y-4">
           {showId && seasonNumber && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full overflow-hidden">
               <WatchlistButton contentId={`${showId}:${seasonNumber}`} showTitle={`Season ${seasonNumber}`} />
               <WatchedButton contentId={`${showId}:${seasonNumber}`} showTitle={`Season ${seasonNumber}`} />
             </div>

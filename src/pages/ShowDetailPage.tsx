@@ -141,7 +141,7 @@ export default function ShowDetailPage() {
             
             {user && (
               <div className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full overflow-hidden">
                   <WatchlistButton contentId={id!} showTitle={show.name} />
                   <WatchedButton contentId={id!} showTitle={show.name} />
                 </div>

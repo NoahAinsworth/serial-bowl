@@ -48,7 +48,9 @@ export default function EpisodeDetailPage() {
   };
 
   const loadContentAndRating = async (episodeData: TVEpisode, externalId: string) => {
-    let { data: content } = await supabase
+    console.log('Loading content for episode:', externalId);
+    
+    let { data: content, error: fetchError } = await supabase
       .from('content')
       .select('id')
       .eq('external_src', 'thetvdb')
@@ -56,7 +58,18 @@ export default function EpisodeDetailPage() {
       .eq('kind', 'episode')
       .maybeSingle();
 
+    if (fetchError) {
+      console.error('Error fetching content:', fetchError);
+      toast({
+        title: "Error",
+        description: "Failed to load episode data",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!content) {
+      console.log('Creating new content for episode:', externalId);
       const { data: newContent, error } = await supabase
         .from('content')
         .insert({
@@ -69,13 +82,27 @@ export default function EpisodeDetailPage() {
         .select()
         .single();
       
-      if (!error && newContent) {
+      if (error) {
+        console.error('Error creating content:', error);
+        toast({
+          title: "Error",
+          description: "Failed to create episode content",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (newContent) {
+        console.log('Content created successfully:', newContent.id);
         content = newContent;
       }
+    } else {
+      console.log('Found existing content:', content.id);
     }
 
     if (content) {
       setContentId(content.id);
+      console.log('ContentId set to:', content.id);
       
       if (user && showId && seasonNumber && episodeNumber) {
         const { data: rating } = await supabase
@@ -172,7 +199,7 @@ export default function EpisodeDetailPage() {
         )}
         
         {showId && seasonNumber && episodeNumber && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full overflow-hidden">
             <WatchlistButton contentId={`${showId}:${seasonNumber}:${episodeNumber}`} showTitle={episode.name} />
             <WatchedButton contentId={`${showId}:${seasonNumber}:${episodeNumber}`} showTitle={episode.name} />
           </div>
