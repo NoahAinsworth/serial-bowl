@@ -60,7 +60,7 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         });
       }
     } else {
-      // Check if this is a season by querying content
+      // Check content type and consolidate if needed
       const { data: content } = await supabase
         .from('content')
         .select('kind')
@@ -72,6 +72,14 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         await supabase.rpc('consolidate_episodes_to_season', {
           p_user_id: user.id,
           p_season_content_id: contentId
+        });
+      }
+      
+      // If marking a show as watched, consolidate all season and episode watches
+      if (content?.kind === 'show') {
+        await supabase.rpc('consolidate_seasons_to_show', {
+          p_user_id: user.id,
+          p_show_content_id: contentId
         });
       }
 

@@ -1760,6 +1760,10 @@ export type Database = {
         Args: { p_season_content_id: string; p_user_id: string }
         Returns: undefined
       }
+      consolidate_seasons_to_show: {
+        Args: { p_show_content_id: string; p_user_id: string }
+        Returns: undefined
+      }
       detect_mature_content: {
         Args: { text_body: string }
         Returns: Json
