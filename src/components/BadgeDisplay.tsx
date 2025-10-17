@@ -46,7 +46,7 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
         className={cn(
           "rounded-full p-2 backdrop-blur-md bg-background/90 transition-all duration-300 flex items-center justify-center relative",
           sizeClasses[size],
-          showGlow && `shadow-lg ${BADGE_GLOW[badge]}`,
+          showGlow && badge !== 'Ultimate Binger' && `shadow-lg ${BADGE_GLOW[badge]}`,
           "hover:scale-110"
         )}
       >
