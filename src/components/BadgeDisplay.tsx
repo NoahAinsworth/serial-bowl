@@ -51,7 +51,7 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
         )}
       >
         <Trophy className={cn(iconSizes[size], BADGE_COLORS[badge])} />
-        {showGlow && (
+        {showGlow && badge !== 'Ultimate Binger' && (
           <div 
             className={cn(
               "absolute inset-0 rounded-full opacity-50 blur-md -z-10 animate-pulse",
