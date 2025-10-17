@@ -17,26 +17,56 @@ export function ThoughtsList({ contentId }: ThoughtsListProps) {
 
   const loadThoughts = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('thoughts')
+    
+    // Get the content to find item_id for posts
+    const { data: content, error: contentError } = await supabase
+      .from('content')
+      .select('external_id, kind')
+      .eq('id', contentId)
+      .single();
+
+    if (contentError || !content) {
+      console.error('ThoughtsList - Error loading content:', contentError);
+      setLoading(false);
+      return;
+    }
+
+    console.log('ThoughtsList - Content found:', content);
+
+    // Fetch thoughts from posts table where kind='thought'
+    const { data: thoughtPosts } = await supabase
+      .from('posts')
       .select(`
-        *,
-        profiles:user_id (
+        id,
+        body,
+        created_at,
+        is_spoiler,
+        author_id,
+        profiles:author_id (
           id,
           handle,
           avatar_url
-        ),
-        content:content_id (
-          id,
-          title,
-          kind
         )
       `)
-      .eq('content_id', contentId)
+      .eq('kind', 'thought')
+      .eq('item_type', content.kind)
+      .eq('item_id', content.external_id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
 
-    if (data) {
-      setThoughts(data);
+    console.log('ThoughtsList - Found thoughts:', thoughtPosts?.length || 0);
+
+    if (thoughtPosts) {
+      // Map to match ThoughtCard expected format
+      const formattedThoughts = thoughtPosts.map(post => ({
+        id: post.id,
+        text_content: post.body,
+        created_at: post.created_at,
+        is_spoiler: post.is_spoiler,
+        user_id: post.author_id,
+        profiles: post.profiles,
+      }));
+      setThoughts(formattedThoughts);
     }
     setLoading(false);
   };

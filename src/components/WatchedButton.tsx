@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface WatchedButtonProps {
-  contentId: string;
+  contentId: string; // UUID from content table
   showTitle: string;
 }
 

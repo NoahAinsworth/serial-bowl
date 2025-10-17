@@ -198,10 +198,10 @@ export default function EpisodeDetailPage() {
           </p>
         )}
         
-        {showId && seasonNumber && episodeNumber && (
+        {contentId && (
           <div className="flex gap-2 w-full overflow-hidden">
-            <WatchlistButton contentId={`${showId}:${seasonNumber}:${episodeNumber}`} showTitle={episode.name} />
-            <WatchedButton contentId={`${showId}:${seasonNumber}:${episodeNumber}`} showTitle={episode.name} />
+            <WatchlistButton contentId={contentId} showTitle={episode.name} />
+            <WatchedButton contentId={contentId} showTitle={episode.name} />
           </div>
         )}
         

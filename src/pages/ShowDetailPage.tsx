@@ -141,10 +141,12 @@ export default function ShowDetailPage() {
             
             {user && (
               <div className="space-y-4">
-                <div className="flex gap-2 w-full overflow-hidden">
-                  <WatchlistButton contentId={id!} showTitle={show.name} />
-                  <WatchedButton contentId={id!} showTitle={show.name} />
-                </div>
+                {contentId && (
+                  <div className="flex gap-2 w-full overflow-hidden">
+                    <WatchlistButton contentId={contentId} showTitle={show.name} />
+                    <WatchedButton contentId={contentId} showTitle={show.name} />
+                  </div>
+                )}
                 <div>
                   <p className="text-sm font-medium mb-2">Your Rating</p>
                   <PercentRating

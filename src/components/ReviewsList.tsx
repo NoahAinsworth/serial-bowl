@@ -46,18 +46,18 @@ export function ReviewsList({ contentId }: ReviewsListProps) {
       .single();
 
     if (contentError || !content) {
-      console.error('Error loading content for reviews:', contentError);
+      console.error('ReviewsList - Error loading content:', contentError);
       setLoading(false);
       return;
     }
 
-    console.log('ReviewsList - Loading reviews for:', content);
+    console.log('ReviewsList - Content found:', content);
 
-    // Map content kind to item_type
+    // Fetch reviews from posts table - posts use item_id which matches content.external_id
     const itemType = content.kind as string;
     const itemId = content.external_id;
     
-    console.log('ReviewsList - Querying posts with:', { itemType, itemId });
+    console.log('ReviewsList - Querying posts:', { kind: 'review', item_type: itemType, item_id: itemId });
 
     // Fetch reviews from posts table
     const { data: reviewsData } = await supabase
