@@ -173,10 +173,12 @@ export default function WatchlistPage() {
           title,
           poster_url,
           external_id,
-          metadata
+          metadata,
+          kind
         )
       `)
       .eq('user_id', user.id)
+      .eq('content.kind', 'show')
       .order('watched_at', { ascending: false });
 
     if (!error && data) {
@@ -313,7 +315,7 @@ export default function WatchlistPage() {
     if (!user) return;
 
     try {
-      // First, ensure the content exists in our database
+      // First, ensure the show content exists in our database
       const { data: existingContent } = await supabase
         .from('content')
         .select('id')
@@ -340,7 +342,7 @@ export default function WatchlistPage() {
         contentId = newContent.id;
       }
 
-      // Add to watched
+      // Add show to watched list (for shows only, not individual episodes)
       const { error } = await supabase
         .from('watched')
         .insert({
