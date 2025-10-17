@@ -60,11 +60,16 @@ export function ThoughtsList({ contentId }: ThoughtsListProps) {
       // Map to match ThoughtCard expected format
       const formattedThoughts = thoughtPosts.map(post => ({
         id: post.id,
-        text_content: post.body,
-        created_at: post.created_at,
+        content: post.body,
         is_spoiler: post.is_spoiler,
-        user_id: post.author_id,
-        profiles: post.profiles,
+        user: {
+          id: post.author_id,
+          handle: post.profiles?.handle || 'unknown',
+          avatar_url: post.profiles?.avatar_url,
+        },
+        likes: 0,
+        dislikes: 0,
+        comments: 0,
       }));
       setThoughts(formattedThoughts);
     }
