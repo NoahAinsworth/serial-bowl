@@ -331,35 +331,6 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              <div className="flex gap-6 text-sm justify-center pt-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
-                <button 
-                  className="hover:underline group"
-                  onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
-                >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
-                    {stats.thoughtsCount}
-                  </span>
-                  <span className="text-foreground/90 font-medium drop-shadow-sm">Thoughts</span>
-                </button>
-                <button 
-                  className="hover:underline group"
-                  onClick={() => navigate('/followers')}
-                >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
-                    {stats.followersCount}
-                  </span>
-                  <span className="text-foreground/90 font-medium drop-shadow-sm">Followers</span>
-                </button>
-                <button 
-                  className="hover:underline group"
-                  onClick={() => navigate('/following')}
-                >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
-                    {stats.followingCount}
-                  </span>
-                  <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -370,6 +341,40 @@ export default function ProfilePage() {
             onSave={handleBioSave}
             isOwner={true}
           />
+        </div>
+
+        <div className="px-4 mb-6 animate-fade-in">
+          <div className="bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
+            <div className="flex gap-6 text-sm justify-center">
+              <button 
+                className="hover:underline group"
+                onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
+              >
+                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  {stats.thoughtsCount}
+                </span>
+                <span className="text-foreground/90 font-medium drop-shadow-sm">Thoughts</span>
+              </button>
+              <button 
+                className="hover:underline group"
+                onClick={() => navigate('/followers')}
+              >
+                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  {stats.followersCount}
+                </span>
+                <span className="text-foreground/90 font-medium drop-shadow-sm">Followers</span>
+              </button>
+              <button 
+                className="hover:underline group"
+                onClick={() => navigate('/following')}
+              >
+                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  {stats.followingCount}
+                </span>
+                <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {flags.BINGE_POINTS && (
