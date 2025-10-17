@@ -318,20 +318,20 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
         </Avatar>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
             <span 
               className="font-bold text-foreground hover:underline cursor-pointer"
               onClick={() => navigate(`/profile/${post.user.handle}`)}
             >
               {post.user.handle}
             </span>
-            <Badge variant="outline" className={cn("text-xs font-semibold shrink-0", config.color)}>
-              {config.label}
-            </Badge>
-            <span className="text-sm text-foreground/60 shrink-0">
+            <span className="text-sm text-foreground/60">
               {new Date(post.created_at).toLocaleDateString()}
             </span>
           </div>
+          <Badge variant="outline" className={cn("text-xs font-semibold w-fit mt-1", config.color)}>
+            {config.label}
+          </Badge>
         </div>
 
         {/* Actions Menu */}
