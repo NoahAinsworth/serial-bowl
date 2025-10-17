@@ -59,8 +59,13 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
+  let external_id = ''
+  let kind = ''
+
   try {
-    const { external_id, kind } = await req.json()
+    const body = await req.json()
+    external_id = body.external_id
+    kind = body.kind
 
     if (!external_id || !kind) {
       return new Response(
@@ -78,8 +83,10 @@ serve(async (req) => {
     )
 
     if (kind === 'show') {
-      // Parse show ID from external_id (format: "tvdb:123456")
-      const showId = parseInt(external_id.split(':')[1])
+      // Parse show ID from external_id (format: "tvdb:123456" or just "123456")
+      const showId = external_id.includes(':') 
+        ? parseInt(external_id.split(':')[1]) 
+        : parseInt(external_id)
       
       // Fetch all seasons from TVDB
       const seasons = await tvdbFetch(`/series/${showId}/episodes/default?page=0`)
@@ -111,10 +118,14 @@ serve(async (req) => {
       if (error) throw error
 
     } else if (kind === 'season') {
-      // Parse season info from external_id (format: "tvdb:123456:1")
+      // Parse season info from external_id (format: "tvdb:123456:1" or "123456:1")
       const parts = external_id.split(':')
-      const showId = parseInt(parts[1])
-      const seasonNum = parseInt(parts[2])
+      const showId = external_id.includes('tvdb:')
+        ? parseInt(parts[1])
+        : parseInt(parts[0])
+      const seasonNum = external_id.includes('tvdb:')
+        ? parseInt(parts[2])
+        : parseInt(parts[1])
       
       // Fetch episodes for this season
       const data = await tvdbFetch(`/series/${showId}/episodes/default?page=0`)
@@ -145,9 +156,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error populating counts:', error)
+    console.error('Error details:', { external_id, kind, error })
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: errorMessage, external_id, kind }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
