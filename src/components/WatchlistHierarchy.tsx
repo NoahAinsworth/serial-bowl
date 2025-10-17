@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
-import { WatchedButton } from './WatchedButton';
+import { useNavigate } from 'react-router-dom';
 
 interface HierarchyItem {
   id: string;
@@ -26,6 +26,7 @@ interface WatchlistHierarchyProps {
 }
 
 export function WatchlistHierarchy({ items, type, onRemove }: WatchlistHierarchyProps) {
+  const navigate = useNavigate();
   const [openShows, setOpenShows] = useState<Set<string>>(new Set());
   const [openSeasons, setOpenSeasons] = useState<Set<string>>(new Set());
 
@@ -118,12 +119,13 @@ export function WatchlistHierarchy({ items, type, onRemove }: WatchlistHierarchy
                     />
                   )}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{showItem.content.title}</h3>
+                    <h3 
+                      className="font-semibold text-lg cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => navigate(`/show/${showItem.content.external_id}`)}
+                    >
+                      {showItem.content.title}
+                    </h3>
                     <div className="flex items-center gap-2 mt-2">
-                      <WatchedButton
-                        contentId={showItem.content.external_id}
-                        showTitle={showItem.content.title}
-                      />
                       <Button
                         variant="ghost"
                         size="sm"
@@ -165,10 +167,6 @@ export function WatchlistHierarchy({ items, type, onRemove }: WatchlistHierarchy
                             )}
                             <span className="font-medium">{seasonItem.content.title}</span>
                             <div className="flex items-center gap-2 ml-auto">
-                              <WatchedButton
-                                contentId={seasonItem.content.external_id}
-                                showTitle={seasonItem.content.title}
-                              />
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -191,10 +189,6 @@ export function WatchlistHierarchy({ items, type, onRemove }: WatchlistHierarchy
                             >
                               <span className="text-sm">{episode.content.title}</span>
                               <div className="flex items-center gap-2">
-                                <WatchedButton
-                                  contentId={episode.content.external_id}
-                                  showTitle={episode.content.title}
-                                />
                                 <Button
                                   variant="ghost"
                                   size="sm"
