@@ -36,8 +36,87 @@ export function ReviewsList({ contentId }: ReviewsListProps) {
   }, [contentId]);
 
   const loadReviews = async () => {
-    // Reviews are now stored in posts table with kind='review'
-    // Temporarily disabled - needs to be rebuilt with new data model
+    setLoading(true);
+    
+    // Get the content to find associated posts
+    const { data: content } = await supabase
+      .from('content')
+      .select('external_id, external_src, kind')
+      .eq('id', contentId)
+      .single();
+
+    if (!content) {
+      setLoading(false);
+      return;
+    }
+
+    // Map content kind to item_type
+    const itemType = content.kind as string;
+    const itemId = content.external_id;
+
+    // Fetch reviews from posts table
+    const { data: reviewsData } = await supabase
+      .from('posts')
+      .select(`
+        id,
+        body,
+        rating_percent,
+        created_at,
+        author_id,
+        profiles:author_id (
+          id,
+          handle,
+          avatar_url
+        )
+      `)
+      .eq('kind', 'review')
+      .eq('item_type', itemType)
+      .eq('item_id', itemId)
+      .is('deleted_at', null)
+      .not('body', 'is', null)
+      .order('created_at', { ascending: false });
+
+    if (reviewsData && user) {
+      // Get likes for these reviews
+      const reviewIds = reviewsData.map(r => r.id);
+      const { data: likesData } = await supabase
+        .from('post_reactions')
+        .select('post_id')
+        .in('post_id', reviewIds)
+        .eq('user_id', user.id)
+        .eq('kind', 'like');
+
+      const likedPostIds = new Set(likesData?.map(l => l.post_id) || []);
+
+      // Get like counts
+      const { data: likeCountsData } = await supabase
+        .from('post_reactions')
+        .select('post_id')
+        .in('post_id', reviewIds)
+        .eq('kind', 'like');
+
+      const likeCounts = likeCountsData?.reduce((acc, like) => {
+        acc[like.post_id] = (acc[like.post_id] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      const formattedReviews = reviewsData.map(review => ({
+        id: review.id,
+        review_text: review.body || '',
+        rating: review.rating_percent || 0,
+        created_at: review.created_at,
+        user: {
+          id: review.profiles.id,
+          handle: review.profiles.handle,
+          avatar_url: review.profiles.avatar_url,
+        },
+        likes_count: likeCounts[review.id] || 0,
+        user_liked: likedPostIds.has(review.id),
+      }));
+
+      setReviews(formattedReviews);
+    }
+
     setLoading(false);
   };
 
@@ -49,16 +128,18 @@ export function ReviewsList({ contentId }: ReviewsListProps) {
 
     if (review.user_liked) {
       await supabase
-        .from('review_likes')
+        .from('post_reactions')
         .delete()
-        .eq('review_id', reviewId)
-        .eq('user_id', user.id);
+        .eq('post_id', reviewId)
+        .eq('user_id', user.id)
+        .eq('kind', 'like');
     } else {
       await supabase
-        .from('review_likes')
+        .from('post_reactions')
         .insert({
-          review_id: reviewId,
+          post_id: reviewId,
           user_id: user.id,
+          kind: 'like',
         });
     }
 

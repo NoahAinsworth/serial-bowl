@@ -43,11 +43,11 @@ export default function EpisodeDetailPage() {
     
     if (foundEpisode) {
       setEpisode(foundEpisode);
-      await loadContentAndRating(`${seriesId}:${season}:${epNum}`);
+      await loadContentAndRating(foundEpisode, `${seriesId}:${season}:${epNum}`);
     }
   };
 
-  const loadContentAndRating = async (externalId: string) => {
+  const loadContentAndRating = async (episodeData: TVEpisode, externalId: string) => {
     let { data: content } = await supabase
       .from('content')
       .select('id')
@@ -56,20 +56,20 @@ export default function EpisodeDetailPage() {
       .eq('kind', 'episode')
       .maybeSingle();
 
-    if (!content && episode) {
+    if (!content) {
       const { data: newContent, error } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
           external_id: externalId,
           kind: 'episode',
-          title: episode.name,
-          air_date: episode.aired,
+          title: episodeData.name,
+          air_date: episodeData.aired,
         })
         .select()
         .single();
       
-      if (!error) {
+      if (!error && newContent) {
         content = newContent;
       }
     }
