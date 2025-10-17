@@ -60,6 +60,21 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         });
       }
     } else {
+      // Check if this is a season by querying content
+      const { data: content } = await supabase
+        .from('content')
+        .select('kind')
+        .eq('id', contentId)
+        .single();
+
+      // If marking a season as watched, consolidate any individual episode watches
+      if (content?.kind === 'season') {
+        await supabase.rpc('consolidate_episodes_to_season', {
+          p_user_id: user.id,
+          p_season_content_id: contentId
+        });
+      }
+
       const { error } = await supabase
         .from('watched')
         .insert({
