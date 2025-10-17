@@ -91,31 +91,48 @@ serve(async (req) => {
       // Fetch all seasons from TVDB
       const seasons = await tvdbFetch(`/series/${showId}/episodes/default?page=0`)
       
-      // Count unique seasons and total episodes
-      const seasonSet = new Set()
+      // Count episodes per season and total
+      const seasonEpisodeCounts = new Map<number, number>()
       let totalEpisodes = 0
       
       if (seasons?.episodes) {
         for (const ep of seasons.episodes) {
           if (ep.seasonNumber !== null && ep.seasonNumber !== undefined) {
-            seasonSet.add(ep.seasonNumber)
+            const count = seasonEpisodeCounts.get(ep.seasonNumber) || 0
+            seasonEpisodeCounts.set(ep.seasonNumber, count + 1)
             totalEpisodes++
           }
         }
       }
 
-      const seasonCount = seasonSet.size
+      const seasonCount = seasonEpisodeCounts.size
       
       console.log(`Show ${showId}: ${seasonCount} seasons, ${totalEpisodes} episodes`)
 
-      // Update database
-      const { error } = await supabase.rpc('update_show_counts', {
+      // Update show counts
+      const { error: showError } = await supabase.rpc('update_show_counts', {
         p_show_external_id: external_id,
         p_season_count: seasonCount,
         p_total_episode_count: totalEpisodes
       })
 
-      if (error) throw error
+      if (showError) throw showError
+
+      // ALSO populate season_episode_counts for each season
+      console.log(`Populating ${seasonCount} individual season counts for show ${showId}`)
+      for (const [seasonNum, episodeCount] of seasonEpisodeCounts) {
+        const seasonExternalId = `${external_id}:${seasonNum}`
+        console.log(`  Season ${seasonNum}: ${episodeCount} episodes -> ${seasonExternalId}`)
+        
+        const { error: seasonError } = await supabase.rpc('update_season_episode_count', {
+          p_season_external_id: seasonExternalId,
+          p_episode_count: episodeCount
+        })
+
+        if (seasonError) {
+          console.error(`Failed to update season ${seasonNum}:`, seasonError)
+        }
+      }
 
     } else if (kind === 'season') {
       // Parse season info from external_id (format: "tvdb:123456:1" or "123456:1")
