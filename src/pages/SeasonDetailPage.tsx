@@ -10,7 +10,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
+import { WatchlistButton } from '@/components/WatchlistButton';
+import { WatchedButton } from '@/components/WatchedButton';
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
@@ -137,6 +138,12 @@ export default function SeasonDetailPage() {
       <Card className="p-6">
         <h1 className="text-3xl font-bold mb-4 neon-glow">Season {seasonNumber}</h1>
         <div className="space-y-4">
+          {showId && seasonNumber && (
+            <div className="flex gap-2">
+              <WatchlistButton contentId={`${showId}:${seasonNumber}`} showTitle={`Season ${seasonNumber}`} />
+              <WatchedButton contentId={`${showId}:${seasonNumber}`} showTitle={`Season ${seasonNumber}`} />
+            </div>
+          )}
           <div>
             <p className="text-sm text-muted-foreground mb-2">Rate this season</p>
             <PercentRating initialRating={userRating || 50} onRate={handleRate} />

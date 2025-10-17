@@ -9,7 +9,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
+import { WatchlistButton } from '@/components/WatchlistButton';
+import { WatchedButton } from '@/components/WatchedButton';
 import { Loader2 } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
@@ -168,24 +169,31 @@ export default function EpisodeDetailPage() {
           </p>
         )}
         
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
-              <PercentRating initialRating={userRating || 50} onRate={handleRate} />
-            </div>
-            {contentId && (
-              <div>
-                <PostTypeSelector 
-                  onReviewClick={() => {
-                    setPostType('review');
-                    setPostDialogOpen(true);
-                  }}
-                  onThoughtClick={() => {
-                    setPostType('thought');
-                    setPostDialogOpen(true);
-                  }}
-                />
-              </div>
-            )}
+        {showId && seasonNumber && episodeNumber && (
+          <div className="flex gap-2">
+            <WatchlistButton contentId={`${showId}:${seasonNumber}:${episodeNumber}`} showTitle={episode.name} />
+            <WatchedButton contentId={`${showId}:${seasonNumber}:${episodeNumber}`} showTitle={episode.name} />
+          </div>
+        )}
+        
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
+          <PercentRating initialRating={userRating || 50} onRate={handleRate} />
+        </div>
+        {contentId && (
+          <div>
+            <PostTypeSelector 
+              onReviewClick={() => {
+                setPostType('review');
+                setPostDialogOpen(true);
+              }}
+              onThoughtClick={() => {
+                setPostType('thought');
+                setPostDialogOpen(true);
+              }}
+            />
+          </div>
+        )}
       </Card>
 
       {contentId && (

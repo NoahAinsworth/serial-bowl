@@ -8,6 +8,8 @@ import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { ReviewsList } from '@/components/ReviewsList';
 import { ThoughtsList } from '@/components/ThoughtsList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WatchlistButton } from '@/components/WatchlistButton';
+import { WatchedButton } from '@/components/WatchedButton';
 import { Loader2 } from 'lucide-react';
 import { getRating } from '@/api/ratings';
 import { supabase } from '@/api/supabase';
@@ -139,6 +141,10 @@ export default function ShowDetailPage() {
             
             {user && (
               <div className="space-y-4">
+                <div className="flex gap-2">
+                  <WatchlistButton contentId={id!} showTitle={show.name} />
+                  <WatchedButton contentId={id!} showTitle={show.name} />
+                </div>
                 <div>
                   <p className="text-sm font-medium mb-2">Your Rating</p>
                   <PercentRating
