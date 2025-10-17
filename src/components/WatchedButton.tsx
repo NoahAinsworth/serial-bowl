@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -8,13 +8,15 @@ import { useToast } from '@/hooks/use-toast';
 interface WatchedButtonProps {
   contentId: string; // UUID from content table
   showTitle: string;
+  showId?: string; // TVDB show ID for tracking episodes
 }
 
-export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
+export function WatchedButton({ contentId, showTitle, showId }: WatchedButtonProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isWatched, setIsWatched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [processingEpisodes, setProcessingEpisodes] = useState(false);
 
   useEffect(() => {
     checkWatched();
@@ -70,10 +72,36 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
 
       if (!error) {
         setIsWatched(true);
-        toast({
-          title: "Marked as watched",
-          description: `${showTitle} added to watched list`,
-        });
+        
+        // If showId is provided, mark all episodes as watched
+        if (showId) {
+          setProcessingEpisodes(true);
+          try {
+            const { data, error: episodeError } = await supabase.functions.invoke('mark-show-watched', {
+              body: { showId },
+            });
+
+            if (episodeError) throw episodeError;
+
+            toast({
+              title: "Show marked as watched!",
+              description: `${showTitle} and all ${data.episodesMarked} episodes marked as watched. Total watch time: ${Math.floor(data.totalMinutes / 60)}h ${data.totalMinutes % 60}m`,
+            });
+          } catch (err) {
+            console.error('Error marking episodes:', err);
+            toast({
+              title: "Marked as watched",
+              description: `${showTitle} added to watched list (episode tracking failed)`,
+            });
+          } finally {
+            setProcessingEpisodes(false);
+          }
+        } else {
+          toast({
+            title: "Marked as watched",
+            description: `${showTitle} added to watched list`,
+          });
+        }
       }
     }
 
@@ -84,11 +112,17 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
     <Button
       variant={isWatched ? "default" : "outline"}
       onClick={toggleWatched}
-      disabled={loading}
+      disabled={loading || processingEpisodes}
       size="sm"
       className="flex-1 text-xs sm:text-sm"
     >
-      {isWatched ? (
+      {processingEpisodes ? (
+        <>
+          <Loader2 className="h-4 w-4 mr-1 sm:mr-2 animate-spin" />
+          <span className="hidden xs:inline">Processing...</span>
+          <span className="xs:hidden">...</span>
+        </>
+      ) : isWatched ? (
         <>
           <Eye className="h-4 w-4 mr-1 sm:mr-2" />
           <span className="hidden xs:inline">Watched</span>
