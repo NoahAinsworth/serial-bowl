@@ -50,10 +50,9 @@ export function WatchedShowCard({ item, onRemove }: WatchedShowCardProps) {
     }
   };
 
-  const handleToggle = () => {
-    const newState = !isOpen;
-    setIsOpen(newState);
-    if (newState) {
+  const handleToggle = (open: boolean) => {
+    setIsOpen(open);
+    if (open && seasons.length === 0) {
       loadSeasons();
     }
   };
@@ -157,13 +156,12 @@ export function WatchedShowCard({ item, onRemove }: WatchedShowCardProps) {
         </div>
       </div>
 
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible open={isOpen} onOpenChange={handleToggle}>
         <div className="border-t px-4 py-2 hover:bg-muted/50 transition-colors">
           <CollapsibleTrigger asChild>
             <Button
               variant="ghost"
               className="w-full flex items-center justify-between p-2"
-              onClick={handleToggle}
             >
               <span className="text-sm font-medium">View Seasons & Episodes</span>
               {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}

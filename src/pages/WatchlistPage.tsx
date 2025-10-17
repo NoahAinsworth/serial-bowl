@@ -235,7 +235,17 @@ export default function WatchlistPage() {
     try {
       const results = await search(searchQuery);
       console.log('[WatchlistPage] Search results:', results);
-      setSearchResults(results);
+      
+      // Deduplicate search results
+      const seen = new Set<string>();
+      const deduped = results.filter((show: any) => {
+        const id = (show.id || show.tvdb_id).toString();
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+      
+      setSearchResults(deduped);
     } catch (error) {
       console.error('[WatchlistPage] Search error:', error);
       toast({
@@ -378,12 +388,20 @@ export default function WatchlistPage() {
 
   const isInWatchlist = (showId?: number | string) => {
     if (!showId) return false;
-    return watchlistItems.some(item => item.content?.external_id === showId.toString());
+    const idStr = showId.toString();
+    return watchlistItems.some(item => 
+      item.content?.external_id === idStr || 
+      item.content?.id === idStr
+    );
   };
 
   const isInWatched = (showId?: number | string) => {
     if (!showId) return false;
-    return watchedItems.some(item => item.content?.external_id === showId.toString());
+    const idStr = showId.toString();
+    return watchedItems.some(item => 
+      item.content?.external_id === idStr || 
+      item.content?.id === idStr
+    );
   };
 
   if (!user) {
