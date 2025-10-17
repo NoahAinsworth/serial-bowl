@@ -149,7 +149,8 @@ export default function WatchlistPage() {
           title,
           poster_url,
           external_id,
-          metadata
+          metadata,
+          kind
         )
       `)
       .eq('user_id', user.id)
@@ -173,7 +174,8 @@ export default function WatchlistPage() {
           title,
           poster_url,
           external_id,
-          metadata
+          metadata,
+          kind
         )
       `)
       .eq('user_id', user.id)
