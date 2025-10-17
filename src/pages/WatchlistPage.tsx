@@ -10,7 +10,6 @@ import { Loader2, Bookmark, Trash2, Search, Plus, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB } from '@/hooks/useTVDB';
 import { tvdbFetch } from '@/lib/tvdb';
-import { WatchedShowCard } from '@/components/WatchedShowCard';
 
 interface WatchlistItem {
   id: string;
@@ -173,12 +172,10 @@ export default function WatchlistPage() {
           title,
           poster_url,
           external_id,
-          metadata,
-          kind
+          metadata
         )
       `)
       .eq('user_id', user.id)
-      .eq('content.kind', 'show')
       .order('watched_at', { ascending: false });
 
     if (!error && data) {
@@ -235,17 +232,7 @@ export default function WatchlistPage() {
     try {
       const results = await search(searchQuery);
       console.log('[WatchlistPage] Search results:', results);
-      
-      // Deduplicate search results
-      const seen = new Set<string>();
-      const deduped = results.filter((show: any) => {
-        const id = (show.id || show.tvdb_id).toString();
-        if (seen.has(id)) return false;
-        seen.add(id);
-        return true;
-      });
-      
-      setSearchResults(deduped);
+      setSearchResults(results);
     } catch (error) {
       console.error('[WatchlistPage] Search error:', error);
       toast({
@@ -325,7 +312,7 @@ export default function WatchlistPage() {
     if (!user) return;
 
     try {
-      // First, ensure the show content exists in our database
+      // First, ensure the content exists in our database
       const { data: existingContent } = await supabase
         .from('content')
         .select('id')
@@ -352,7 +339,7 @@ export default function WatchlistPage() {
         contentId = newContent.id;
       }
 
-      // Add show to watched list (for shows only, not individual episodes)
+      // Add to watched
       const { error } = await supabase
         .from('watched')
         .insert({
@@ -388,20 +375,12 @@ export default function WatchlistPage() {
 
   const isInWatchlist = (showId?: number | string) => {
     if (!showId) return false;
-    const idStr = showId.toString();
-    return watchlistItems.some(item => 
-      item.content?.external_id === idStr || 
-      item.content?.id === idStr
-    );
+    return watchlistItems.some(item => item.content?.external_id === showId.toString());
   };
 
   const isInWatched = (showId?: number | string) => {
     if (!showId) return false;
-    const idStr = showId.toString();
-    return watchedItems.some(item => 
-      item.content?.external_id === idStr || 
-      item.content?.id === idStr
-    );
+    return watchedItems.some(item => item.content?.external_id === showId.toString());
   };
 
   if (!user) {
@@ -607,11 +586,54 @@ export default function WatchlistPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {watchedItems.map((item) => (
-                <WatchedShowCard
+                <Card
                   key={item.id}
-                  item={item}
-                  onRemove={removeFromWatched}
-                />
+                  className="p-4 hover:border-primary/50 transition-all hover-scale"
+                >
+                  <div className="flex gap-4">
+                    {item.content.poster_url ? (
+                      <img
+                        src={item.content.poster_url}
+                        alt={item.content.title}
+                        className="w-24 h-36 object-cover rounded cursor-pointer"
+                        onClick={() => navigate(`/show/${item.content.external_id}`)}
+                      />
+                    ) : (
+                      <div 
+                        className="w-24 h-36 bg-gradient-to-br from-primary to-secondary flex items-center justify-center rounded cursor-pointer"
+                        onClick={() => navigate(`/show/${item.content.external_id}`)}
+                      >
+                        <span className="text-white font-bold text-center text-xs px-2">
+                          {item.content.title}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="flex-1 flex flex-col">
+                      <h3 
+                        className="font-bold mb-1 cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => navigate(`/show/${item.content.external_id}`)}
+                      >
+                        {item.content.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-2 line-clamp-2 flex-1">
+                        {item.content.metadata?.overview || 'No description available'}
+                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs text-muted-foreground">
+                          Watched {new Date(item.watched_at).toLocaleDateString()}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFromWatched(item.id, item.content.title)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
               ))}
             </div>
           )}
