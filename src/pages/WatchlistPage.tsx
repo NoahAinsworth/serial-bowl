@@ -698,7 +698,7 @@ export default function WatchlistPage() {
                         <Button
                           variant={isInWatchlist(show.id || show.tvdb_id) ? "secondary" : "outline"}
                           size="sm"
-                          className="flex-1 h-8 text-xs"
+                          className="flex-1 h-8 text-[10px] xs:text-xs px-2"
                           onClick={(e) => {
                             e.stopPropagation();
                             addToWatchlist(show);
@@ -706,15 +706,15 @@ export default function WatchlistPage() {
                           disabled={isInWatchlist(show.id || show.tvdb_id)}
                         >
                           {isInWatchlist(show.id || show.tvdb_id) ? (
-                            <><Check className="h-3 w-3 mr-1" /> Listed</>
+                            <><Check className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Watchlist</span><span className="xs:hidden">List</span></>
                           ) : (
-                            <><Plus className="h-3 w-3 mr-1" /> List</>
+                            <><Plus className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Watchlist</span><span className="xs:hidden">List</span></>
                           )}
                         </Button>
                         <Button
                           variant={isInWatched(show.id || show.tvdb_id) ? "secondary" : "outline"}
                           size="sm"
-                          className="flex-1 h-8 text-xs"
+                          className="flex-1 h-8 text-[10px] xs:text-xs px-2"
                           onClick={(e) => {
                             e.stopPropagation();
                             addToWatched(show);
@@ -722,9 +722,9 @@ export default function WatchlistPage() {
                           disabled={isInWatched(show.id || show.tvdb_id)}
                         >
                           {isInWatched(show.id || show.tvdb_id) ? (
-                            <><Check className="h-3 w-3 mr-1" /> Watched</>
+                            <><Check className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Seen</span><span className="xs:hidden">Seen</span></>
                           ) : (
-                            <><Plus className="h-3 w-3 mr-1" /> Watched</>
+                            <><Plus className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Seen</span><span className="xs:hidden">Seen</span></>
                           )}
                         </Button>
                       </div>
@@ -781,7 +781,7 @@ export default function WatchlistPage() {
                           <Button
                             variant={isInWatchlist(show.id || show.tvdb_id) ? "secondary" : "outline"}
                             size="sm"
-                            className="flex-1 h-8 text-xs"
+                            className="flex-1 h-8 text-[10px] xs:text-xs px-2"
                             onClick={(e) => {
                               e.stopPropagation();
                               addToWatchlist(show);
@@ -789,15 +789,15 @@ export default function WatchlistPage() {
                             disabled={isInWatchlist(show.id || show.tvdb_id)}
                           >
                             {isInWatchlist(show.id || show.tvdb_id) ? (
-                              <><Check className="h-3 w-3 mr-1" /> Listed</>
+                              <><Check className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Watchlist</span><span className="xs:hidden">List</span></>
                             ) : (
-                              <><Plus className="h-3 w-3 mr-1" /> List</>
+                              <><Plus className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Watchlist</span><span className="xs:hidden">List</span></>
                             )}
                           </Button>
                           <Button
                             variant={isInWatched(show.id || show.tvdb_id) ? "secondary" : "outline"}
                             size="sm"
-                            className="flex-1 h-8 text-xs"
+                            className="flex-1 h-8 text-[10px] xs:text-xs px-2"
                             onClick={(e) => {
                               e.stopPropagation();
                               addToWatched(show);
@@ -805,9 +805,9 @@ export default function WatchlistPage() {
                             disabled={isInWatched(show.id || show.tvdb_id)}
                           >
                             {isInWatched(show.id || show.tvdb_id) ? (
-                              <><Check className="h-3 w-3 mr-1" /> Watched</>
+                              <><Check className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Seen</span><span className="xs:hidden">Seen</span></>
                             ) : (
-                              <><Plus className="h-3 w-3 mr-1" /> Watched</>
+                              <><Plus className="h-3 w-3 mr-0.5 xs:mr-1" /> <span className="hidden xs:inline">Seen</span><span className="xs:hidden">Seen</span></>
                             )}
                           </Button>
                         </div>
