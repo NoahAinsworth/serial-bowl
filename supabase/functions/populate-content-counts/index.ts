@@ -108,7 +108,7 @@ serve(async (req) => {
 
       const seasonCount = seasonEpisodeCounts.size
       
-      console.log(`Show ${showId}: ${seasonCount} seasons, ${totalEpisodes} episodes`)
+      console.log(`✅ Show ${showId}: ${seasonCount} seasons, ${totalEpisodes} episodes`)
 
       // Update show counts
       const { error: showError } = await supabase.rpc('update_show_counts', {
@@ -117,13 +117,20 @@ serve(async (req) => {
         p_total_episode_count: totalEpisodes
       })
 
-      if (showError) throw showError
+      if (showError) {
+        console.error(`❌ Failed to update show counts:`, showError)
+        throw showError
+      }
+      console.log(`✅ Show counts updated successfully`)
 
-      // ALSO populate season_episode_counts for each season
-      console.log(`Populating ${seasonCount} individual season counts for show ${showId}`)
+      // CRITICAL: Populate season_episode_counts for each season
+      console.log(`🔄 Populating ${seasonCount} individual season counts for show ${showId}`)
+      let successCount = 0
+      let failCount = 0
+      
       for (const [seasonNum, episodeCount] of seasonEpisodeCounts) {
         const seasonExternalId = `${external_id}:${seasonNum}`
-        console.log(`  Season ${seasonNum}: ${episodeCount} episodes -> ${seasonExternalId}`)
+        console.log(`  → Season ${seasonNum}: ${episodeCount} episodes (${seasonExternalId})`)
         
         const { error: seasonError } = await supabase.rpc('update_season_episode_count', {
           p_season_external_id: seasonExternalId,
@@ -131,8 +138,18 @@ serve(async (req) => {
         })
 
         if (seasonError) {
-          console.error(`Failed to update season ${seasonNum}:`, seasonError)
+          console.error(`  ❌ Failed to update season ${seasonNum}:`, seasonError)
+          failCount++
+        } else {
+          console.log(`  ✅ Season ${seasonNum} updated successfully`)
+          successCount++
         }
+      }
+      
+      console.log(`🏁 Season population complete: ${successCount} success, ${failCount} failed out of ${seasonCount} total`)
+      
+      if (failCount > 0) {
+        throw new Error(`Failed to populate ${failCount} seasons`)
       }
 
     } else if (kind === 'season') {
