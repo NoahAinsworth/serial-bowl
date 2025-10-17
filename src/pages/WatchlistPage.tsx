@@ -10,6 +10,7 @@ import { Loader2, Bookmark, Trash2, Search, Plus, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB } from '@/hooks/useTVDB';
 import { tvdbFetch } from '@/lib/tvdb';
+import { WatchedShowCard } from '@/components/WatchedShowCard';
 
 interface WatchlistItem {
   id: string;
@@ -586,54 +587,11 @@ export default function WatchlistPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {watchedItems.map((item) => (
-                <Card
+                <WatchedShowCard
                   key={item.id}
-                  className="p-4 hover:border-primary/50 transition-all hover-scale"
-                >
-                  <div className="flex gap-4">
-                    {item.content.poster_url ? (
-                      <img
-                        src={item.content.poster_url}
-                        alt={item.content.title}
-                        className="w-24 h-36 object-cover rounded cursor-pointer"
-                        onClick={() => navigate(`/show/${item.content.external_id}`)}
-                      />
-                    ) : (
-                      <div 
-                        className="w-24 h-36 bg-gradient-to-br from-primary to-secondary flex items-center justify-center rounded cursor-pointer"
-                        onClick={() => navigate(`/show/${item.content.external_id}`)}
-                      >
-                        <span className="text-white font-bold text-center text-xs px-2">
-                          {item.content.title}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="flex-1 flex flex-col">
-                      <h3 
-                        className="font-bold mb-1 cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => navigate(`/show/${item.content.external_id}`)}
-                      >
-                        {item.content.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-2 line-clamp-2 flex-1">
-                        {item.content.metadata?.overview || 'No description available'}
-                      </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          Watched {new Date(item.watched_at).toLocaleDateString()}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFromWatched(item.id, item.content.title)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                  item={item}
+                  onRemove={removeFromWatched}
+                />
               ))}
             </div>
           )}
