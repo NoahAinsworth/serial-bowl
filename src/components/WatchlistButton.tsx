@@ -84,6 +84,8 @@ export function WatchlistButton({ contentId, showTitle }: WatchlistButtonProps) 
       variant={isInWatchlist ? "default" : "outline"}
       onClick={toggleWatchlist}
       disabled={loading}
+      size="sm"
+      className="flex-1"
     >
       {isInWatchlist ? (
         <>
