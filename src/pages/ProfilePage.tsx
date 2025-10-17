@@ -22,6 +22,8 @@ import { DynamicBackground } from '@/components/DynamicBackground';
 import { AboutMeSection } from '@/components/AboutMeSection';
 import { CinematicFavorites } from '@/components/CinematicFavorites';
 import { Progress } from '@/components/ui/progress';
+import { BingePointsDisplay } from '@/components/BingePointsDisplay';
+import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +51,13 @@ export default function ProfilePage() {
   const [top3Shows, setTop3Shows] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchingShows, setSearchingShows] = useState(false);
+  const [bingeBreakdown, setBingeBreakdown] = useState<{
+    episode_points: number;
+    season_bonuses: number;
+    show_bonuses: number;
+    completed_seasons: number;
+    completed_shows: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -79,7 +88,7 @@ export default function ProfilePage() {
       .maybeSingle();
 
     const [thoughtsRes, followersRes, followingRes] = await Promise.all([
-      supabase.from('thoughts').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('author_id', user.id).is('deleted_at', null),
       supabase.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', user.id),
       supabase.from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', user.id),
     ]);
@@ -90,6 +99,17 @@ export default function ProfilePage() {
       followersCount: followersRes.count || 0,
       followingCount: followingRes.count || 0,
     });
+
+    // Fetch binge points breakdown
+    if (flags.BINGE_POINTS) {
+      const { data: breakdown } = await supabase
+        .rpc('calculate_binge_points', { p_user_id: user.id });
+      
+      if (breakdown && breakdown.length > 0) {
+        setBingeBreakdown(breakdown[0]);
+      }
+    }
+
     setLoading(false);
   };
 
@@ -315,21 +335,6 @@ export default function ProfilePage() {
                 </Button>
               </div>
 
-              {flags.BINGE_POINTS && nextTier && (
-                <div className="space-y-2 px-4 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-foreground drop-shadow-sm">{currentBadge}</span>
-                    <div className="flex items-center gap-1 text-foreground/90">
-                      <TrendingUp className="h-3 w-3" />
-                      <span className="text-xs drop-shadow-sm">Next: {nextTier.name}</span>
-                    </div>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                  <div className="text-xs text-foreground/90 text-center drop-shadow-sm">
-                    {bingePoints} / {nextTier.min} Binge Points
-                  </div>
-                </div>
-              )}
 
             </div>
           </div>
@@ -353,7 +358,7 @@ export default function ProfilePage() {
                 <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
                   {stats.thoughtsCount}
                 </span>
-                <span className="text-foreground/90 font-medium drop-shadow-sm">Thoughts</span>
+                <span className="text-foreground/90 font-medium drop-shadow-sm">Posts</span>
               </button>
               <button 
                 className="hover:underline group"
@@ -379,7 +384,52 @@ export default function ProfilePage() {
 
         {flags.BINGE_POINTS && (
           <div className="px-4 mb-6 animate-fade-in">
-            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
+            <Card className="p-6 bg-card/70 backdrop-blur-md border-border/30">
+              <h3 className="text-lg font-semibold mb-4 text-foreground">Binge Stats</h3>
+              
+              {/* Trophy Case */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold mb-3 text-foreground/90">
+                  Trophy Case ({BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).length}/{BADGE_THRESHOLDS.length})
+                </h4>
+                <div className="overflow-x-auto">
+                  <div className="flex gap-4 pb-2">
+                    {BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).reverse().map((badge) => (
+                      <div 
+                        key={badge.name}
+                        className="flex-shrink-0 flex flex-col items-center gap-1"
+                      >
+                        <BadgeDisplay 
+                          badge={badge.name} 
+                          size="sm"
+                          showGlow={badge.name === currentBadge}
+                        />
+                        <div className="whitespace-nowrap bg-background/98 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/50 text-foreground shadow-lg">
+                          {badge.min} pts
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <Separator className="my-4" />
+
+              {/* Binge Meter */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-foreground/90">Binge Meter</h4>
+                <BingePointsDisplay
+                  points={bingePoints}
+                  badge={currentBadge}
+                  episodePoints={bingeBreakdown?.episode_points}
+                  seasonBonuses={bingeBreakdown?.season_bonuses}
+                  showBonuses={bingeBreakdown?.show_bonuses}
+                  completedSeasons={bingeBreakdown?.completed_seasons}
+                  completedShows={bingeBreakdown?.completed_shows}
+                  showBreakdown={true}
+                />
+              </div>
+            </Card>
           </div>
         )}
 
