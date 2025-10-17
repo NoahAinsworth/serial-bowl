@@ -403,21 +403,21 @@ export default function ProfilePage() {
 
       {/* Tabs Section */}
       <Tabs defaultValue="posts" className="w-full mt-0">
-        <TabsList className="w-full grid grid-cols-3 rounded-none bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+        <TabsList className="w-full grid grid-cols-3 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="ratings">Ratings</TabsTrigger>
           <TabsTrigger value="lists">Lists</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="posts" className="mt-0 px-4">
+        <TabsContent value="posts" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
           <UserPosts userId={user!.id} />
         </TabsContent>
 
-        <TabsContent value="ratings" className="mt-0 px-4">
+        <TabsContent value="ratings" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
           <UnifiedRatings userId={user!.id} />
         </TabsContent>
 
-        <TabsContent value="lists" className="mt-0 px-4">
+        <TabsContent value="lists" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
           <UserLists />
         </TabsContent>
       </Tabs>
