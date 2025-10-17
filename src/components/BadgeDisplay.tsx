@@ -44,15 +44,13 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
     <div className="flex flex-col items-center gap-1">
       <div 
         className={cn(
-          "rounded-full p-2 backdrop-blur-md bg-background/90 border-2 transition-all duration-300 flex items-center justify-center relative",
+          "rounded-full p-2 backdrop-blur-md bg-background/90 transition-all duration-300 flex items-center justify-center relative",
           sizeClasses[size],
           showGlow && `shadow-lg ${BADGE_GLOW[badge]}`,
-          "hover:scale-110"
+          "hover:scale-110",
+          badge === 'Ultimate Binger' && "border-2"
         )}
         style={{
-          borderColor: badge === 'Ultimate Binger' 
-            ? 'transparent'
-            : undefined,
           borderImage: badge === 'Ultimate Binger'
             ? 'linear-gradient(135deg, rgb(168, 85, 247), rgb(236, 72, 153), rgb(59, 130, 246)) 1'
             : undefined,
@@ -67,7 +65,6 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
             )}
             style={{ 
               animationDuration: '2s',
-              backgroundColor: badge !== 'Ultimate Binger' ? BADGE_COLORS[badge].includes('gradient') ? undefined : `hsl(var(--${badge.toLowerCase().replace(/\s+/g, '-')}-color, ${BADGE_COLORS[badge].replace('text-', '')}))` : undefined
             }}
           />
         )}

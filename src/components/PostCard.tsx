@@ -441,8 +441,8 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                   }
                 }}
               >
-                <Tv className="h-3.5 w-3.5" />
-                <span className="font-medium">{contentInfo.title}</span>
+                <Tv className="h-3.5 w-3.5 flex-shrink-0" />
+                <span className="font-medium truncate">{contentInfo.title}</span>
               </div>
             )}
             {post.body && (
