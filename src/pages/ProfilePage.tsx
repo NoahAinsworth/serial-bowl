@@ -68,7 +68,7 @@ export default function ProfilePage() {
 
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('handle, bio, avatar_url, settings')
+      .select('handle, bio, avatar_url, settings, binge_points, badge_tier')
       .eq('id', user.id)
       .maybeSingle();
 
