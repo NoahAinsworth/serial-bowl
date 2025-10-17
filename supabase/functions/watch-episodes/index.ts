@@ -32,6 +32,18 @@ Deno.serve(async (req) => {
     if (action === 'watch') {
       const { showId, seasonNumber, episodeNumber, tvdbId, runtimeMinutes } = params;
       
+      // Store runtime if provided
+      if (runtimeMinutes) {
+        await supabase
+          .from('episode_runtimes')
+          .upsert({
+            tvdb_id: tvdbId,
+            runtime_minutes: runtimeMinutes,
+          }, {
+            onConflict: 'tvdb_id'
+          });
+      }
+
       const { error } = await supabase
         .from('watched_episodes')
         .upsert({
@@ -40,7 +52,6 @@ Deno.serve(async (req) => {
           season_number: seasonNumber,
           episode_number: episodeNumber,
           tvdb_id: tvdbId,
-          runtime_minutes: runtimeMinutes,
         }, {
           onConflict: 'user_id,show_id,season_number,episode_number'
         });
@@ -79,13 +90,26 @@ Deno.serve(async (req) => {
     if (action === 'watchSeason') {
       const { showId, seasonNumber, episodes } = params;
       
+      // Store runtimes for all episodes
+      const runtimeRows = episodes
+        .filter((ep: any) => ep.runtime)
+        .map((ep: any) => ({
+          tvdb_id: `${showId}:${seasonNumber}:${ep.number}`,
+          runtime_minutes: ep.runtime,
+        }));
+
+      if (runtimeRows.length > 0) {
+        await supabase
+          .from('episode_runtimes')
+          .upsert(runtimeRows, { onConflict: 'tvdb_id' });
+      }
+
       const rows = episodes.map((ep: any) => ({
         user_id: user.id,
         show_id: showId,
         season_number: seasonNumber,
         episode_number: ep.number,
         tvdb_id: `${showId}:${seasonNumber}:${ep.number}`,
-        runtime_minutes: ep.runtime || 45,
       }));
 
       const { error } = await supabase
@@ -125,6 +149,22 @@ Deno.serve(async (req) => {
     if (action === 'watchShow') {
       const { showId, seasons } = params;
       
+      // Store runtimes for all episodes
+      const runtimeRows = seasons.flatMap((season: any) =>
+        season.episodes
+          .filter((ep: any) => ep.runtime)
+          .map((ep: any) => ({
+            tvdb_id: `${showId}:${season.number}:${ep.number}`,
+            runtime_minutes: ep.runtime,
+          }))
+      );
+
+      if (runtimeRows.length > 0) {
+        await supabase
+          .from('episode_runtimes')
+          .upsert(runtimeRows, { onConflict: 'tvdb_id' });
+      }
+
       const rows = seasons.flatMap((season: any) =>
         season.episodes.map((ep: any) => ({
           user_id: user.id,
@@ -132,7 +172,6 @@ Deno.serve(async (req) => {
           season_number: season.number,
           episode_number: ep.number,
           tvdb_id: `${showId}:${season.number}:${ep.number}`,
-          runtime_minutes: ep.runtime || 45,
         }))
       );
 
