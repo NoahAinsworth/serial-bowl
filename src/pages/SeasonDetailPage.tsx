@@ -12,9 +12,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WatchlistButton } from '@/components/WatchlistButton';
 import { WatchedButton } from '@/components/WatchedButton';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
+import { SeasonWatchToggle } from '@/components/SeasonWatchToggle';
+import { EpisodeWatchToggle } from '@/components/EpisodeWatchToggle';
+import { FEATURE_WATCH_AND_BADGES } from '@/lib/featureFlags';
+import { Button } from '@/components/ui/button';
 
 export default function SeasonDetailPage() {
   const { showId, seasonNumber } = useParams<{ showId: string; seasonNumber: string }>();
@@ -28,6 +32,7 @@ export default function SeasonDetailPage() {
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
+  const [watchedEpisodes, setWatchedEpisodes] = useState<Set<number>>(new Set());
 
   // Debug: Log the itemId being used
   console.log('SeasonDetailPage - showId:', showId, 'seasonNumber:', seasonNumber, 'itemId:', `${showId}:${seasonNumber}`);
@@ -43,6 +48,26 @@ export default function SeasonDetailPage() {
     setEpisodes(episodesData);
     
     await loadContentAndRating(`${seriesId}:${season}`);
+    
+    if (FEATURE_WATCH_AND_BADGES && user) {
+      await loadWatchedStatus(seriesId, season);
+    }
+  };
+
+  const loadWatchedStatus = async (seriesId: number, season: number) => {
+    if (!user) return;
+
+    const response = await supabase.functions.invoke('watch-episodes', {
+      body: {
+        action: 'getWatched',
+        showId: seriesId,
+        seasonNumber: season,
+      },
+    });
+
+    if (response.data?.episodes) {
+      setWatchedEpisodes(new Set(response.data.episodes.map((e: any) => e.episode_number)));
+    }
   };
 
   const loadContentAndRating = async (externalId: string) => {
@@ -165,8 +190,78 @@ export default function SeasonDetailPage() {
         </div>
       </Card>
 
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Episodes</h2>
+      {FEATURE_WATCH_AND_BADGES && (
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Episodes</h2>
+            <SeasonWatchToggle
+              showId={parseInt(showId!)}
+              seasonNumber={parseInt(seasonNumber!)}
+              episodes={episodes.map(ep => ({
+                number: ep.number,
+                id: ep.id,
+                runtime: ep.runtime,
+              }))}
+              allWatched={episodes.length > 0 && watchedEpisodes.size === episodes.length}
+              onToggle={() => {
+                if (showId && seasonNumber) {
+                  loadWatchedStatus(parseInt(showId), parseInt(seasonNumber));
+                }
+              }}
+            />
+          </div>
+          <div className="space-y-3">
+            {episodes.map((episode) => {
+              const isWatched = watchedEpisodes.has(episode.number);
+              return (
+                <Card
+                  key={episode.id}
+                  className={`p-4 transition-all ${isWatched ? 'bg-muted/30' : ''}`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div 
+                      className="flex-1 cursor-pointer min-w-0"
+                      onClick={() => navigate(`/show/${showId}/season/${seasonNumber}/episode/${episode.number}`)}
+                    >
+                      <div className="flex items-start gap-2">
+                        {isWatched && <Check className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-1" />}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold">
+                            Episode {episode.number}: {episode.name}
+                          </h3>
+                          {episode.runtime && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {episode.runtime} min
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <EpisodeWatchToggle
+                      showId={parseInt(showId!)}
+                      seasonNumber={parseInt(seasonNumber!)}
+                      episodeNumber={episode.number}
+                      tvdbId={`${showId}:${seasonNumber}:${episode.number}`}
+                      runtimeMinutes={episode.runtime || 45}
+                      isWatched={isWatched}
+                      onToggle={() => {
+                        if (showId && seasonNumber) {
+                          loadWatchedStatus(parseInt(showId), parseInt(seasonNumber));
+                        }
+                      }}
+                    />
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {!FEATURE_WATCH_AND_BADGES && (
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Episodes</h2>
           <div className="space-y-3">
             {episodes.map((episode) => (
               <Card
@@ -205,7 +300,8 @@ export default function SeasonDetailPage() {
               </Card>
             ))}
           </div>
-      </div>
+        </div>
+      )}
 
       {contentId && (
         <Tabs defaultValue="reviews" className="w-full">

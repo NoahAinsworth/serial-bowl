@@ -14,6 +14,8 @@ import { UserLists } from '@/components/UserLists';
 import { FollowRequestsList } from '@/components/FollowRequestsList';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
+import { WatchBadge } from '@/components/WatchBadge';
+import { FEATURE_WATCH_AND_BADGES } from '@/lib/featureFlags';
 import {
   Dialog,
   DialogContent,
@@ -63,9 +65,9 @@ export default function ProfilePage() {
   const loadProfile = async () => {
     if (!user) return;
 
-    const { data: profileData } = await supabase
+  const { data: profileData } = await supabase
       .from('profiles')
-      .select('handle, bio, avatar_url, settings')
+      .select('handle, bio, avatar_url, settings, minutes_watched, badge_tier')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -267,6 +269,17 @@ export default function ProfilePage() {
             {/* Bio */}
             {profile?.bio && (
               <p className="text-sm mb-4 text-foreground/80 font-medium">{profile.bio}</p>
+            )}
+
+            {/* Watch Stats Badge */}
+            {FEATURE_WATCH_AND_BADGES && profile && (
+              <div className="mb-4">
+                <WatchBadge 
+                  badgeTier={profile.badge_tier} 
+                  hoursWatched={(profile.minutes_watched || 0) / 60} 
+                  compact={false}
+                />
+              </div>
             )}
 
             {/* Counts Row */}

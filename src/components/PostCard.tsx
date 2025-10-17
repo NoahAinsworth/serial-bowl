@@ -318,7 +318,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
         </Avatar>
         
         <div className="flex-1 min-w-0 overflow-hidden">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span 
               className="font-bold text-foreground hover:underline cursor-pointer truncate"
               onClick={() => navigate(`/profile/${post.user.handle}`)}

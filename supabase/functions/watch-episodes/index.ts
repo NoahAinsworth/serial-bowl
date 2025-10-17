@@ -186,6 +186,25 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Recalculate stats action
+    if (action === 'recalculateStats') {
+      await supabase.rpc('update_user_watch_stats', { p_user_id: user.id });
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('minutes_watched, badge_tier')
+        .eq('id', user.id)
+        .single();
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        minutes_watched: profile?.minutes_watched || 0,
+        badge_tier: profile?.badge_tier,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     return new Response(JSON.stringify({ error: 'Invalid action' }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

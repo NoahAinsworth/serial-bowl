@@ -271,12 +271,14 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span 
-              className="font-semibold text-foreground truncate cursor-pointer hover:text-primary transition-colors"
-              onClick={() => navigate(`/user/${thought.user.handle}`)}
-            >
-              {thought.user.handle}
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span 
+                className="font-semibold text-foreground truncate cursor-pointer hover:text-primary transition-colors"
+                onClick={() => navigate(`/user/${thought.user.handle}`)}
+              >
+                {thought.user.handle}
+              </span>
+            </div>
             <div className="flex items-center gap-1">
               {isOwner && (
                 <AlertDialog>
