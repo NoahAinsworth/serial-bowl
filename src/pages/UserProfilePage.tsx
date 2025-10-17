@@ -7,12 +7,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserPlus, UserMinus } from 'lucide-react';
+import { Loader2, UserPlus, UserMinus, TrendingUp, Lock } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
 import { UserPosts } from '@/components/UserPosts';
 import { UserThoughts } from '@/components/UserThoughts';
 import { UserReviews } from '@/components/UserReviews';
 import { FollowRequestButton } from '@/components/FollowRequestButton';
+import { ProfileRing } from '@/components/ProfileRing';
+import { BadgeDisplay } from '@/components/BadgeDisplay';
+import { BadgeCollection } from '@/components/BadgeCollection';
+import { DynamicBackground } from '@/components/DynamicBackground';
+import { AboutMeSection } from '@/components/AboutMeSection';
+import { CinematicFavorites } from '@/components/CinematicFavorites';
+import { Progress } from '@/components/ui/progress';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 export default function UserProfilePage() {
   const { handle } = useParams<{ handle: string }>();
@@ -23,6 +31,7 @@ export default function UserProfilePage() {
   const [followStatus, setFollowStatus] = useState<'none' | 'pending' | 'accepted'>('none');
   const [userId, setUserId] = useState<string | null>(null);
   const [profile, setProfile] = useState({
+    id: '',
     handle: '',
     bio: '',
     avatar_url: '',
@@ -33,6 +42,9 @@ export default function UserProfilePage() {
     postCount: 0,
     followers: 0,
     following: 0,
+    binge_points: 0,
+    badge_tier: 'Pilot Watcher',
+    top3Shows: [] as any[],
   });
   const [thoughts, setThoughts] = useState<any[]>([]);
 
@@ -51,11 +63,11 @@ export default function UserProfilePage() {
   const loadProfile = async () => {
     if (!handle) return;
 
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, handle, bio, avatar_url, is_private')
-      .eq('handle', handle)
-      .single();
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, handle, bio, avatar_url, is_private, binge_points, badge_tier, settings')
+        .eq('handle', handle)
+        .single();
 
     if (profileError || !profileData) {
       toast({
@@ -97,6 +109,7 @@ export default function UserProfilePage() {
     // If private and can't view, show limited profile
     if (profileData.is_private && !canViewPrivateContent) {
       setProfile({
+        id: profileData.id,
         handle: profileData.handle,
         bio: 'This account is private',
         avatar_url: profileData.avatar_url || '',
@@ -107,6 +120,9 @@ export default function UserProfilePage() {
         postCount: 0,
         followers: 0,
         following: 0,
+        binge_points: profileData.binge_points || 0,
+        badge_tier: profileData.badge_tier || 'Pilot Watcher',
+        top3Shows: [],
       });
       setLoading(false);
       return;
@@ -147,7 +163,11 @@ export default function UserProfilePage() {
       .eq('follower_id', profileData.id)
       .eq('status', 'accepted');
 
+    const settings = profileData.settings as any;
+    const top3Shows = settings?.top3Shows || [];
+    
     setProfile({
+      id: profileData.id,
       handle: profileData.handle,
       bio: profileData.bio || '',
       avatar_url: profileData.avatar_url || '',
@@ -158,6 +178,9 @@ export default function UserProfilePage() {
       postCount,
       followers: followers || 0,
       following: following || 0,
+      binge_points: profileData.binge_points || 0,
+      badge_tier: profileData.badge_tier || 'Pilot Watcher',
+      top3Shows,
     });
 
     setLoading(false);
@@ -237,104 +260,185 @@ export default function UserProfilePage() {
     );
   }
 
+  const currentBadge = profile.badge_tier || 'Pilot Watcher';
+  const bingePoints = profile.binge_points || 0;
+  const flags = useFeatureFlags();
+
+  const BADGE_THRESHOLDS = [
+    { name: 'Pilot Watcher', min: 0, max: 49 },
+    { name: 'Casual Viewer', min: 50, max: 149 },
+    { name: 'Marathon Madness', min: 150, max: 299 },
+    { name: 'Season Smasher', min: 300, max: 499 },
+    { name: 'Series Finisher', min: 500, max: 799 },
+    { name: 'Stream Scholar', min: 800, max: 1199 },
+    { name: 'Ultimate Binger', min: 1200, max: Infinity },
+  ];
+
+  const currentTier = BADGE_THRESHOLDS.find(t => t.name === currentBadge) || BADGE_THRESHOLDS[0];
+  const currentIndex = BADGE_THRESHOLDS.findIndex(t => t.name === currentBadge);
+  const nextTier = currentIndex < BADGE_THRESHOLDS.length - 1 ? BADGE_THRESHOLDS[currentIndex + 1] : null;
+
+  const progress = nextTier 
+    ? ((bingePoints - currentTier.min) / (nextTier.min - currentTier.min)) * 100
+    : 100;
+
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4 animate-fade-in">
-      <Card className="p-6 mb-6 card-enhanced">
-        <div className="flex flex-col sm:flex-row items-start gap-4 mb-4">
-          <div className="flex gap-4 flex-1 min-w-0">
-            <div className="avatar-ring flex-shrink-0">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={profile.avatar_url} alt={profile.handle} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
-                  {profile.handle[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="flex flex-col min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-2xl font-bold">{profile.handle}</h2>
-                {user && userId && (
-                  <FollowRequestButton
-                    targetUserId={userId}
-                    isPrivate={profile.is_private}
-                    initialFollowStatus={followStatus}
-                    onStatusChange={() => {
-                      loadProfile();
-                    }}
-                  />
-                )}
+    <>
+      <DynamicBackground badge={currentBadge} />
+      <div className="min-h-screen pb-20 relative">
+        {/* Profile Card */}
+        <Card className="p-6 mb-6 bg-card/70 backdrop-blur-md border-border/30">
+          <div className="flex flex-col items-center gap-4 mb-6">
+            <div className="flex items-center gap-6">
+              <ProfileRing points={bingePoints} badge={currentBadge}>
+                <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                  <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
+                  <AvatarFallback className="text-3xl font-bold">
+                    {profile.handle[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </ProfileRing>
+              
+              <div className="flex flex-col items-center gap-2">
+                <BadgeDisplay badge={currentBadge} size="lg" />
               </div>
-              <p className="text-muted-foreground mt-1">{profile.bio || 'TV enthusiast 📺'}</p>
             </div>
+
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-foreground drop-shadow-sm mb-1">
+                @{profile.handle}
+              </h1>
+              
+              {flags.BINGE_POINTS && (
+                <div className="flex items-center justify-center gap-2 text-foreground/90 drop-shadow-sm mb-2">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="font-semibold">{bingePoints.toLocaleString()} Binge Points</span>
+                </div>
+              )}
+
+              {nextTier && flags.BINGE_POINTS && (
+                <div className="w-64 mx-auto space-y-1">
+                  <div className="flex items-center justify-between text-xs text-foreground/70 drop-shadow-sm">
+                    <span>{bingePoints} pts</span>
+                    <span>{nextTier.min} pts to {nextTier.name}</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-4 text-center">
+              <div 
+                className="cursor-pointer hover:opacity-80 transition-opacity bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg border border-border/50"
+                onClick={() => navigate(`/user/${profile.handle}/followers`)}
+              >
+                <p className="font-bold text-foreground">{profile.followers}</p>
+                <p className="text-sm text-muted-foreground">Followers</p>
+              </div>
+              <div 
+                className="cursor-pointer hover:opacity-80 transition-opacity bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg border border-border/50"
+                onClick={() => navigate(`/user/${profile.handle}/following`)}
+              >
+                <p className="font-bold text-foreground">{profile.following}</p>
+                <p className="text-sm text-muted-foreground">Following</p>
+              </div>
+            </div>
+
+            {user && userId && user.id !== userId && (
+              <FollowRequestButton
+                targetUserId={userId}
+                isPrivate={profile.is_private}
+                initialFollowStatus={followStatus}
+                onStatusChange={() => {
+                  loadProfile();
+                }}
+              />
+            )}
           </div>
+        </Card>
+
+        {flags.BINGE_POINTS && (
+          <div className="px-4 mb-6 animate-fade-in">
+            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
+          </div>
+        )}
+
+        <div className="px-4 mb-6 animate-fade-in">
+          <AboutMeSection 
+            bio={profile.bio || ''} 
+            onSave={async () => {}} 
+            isOwner={false}
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-6">
-          <div 
-            className="text-center cursor-pointer hover:bg-muted/50 rounded-lg p-2 transition-colors"
-            onClick={() => navigate(`/user/${handle}/followers`)}
-          >
-            <div className="text-2xl font-bold text-primary">{profile.followers}</div>
-            <div className="text-sm text-muted-foreground">Followers</div>
-          </div>
-          <div 
-            className="text-center cursor-pointer hover:bg-muted/50 rounded-lg p-2 transition-colors"
-            onClick={() => navigate(`/user/${handle}/following`)}
-          >
-            <div className="text-2xl font-bold text-primary">{profile.following}</div>
-            <div className="text-sm text-muted-foreground">Following</div>
-          </div>
+        <div className="px-4 mb-6 animate-fade-in">
+          <CinematicFavorites
+            shows={profile.top3Shows || []}
+            onEdit={() => {}}
+            onRemove={() => {}}
+            badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'}
+            isOwner={false}
+          />
         </div>
-      </Card>
 
-      <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="posts">Posts ({profile.postCount})</TabsTrigger>
-          <TabsTrigger value="shows">Shows ({profile.showCount})</TabsTrigger>
-          <TabsTrigger value="seasons">Seasons ({profile.seasonCount})</TabsTrigger>
-          <TabsTrigger value="episodes">Eps ({profile.episodeCount})</TabsTrigger>
-        </TabsList>
-        {profile.is_private && profile.bio === 'This account is private' ? (
-          <div className="mt-8 text-center">
-            <Card className="p-8">
-              <h3 className="text-xl font-semibold mb-2">This Account is Private</h3>
+        {/* Tabs */}
+        {!profile.is_private || (followStatus === 'accepted') ? (
+          <div className="max-w-4xl mx-auto px-4">
+            <Tabs defaultValue="posts" className="w-full">
+              <TabsList className="w-full justify-start mb-4 bg-card/50 backdrop-blur-md border-2 border-border/30">
+                <TabsTrigger value="posts">Posts</TabsTrigger>
+                <TabsTrigger value="shows">Shows ({profile.showCount})</TabsTrigger>
+                <TabsTrigger value="seasons">Seasons ({profile.seasonCount})</TabsTrigger>
+                <TabsTrigger value="episodes">Episodes ({profile.episodeCount})</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="posts" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-4">
+                <Tabs defaultValue="all" className="w-full">
+                  <TabsList className="w-full justify-start mb-4">
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="thoughts">Thoughts</TabsTrigger>
+                    <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="all">
+                    <UserPosts userId={userId} />
+                  </TabsContent>
+
+                  <TabsContent value="thoughts">
+                    <UserThoughts userId={userId} />
+                  </TabsContent>
+
+                  <TabsContent value="reviews">
+                    <UserReviews userId={userId} />
+                  </TabsContent>
+                </Tabs>
+              </TabsContent>
+
+              <TabsContent value="shows" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-4">
+                <UserRatings userId={userId} contentKind="show" />
+              </TabsContent>
+
+              <TabsContent value="seasons" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-4">
+                <UserRatings userId={userId} contentKind="season" />
+              </TabsContent>
+
+              <TabsContent value="episodes" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-4">
+                <UserRatings userId={userId} contentKind="episode" />
+              </TabsContent>
+            </Tabs>
+          </div>
+        ) : (
+          <div className="px-4">
+            <Card className="p-12 text-center bg-card/70 backdrop-blur-md border-border/30">
+              <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">This Account is Private</h3>
               <p className="text-muted-foreground">
-                Follow this account to see their posts and activity
+                Follow this account to see their content
               </p>
             </Card>
           </div>
-        ) : (
-          <>
-            <TabsContent value="posts" className="mt-4">
-              <Tabs defaultValue="all" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-4">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="thoughts">Thoughts</TabsTrigger>
-                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                </TabsList>
-                <TabsContent value="all">
-                  <UserPosts userId={userId} />
-                </TabsContent>
-                <TabsContent value="thoughts">
-                  <UserThoughts userId={userId} />
-                </TabsContent>
-                <TabsContent value="reviews">
-                  <UserReviews userId={userId} />
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-            <TabsContent value="shows" className="mt-4">
-              <UserRatings userId={userId} contentKind="show" />
-            </TabsContent>
-            <TabsContent value="seasons" className="mt-4">
-              <UserRatings userId={userId} contentKind="season" />
-            </TabsContent>
-            <TabsContent value="episodes" className="mt-4">
-              <UserRatings userId={userId} contentKind="episode" />
-            </TabsContent>
-          </>
         )}
-      </Tabs>
-    </div>
+      </div>
+    </>
   );
 }
