@@ -174,68 +174,32 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <Button 
-          size="sm" 
-          variant={filter === 'all' ? 'default' : 'outline'}
-          onClick={() => setFilter('all')}
-        >
-          All
-        </Button>
-        <Button 
-          size="sm" 
-          variant={filter === 'show' ? 'default' : 'outline'}
-          onClick={() => setFilter('show')}
-        >
-          Shows
-        </Button>
-        <Button 
-          size="sm" 
-          variant={filter === 'season' ? 'default' : 'outline'}
-          onClick={() => setFilter('season')}
-        >
-          Seasons
-        </Button>
-        <Button 
-          size="sm" 
-          variant={filter === 'episode' ? 'default' : 'outline'}
-          onClick={() => setFilter('episode')}
-        >
-          Episodes
-        </Button>
-      </div>
-
-      {/* Sort */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <Button 
-          size="sm" 
-          variant={sort === 'recent' ? 'default' : 'outline'}
-          onClick={() => setSort('recent')}
-        >
-          Recent
-        </Button>
-        <Button 
-          size="sm" 
-          variant={sort === 'highest' ? 'default' : 'outline'}
-          onClick={() => setSort('highest')}
-        >
-          Highest
-        </Button>
-        <Button 
-          size="sm" 
-          variant={sort === 'lowest' ? 'default' : 'outline'}
-          onClick={() => setSort('lowest')}
-        >
-          Lowest
-        </Button>
-        <Button 
-          size="sm" 
-          variant={sort === 'az' ? 'default' : 'outline'}
-          onClick={() => setSort('az')}
-        >
-          A-Z
-        </Button>
+      {/* Filter Dropdown */}
+      <div className="flex gap-2 items-center">
+        <span className="text-sm font-medium text-muted-foreground">Filter by:</span>
+        <div className="flex flex-wrap gap-2">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as FilterType)}
+            className="px-3 py-1.5 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="all">All Types</option>
+            <option value="show">Shows</option>
+            <option value="season">Seasons</option>
+            <option value="episode">Episodes</option>
+          </select>
+          
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortType)}
+            className="px-3 py-1.5 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="recent">Recent</option>
+            <option value="highest">Highest</option>
+            <option value="lowest">Lowest</option>
+            <option value="az">A-Z</option>
+          </select>
+        </div>
       </div>
 
       {/* Ratings List */}
