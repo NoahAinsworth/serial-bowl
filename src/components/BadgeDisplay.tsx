@@ -14,7 +14,7 @@ const BADGE_COLORS: Record<string, string> = {
   'Season Smasher': 'text-red-500',
   'Series Finisher': 'text-purple-500',
   'Stream Scholar': 'text-teal-500',
-  'Ultimate Binger': 'text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500',
+  'Ultimate Binger': 'text-purple-400',
 };
 
 const BADGE_GLOW: Record<string, string> = {
@@ -40,21 +40,15 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
     lg: 'h-10 w-10',
   };
 
-  return (
-    <div className="flex flex-col items-center gap-1">
+  const badgeContent = (
+    <>
       <div 
         className={cn(
           "rounded-full p-2 backdrop-blur-md bg-background/90 transition-all duration-300 flex items-center justify-center relative",
           sizeClasses[size],
           showGlow && `shadow-lg ${BADGE_GLOW[badge]}`,
-          "hover:scale-110",
-          badge === 'Ultimate Binger' && "border-2"
+          "hover:scale-110"
         )}
-        style={{
-          borderImage: badge === 'Ultimate Binger'
-            ? 'linear-gradient(135deg, rgb(168, 85, 247), rgb(236, 72, 153), rgb(59, 130, 246)) 1'
-            : undefined,
-        }}
       >
         <Trophy className={cn(iconSizes[size], BADGE_COLORS[badge])} />
         {showGlow && (
@@ -76,6 +70,18 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
         )}>
           {badge}
         </span>
+      )}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      {badge === 'Ultimate Binger' ? (
+        <div className="rounded-full p-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500">
+          {badgeContent}
+        </div>
+      ) : (
+        badgeContent
       )}
     </div>
   );

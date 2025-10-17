@@ -274,16 +274,6 @@ export default function ProfilePage() {
         </div>
 
         <div className="px-4 py-8 mb-6 animate-fade-in">
-          {/* Share/Edit Buttons - positioned outside ring */}
-          <div className="flex justify-end gap-2 mb-4">
-            <Button variant="secondary" size="icon" onClick={handleShare} title="Share profile" className="h-8 w-8 rounded-full shadow-lg">
-              <Share2 className="h-4 w-4" />
-            </Button>
-            <Button variant="secondary" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile" className="h-8 w-8 rounded-full shadow-lg">
-              <Edit className="h-4 w-4" />
-            </Button>
-          </div>
-
           <div className="flex flex-col items-center gap-6">
             {/* Profile Ring with Badge */}
             <div className="relative inline-flex items-center gap-4">
@@ -300,7 +290,7 @@ export default function ProfilePage() {
 
               {/* Badge beside ring */}
               <div className="flex-shrink-0">
-                <BadgeDisplay badge={currentBadge} size="lg" showGlow={true} />
+                <BadgeDisplay badge={currentBadge} size="md" showGlow={true} />
               </div>
             </div>
 
@@ -310,9 +300,20 @@ export default function ProfilePage() {
                   {profile.settings.displayName}
                 </h1>
               )}
-              <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                @{profile?.handle || 'user'}
-              </p>
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                  @{profile?.handle || 'user'}
+                </p>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/profile/edit')} 
+                  title="Edit profile"
+                  className="h-6 px-2 text-xs text-white/90"
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
+              </div>
 
               {flags.BINGE_POINTS && nextTier && (
                 <div className="space-y-2 px-4 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
@@ -363,12 +364,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {flags.BINGE_POINTS && (
-          <div className="px-4 mb-6 animate-fade-in">
-            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
-          </div>
-        )}
-
         <div className="px-4 mb-6 animate-fade-in">
           <AboutMeSection 
             bio={profile?.bio || ''} 
@@ -376,6 +371,12 @@ export default function ProfilePage() {
             isOwner={true}
           />
         </div>
+
+        {flags.BINGE_POINTS && (
+          <div className="px-4 mb-6 animate-fade-in">
+            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
+          </div>
+        )}
 
         <div className="px-4 mb-6 animate-fade-in">
           <CinematicFavorites

@@ -79,7 +79,7 @@ export function AboutMeSection({ bio, onSave, isOwner = true }: AboutMeSectionPr
           </div>
         ) : (
           <p className="text-sm text-foreground leading-relaxed">
-            {bio || (isOwner ? "Add a short bio or what you're currently watching." : "No bio yet.")}
+            {bio || (isOwner ? "" : "No bio yet.")}
           </p>
         )}
       </div>
