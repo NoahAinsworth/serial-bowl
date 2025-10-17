@@ -23,8 +23,8 @@ export function BadgeCollection({ currentBadge, bingePoints }: BadgeCollectionPr
   if (earnedBadges.length === 0) return null;
 
   return (
-    <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/30">
-      <h3 className="text-sm font-semibold mb-3 text-muted-foreground">
+    <Card className="p-4 bg-card/70 backdrop-blur-md border-border/30">
+      <h3 className="text-sm font-semibold mb-3 text-foreground drop-shadow-sm">
         Trophy Case ({earnedBadges.length}/{BADGE_TIERS.length})
       </h3>
       <ScrollArea className="w-full">
@@ -39,7 +39,7 @@ export function BadgeCollection({ currentBadge, bingePoints }: BadgeCollectionPr
                 size="sm"
                 showGlow={badge.name === currentBadge}
               />
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap bg-background/95 px-2 py-1 rounded text-xs border border-border/50">
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap bg-background/98 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/50 text-foreground shadow-lg">
                 {badge.threshold} pts
               </div>
             </div>

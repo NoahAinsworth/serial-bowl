@@ -28,13 +28,13 @@ export function AboutMeSection({ bio, onSave, isOwner = true }: AboutMeSectionPr
   };
 
   return (
-    <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/20 relative overflow-hidden group">
+    <Card className="p-6 bg-card/60 backdrop-blur-md border-border/40 border relative overflow-hidden group">
       {/* Subtle glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       <div className="relative">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground">About Me</h3>
+          <h3 className="text-sm font-semibold text-foreground drop-shadow-sm">About Me</h3>
           {isOwner && !isEditing && (
             <Button
               variant="ghost"
@@ -78,7 +78,7 @@ export function AboutMeSection({ bio, onSave, isOwner = true }: AboutMeSectionPr
             </div>
           </div>
         ) : (
-          <p className="text-sm text-foreground/80 leading-relaxed">
+          <p className="text-sm text-foreground leading-relaxed">
             {bio || (isOwner ? "Add a short bio or what you're currently watching." : "No bio yet.")}
           </p>
         )}

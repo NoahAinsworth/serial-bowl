@@ -83,7 +83,7 @@ export function ProfileRing({ points, badge, children }: ProfileRingProps) {
         </svg>
         
         {/* Content */}
-        <div className="absolute inset-4">
+        <div className="absolute inset-4 flex items-center justify-center">
           {children}
         </div>
       </div>

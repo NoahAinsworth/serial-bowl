@@ -44,7 +44,7 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
     <div className="flex flex-col items-center gap-1">
       <div 
         className={cn(
-          "rounded-full p-2 backdrop-blur-sm bg-background/80 border-2 transition-all duration-300",
+          "rounded-full p-2 backdrop-blur-md bg-background/90 border-2 transition-all duration-300 flex items-center justify-center relative",
           sizeClasses[size],
           showGlow && `shadow-lg ${BADGE_GLOW[badge]}`,
           "hover:scale-110"
@@ -63,14 +63,20 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
           <div 
             className={cn(
               "absolute inset-0 rounded-full opacity-50 blur-md -z-10 animate-pulse",
-              BADGE_COLORS[badge]
+              badge === 'Ultimate Binger' ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500' : ''
             )}
-            style={{ animationDuration: '2s' }}
+            style={{ 
+              animationDuration: '2s',
+              backgroundColor: badge !== 'Ultimate Binger' ? BADGE_COLORS[badge].includes('gradient') ? undefined : `hsl(var(--${badge.toLowerCase().replace(/\s+/g, '-')}-color, ${BADGE_COLORS[badge].replace('text-', '')}))` : undefined
+            }}
           />
         )}
       </div>
       {size !== 'sm' && (
-        <span className={cn("text-xs font-semibold text-center", BADGE_COLORS[badge])}>
+        <span className={cn(
+          "text-xs font-semibold text-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]",
+          badge === 'Ultimate Binger' ? BADGE_COLORS[badge] : 'text-white'
+        )}>
           {badge}
         </span>
       )}

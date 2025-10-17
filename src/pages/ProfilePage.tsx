@@ -274,74 +274,89 @@ export default function ProfilePage() {
         </div>
 
         <div className="px-4 py-8 mb-6 animate-fade-in">
-          <div className="flex flex-col items-center gap-6">
-            <div className="relative w-48 h-48">
-              <ProfileRing points={bingePoints} badge={currentBadge}>
-                <Avatar className="w-full h-full">
-                  <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
-                    {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </ProfileRing>
+          {/* Share/Edit Buttons - positioned outside ring */}
+          <div className="flex justify-end gap-2 mb-4">
+            <Button variant="secondary" size="icon" onClick={handleShare} title="Share profile" className="h-8 w-8 rounded-full shadow-lg">
+              <Share2 className="h-4 w-4" />
+            </Button>
+            <Button variant="secondary" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile" className="h-8 w-8 rounded-full shadow-lg">
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
 
-              <div className="absolute -right-6 top-1/2 -translate-y-1/2">
-                <BadgeDisplay badge={currentBadge} size="lg" showGlow={true} />
+          <div className="flex flex-col items-center gap-6">
+            {/* Profile Ring with Badge */}
+            <div className="relative inline-flex items-center gap-4">
+              <div className="w-48 h-48">
+                <ProfileRing points={bingePoints} badge={currentBadge}>
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
+                      {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </ProfileRing>
               </div>
 
-              <div className="absolute -top-2 -right-2 flex gap-2">
-                <Button variant="secondary" size="icon" onClick={handleShare} title="Share profile" className="h-8 w-8 rounded-full shadow-lg">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-                <Button variant="secondary" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile" className="h-8 w-8 rounded-full shadow-lg">
-                  <Edit className="h-4 w-4" />
-                </Button>
+              {/* Badge beside ring */}
+              <div className="flex-shrink-0">
+                <BadgeDisplay badge={currentBadge} size="lg" showGlow={true} />
               </div>
             </div>
 
             <div className="text-center space-y-3 w-full max-w-md">
               {profile?.settings?.displayName && (
-                <h1 className="text-3xl font-bold text-foreground">{profile.settings.displayName}</h1>
+                <h1 className="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  {profile.settings.displayName}
+                </h1>
               )}
-              <p className="text-lg text-muted-foreground">@{profile?.handle || 'user'}</p>
+              <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                @{profile?.handle || 'user'}
+              </p>
 
               {flags.BINGE_POINTS && nextTier && (
-                <div className="space-y-2 px-4">
+                <div className="space-y-2 px-4 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-foreground">{currentBadge}</span>
-                    <div className="flex items-center gap-1 text-muted-foreground">
+                    <span className="font-semibold text-foreground drop-shadow-sm">{currentBadge}</span>
+                    <div className="flex items-center gap-1 text-foreground/90">
                       <TrendingUp className="h-3 w-3" />
-                      <span className="text-xs">Next: {nextTier.name}</span>
+                      <span className="text-xs drop-shadow-sm">Next: {nextTier.name}</span>
                     </div>
                   </div>
                   <Progress value={progress} className="h-2" />
-                  <div className="text-xs text-muted-foreground text-center">
+                  <div className="text-xs text-foreground/90 text-center drop-shadow-sm">
                     {bingePoints} / {nextTier.min} Binge Points
                   </div>
                 </div>
               )}
 
-              <div className="flex gap-6 text-sm justify-center pt-2">
+              <div className="flex gap-6 text-sm justify-center pt-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
                 <button 
                   className="hover:underline group"
                   onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
                 >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform">{stats.thoughtsCount}</span>
-                  <span className="text-foreground/70 font-medium">Thoughts</span>
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                    {stats.thoughtsCount}
+                  </span>
+                  <span className="text-foreground/90 font-medium drop-shadow-sm">Thoughts</span>
                 </button>
                 <button 
                   className="hover:underline group"
                   onClick={() => navigate('/followers')}
                 >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform">{stats.followersCount}</span>
-                  <span className="text-foreground/70 font-medium">Followers</span>
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                    {stats.followersCount}
+                  </span>
+                  <span className="text-foreground/90 font-medium drop-shadow-sm">Followers</span>
                 </button>
                 <button 
                   className="hover:underline group"
                   onClick={() => navigate('/following')}
                 >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform">{stats.followingCount}</span>
-                  <span className="text-foreground/70 font-medium">Following</span>
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                    {stats.followingCount}
+                  </span>
+                  <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
                 </button>
               </div>
             </div>
