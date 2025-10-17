@@ -144,7 +144,7 @@ export default function ShowDetailPage() {
                 {contentId && (
                   <div className="flex gap-2 w-full overflow-hidden">
                     <WatchlistButton contentId={contentId} showTitle={show.name} />
-                    <WatchedButton contentId={contentId} showTitle={show.name} showId={id} />
+                    <WatchedButton contentId={contentId} showTitle={show.name} />
                   </div>
                 )}
                 <div>

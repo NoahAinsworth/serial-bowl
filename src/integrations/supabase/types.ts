@@ -504,24 +504,6 @@ export type Database = {
           },
         ]
       }
-      episode_runtimes: {
-        Row: {
-          runtime_minutes: number
-          tvdb_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          runtime_minutes: number
-          tvdb_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          runtime_minutes?: number
-          tvdb_id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       episodes: {
         Row: {
           dominant_hex: string | null
@@ -971,40 +953,31 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
-          badge_tier: string | null
-          badge_updated_at: string | null
           bio: string | null
           created_at: string | null
           handle: string
           id: string
           is_private: boolean
-          minutes_watched: number | null
           settings: Json | null
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
-          badge_tier?: string | null
-          badge_updated_at?: string | null
           bio?: string | null
           created_at?: string | null
           handle: string
           id: string
           is_private?: boolean
-          minutes_watched?: number | null
           settings?: Json | null
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
-          badge_tier?: string | null
-          badge_updated_at?: string | null
           bio?: string | null
           created_at?: string | null
           handle?: string
           id?: string
           is_private?: boolean
-          minutes_watched?: number | null
           settings?: Json | null
           updated_at?: string | null
         }
@@ -1537,27 +1510,6 @@ export type Database = {
           },
         ]
       }
-      watched_episodes: {
-        Row: {
-          id: string
-          tvdb_id: string
-          user_id: string
-          watched_at: string | null
-        }
-        Insert: {
-          id?: string
-          tvdb_id: string
-          user_id: string
-          watched_at?: string | null
-        }
-        Update: {
-          id?: string
-          tvdb_id?: string
-          user_id?: string
-          watched_at?: string | null
-        }
-        Relationships: []
-      }
       watchlist: {
         Row: {
           content_id: string
@@ -1800,10 +1752,6 @@ export type Database = {
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
-      }
-      update_user_watch_stats: {
-        Args: { p_user_id: string }
-        Returns: undefined
       }
       upsert_rollups: {
         Args: { p_item_id: string; p_item_type: string; p_user: string }
