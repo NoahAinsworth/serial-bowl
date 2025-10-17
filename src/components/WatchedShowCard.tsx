@@ -30,6 +30,11 @@ export function WatchedShowCard({ item, onRemove }: WatchedShowCardProps) {
   const [loadingSeasons, setLoadingSeasons] = useState(false);
   const { fetchSeasons } = useTVDB();
 
+  // Guard against null content
+  if (!item.content) {
+    return null;
+  }
+
   const loadSeasons = async () => {
     if (seasons.length > 0) return; // Already loaded
     
