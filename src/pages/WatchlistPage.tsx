@@ -399,12 +399,69 @@ export default function WatchlistPage() {
     );
   }
 
+  const testEdgeFunction = async () => {
+    const testShowId = "121361"; // Game of Thrones
+    console.log('🔵 [TEST] Starting edge function test with show ID:', testShowId);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('populate-content-counts', {
+        body: { external_id: testShowId, kind: 'show' }
+      });
+      
+      console.log('🔵 [TEST] Edge function response:', { data, error });
+      
+      if (error) {
+        console.error('🔴 [TEST] Edge function error:', error);
+        toast({
+          title: "Test Failed",
+          description: `Error: ${error.message || JSON.stringify(error)}`,
+          variant: "destructive"
+        });
+      } else {
+        console.log('🟢 [TEST] Edge function SUCCESS:', data);
+        toast({
+          title: "Test Passed!",
+          description: `Successfully populated counts for show ${testShowId}`,
+        });
+        
+        // Check if counts were actually saved
+        const { data: counts } = await supabase
+          .from('show_season_counts')
+          .select('*')
+          .eq('external_id', testShowId)
+          .single();
+        
+        console.log('🔵 [TEST] Database counts after edge function:', counts);
+      }
+    } catch (err) {
+      console.error('🔴 [TEST] Exception:', err);
+      toast({
+        title: "Test Exception",
+        description: err instanceof Error ? err.message : 'Unknown error',
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
         <Bookmark className="h-8 w-8 text-primary" />
         <h1 className="text-3xl font-bold neon-glow">Watchlist & Watched</h1>
       </div>
+
+      {/* DEBUG: Test Edge Function Button */}
+      <Card className="p-4 bg-yellow-500/10 border-yellow-500/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-semibold text-yellow-600 dark:text-yellow-400">Debug Test</p>
+            <p className="text-sm text-muted-foreground">Test populate-content-counts edge function</p>
+          </div>
+          <Button onClick={testEdgeFunction} variant="outline">
+            Test Edge Function
+          </Button>
+        </div>
+      </Card>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
         <TabsList className="w-full grid grid-cols-3">
