@@ -1873,14 +1873,6 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
-      mark_season_episodes_watched: {
-        Args: { p_season_number: number; p_show_id: string; p_user_id: string }
-        Returns: number
-      }
-      mark_show_episodes_watched: {
-        Args: { p_show_id: string; p_user_id: string }
-        Returns: number
-      }
       update_season_episode_count: {
         Args: { p_episode_count: number; p_season_external_id: string }
         Returns: undefined

@@ -17,7 +17,6 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
   const flags = useFeatureFlags();
   const [isWatched, setIsWatched] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [lastBulkToggle, setLastBulkToggle] = useState(0);
 
   useEffect(() => {
     checkWatched();
@@ -41,17 +40,6 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
       toast({
         title: "Sign in required",
         description: "Please sign in to track watched shows",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check cooldown for bulk operations (10 seconds)
-    const now = Date.now();
-    if (now - lastBulkToggle < 10000 && lastBulkToggle > 0) {
-      toast({
-        title: "Please wait",
-        description: "Too many requests. Please wait a moment.",
         variant: "destructive",
       });
       return;
@@ -82,36 +70,41 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
           .eq('id', contentId)
           .single();
 
-        let episodesAdded = 0;
-
-        // If marking a season, insert all missing episodes for that season
+        // For seasons: delete individual episode watches
         if (content?.kind === 'season') {
-          setLastBulkToggle(Date.now());
+          // Get episode content IDs to delete
+          const { data: episodeContent } = await supabase
+            .from('content')
+            .select('id')
+            .eq('kind', 'episode')
+            .like('external_id', `${content.external_id}:%`);
           
-          // Extract show ID and season number from external_id (format: showId:seasonNum)
-          const parts = content.external_id.split(':');
-          const showId = parts[0];
-          const seasonNumber = parseInt(parts[1]);
-          
-          const { data: result } = await supabase.rpc('mark_season_episodes_watched', {
-            p_user_id: user.id,
-            p_show_id: showId,
-            p_season_number: seasonNumber
-          });
-          
-          episodesAdded = result || 0;
+          if (episodeContent && episodeContent.length > 0) {
+            const episodeIds = episodeContent.map(c => c.id);
+            await supabase
+              .from('watched')
+              .delete()
+              .eq('user_id', user.id)
+              .in('content_id', episodeIds);
+          }
         }
         
-        // If marking a show, insert all missing episodes for entire show
+        // For shows: delete individual episode AND season watches
         if (content?.kind === 'show') {
-          setLastBulkToggle(Date.now());
+          // Get episode and season content IDs to delete
+          const { data: childContent } = await supabase
+            .from('content')
+            .select('id')
+            .or(`and(kind.eq.episode,external_id.like.${content.external_id}:%),and(kind.eq.season,external_id.like.${content.external_id}:%)`);
           
-          const { data: result } = await supabase.rpc('mark_show_episodes_watched', {
-            p_user_id: user.id,
-            p_show_id: content.external_id
-          });
-          
-          episodesAdded = result || 0;
+          if (childContent && childContent.length > 0) {
+            const childIds = childContent.map(c => c.id);
+            await supabase
+              .from('watched')
+              .delete()
+              .eq('user_id', user.id)
+              .in('content_id', childIds);
+          }
         }
 
         // Insert the season/show/episode watch entry itself
@@ -126,7 +119,7 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         if (!error) {
           setIsWatched(true);
           
-          // Manually trigger points recalculation to ensure bonuses apply
+          // Manually trigger points recalculation
           await supabase.rpc('update_user_binge_points', {
             p_user_id: user.id
           });
@@ -139,22 +132,41 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
           const pointsData = pointsResult?.[0];
           
           // Show appropriate toast based on what was marked
-          if (flags.BINGE_POINTS && pointsData) {
-            if (content?.kind === 'season') {
-              const bonus = pointsData.season_bonuses || 0;
-              const totalEarned = episodesAdded + bonus;
+          if (flags.BINGE_POINTS && pointsData && content) {
+            if (content.kind === 'season') {
+              // Get season episode count
+              const { data: seasonCount } = await supabase
+                .from('season_episode_counts')
+                .select('episode_count')
+                .eq('external_id', content.external_id)
+                .single();
+              
+              const episodePoints = seasonCount?.episode_count || 0;
+              const seasonBonus = episodePoints >= 14 ? 15 : episodePoints >= 7 ? 10 : 5;
+              const totalEarned = episodePoints + seasonBonus;
               
               toast({
                 title: "Season complete!",
-                description: `${episodesAdded} episodes + ${bonus} bonus = ${totalEarned} Binge Points! 🎉`,
+                description: `${episodePoints} episodes + ${seasonBonus} bonus = ${totalEarned} Binge Points! 🎉`,
               });
-            } else if (content?.kind === 'show') {
-              const bonus = 100;
-              const totalEarned = episodesAdded + bonus;
+            } else if (content.kind === 'show') {
+              // Get show episode count
+              const { data: showCount } = await supabase
+                .from('show_season_counts')
+                .select('total_episode_count, season_count')
+                .eq('external_id', content.external_id)
+                .single();
+              
+              const episodePoints = showCount?.total_episode_count || 0;
+              const seasonCount = showCount?.season_count || 0;
+              // Estimate season bonuses (assume average 10 points per season)
+              const seasonBonuses = seasonCount * 10;
+              const showBonus = 100;
+              const totalEarned = episodePoints + seasonBonuses + showBonus;
               
               toast({
                 title: "Show complete!",
-                description: `${episodesAdded} episodes + ${bonus} show bonus = ${totalEarned} Binge Points! 🏆`,
+                description: `${episodePoints} episodes + ${seasonBonuses} season bonuses + ${showBonus} show bonus = ${totalEarned} Binge Points! 🏆`,
               });
             } else {
               toast({
