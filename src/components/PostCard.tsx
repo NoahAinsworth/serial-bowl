@@ -312,20 +312,20 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
     )}>
       {/* User Header */}
       <div className="flex items-start gap-3 mb-3">
-        <Avatar className="h-10 w-10 cursor-pointer" onClick={() => navigate(`/profile/${post.user.handle}`)}>
+        <Avatar className="h-10 w-10 cursor-pointer shrink-0" onClick={() => navigate(`/profile/${post.user.handle}`)}>
           <AvatarImage src={post.user.avatar_url || undefined} alt={post.user.handle} />
           <AvatarFallback>{post.user.handle[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-center gap-2">
             <span 
-              className="font-bold text-foreground hover:underline cursor-pointer"
+              className="font-bold text-foreground hover:underline cursor-pointer truncate"
               onClick={() => navigate(`/profile/${post.user.handle}`)}
             >
               {post.user.handle}
             </span>
-            <span className="text-sm text-foreground/60">
+            <span className="text-sm text-foreground/60 shrink-0">
               {new Date(post.created_at).toLocaleDateString()}
             </span>
           </div>

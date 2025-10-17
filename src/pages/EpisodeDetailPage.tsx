@@ -54,10 +54,10 @@ export default function EpisodeDetailPage() {
       .eq('external_src', 'thetvdb')
       .eq('external_id', externalId)
       .eq('kind', 'episode')
-      .single();
+      .maybeSingle();
 
     if (!content && episode) {
-      const { data: newContent } = await supabase
+      const { data: newContent, error } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
@@ -69,7 +69,9 @@ export default function EpisodeDetailPage() {
         .select()
         .single();
       
-      content = newContent;
+      if (!error) {
+        content = newContent;
+      }
     }
 
     if (content) {
