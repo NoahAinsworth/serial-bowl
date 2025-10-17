@@ -27,6 +27,7 @@ export default function UserProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const flags = useFeatureFlags(); // Move hook to top
   const [loading, setLoading] = useState(true);
   const [followStatus, setFollowStatus] = useState<'none' | 'pending' | 'accepted'>('none');
   const [userId, setUserId] = useState<string | null>(null);
@@ -252,17 +253,8 @@ export default function UserProfilePage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   const currentBadge = profile.badge_tier || 'Pilot Watcher';
   const bingePoints = profile.binge_points || 0;
-  const flags = useFeatureFlags();
 
   const BADGE_THRESHOLDS = [
     { name: 'Pilot Watcher', min: 0, max: 49 },
@@ -281,6 +273,14 @@ export default function UserProfilePage() {
   const progress = nextTier 
     ? ((bingePoints - currentTier.min) / (nextTier.min - currentTier.min)) * 100
     : 100;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
