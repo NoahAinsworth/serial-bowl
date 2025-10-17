@@ -119,6 +119,23 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         if (!error) {
           setIsWatched(true);
           
+          // Populate counts for shows and seasons before calculating points
+          if (content?.kind === 'show' || content?.kind === 'season') {
+            console.log(`Populating counts for ${content.kind}: ${content.external_id}`);
+            
+            const { error: countError } = await supabase.functions.invoke('populate-content-counts', {
+              body: {
+                external_id: content.external_id,
+                kind: content.kind
+              }
+            });
+            
+            if (countError) {
+              console.error('Error populating counts:', countError);
+              // Continue anyway - binge points will just be incomplete
+            }
+          }
+          
           // Manually trigger points recalculation
           await supabase.rpc('update_user_binge_points', {
             p_user_id: user.id
