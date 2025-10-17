@@ -21,20 +21,26 @@ Deno.serve(async (req) => {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
+      console.error('Unauthorized: No user found');
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { action, ...params } = await req.json();
+    const requestBody = await req.json();
+    console.log('Request received:', JSON.stringify({ action: requestBody.action, params: Object.keys(requestBody) }));
+    
+    const { action, ...params } = requestBody;
 
     if (action === 'watch') {
       const { showId, seasonNumber, episodeNumber, tvdbId, runtimeMinutes } = params;
+      console.log('Watch action:', { showId, seasonNumber, episodeNumber, tvdbId, runtimeMinutes });
       
       // Store runtime if provided
       if (runtimeMinutes) {
-        await supabase
+        console.log('Storing runtime:', { tvdbId, runtimeMinutes });
+        const { error: runtimeError } = await supabase
           .from('episode_runtimes')
           .upsert({
             tvdb_id: tvdbId,
@@ -42,8 +48,15 @@ Deno.serve(async (req) => {
           }, {
             onConflict: 'tvdb_id'
           });
+        
+        if (runtimeError) {
+          console.error('Runtime upsert error:', runtimeError);
+        } else {
+          console.log('Runtime stored successfully');
+        }
       }
 
+      console.log('Inserting watched episode:', { user_id: user.id, show_id: showId, season_number: seasonNumber, episode_number: episodeNumber, tvdb_id: tvdbId });
       const { error } = await supabase
         .from('watched_episodes')
         .upsert({
@@ -56,10 +69,20 @@ Deno.serve(async (req) => {
           onConflict: 'user_id,show_id,season_number,episode_number'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Watched episode upsert error:', error);
+        throw error;
+      }
+      console.log('Watched episode stored successfully');
 
       // Update user stats
-      await supabase.rpc('update_user_watch_stats', { p_user_id: user.id });
+      console.log('Calling update_user_watch_stats for user:', user.id);
+      const { error: statsError } = await supabase.rpc('update_user_watch_stats', { p_user_id: user.id });
+      if (statsError) {
+        console.error('Stats update error:', statsError);
+      } else {
+        console.log('Stats updated successfully');
+      }
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -250,8 +273,10 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Unhandled error in watch-episodes:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error('Error details:', { message: errorMessage, stack: errorStack });
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
