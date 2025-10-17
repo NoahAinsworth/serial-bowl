@@ -132,7 +132,11 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
             
             if (countError) {
               console.error('Error populating counts:', countError);
-              // Continue anyway - binge points will just be incomplete
+              toast({
+                title: "Warning",
+                description: `Could not fetch episode counts: ${countError.message}`,
+                variant: "destructive"
+              });
             }
           }
           
