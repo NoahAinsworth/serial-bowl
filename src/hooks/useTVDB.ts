@@ -25,6 +25,7 @@ export interface TVEpisode {
   seasonNumber: number;
   number: number;
   image: string;
+  runtime?: number;
 }
 
 export function useTVDB() {
