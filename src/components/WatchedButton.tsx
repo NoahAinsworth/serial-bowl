@@ -114,44 +114,47 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
           episodesAdded = result || 0;
         }
 
-        // For individual episodes or after bulk marking, insert/update the watch entry
+        // Insert the season/show/episode watch entry itself
         const { error } = await supabase
           .from('watched')
           .insert({
             user_id: user.id,
             content_id: contentId,
             watched_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
+          });
 
         if (!error) {
           setIsWatched(true);
           
+          // Manually trigger points recalculation to ensure bonuses apply
+          await supabase.rpc('update_user_binge_points', {
+            p_user_id: user.id
+          });
+          
+          // Fetch updated points for display
+          const { data: pointsResult } = await supabase.rpc('calculate_binge_points', {
+            p_user_id: user.id
+          });
+          
+          const pointsData = pointsResult?.[0];
+          
           // Show appropriate toast based on what was marked
-          if (flags.BINGE_POINTS) {
+          if (flags.BINGE_POINTS && pointsData) {
             if (content?.kind === 'season') {
-              const { data: seasonCounts } = await supabase
-                .from('season_episode_counts')
-                .select('episode_count')
-                .eq('external_id', content.external_id)
-                .single();
-              
-              const episodeCount = seasonCounts?.episode_count || 0;
-              const bonus = episodeCount >= 14 ? 15 : episodeCount >= 7 ? 10 : 5;
+              const bonus = pointsData.season_bonuses || 0;
+              const totalEarned = episodesAdded + bonus;
               
               toast({
                 title: "Season complete!",
-                description: episodesAdded > 0 
-                  ? `+${episodesAdded} episodes marked • +${bonus} bonus = ${episodesAdded + bonus} Binge Points! 🎉`
-                  : `Season already complete • +${bonus} Binge Points! 🎉`,
+                description: `${episodesAdded} episodes + ${bonus} bonus = ${totalEarned} Binge Points! 🎉`,
               });
             } else if (content?.kind === 'show') {
+              const bonus = 100;
+              const totalEarned = episodesAdded + bonus;
+              
               toast({
                 title: "Show complete!",
-                description: episodesAdded > 0
-                  ? `+${episodesAdded} episodes marked • +100 bonus = ${episodesAdded + 100} Binge Points! 🏆`
-                  : `Show already complete • +100 Binge Points! 🏆`,
+                description: `${episodesAdded} episodes + ${bonus} show bonus = ${totalEarned} Binge Points! 🏆`,
               });
             } else {
               toast({
