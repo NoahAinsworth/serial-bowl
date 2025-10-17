@@ -287,65 +287,79 @@ export default function UserProfilePage() {
       <DynamicBackground badge={currentBadge} />
       <div className="min-h-screen pb-20 relative overflow-x-hidden">
         {/* Profile Card */}
-        <Card className="p-4 sm:p-6 mb-4 sm:mb-6 mx-2 sm:mx-4 bg-card/70 backdrop-blur-md border-border/30 relative z-10">
-          <div className="flex flex-col items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
-              <div className="w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0">
+        <div className="px-4 py-8 mb-6 animate-fade-in">
+          <div className="flex flex-col items-center gap-6">
+            {/* Profile Ring with Badge */}
+            <div className="relative inline-flex items-center gap-4">
+              <div className="w-48 h-48">
                 <ProfileRing points={bingePoints} badge={currentBadge}>
-                  <Avatar className="w-full h-full border-2 sm:border-4 border-background shadow-lg">
+                  <Avatar className="w-full h-full border-4 border-background shadow-lg">
                     <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
-                    <AvatarFallback className="text-2xl sm:text-3xl font-bold">
+                    <AvatarFallback className="text-4xl font-bold">
                       {profile.handle[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </ProfileRing>
               </div>
               
-              <div className="flex flex-col items-center gap-2">
-                <BadgeDisplay badge={currentBadge} size="md" />
+              {/* Badge beside ring */}
+              <div className="flex-shrink-0">
+                <BadgeDisplay badge={currentBadge} size="lg" showGlow={true} />
               </div>
             </div>
 
-            <div className="text-center w-full">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground drop-shadow-sm mb-1">
-                @{profile.handle}
-              </h1>
-              
-              {flags.BINGE_POINTS && (
-                <div className="flex items-center justify-center gap-2 text-foreground/90 drop-shadow-sm mb-2">
-                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="font-semibold text-sm sm:text-base">{bingePoints.toLocaleString()} Binge Points</span>
-                </div>
+            {/* Name and handle */}
+            <div className="text-center space-y-3 w-full max-w-md">
+              {(profile as any).settings?.displayName && (
+                <h1 className="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  {(profile as any).settings.displayName}
+                </h1>
               )}
+              <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                @{profile.handle || 'user'}
+              </p>
 
-              {nextTier && flags.BINGE_POINTS && (
-                <div className="w-full max-w-xs mx-auto space-y-1">
-                  <div className="flex items-center justify-between text-xs text-foreground/70 drop-shadow-sm">
-                    <span>{bingePoints} pts</span>
-                    <span>{nextTier.min} pts to {nextTier.name}</span>
+              {/* Progress to next badge */}
+              {flags.BINGE_POINTS && nextTier && (
+                <div className="space-y-2 px-4 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-foreground drop-shadow-sm">{currentBadge}</span>
+                    <div className="flex items-center gap-1 text-foreground/90">
+                      <TrendingUp className="h-3 w-3" />
+                      <span className="text-xs drop-shadow-sm">Next: {nextTier.name}</span>
+                    </div>
                   </div>
                   <Progress value={progress} className="h-2" />
+                  <div className="text-xs text-foreground/90 text-center drop-shadow-sm">
+                    {bingePoints} / {nextTier.min} Binge Points
+                  </div>
                 </div>
               )}
+
+              {/* Stats */}
+              <div className="flex gap-6 text-sm justify-center pt-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
+                <button 
+                  className="hover:underline group"
+                  onClick={() => navigate(`/user/${profile.handle}/followers`)}
+                >
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                    {profile.followers}
+                  </span>
+                  <span className="text-foreground/90 font-medium drop-shadow-sm">Followers</span>
+                </button>
+                <button 
+                  className="hover:underline group"
+                  onClick={() => navigate(`/user/${profile.handle}/following`)}
+                >
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                    {profile.following}
+                  </span>
+                  <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
+                </button>
+              </div>
             </div>
 
-            <div className="flex gap-3 sm:gap-4 text-center w-full justify-center">
-              <div 
-                className="cursor-pointer hover:opacity-80 transition-opacity bg-background/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-lg border border-border/50"
-                onClick={() => navigate(`/user/${profile.handle}/followers`)}
-              >
-                <p className="font-bold text-foreground text-sm sm:text-base">{profile.followers}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Followers</p>
-              </div>
-              <div 
-                className="cursor-pointer hover:opacity-80 transition-opacity bg-background/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-lg border border-border/50"
-                onClick={() => navigate(`/user/${profile.handle}/following`)}
-              >
-                <p className="font-bold text-foreground text-sm sm:text-base">{profile.following}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Following</p>
-              </div>
-            </div>
-
+            {/* Follow button */}
             {user && userId && user.id !== userId && (
               <FollowRequestButton
                 targetUserId={userId}
@@ -357,7 +371,7 @@ export default function UserProfilePage() {
               />
             )}
           </div>
-        </Card>
+        </div>
 
         {flags.BINGE_POINTS && (
           <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
@@ -386,12 +400,12 @@ export default function UserProfilePage() {
         {/* Tabs */}
         {!profile.is_private || (followStatus === 'accepted') ? (
           <div className="max-w-4xl mx-auto px-2 sm:px-4 relative z-10">
-            <Tabs defaultValue="posts" className="w-full">
-              <TabsList className="w-full justify-start mb-4 bg-card/50 backdrop-blur-md border-2 border-border/30 overflow-x-auto">
-                <TabsTrigger value="posts" className="text-xs sm:text-sm flex-shrink-0">Posts</TabsTrigger>
-                <TabsTrigger value="shows" className="text-xs sm:text-sm flex-shrink-0">Shows ({profile.showCount})</TabsTrigger>
-                <TabsTrigger value="seasons" className="text-xs sm:text-sm flex-shrink-0">Seasons ({profile.seasonCount})</TabsTrigger>
-                <TabsTrigger value="episodes" className="text-xs sm:text-sm flex-shrink-0">Episodes ({profile.episodeCount})</TabsTrigger>
+            <Tabs defaultValue="posts" className="w-full mt-0">
+              <TabsList className="w-full grid grid-cols-4 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+                <TabsTrigger value="posts">Posts</TabsTrigger>
+                <TabsTrigger value="shows">Shows</TabsTrigger>
+                <TabsTrigger value="seasons">Seasons</TabsTrigger>
+                <TabsTrigger value="episodes">Episodes</TabsTrigger>
               </TabsList>
 
               <TabsContent value="posts" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-2 sm:p-4">
