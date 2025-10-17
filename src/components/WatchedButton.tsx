@@ -119,25 +119,41 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         if (!error) {
           setIsWatched(true);
           
+          // DEBUG: Log content object
+          console.log('🔵 [WATCHED] Content object:', content);
+          console.log('🔵 [WATCHED] Content kind:', content?.kind);
+          console.log('🔵 [WATCHED] Content external_id:', content?.external_id);
+          
           // Populate counts for shows and seasons before calculating points
-          if (content?.kind === 'show' || content?.kind === 'season') {
-            console.log(`Populating counts for ${content.kind}: ${content.external_id}`);
+          const shouldPopulateCounts = content?.kind === 'show' || content?.kind === 'season';
+          console.log('🔵 [WATCHED] Should populate counts?', shouldPopulateCounts);
+          
+          if (shouldPopulateCounts) {
+            console.log(`🟢 [WATCHED] Populating counts for ${content.kind}: ${content.external_id}`);
             
-            const { error: countError } = await supabase.functions.invoke('populate-content-counts', {
-              body: {
-                external_id: content.external_id,
-                kind: content.kind
-              }
-            });
-            
-            if (countError) {
-              console.error('Error populating counts:', countError);
-              toast({
-                title: "Warning",
-                description: `Could not fetch episode counts: ${countError.message}`,
-                variant: "destructive"
+            try {
+              const { data: edgeFnData, error: countError } = await supabase.functions.invoke('populate-content-counts', {
+                body: {
+                  external_id: content.external_id,
+                  kind: content.kind
+                }
               });
+              
+              if (countError) {
+                console.error('🔴 [WATCHED] Error populating counts:', countError);
+                toast({
+                  title: "Warning",
+                  description: `Could not fetch episode counts: ${countError.message}`,
+                  variant: "destructive"
+                });
+              } else {
+                console.log('🟢 [WATCHED] Edge function SUCCESS:', edgeFnData);
+              }
+            } catch (edgeFnError) {
+              console.error('🔴 [WATCHED] Edge function exception:', edgeFnError);
             }
+          } else {
+            console.log('⚪ [WATCHED] Skipping count population - not a show or season');
           }
           
           // Manually trigger points recalculation
