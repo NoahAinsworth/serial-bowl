@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Edit, Loader2, Share2, X } from 'lucide-react';
+import { Edit, Loader2, Share2, X, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserPosts } from '@/components/UserPosts';
 import { UnifiedRatings } from '@/components/UnifiedRatings';
@@ -14,8 +14,14 @@ import { UserLists } from '@/components/UserLists';
 import { FollowRequestsList } from '@/components/FollowRequestsList';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
-import { BingePointsDisplay } from '@/components/BingePointsDisplay';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { ProfileRing } from '@/components/ProfileRing';
+import { BadgeDisplay } from '@/components/BadgeDisplay';
+import { BadgeCollection } from '@/components/BadgeCollection';
+import { DynamicBackground } from '@/components/DynamicBackground';
+import { AboutMeSection } from '@/components/AboutMeSection';
+import { CinematicFavorites } from '@/components/CinematicFavorites';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -72,7 +78,6 @@ export default function ProfilePage() {
       .eq('id', user.id)
       .maybeSingle();
 
-    // Get counts
     const [thoughtsRes, followersRes, followingRes] = await Promise.all([
       supabase.from('thoughts').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       supabase.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', user.id),
@@ -80,7 +85,6 @@ export default function ProfilePage() {
     ]);
 
     setProfile(profileData);
-    console.log('Profile data loaded:', profileData);
     setStats({
       thoughtsCount: thoughtsRes.count || 0,
       followersCount: followersRes.count || 0,
@@ -126,7 +130,6 @@ export default function ProfilePage() {
   };
 
   const addToTop3 = async (show: any, slotIndex: number) => {
-    // Check if show already exists in a different slot
     const existingIndex = top3Shows.findIndex(s => s && s.id === show.id.toString());
     if (existingIndex !== -1 && existingIndex !== slotIndex) {
       toast({
@@ -144,13 +147,10 @@ export default function ProfilePage() {
       poster_url: show.image || '',
     };
 
-    // Create a new array with 3 slots, preserving existing shows
     const newTop3 = [...top3Shows];
-    // Ensure array has 3 slots
     while (newTop3.length < 3) {
       newTop3.push(null);
     }
-    // Place the show in the selected slot
     newTop3[slotIndex] = showData;
 
     setTop3Shows(newTop3);
@@ -221,6 +221,41 @@ export default function ProfilePage() {
     }
   };
 
+  const handleBioSave = async (newBio: string) => {
+    await supabase
+      .from('profiles')
+      .update({ bio: newBio })
+      .eq('id', user!.id);
+
+    setProfile({ ...profile, bio: newBio });
+    
+    toast({
+      title: "Bio updated",
+      description: "Your profile bio has been saved",
+    });
+  };
+
+  const currentBadge = profile?.badge_tier || 'Pilot Watcher';
+  const bingePoints = profile?.binge_points || 0;
+
+  const BADGE_THRESHOLDS = [
+    { name: 'Pilot Watcher', min: 0, max: 49 },
+    { name: 'Casual Viewer', min: 50, max: 149 },
+    { name: 'Marathon Madness', min: 150, max: 299 },
+    { name: 'Season Smasher', min: 300, max: 499 },
+    { name: 'Series Finisher', min: 500, max: 799 },
+    { name: 'Stream Scholar', min: 800, max: 1199 },
+    { name: 'Ultimate Binger', min: 1200, max: Infinity },
+  ];
+
+  const currentTier = BADGE_THRESHOLDS.find(t => t.name === currentBadge) || BADGE_THRESHOLDS[0];
+  const currentIndex = BADGE_THRESHOLDS.findIndex(t => t.name === currentBadge);
+  const nextTier = currentIndex < BADGE_THRESHOLDS.length - 1 ? BADGE_THRESHOLDS[currentIndex + 1] : null;
+  
+  const progress = nextTier 
+    ? ((bingePoints - currentTier.min) / (nextTier.min - currentTier.min)) * 100
+    : 100;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -230,89 +265,113 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <>
+      <DynamicBackground badge={currentBadge} />
 
-      {/* Follow Requests List */}
-      <div className="px-4">
-        <FollowRequestsList />
-      </div>
+      <div className="max-w-4xl mx-auto relative pb-12">
+        <div className="px-4 mb-6 animate-fade-in">
+          <FollowRequestsList />
+        </div>
 
-      {/* Header Section */}
-      <div className="px-4 py-6 border-b border-border/30">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
-          {/* Avatar */}
-          <Avatar className="h-24 w-24 relative z-10 flex-shrink-0">
-            <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl">
-              {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+        <div className="px-4 py-8 mb-6 animate-fade-in">
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative w-48 h-48">
+              <ProfileRing points={bingePoints} badge={currentBadge}>
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
+                    {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </ProfileRing>
 
-          {/* Profile Info */}
-          <div className="flex-1 text-center sm:text-left">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between mb-2 gap-2">
-              <div>
-                {profile?.settings?.displayName && (
-                  <h1 className="text-2xl font-bold text-foreground">{profile.settings.displayName}</h1>
-                )}
-                <p className="text-muted-foreground">{profile?.handle || 'user'}</p>
+              <div className="absolute -right-6 top-1/2 -translate-y-1/2">
+                <BadgeDisplay badge={currentBadge} size="lg" showGlow={true} />
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon" onClick={handleShare} title="Share profile">
-                  <Share2 className="h-5 w-5" />
+
+              <div className="absolute -top-2 -right-2 flex gap-2">
+                <Button variant="secondary" size="icon" onClick={handleShare} title="Share profile" className="h-8 w-8 rounded-full shadow-lg">
+                  <Share2 className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile">
-                  <Edit className="h-5 w-5" />
+                <Button variant="secondary" size="icon" onClick={() => navigate('/profile/edit')} title="Edit profile" className="h-8 w-8 rounded-full shadow-lg">
+                  <Edit className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            {/* Bio */}
-            {profile?.bio && (
-              <p className="text-sm mb-4 text-foreground/80 font-medium">{profile.bio}</p>
-            )}
-            
-            {/* Binge Points Display */}
-            {flags.BINGE_POINTS && (
-              <div className="mt-4">
-                <BingePointsDisplay
-                  points={profile?.binge_points || 0}
-                  badge={profile?.badge_tier || 'Pilot Watcher'}
-                />
-              </div>
-            )}
+            <div className="text-center space-y-3 w-full max-w-md">
+              {profile?.settings?.displayName && (
+                <h1 className="text-3xl font-bold text-foreground">{profile.settings.displayName}</h1>
+              )}
+              <p className="text-lg text-muted-foreground">@{profile?.handle || 'user'}</p>
 
-            {/* Counts Row */}
-            <div className="flex gap-6 text-sm justify-center sm:justify-start">
-              <button 
-                className="hover:underline"
-                onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
-              >
-                <span className="font-bold text-foreground text-base">{stats.thoughtsCount}</span>{' '}
-                <span className="text-foreground/70 font-medium">Thoughts</span>
-              </button>
-              <button 
-                className="hover:underline"
-                onClick={() => navigate('/followers')}
-              >
-                <span className="font-bold text-foreground text-base">{stats.followersCount}</span>{' '}
-                <span className="text-foreground/70 font-medium">Followers</span>
-              </button>
-              <button 
-                className="hover:underline"
-                onClick={() => navigate('/following')}
-              >
-                <span className="font-bold text-foreground text-base">{stats.followingCount}</span>{' '}
-                <span className="text-foreground/70 font-medium">Following</span>
-              </button>
+              {flags.BINGE_POINTS && nextTier && (
+                <div className="space-y-2 px-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-foreground">{currentBadge}</span>
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                      <TrendingUp className="h-3 w-3" />
+                      <span className="text-xs">Next: {nextTier.name}</span>
+                    </div>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                  <div className="text-xs text-muted-foreground text-center">
+                    {bingePoints} / {nextTier.min} Binge Points
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-6 text-sm justify-center pt-2">
+                <button 
+                  className="hover:underline group"
+                  onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
+                >
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform">{stats.thoughtsCount}</span>
+                  <span className="text-foreground/70 font-medium">Thoughts</span>
+                </button>
+                <button 
+                  className="hover:underline group"
+                  onClick={() => navigate('/followers')}
+                >
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform">{stats.followersCount}</span>
+                  <span className="text-foreground/70 font-medium">Followers</span>
+                </button>
+                <button 
+                  className="hover:underline group"
+                  onClick={() => navigate('/following')}
+                >
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform">{stats.followingCount}</span>
+                  <span className="text-foreground/70 font-medium">Following</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Top 3 Shows Section */}
-      <div className="px-4 py-6 border-b border-border/30">
-        <h2 className="text-xl font-bold text-center mb-4">Favorites</h2>
+        {flags.BINGE_POINTS && (
+          <div className="px-4 mb-6 animate-fade-in">
+            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
+          </div>
+        )}
+
+        <div className="px-4 mb-6 animate-fade-in">
+          <AboutMeSection 
+            bio={profile?.bio || ''} 
+            onSave={handleBioSave}
+            isOwner={true}
+          />
+        </div>
+
+        <div className="px-4 mb-6 animate-fade-in">
+          <CinematicFavorites
+            shows={top3Shows}
+            onEdit={openSlotDialog}
+            onRemove={removeFromTop3}
+            badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'}
+            isOwner={true}
+          />
+        </div>
+
         <Dialog open={showTop3Dialog} onOpenChange={(open) => {
           setShowTop3Dialog(open);
           if (!open) {
@@ -321,7 +380,7 @@ export default function ProfilePage() {
             setSearchResults([]);
           }
         }}>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>
                 {selectedSlot !== null ? `Edit Slot #${selectedSlot + 1}` : 'Add to Favorites'}
@@ -347,7 +406,7 @@ export default function ProfilePage() {
                   searchResults.map((show) => (
                     <Card
                       key={show.id}
-                      className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted"
+                      className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted transition-colors"
                       onClick={() => selectedSlot !== null && addToTop3(show, selectedSlot)}
                     >
                       {show.image && (
@@ -366,75 +425,27 @@ export default function ProfilePage() {
             </div>
           </DialogContent>
         </Dialog>
-        <div className="grid grid-cols-3 gap-4">
-          {[0, 1, 2].map((slotIndex) => {
-            const show = top3Shows[slotIndex];
-            return (
-              <div key={slotIndex} className="text-center relative group">
-                <div className="relative">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
-                    onClick={() => openSlotDialog(slotIndex)}
-                    title={show ? "Edit show" : "Add show"}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  {show && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 left-2 z-10 bg-background/80 hover:bg-background"
-                      onClick={() => removeFromTop3(slotIndex)}
-                      title="Remove show"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <div 
-                    className="aspect-[2/3] bg-muted rounded-lg mb-2 overflow-hidden cursor-pointer"
-                    onClick={() => show ? navigate(`/show/${show.external_id}`) : openSlotDialog(slotIndex)}
-                  >
-                    {show?.poster_url ? (
-                      <img src={show.poster_url} alt={show.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-muted-foreground">#{slotIndex + 1}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <p className="text-sm font-semibold text-foreground">
-                  {show?.title || 'Empty Slot'}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+
+        <Tabs defaultValue="posts" className="w-full mt-0">
+          <TabsList className="w-full grid grid-cols-3 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+            <TabsTrigger value="posts">Posts</TabsTrigger>
+            <TabsTrigger value="ratings">Ratings</TabsTrigger>
+            <TabsTrigger value="lists">Lists</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="posts" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+            <UserPosts userId={user!.id} />
+          </TabsContent>
+
+          <TabsContent value="ratings" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+            <UnifiedRatings userId={user!.id} />
+          </TabsContent>
+
+          <TabsContent value="lists" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+            <UserLists />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Tabs Section */}
-      <Tabs defaultValue="posts" className="w-full mt-0">
-        <TabsList className="w-full grid grid-cols-3 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
-          <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="ratings">Ratings</TabsTrigger>
-          <TabsTrigger value="lists">Lists</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="posts" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-          <UserPosts userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="ratings" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-          <UnifiedRatings userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="lists" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-          <UserLists />
-        </TabsContent>
-      </Tabs>
-
-    </div>
+    </>
   );
 }
