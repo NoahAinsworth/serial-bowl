@@ -54,9 +54,22 @@ async function tvdbFetch(path: string) {
 }
 
 serve(async (req) => {
-  // Handle CORS
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
+  }
+  
+  // Health check endpoint
+  if (req.method === 'GET') {
+    console.log('🏥 Health check requested');
+    return new Response(
+      JSON.stringify({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        version: '2.0'
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   }
 
   let external_id = ''
@@ -67,14 +80,22 @@ serve(async (req) => {
     external_id = body.external_id
     kind = body.kind
 
+    console.log('📥 Received request:', { 
+      method: req.method, 
+      external_id, 
+      kind,
+      timestamp: new Date().toISOString()
+    });
+
     if (!external_id || !kind) {
+      console.error('❌ Missing required fields:', { external_id, kind });
       return new Response(
         JSON.stringify({ error: 'external_id and kind are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log(`Populating counts for ${kind}: ${external_id}`)
+    console.log(`🔄 Populating counts for ${kind}: ${external_id}`)
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -193,17 +214,33 @@ serve(async (req) => {
       if (error) throw error
     }
 
+    console.log('✅ Successfully populated counts:', { external_id, kind });
     return new Response(
-      JSON.stringify({ success: true, external_id, kind }),
+      JSON.stringify({ 
+        success: true, 
+        external_id, 
+        kind,
+        timestamp: new Date().toISOString()
+      }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error populating counts:', error)
-    console.error('Error details:', { external_id, kind, error })
+    console.error('💥 Error populating counts:', error)
+    console.error('📋 Error details:', { 
+      external_id, 
+      kind, 
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    })
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(
-      JSON.stringify({ error: errorMessage, external_id, kind }),
+      JSON.stringify({ 
+        error: errorMessage, 
+        external_id, 
+        kind,
+        timestamp: new Date().toISOString()
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

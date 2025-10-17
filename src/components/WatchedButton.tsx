@@ -119,31 +119,61 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         if (!error) {
           setIsWatched(true);
           
-          // Populate counts for shows and seasons via edge function
+          // Populate counts for shows and seasons via edge function with retry logic
           if (content?.kind === 'show' || content?.kind === 'season') {
-            console.log(`📊 Populating counts for ${content.kind}: ${content.external_id}`);
+            console.log('🚀 Starting count population...');
+            console.log('📊 Content:', { kind: content.kind, external_id: content.external_id });
             
-            const { error: countError } = await supabase.functions.invoke('populate-content-counts', {
-              body: {
-                external_id: content.external_id,
-                kind: content.kind
+            let retries = 2;
+            let lastError = null;
+            
+            for (let i = 0; i < retries; i++) {
+              try {
+                console.log(`📡 Invoking edge function (attempt ${i + 1}/${retries})...`);
+                
+                const { data, error: countError } = await supabase.functions.invoke('populate-content-counts', {
+                  body: {
+                    external_id: content.external_id,
+                    kind: content.kind
+                  }
+                });
+                
+                console.log('📥 Edge function response:', { data, error: countError });
+                
+                if (!countError) {
+                  console.log('🎉 Counts populated successfully!');
+                  break; // Success, exit retry loop
+                }
+                
+                lastError = countError;
+                console.warn(`⚠️ Attempt ${i + 1} failed:`, countError);
+              } catch (e) {
+                lastError = e;
+                console.error(`💥 Attempt ${i + 1} exception:`, e);
               }
-            });
+              
+              if (i < retries - 1) {
+                console.log('🔄 Retrying in 1 second...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            }
             
-            if (countError) {
-              console.error('❌ Error populating counts:', countError);
+            if (lastError) {
+              console.error('❌ All attempts failed:', lastError);
               toast({
                 title: "Warning",
-                description: `Could not fetch episode counts. Your points may be inaccurate.`,
+                description: "Could not fetch episode counts. Your points may be inaccurate.",
                 variant: "destructive"
               });
             }
           }
           
           // Recalculate binge points
+          console.log('🔄 Updating binge points...');
           await supabase.rpc('update_user_binge_points', {
             p_user_id: user.id
           });
+          console.log('✅ Binge points updated');
           
           // Fetch updated points for display
           const { data: pointsResult } = await supabase.rpc('calculate_binge_points', {
