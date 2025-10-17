@@ -13,6 +13,9 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Textarea } from '@/components/ui/textarea';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { BingePointsDisplay } from '@/components/BingePointsDisplay';
+import { Loader2 } from 'lucide-react';
 
 
 export default function SettingsPage() {
@@ -21,6 +24,9 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
+  const flags = useFeatureFlags();
+  const [profile, setProfile] = useState<any>(null);
+  const [recalculating, setRecalculating] = useState(false);
   
   const [settings, setSettings] = useState({
     privacy: {
@@ -69,7 +75,22 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadSettings();
+    loadProfile();
   }, [user]);
+  
+  const loadProfile = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('profiles')
+      .select('binge_points, badge_tier')
+      .eq('id', user.id)
+      .single();
+      
+    if (data) {
+      setProfile(data);
+    }
+  };
 
   const loadSettings = async () => {
     if (!user) return;
@@ -136,6 +157,32 @@ export default function SettingsPage() {
     }));
   };
 
+  const recalculateBingePoints = async () => {
+    if (!user) return;
+    
+    setRecalculating(true);
+    try {
+      await supabase.rpc('update_user_binge_points', {
+        p_user_id: user.id
+      });
+      
+      await loadProfile();
+      
+      toast({
+        title: "Success",
+        description: "Binge Points recalculated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to recalculate Binge Points",
+        variant: "destructive",
+      });
+    } finally {
+      setRecalculating(false);
+    }
+  };
+  
   const handleSendReport = () => {
     const subject = encodeURIComponent('Serialbowl Report');
     const body = encodeURIComponent(
@@ -301,6 +348,33 @@ export default function SettingsPage() {
           />
         </div>
       </Card>
+      
+      {/* Binge Points */}
+      {flags.BINGE_POINTS && profile && (
+        <Card className="p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Binge Points</h2>
+          <BingePointsDisplay
+            points={profile.binge_points || 0}
+            badge={profile.badge_tier || 'Pilot Watcher'}
+            showBreakdown
+          />
+          <Button
+            onClick={recalculateBingePoints}
+            disabled={recalculating}
+            variant="outline"
+            className="w-full"
+          >
+            {recalculating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Recalculating...
+              </>
+            ) : (
+              'Recalculate Binge Points'
+            )}
+          </Button>
+        </Card>
+      )}
 
         <Button onClick={saveSettings} className="w-full btn-glow">
           Save Settings

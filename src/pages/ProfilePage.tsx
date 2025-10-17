@@ -14,6 +14,8 @@ import { UserLists } from '@/components/UserLists';
 import { FollowRequestsList } from '@/components/FollowRequestsList';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
+import { BingePointsDisplay } from '@/components/BingePointsDisplay';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +29,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { search: searchTVDB } = useTVDB();
+  const flags = useFeatureFlags();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({
@@ -267,6 +270,16 @@ export default function ProfilePage() {
             {/* Bio */}
             {profile?.bio && (
               <p className="text-sm mb-4 text-foreground/80 font-medium">{profile.bio}</p>
+            )}
+            
+            {/* Binge Points Display */}
+            {flags.BINGE_POINTS && (
+              <div className="mt-4">
+                <BingePointsDisplay
+                  points={profile?.binge_points || 0}
+                  badge={profile?.badge_tier || 'Pilot Watcher'}
+                />
+              </div>
             )}
 
             {/* Counts Row */}

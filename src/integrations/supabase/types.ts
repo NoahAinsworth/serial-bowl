@@ -973,6 +973,7 @@ export type Database = {
           avatar_url: string | null
           badge_tier: string | null
           badge_updated_at: string | null
+          binge_points: number | null
           bio: string | null
           created_at: string | null
           handle: string
@@ -986,6 +987,7 @@ export type Database = {
           avatar_url?: string | null
           badge_tier?: string | null
           badge_updated_at?: string | null
+          binge_points?: number | null
           bio?: string | null
           created_at?: string | null
           handle: string
@@ -999,6 +1001,7 @@ export type Database = {
           avatar_url?: string | null
           badge_tier?: string | null
           badge_updated_at?: string | null
+          binge_points?: number | null
           bio?: string | null
           created_at?: string | null
           handle?: string
@@ -1131,6 +1134,27 @@ export type Database = {
           },
         ]
       }
+      season_episode_counts: {
+        Row: {
+          episode_count: number
+          external_id: string
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          episode_count?: number
+          external_id: string
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          episode_count?: number
+          external_id?: string
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       seasons: {
         Row: {
           dominant_hex: string | null
@@ -1165,6 +1189,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      show_season_counts: {
+        Row: {
+          external_id: string
+          id: string
+          season_count: number
+          total_episode_count: number
+          updated_at: string | null
+        }
+        Insert: {
+          external_id: string
+          id?: string
+          season_count?: number
+          total_episode_count?: number
+          updated_at?: string | null
+        }
+        Update: {
+          external_id?: string
+          id?: string
+          season_count?: number
+          total_episode_count?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       shows: {
         Row: {
@@ -1748,6 +1796,17 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_binge_points: {
+        Args: { p_user_id: string }
+        Returns: {
+          completed_seasons: number
+          completed_shows: number
+          episode_points: number
+          season_bonuses: number
+          show_bonuses: number
+          total_points: number
+        }[]
+      }
       compute_season_rollup: {
         Args: { p_season_id: string; p_user: string }
         Returns: number
@@ -1807,6 +1866,10 @@ export type Database = {
           score: number
         }[]
       }
+      get_badge_tier: {
+        Args: { p_points: number }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1817,6 +1880,22 @@ export type Database = {
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
+      }
+      update_season_episode_count: {
+        Args: { p_episode_count: number; p_season_external_id: string }
+        Returns: undefined
+      }
+      update_show_counts: {
+        Args: {
+          p_season_count: number
+          p_show_external_id: string
+          p_total_episode_count: number
+        }
+        Returns: undefined
+      }
+      update_user_binge_points: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
       update_user_watch_stats: {
         Args: { p_user_id: string }

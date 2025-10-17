@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { searchShows, getShow, getSeasons, getEpisodes } from '@/services/tvdb';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface TVShow {
   id: number;
@@ -66,6 +67,15 @@ export function useTVDB() {
     setError(null);
     try {
       const seasons = await getSeasons(showId);
+      
+      // Cache show counts for binge points calculation
+      const allEpisodes = await getEpisodes(showId);
+      await supabase.rpc('update_show_counts', {
+        p_show_external_id: showId.toString(),
+        p_season_count: seasons.length,
+        p_total_episode_count: allEpisodes.length,
+      });
+      
       return seasons;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch seasons');
@@ -81,7 +91,15 @@ export function useTVDB() {
     try {
       const episodes = await getEpisodes(seriesId);
       // Filter by season number
-      return episodes.filter(ep => ep.seasonNumber === seasonNumber);
+      const seasonEpisodes = episodes.filter(ep => ep.seasonNumber === seasonNumber);
+      
+      // Cache episode count for this season for binge points calculation
+      await supabase.rpc('update_season_episode_count', {
+        p_season_external_id: `${seriesId}:${seasonNumber}`,
+        p_episode_count: seasonEpisodes.length,
+      });
+      
+      return seasonEpisodes;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch episodes');
       return [];

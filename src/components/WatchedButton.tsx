@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 interface WatchedButtonProps {
   contentId: string; // UUID from content table
@@ -13,8 +14,10 @@ interface WatchedButtonProps {
 export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const flags = useFeatureFlags();
   const [isWatched, setIsWatched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [lastBulkToggle, setLastBulkToggle] = useState(0);
 
   useEffect(() => {
     checkWatched();
@@ -43,64 +46,116 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
       return;
     }
 
-    setLoading(true);
-
-    if (isWatched) {
-      const { error } = await supabase
-        .from('watched')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('content_id', contentId);
-
-      if (!error) {
-        setIsWatched(false);
-        toast({
-          title: "Removed from watched",
-          description: `${showTitle} marked as unwatched`,
-        });
-      }
-    } else {
-      // Check content type and consolidate if needed
-      const { data: content } = await supabase
-        .from('content')
-        .select('kind')
-        .eq('id', contentId)
-        .single();
-
-      // If marking a season as watched, consolidate any individual episode watches
-      if (content?.kind === 'season') {
-        await supabase.rpc('consolidate_episodes_to_season', {
-          p_user_id: user.id,
-          p_season_content_id: contentId
-        });
-      }
-      
-      // If marking a show as watched, consolidate all season and episode watches
-      if (content?.kind === 'show') {
-        await supabase.rpc('consolidate_seasons_to_show', {
-          p_user_id: user.id,
-          p_show_content_id: contentId
-        });
-      }
-
-      const { error } = await supabase
-        .from('watched')
-        .insert({
-          user_id: user.id,
-          content_id: contentId,
-          watched_at: new Date().toISOString(),
-        });
-
-      if (!error) {
-        setIsWatched(true);
-        toast({
-          title: "Marked as watched",
-          description: `${showTitle} added to watched list`,
-        });
-      }
+    // Check cooldown for bulk operations (10 seconds)
+    const now = Date.now();
+    if (now - lastBulkToggle < 10000 && lastBulkToggle > 0) {
+      toast({
+        title: "Please wait",
+        description: "Too many requests. Please wait a moment.",
+        variant: "destructive",
+      });
+      return;
     }
 
-    setLoading(false);
+    setLoading(true);
+
+    try {
+      if (isWatched) {
+        const { error } = await supabase
+          .from('watched')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('content_id', contentId);
+
+        if (!error) {
+          setIsWatched(false);
+          toast({
+            title: "Removed from watched",
+            description: `${showTitle} marked as unwatched`,
+          });
+        }
+      } else {
+        // Check content type and consolidate if needed
+        const { data: content } = await supabase
+          .from('content')
+          .select('kind')
+          .eq('id', contentId)
+          .single();
+
+        // If marking a season as watched, consolidate any individual episode watches
+        if (content?.kind === 'season') {
+          setLastBulkToggle(Date.now());
+          await supabase.rpc('consolidate_episodes_to_season', {
+            p_user_id: user.id,
+            p_season_content_id: contentId
+          });
+        }
+        
+        // If marking a show as watched, consolidate all season and episode watches
+        if (content?.kind === 'show') {
+          setLastBulkToggle(Date.now());
+          await supabase.rpc('consolidate_seasons_to_show', {
+            p_user_id: user.id,
+            p_show_content_id: contentId
+          });
+        }
+
+        const { error } = await supabase
+          .from('watched')
+          .insert({
+            user_id: user.id,
+            content_id: contentId,
+            watched_at: new Date().toISOString(),
+          });
+
+        if (!error) {
+          setIsWatched(true);
+          
+          // Get updated binge points if feature is enabled
+          if (flags.BINGE_POINTS) {
+            // Fetch season episode counts if it's a season
+            if (content?.kind === 'season') {
+              const { data: seasonCounts } = await supabase
+                .from('season_episode_counts')
+                .select('episode_count')
+                .eq('external_id', content.kind)
+                .single();
+              
+              const episodeCount = seasonCounts?.episode_count || 0;
+              const bonus = episodeCount >= 14 ? 15 : episodeCount >= 7 ? 10 : 5;
+              toast({
+                title: "Season complete!",
+                description: `+${bonus} Binge Points earned! 🎉`,
+              });
+            } else if (content?.kind === 'show') {
+              toast({
+                title: "Show complete!",
+                description: "+100 Binge Points earned! 🏆",
+              });
+            } else {
+              toast({
+                title: "Marked as watched",
+                description: `${showTitle} • +1 Binge Point`,
+              });
+            }
+          } else {
+            toast({
+              title: "Marked as watched",
+              description: `${showTitle} added to watched list`,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling watched:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update watched status",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -111,7 +166,13 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
       size="sm"
       className="flex-1 text-[9px] xs:text-xs px-1.5 xs:px-3 py-1"
     >
-      {isWatched ? (
+      {loading ? (
+        <>
+          <Loader2 className="h-3 w-3 mr-0.5 xs:mr-1 animate-spin" />
+          <span className="hidden xs:inline">{isWatched ? 'Unwatching...' : 'Marking...'}</span>
+          <span className="xs:hidden">...</span>
+        </>
+      ) : isWatched ? (
         <>
           <Eye className="h-3 w-3 mr-0.5 xs:mr-1" />
           <span className="hidden xs:inline">Watched</span>
