@@ -77,9 +77,27 @@ export function BadgeDisplay({ badge, size = 'md', showGlow = true }: BadgeDispl
   return (
     <div className="flex flex-col items-center gap-1">
       {badge === 'Ultimate Binger' ? (
-        <div className="rounded-full p-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500">
-          {badgeContent}
-        </div>
+        <>
+          <div className="rounded-full p-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500">
+            <div 
+              className={cn(
+                "rounded-full p-2 backdrop-blur-md bg-background/90 transition-all duration-300 flex items-center justify-center relative",
+                sizeClasses[size],
+                "hover:scale-110"
+              )}
+            >
+              <Trophy className={cn(iconSizes[size], BADGE_COLORS[badge])} />
+            </div>
+          </div>
+          {size !== 'sm' && (
+            <span className={cn(
+              "text-xs font-semibold text-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]",
+              BADGE_COLORS[badge]
+            )}>
+              {badge}
+            </span>
+          )}
+        </>
       ) : (
         badgeContent
       )}
