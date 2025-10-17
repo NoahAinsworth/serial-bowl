@@ -15,9 +15,6 @@ import { getRating } from '@/api/ratings';
 import { supabase } from '@/api/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { SeasonEpisodeList } from '@/components/SeasonEpisodeList';
-import { ShowWatchToggle } from '@/components/ShowWatchToggle';
-import { FEATURE_WATCH_AND_BADGES } from '@/lib/featureFlags';
 
 export default function ShowDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -175,46 +172,20 @@ export default function ShowDetailPage() {
         </div>
       </Card>
 
-      {FEATURE_WATCH_AND_BADGES && id && (
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Seasons & Episodes</h2>
-            <ShowWatchToggle
-              showId={parseInt(id)}
-              seasons={[]}
-              allWatched={false}
-              onToggle={() => {}}
-            />
-          </div>
-          <div className="space-y-4">
-            {seasons.filter(season => season.number !== 0).map((season) => (
-              <SeasonEpisodeList
-                key={season.id}
-                showId={parseInt(id)}
-                seasonNumber={season.number}
-                seasonId={season.id}
-              />
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {!FEATURE_WATCH_AND_BADGES && (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Seasons</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {seasons.filter(season => season.number !== 0).map((season) => (
-              <Card
-                key={season.id}
-                className="p-4 cursor-pointer transition-all hover:border-primary"
-                onClick={() => navigate(`/show/${id}/season/${season.number}`)}
-              >
-                <h3 className="font-semibold text-center">{season.name}</h3>
-              </Card>
-            ))}
-          </div>
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Seasons</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {seasons.filter(season => season.number !== 0).map((season) => (
+            <Card
+              key={season.id}
+              className="p-4 cursor-pointer transition-all hover:border-primary"
+              onClick={() => navigate(`/show/${id}/season/${season.number}`)}
+            >
+              <h3 className="font-semibold text-center">{season.name}</h3>
+            </Card>
+          ))}
         </div>
-      )}
+      </div>
 
       {contentId && (
         <Tabs defaultValue="reviews" className="w-full">
