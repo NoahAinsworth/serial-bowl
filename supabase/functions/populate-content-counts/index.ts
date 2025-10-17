@@ -97,7 +97,8 @@ serve(async (req) => {
       
       if (seasons?.episodes) {
         for (const ep of seasons.episodes) {
-          if (ep.seasonNumber !== null && ep.seasonNumber !== undefined) {
+          // Skip season 0 (specials) - only count season 1+
+          if (ep.seasonNumber !== null && ep.seasonNumber !== undefined && ep.seasonNumber >= 1) {
             const count = seasonEpisodeCounts.get(ep.seasonNumber) || 0
             seasonEpisodeCounts.set(ep.seasonNumber, count + 1)
             totalEpisodes++
@@ -143,6 +144,15 @@ serve(async (req) => {
       const seasonNum = external_id.includes('tvdb:')
         ? parseInt(parts[2])
         : parseInt(parts[1])
+      
+      // Skip season 0 (specials)
+      if (seasonNum === 0) {
+        console.log(`Skipping season 0 (specials) for show ${showId}`)
+        return new Response(
+          JSON.stringify({ success: true, external_id, kind, message: 'Season 0 skipped' }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
       
       // Fetch episodes for this season
       const data = await tvdbFetch(`/series/${showId}/episodes/default?page=0`)
