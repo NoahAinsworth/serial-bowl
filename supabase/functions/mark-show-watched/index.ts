@@ -80,52 +80,72 @@ Deno.serve(async (req) => {
 
     console.log(`[mark-show-watched] Found ${episodes.length} episodes`);
 
-    // Store episode runtimes and mark as watched
+    // Get already watched episodes to avoid duplicates
+    const { data: existingWatched } = await supabase
+      .from('watched_episodes')
+      .select('tvdb_id')
+      .eq('user_id', user.id);
+
+    const alreadyWatchedSet = new Set(
+      (existingWatched || []).map((w) => w.tvdb_id)
+    );
+
+    // Prepare data for insertion
     const watchedEpisodes = [];
     const runtimeInserts = [];
 
     for (const episode of episodes) {
       const tvdbId = `${showId}:${episode.seasonNumber}:${episode.number}`;
       
+      // Skip if already watched
+      if (alreadyWatchedSet.has(tvdbId)) {
+        continue;
+      }
+
       // Add to watched episodes
       watchedEpisodes.push({
         user_id: user.id,
         tvdb_id: tvdbId,
       });
 
-      // Add runtime if available
-      if (episode.runtime) {
-        runtimeInserts.push({
-          tvdb_id: tvdbId,
-          runtime_minutes: episode.runtime,
-        });
-      }
+      // Add runtime if available (default to 45 minutes if not provided)
+      const runtime = episode.runtime || 45;
+      runtimeInserts.push({
+        tvdb_id: tvdbId,
+        runtime_minutes: runtime,
+      });
     }
 
-    // Insert episode runtimes (upsert to avoid duplicates)
+    console.log(`[mark-show-watched] Prepared ${watchedEpisodes.length} new episodes to mark as watched`);
+
+    // Insert episode runtimes first
     if (runtimeInserts.length > 0) {
       const { error: runtimeError } = await supabase
         .from('episode_runtimes')
-        .upsert(runtimeInserts, { onConflict: 'tvdb_id' });
+        .upsert(runtimeInserts, { onConflict: 'tvdb_id', ignoreDuplicates: false });
 
       if (runtimeError) {
         console.error('[mark-show-watched] Error inserting runtimes:', runtimeError);
       } else {
-        console.log(`[mark-show-watched] Inserted ${runtimeInserts.length} episode runtimes`);
+        console.log(`[mark-show-watched] Upserted ${runtimeInserts.length} episode runtimes`);
       }
     }
 
-    // Insert watched episodes (upsert to avoid duplicates)
-    const { error: watchedError } = await supabase
-      .from('watched_episodes')
-      .upsert(watchedEpisodes, { onConflict: 'user_id,tvdb_id' });
+    // Insert only new watched episodes
+    if (watchedEpisodes.length > 0) {
+      const { error: watchedError } = await supabase
+        .from('watched_episodes')
+        .insert(watchedEpisodes);
 
-    if (watchedError) {
-      console.error('[mark-show-watched] Error marking episodes as watched:', watchedError);
-      throw watchedError;
+      if (watchedError) {
+        console.error('[mark-show-watched] Error marking episodes as watched:', watchedError);
+        throw watchedError;
+      }
+
+      console.log(`[mark-show-watched] Marked ${watchedEpisodes.length} new episodes as watched`);
+    } else {
+      console.log(`[mark-show-watched] All episodes already marked as watched`);
     }
-
-    console.log(`[mark-show-watched] Marked ${watchedEpisodes.length} episodes as watched`);
 
     // Update user watch stats
     const { error: statsError } = await supabase.rpc('update_user_watch_stats', {
@@ -147,6 +167,8 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         episodesMarked: watchedEpisodes.length,
+        totalEpisodes: episodes.length,
+        alreadyWatched: episodes.length - watchedEpisodes.length,
         totalMinutes: profile?.minutes_watched || 0,
         badgeTier: profile?.badge_tier,
       }),
