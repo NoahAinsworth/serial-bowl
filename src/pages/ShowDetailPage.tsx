@@ -177,7 +177,7 @@ export default function ShowDetailPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {seasons.filter(season => season.number !== 0).map((season) => (
             <Card
-              key={season.id}
+              key={season.number}
               className="p-4 cursor-pointer transition-all hover:border-primary"
               onClick={() => navigate(`/show/${id}/season/${season.number}`)}
             >

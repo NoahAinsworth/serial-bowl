@@ -93,16 +93,24 @@ export async function getSeasons(showId: number) {
     const show = await tvdbFetch(`/series/${showId}/extended`);
     const seasons = show.seasons || [];
     
-    // Filter out season 0 (specials) and map to expected format
-    return seasons
+    // Use Map to deduplicate by season number
+    const uniqueSeasons = new Map();
+    
+    seasons
       .filter((season: any) => season.number > 0)
-      .map((season: any) => ({
-        id: season.id || season.number,
-        number: season.number,
-        name: season.name || `Season ${season.number}`,
-        overview: season.overview || '',
-        image: season.image || '',
-      }))
+      .forEach((season: any) => {
+        if (!uniqueSeasons.has(season.number)) {
+          uniqueSeasons.set(season.number, {
+            id: season.id || season.number,
+            number: season.number,
+            name: season.name || `Season ${season.number}`,
+            overview: season.overview || '',
+            image: season.image || '',
+          });
+        }
+      });
+    
+    return Array.from(uniqueSeasons.values())
       .sort((a: any, b: any) => a.number - b.number);
   } catch (error) {
     console.error(`Get seasons for show ${showId} error:`, error);
@@ -110,12 +118,30 @@ export async function getSeasons(showId: number) {
   }
 }
 
-export async function getEpisodes(seriesId: number) {
+export async function getEpisodes(seriesId: number, seasonNumber?: number) {
   try {
+    // If season number provided, use dedicated endpoint
+    if (seasonNumber !== undefined) {
+      const data = await tvdbFetch(`/series/${seriesId}/episodes/default?season=${seasonNumber}`);
+      const episodes = data.episodes || [];
+      
+      return episodes
+        .filter((ep: any) => ep.seasonNumber > 0)
+        .map((ep: any) => ({
+          id: ep.id,
+          name: ep.name || 'Untitled Episode',
+          overview: ep.overview || '',
+          aired: ep.aired || '',
+          seasonNumber: ep.seasonNumber,
+          number: ep.number || ep.episodeNumber,
+          image: ep.image || '',
+        }));
+    }
+    
+    // Fallback to extended endpoint for all episodes
     const show = await tvdbFetch(`/series/${seriesId}/extended`);
     const allEpisodes: any[] = [];
     
-    // Extract episodes from all seasons
     if (show.seasons) {
       for (const season of show.seasons) {
         if (season.episodes) {
@@ -124,7 +150,6 @@ export async function getEpisodes(seriesId: number) {
       }
     }
     
-    // Filter out specials (season 0) and map to expected format
     return allEpisodes
       .filter((ep: any) => ep.seasonNumber > 0)
       .map((ep: any) => ({

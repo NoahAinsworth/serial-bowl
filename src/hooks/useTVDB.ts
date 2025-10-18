@@ -109,17 +109,16 @@ export function useTVDB() {
     setLoading(true);
     setError(null);
     try {
-      const episodes = await getEpisodes(seriesId);
-      // Filter by season number
-      const seasonEpisodes = episodes.filter(ep => ep.seasonNumber === seasonNumber);
+      // Pass season number to use dedicated endpoint
+      const episodes = await getEpisodes(seriesId, seasonNumber);
       
       // Cache episode count for this season for binge points calculation
       await supabase.rpc('update_season_episode_count', {
         p_season_external_id: `${seriesId}:${seasonNumber}`,
-        p_episode_count: seasonEpisodes.length,
+        p_episode_count: episodes.length,
       });
       
-      return seasonEpisodes;
+      return episodes;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch episodes');
       return [];
