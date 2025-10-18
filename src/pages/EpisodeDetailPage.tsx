@@ -50,6 +50,11 @@ export default function EpisodeDetailPage() {
   const loadContentAndRating = async (episodeData: TVEpisode, externalId: string) => {
     console.log('Loading content for episode:', externalId);
     
+    if (!user) {
+      console.warn('User not authenticated, skipping content creation');
+      return;
+    }
+    
     let { data: content, error: fetchError } = await supabase
       .from('content')
       .select('id')
@@ -70,7 +75,7 @@ export default function EpisodeDetailPage() {
 
     if (!content) {
       console.log('Creating new content for episode:', externalId);
-      const { data: newContent, error } = await supabase
+      const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
@@ -82,18 +87,42 @@ export default function EpisodeDetailPage() {
         .select()
         .single();
       
-      if (error) {
-        console.error('Error creating content:', error);
+      if (insertError?.code === '42501') {
+        console.error('RLS policy blocking insert. Refreshing session...');
+        await supabase.auth.refreshSession();
+        
+        const { data: retryContent, error: retryError } = await supabase
+          .from('content')
+          .insert({
+            external_src: 'thetvdb',
+            external_id: externalId,
+            kind: 'episode',
+            title: episodeData.name,
+            air_date: episodeData.aired,
+          })
+          .select()
+          .single();
+        
+        if (retryError) {
+          console.error('Failed to create content after auth refresh:', retryError);
+          toast({
+            title: "Authentication Error",
+            description: "Please try signing out and back in",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        content = retryContent;
+      } else if (insertError) {
+        console.error('Error creating content:', insertError);
         toast({
           title: "Error",
           description: "Failed to create episode content",
           variant: "destructive",
         });
         return;
-      }
-      
-      if (newContent) {
-        console.log('Content created successfully:', newContent.id);
+      } else {
         content = newContent;
       }
     } else {

@@ -46,16 +46,21 @@ export default function SeasonDetailPage() {
   };
 
   const loadContentAndRating = async (externalId: string) => {
-    let { data: content } = await supabase
+    if (!user) {
+      console.warn('User not authenticated, skipping content creation');
+      return;
+    }
+
+    let { data: content, error: fetchError } = await supabase
       .from('content')
       .select('id')
       .eq('external_src', 'thetvdb')
       .eq('external_id', externalId)
       .eq('kind', 'season')
-      .single();
+      .maybeSingle();
 
-    if (!content && seasonNumber) {
-      const { data: newContent } = await supabase
+    if (!content && !fetchError && seasonNumber) {
+      const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
@@ -66,7 +71,38 @@ export default function SeasonDetailPage() {
         .select()
         .single();
       
-      content = newContent;
+      if (insertError?.code === '42501') {
+        console.error('RLS policy blocking insert. Refreshing session...');
+        await supabase.auth.refreshSession();
+        
+        const { data: retryContent, error: retryError } = await supabase
+          .from('content')
+          .insert({
+            external_src: 'thetvdb',
+            external_id: externalId,
+            kind: 'season',
+            title: `Season ${seasonNumber}`,
+          })
+          .select()
+          .single();
+        
+        if (retryError) {
+          console.error('Failed to create content after auth refresh:', retryError);
+          toast({
+            title: "Authentication Error",
+            description: "Please try signing out and back in",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        content = retryContent;
+      } else if (insertError) {
+        console.error('Error creating content:', insertError);
+        return;
+      } else {
+        content = newContent;
+      }
     }
 
     if (content) {

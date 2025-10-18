@@ -48,17 +48,20 @@ export default function ShowDetailPage() {
   };
 
   const loadContentAndRating = async (externalId: string) => {
-    const { data: existingContent } = await supabase
+    if (!user) {
+      console.warn('User not authenticated, skipping content creation');
+      return;
+    }
+
+    let { data: content, error: fetchError } = await supabase
       .from('content')
       .select('id')
       .eq('external_id', externalId)
       .eq('kind', 'show')
-      .single();
+      .maybeSingle();
 
-    let dbContentId = existingContent?.id;
-
-    if (!existingContent && show) {
-      const { data: newContent } = await supabase
+    if (!content && !fetchError && show) {
+      const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
           external_id: externalId,
@@ -68,12 +71,40 @@ export default function ShowDetailPage() {
         })
         .select('id')
         .single();
-      dbContentId = newContent?.id;
+
+      if (insertError?.code === '42501') {
+        console.error('RLS policy blocking insert. Refreshing session...');
+        await supabase.auth.refreshSession();
+        
+        const { data: retryContent, error: retryError } = await supabase
+          .from('content')
+          .insert({
+            external_id: externalId,
+            kind: 'show',
+            title: show.name,
+            poster_url: show.image,
+          })
+          .select('id')
+          .single();
+        
+        if (retryError) {
+          console.error('Failed to create content after auth refresh:', retryError);
+          toast.error('Authentication error. Please try signing out and back in.');
+          return;
+        }
+        
+        content = retryContent;
+      } else if (insertError) {
+        console.error('Error creating content:', insertError);
+        return;
+      } else {
+        content = newContent;
+      }
     }
 
-    if (dbContentId) {
-      console.log('✅ ShowDetailPage - ContentId set:', dbContentId);
-      setContentId(dbContentId);
+    if (content) {
+      console.log('✅ ShowDetailPage - ContentId set:', content.id);
+      setContentId(content.id);
     } else {
       console.warn('⚠️ ShowDetailPage - Failed to get contentId for show:', externalId);
     }
