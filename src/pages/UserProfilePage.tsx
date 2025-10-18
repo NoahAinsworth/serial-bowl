@@ -370,7 +370,7 @@ export default function UserProfilePage() {
             {/* Name and handle */}
             <div className="text-center space-y-3 w-full max-w-md">
               {(profile as any).settings?.displayName && (
-                <h1 className={`text-3xl font-bold ${getBadgeGradientText(currentBadge)} drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]`}>
+                <h1 className="text-3xl font-bold text-black dark:text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                   {(profile as any).settings.displayName}
                 </h1>
               )}
