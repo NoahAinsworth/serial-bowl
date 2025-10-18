@@ -684,21 +684,20 @@ All colors MUST be HSL.
     font-family: 'Press Start 2P', monospace;
     font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.6em;
     font-size: 0.65rem;
     color: hsl(var(--foreground));
-    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15em;
+  }
+
+  .the_one_with_the_theme .wordmark .letter {
     display: inline-block;
   }
-  
-  .the_one_with_the_theme .wordmark::after {
-    content: '••••••••••';
-    position: absolute;
-    left: 0.5em;
-    top: 50%;
-    transform: translateY(-50%);
-    letter-spacing: 1.15em;
-    font-size: 0.6em;
+
+  .the_one_with_the_theme .wordmark .dot {
+    display: inline-block;
+    font-size: 0.5em;
     background: linear-gradient(to right, 
       hsl(var(--friends-yellow)),
       hsl(var(--friends-orange)),
@@ -713,7 +712,7 @@ All colors MUST be HSL.
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    z-index: -1;
+    margin: 0 0.1em;
   }
 
   /* Green Wireframe Wordmark - Glitchy cyber effect */

@@ -75,7 +75,16 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         {/* Header */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-14 items-center justify-between px-4">
-            {theme === 'upper_east_side' ? (
+            {theme === 'the_one_with_the_theme' ? (
+              <h1 className="wordmark friends-wordmark">
+                {Array.from('SERIAL BOWL').map((char, i, arr) => (
+                  <span key={i}>
+                    <span className="letter">{char}</span>
+                    {i < arr.length - 1 && <span className="dot">•</span>}
+                  </span>
+                ))}
+              </h1>
+            ) : theme === 'upper_east_side' ? (
               <h1 className="wordmark upper-east-wordmark">
                 <span className="xoxo-text">xoxo,&nbsp;</span>
                 <span className="brand-text">Serial Bowl</span>
