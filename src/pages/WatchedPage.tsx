@@ -112,6 +112,7 @@ export default function WatchedPage() {
         const { data: newContent, error: contentError } = await supabase
           .from('content')
           .insert({
+            external_src: 'thetvdb',
             external_id: show.id.toString(),
             kind: 'show',
             title: show.name,
