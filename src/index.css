@@ -781,6 +781,24 @@ All colors MUST be HSL.
   }
 
 /* ========================= VHS LIGHT MODE ========================= */
+.vhs_light_mode .text-white,
+.vhs_light_mode [class*="text-white"] {
+  color: hsl(var(--foreground)) !important;
+  text-shadow: none !important;
+}
+
+.vhs_light_mode .drop-shadow-\[0_2px_4px_rgba\(0\,0\,0\,0\.8\)\],
+.vhs_light_mode .drop-shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.8\)\],
+.vhs_light_mode .drop-shadow-\[0_2px_6px_rgba\(0\,0\,0\,0\.9\)\],
+.vhs_light_mode .drop-shadow-\[0_2px_8px_rgba\(0\,0\,0\,0\.9\)\] {
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.8)) !important;
+}
+
+.vhs_light_mode h1,
+.vhs_light_mode h2,
+.vhs_light_mode h3 {
+  color: hsl(var(--foreground)) !important;
+}
 .vhs_light_mode {
   /* Base - Warm off-white with deep navy text */
   --background: 30 20% 98%;            /* Warm off-white */
@@ -1059,6 +1077,24 @@ All colors MUST be HSL.
 }
 
 /* ========================= CINEMATIC LIGHT MODE ========================= */
+.cinematic_light .text-white,
+.cinematic_light [class*="text-white"] {
+  color: hsl(var(--foreground)) !important;
+  text-shadow: none !important;
+}
+
+.cinematic_light .drop-shadow-\[0_2px_4px_rgba\(0\,0\,0\,0\.8\)\],
+.cinematic_light .drop-shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.8\)\],
+.cinematic_light .drop-shadow-\[0_2px_6px_rgba\(0\,0\,0\,0\.9\)\],
+.cinematic_light .drop-shadow-\[0_2px_8px_rgba\(0\,0\,0\,0\.9\)\] {
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.8)) !important;
+}
+
+.cinematic_light h1,
+.cinematic_light h2,
+.cinematic_light h3 {
+  color: hsl(var(--foreground)) !important;
+}
 .cinematic_light {
     /* Base - Soft white with warm neutrals */
     --background: 0 0% 98%;              /* Soft white */
