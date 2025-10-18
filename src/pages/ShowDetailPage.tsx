@@ -181,7 +181,7 @@ export default function ShowDetailPage() {
               className="p-4 cursor-pointer transition-all hover:border-primary"
               onClick={() => navigate(`/show/${id}/season/${season.number}`)}
             >
-              <h3 className="font-semibold text-center">{season.name}</h3>
+              <h3 className="font-semibold text-center">Season {season.number}</h3>
             </Card>
           ))}
         </div>
