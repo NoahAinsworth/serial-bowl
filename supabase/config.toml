@@ -1,1 +1,7 @@
 project_id = "yqslvnsdqpsosqghpenq"
+
+[functions.populate-content-counts]
+verify_jwt = false
+
+[functions.get-trending-shows]
+verify_jwt = false

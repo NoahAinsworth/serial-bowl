@@ -146,9 +146,19 @@ export default function DiscoverPage() {
         const currentYear = new Date().getFullYear();
         results = await tvdbFetch(`/search?query=${currentYear}&type=series&limit=20&page=${pageNum}`);
       } else if (filter === 'trending') {
-        // Get popular shows from recent years (trending = popular + recent)
-        const currentYear = new Date().getFullYear();
-        results = await tvdbFetch(`/series/filter?page=${pageNum}&sort=score&sortType=desc&year=${currentYear},${currentYear - 1},${currentYear - 2}`);
+        // Use AI-powered trending shows
+        const { data, error } = await supabase.functions.invoke('get-trending-shows', {
+          body: { page: pageNum }
+        });
+        
+        if (error) {
+          console.error('Error fetching trending shows:', error);
+          toast.error('Failed to load trending shows');
+          setLoading(false);
+          return;
+        }
+        
+        results = data || [];
       }
 
       const showsData = Array.isArray(results) ? results : [];
