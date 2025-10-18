@@ -146,7 +146,9 @@ export default function DiscoverPage() {
         const currentYear = new Date().getFullYear();
         results = await tvdbFetch(`/search?query=${currentYear}&type=series&limit=20&page=${pageNum}`);
       } else if (filter === 'trending') {
-        results = await tvdbFetch(`/series/filter?page=${pageNum}&sort=lastUpdated&sortType=desc`);
+        // Get popular shows from recent years (trending = popular + recent)
+        const currentYear = new Date().getFullYear();
+        results = await tvdbFetch(`/series/filter?page=${pageNum}&sort=score&sortType=desc&year=${currentYear},${currentYear - 1},${currentYear - 2}`);
       }
 
       const showsData = Array.isArray(results) ? results : [];
