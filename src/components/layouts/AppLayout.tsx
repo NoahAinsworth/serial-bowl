@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy, Bell } from 'lucide-react';
+import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -95,9 +95,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
                 <Library className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/messages?tab=notifications')} title="Notifications">
-                <Bell className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/binge-board')} title="Binge Board">
                 <Trophy className="h-5 w-5" />
