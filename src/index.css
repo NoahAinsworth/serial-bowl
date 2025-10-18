@@ -95,7 +95,7 @@ All colors MUST be HSL.
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: 9997;
+    z-index: 1;
     background: 
       radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 180, 255, 0.45) 0%, transparent 60%),
       radial-gradient(ellipse 70% 50% at 0% 50%, rgba(180, 220, 255, 0.4) 0%, transparent 50%),
