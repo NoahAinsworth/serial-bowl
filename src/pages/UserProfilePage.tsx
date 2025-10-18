@@ -211,16 +211,25 @@ export default function UserProfilePage() {
   const loadUserRank = async () => {
     if (!userId) return;
     
-    const { count } = await supabase
+    // Get the user's current binge points
+    const { data: userData } = await supabase
       .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .gt('binge_points', profile.binge_points || 0);
+      .select('binge_points')
+      .eq('id', userId)
+      .single();
     
-    setUserRank((count || 0) + 1);
+    if (userData) {
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .gt('binge_points', userData.binge_points || 0);
+      
+      setUserRank((count || 0) + 1);
+    }
   };
 
   useEffect(() => {
-    if (userId && profile.binge_points !== undefined) {
+    if (userId) {
       loadUserRank();
     }
   }, [userId, profile.binge_points]);
@@ -354,7 +363,7 @@ export default function UserProfilePage() {
               
               {/* Badge beside ring */}
               <div className="flex-shrink-0">
-                <BadgeDisplay badge={currentBadge} size="lg" showGlow={true} />
+                <BadgeDisplay badge={currentBadge} size="lg" showGlow={false} />
               </div>
             </div>
 

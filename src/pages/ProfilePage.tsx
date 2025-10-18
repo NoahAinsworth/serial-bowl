@@ -431,7 +431,7 @@ export default function ProfilePage() {
 
               {/* Badge beside ring */}
               <div className="flex-shrink-0">
-                <BadgeDisplay badge={currentBadge} size="md" showGlow={true} />
+                <BadgeDisplay badge={currentBadge} size="md" showGlow={false} />
               </div>
             </div>
 
