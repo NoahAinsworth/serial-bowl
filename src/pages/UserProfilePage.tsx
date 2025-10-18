@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserPlus, UserMinus, TrendingUp, Lock } from 'lucide-react';
+import { Loader2, UserPlus, UserMinus, TrendingUp, Lock, Trophy } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
 import { UserPosts } from '@/components/UserPosts';
 import { UserThoughts } from '@/components/UserThoughts';
@@ -48,6 +48,7 @@ export default function UserProfilePage() {
     top3Shows: [] as any[],
   });
   const [thoughts, setThoughts] = useState<any[]>([]);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   useEffect(() => {
     if (handle) {
@@ -138,19 +139,12 @@ export default function UserProfilePage() {
     const seasonCount = ratings?.filter(r => r.item_type === 'season').length || 0;
     const episodeCount = ratings?.filter(r => r.item_type === 'episode').length || 0;
 
-    // Get count of both thoughts and reviews for total post count
-    const { count: thoughtCount } = await supabase
-      .from('thoughts')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', profileData.id);
-
-    const { count: reviewCount } = await supabase
+    // Get count of all posts (consistent with ProfilePage)
+    const { count: postCount } = await supabase
       .from('posts')
       .select('*', { count: 'exact', head: true })
       .eq('author_id', profileData.id)
-      .eq('kind', 'review');
-
-    const postCount = (thoughtCount || 0) + (reviewCount || 0);
+      .is('deleted_at', null);
 
     const { count: followers } = await supabase
       .from('follows')
@@ -186,6 +180,23 @@ export default function UserProfilePage() {
 
     setLoading(false);
   };
+
+  const loadUserRank = async () => {
+    if (!userId) return;
+    
+    const { count } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .gt('binge_points', profile.binge_points || 0);
+    
+    setUserRank((count || 0) + 1);
+  };
+
+  useEffect(() => {
+    if (userId && profile.binge_points !== undefined) {
+      loadUserRank();
+    }
+  }, [userId, profile.binge_points]);
 
   const loadThoughts = async () => {
     if (!userId) return;
@@ -338,6 +349,12 @@ export default function UserProfilePage() {
 
               {/* Stats */}
               <div className="flex gap-6 text-sm justify-center pt-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
+                <button className="hover:underline group">
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                    {profile.postCount}
+                  </span>
+                  <span className="text-foreground/90 font-medium drop-shadow-sm">Posts</span>
+                </button>
                 <button 
                   className="hover:underline group"
                   onClick={() => navigate(`/user/${profile.handle}/followers`)}
@@ -355,6 +372,18 @@ export default function UserProfilePage() {
                     {profile.following}
                   </span>
                   <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
+                </button>
+                <button 
+                  className="hover:underline group"
+                  onClick={() => navigate('/binge-board')}
+                >
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                    #{userRank || '—'}
+                  </span>
+                  <span className="text-foreground/90 font-medium drop-shadow-sm flex items-center gap-1">
+                    <Trophy className="w-3 h-3" />
+                    Rank
+                  </span>
                 </button>
               </div>
             </div>
