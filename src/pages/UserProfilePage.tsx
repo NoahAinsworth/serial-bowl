@@ -336,7 +336,6 @@ export default function UserProfilePage() {
 
   return (
     <>
-      <DynamicBackground badge={currentBadge} />
       <div className="min-h-screen pb-20 relative overflow-x-hidden">
         {/* Profile Card */}
         <div className="px-4 py-8 mb-6 animate-fade-in">

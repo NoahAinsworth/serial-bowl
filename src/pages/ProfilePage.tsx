@@ -410,8 +410,6 @@ export default function ProfilePage() {
 
   return (
     <>
-      <DynamicBackground badge={currentBadge} />
-
       <div className="max-w-4xl mx-auto relative pb-12">
         <div className="px-4 mb-6 animate-fade-in">
           <FollowRequestsList />
