@@ -365,7 +365,7 @@ export default function UserProfilePage() {
                   {(profile as any).settings.displayName}
                 </h1>
               )}
-              <p className={`text-lg ${getBadgeTextColor(currentBadge)} drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold`}>
+              <p className="text-lg text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
                 @{profile.handle || 'user'}
               </p>
 
@@ -375,7 +375,7 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.postCount}
                   </span>
-                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>Posts</span>
+                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Posts</span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -384,7 +384,7 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.followers}
                   </span>
-                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>Followers</span>
+                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Followers</span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -393,7 +393,7 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.following}
                   </span>
-                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>Following</span>
+                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Following</span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -402,7 +402,7 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     #{userRank || '—'}
                   </span>
-                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] flex items-center gap-1 ${getBadgeTextColor(currentBadge)}`}>
+                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] flex items-center gap-1">
                     <Trophy className="w-3 h-3" />
                     Rank
                   </span>
@@ -425,16 +425,16 @@ export default function UserProfilePage() {
           <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
             <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
               <div className="flex items-center justify-between text-sm">
-                <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>
+                <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                   {currentBadge}
                 </span>
-                <div className="flex items-center gap-1 text-foreground/90 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+                <div className="flex items-center gap-1 text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                   <TrendingUp className="h-3 w-3" />
                   <span className="text-xs font-semibold">Next: {nextTier.name}</span>
                 </div>
               </div>
               <Progress value={progress} className="h-2" />
-              <div className="text-xs text-foreground/90 text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
+              <div className="text-xs text-black dark:text-white text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
                 {bingePoints} / {nextTier.min} Binge Points
               </div>
             </div>
