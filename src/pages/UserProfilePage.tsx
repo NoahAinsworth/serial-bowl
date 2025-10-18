@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, UserMinus, TrendingUp, Lock, Trophy } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
@@ -14,6 +15,7 @@ import { UserThoughts } from '@/components/UserThoughts';
 import { UserReviews } from '@/components/UserReviews';
 import { FollowRequestButton } from '@/components/FollowRequestButton';
 import { ProfileRing } from '@/components/ProfileRing';
+import { VHSProfileRing } from '@/components/VHSProfileRing';
 import { BadgeDisplay } from '@/components/BadgeDisplay';
 import { BadgeCollection } from '@/components/BadgeCollection';
 import { DynamicBackground } from '@/components/DynamicBackground';
@@ -25,6 +27,7 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 export default function UserProfilePage() {
   const { handle } = useParams<{ handle: string }>();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const { toast } = useToast();
   const flags = useFeatureFlags(); // Move hook to top
@@ -339,14 +342,25 @@ export default function UserProfilePage() {
             {/* Profile Ring with Badge */}
             <div className="relative inline-flex items-center gap-4">
               <div className="w-48 h-48 relative">
-                <ProfileRing points={bingePoints} badge={currentBadge}>
-                  <Avatar className="w-full h-full border-4 border-background shadow-lg">
-                    <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
-                    <AvatarFallback className="text-4xl font-bold">
-                      {profile.handle[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </ProfileRing>
+                {theme === 'vhs_mode' ? (
+                  <VHSProfileRing size="lg">
+                    <Avatar className="w-full h-full border-4 border-background shadow-lg">
+                      <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
+                      <AvatarFallback className="text-4xl font-bold">
+                        {profile.handle[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </VHSProfileRing>
+                ) : (
+                  <ProfileRing points={bingePoints} badge={currentBadge}>
+                    <Avatar className="w-full h-full border-4 border-background shadow-lg">
+                      <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
+                      <AvatarFallback className="text-4xl font-bold">
+                        {profile.handle[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </ProfileRing>
+                )}
                 
                 {/* Follow button attached to profile circle */}
                 {user && userId && user.id !== userId && (

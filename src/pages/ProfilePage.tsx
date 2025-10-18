@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Edit, Loader2, Share2, X, TrendingUp, Trophy, Plus, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserPosts } from '@/components/UserPosts';
@@ -16,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { ProfileRing } from '@/components/ProfileRing';
+import { VHSProfileRing } from '@/components/VHSProfileRing';
 import { BadgeDisplay } from '@/components/BadgeDisplay';
 import { BadgeCollection } from '@/components/BadgeCollection';
 import { DynamicBackground } from '@/components/DynamicBackground';
@@ -34,6 +36,7 @@ import {
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { search: searchTVDB } = useTVDB();
@@ -419,14 +422,25 @@ export default function ProfilePage() {
             {/* Profile Ring with Badge */}
             <div className="relative inline-flex items-center gap-4">
               <div className="w-48 h-48">
-                <ProfileRing points={bingePoints} badge={currentBadge}>
-                  <Avatar className="w-full h-full">
-                    <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
-                      {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </ProfileRing>
+                {theme === 'vhs_mode' ? (
+                  <VHSProfileRing size="lg">
+                    <Avatar className="w-full h-full">
+                      <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
+                        {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </VHSProfileRing>
+                ) : (
+                  <ProfileRing points={bingePoints} badge={currentBadge}>
+                    <Avatar className="w-full h-full">
+                      <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
+                        {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </ProfileRing>
+                )}
               </div>
 
               {/* Badge beside ring */}
