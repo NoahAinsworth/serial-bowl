@@ -70,6 +70,7 @@ export default function SeasonDetailPage() {
     }
 
     if (content) {
+      console.log('✅ SeasonDetailPage - ContentId set:', content.id, 'for externalId:', externalId);
       setContentId(content.id);
       
       if (user && showId && seasonNumber) {
@@ -85,6 +86,8 @@ export default function SeasonDetailPage() {
           setUserRating(rating.score);
         }
       }
+    } else {
+      console.warn('⚠️ SeasonDetailPage - Failed to get/create contentId for season:', externalId);
     }
   };
 

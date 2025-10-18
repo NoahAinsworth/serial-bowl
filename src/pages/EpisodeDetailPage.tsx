@@ -101,8 +101,8 @@ export default function EpisodeDetailPage() {
     }
 
     if (content) {
+      console.log('✅ EpisodeDetailPage - ContentId set:', content.id, 'for externalId:', externalId);
       setContentId(content.id);
-      console.log('ContentId set to:', content.id);
       
       if (user && showId && seasonNumber && episodeNumber) {
         const { data: rating } = await supabase
@@ -117,6 +117,8 @@ export default function EpisodeDetailPage() {
           setUserRating(rating.score);
         }
       }
+    } else {
+      console.warn('⚠️ EpisodeDetailPage - No content available for externalId:', externalId);
     }
   };
 

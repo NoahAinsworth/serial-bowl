@@ -72,7 +72,10 @@ export default function ShowDetailPage() {
     }
 
     if (dbContentId) {
+      console.log('✅ ShowDetailPage - ContentId set:', dbContentId);
       setContentId(dbContentId);
+    } else {
+      console.warn('⚠️ ShowDetailPage - Failed to get contentId for show:', externalId);
     }
 
     if (user) {
