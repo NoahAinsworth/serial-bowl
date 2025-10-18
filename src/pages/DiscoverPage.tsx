@@ -12,114 +12,119 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
+type FilterType = 'popular' | 'new' | 'trending';
+
 export default function DiscoverPage() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("browse");
-  const [showSearchOverlay, setShowSearchOverlay] = useState(false);
   
-  const [searchResults, setSearchResults] = useState<ShowCard[]>([]);
-  const [trendingShows, setTrendingShows] = useState<ShowCard[]>([]);
-  const [newShows, setNewShows] = useState<ShowCard[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  // Main tab state
+  const [activeTab, setActiveTab] = useState<"browse" | "users">("browse");
+  
+  // Browse filter state
+  const [activeFilter, setActiveFilter] = useState<FilterType>('popular');
+  const [shows, setShows] = useState<ShowCard[]>([]);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [trendingPage, setTrendingPage] = useState(0);
-  const [newPage, setNewPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  
+  // Search overlay state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchOverlay, setShowSearchOverlay] = useState(false);
+  const [searchResults, setSearchResults] = useState<ShowCard[]>([]);
   const [searchPage, setSearchPage] = useState(0);
-  const [hasMoreTrending, setHasMoreTrending] = useState(true);
-  const [hasMoreNew, setHasMoreNew] = useState(true);
-  const [hasMoreSearch, setHasMoreSearch] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchHasMore, setSearchHasMore] = useState(true);
   
-  const trendingObserver = useRef<HTMLDivElement>(null);
-  const newObserver = useRef<HTMLDivElement>(null);
-  const searchObserver = useRef<HTMLDivElement>(null);
+  // Users search state
+  const [users, setUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   
-  // Load trending & new shows on mount
+  // Refs for infinite scroll
+  const browseObserverRef = useRef<HTMLDivElement>(null);
+  const searchObserverRef = useRef<HTMLDivElement>(null);
+
+  // Load initial shows when filter changes
   useEffect(() => {
     if (activeTab === "browse") {
-      loadTrendingShows();
-      loadNewShows();
+      setPage(0);
+      setShows([]);
+      setHasMore(true);
+      loadShows(activeFilter, 0);
     }
-  }, [activeTab]);
+  }, [activeFilter, activeTab]);
 
-  // Horizontal scroll observers for rails
+  // Load more shows when page increments
   useEffect(() => {
-    const trendingObs = new IntersectionObserver(
+    if (page > 0) {
+      loadShows(activeFilter, page);
+    }
+  }, [page]);
+
+  // Infinite scroll observer for browse
+  useEffect(() => {
+    if (activeTab !== "browse" || showSearchOverlay) return;
+
+    const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMoreTrending && !loading) {
-          setTrendingPage((prev) => prev + 1);
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5, rootMargin: '200px' }
     );
 
-    const newObs = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMoreNew && !loading) {
-          setNewPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 0.5 }
-    );
+    if (browseObserverRef.current) {
+      observer.observe(browseObserverRef.current);
+    }
 
-    if (trendingObserver.current) trendingObs.observe(trendingObserver.current);
-    if (newObserver.current) newObs.observe(newObserver.current);
+    return () => observer.disconnect();
+  }, [hasMore, loading, activeTab, showSearchOverlay]);
 
-    return () => {
-      trendingObs.disconnect();
-      newObs.disconnect();
-    };
-  }, [hasMoreTrending, hasMoreNew, loading]);
-
-  // Search overlay scroll observer
+  // Infinite scroll observer for search overlay
   useEffect(() => {
     if (!showSearchOverlay) return;
 
-    const searchObs = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMoreSearch && !loading && searchQuery.trim()) {
+        if (entries[0].isIntersecting && searchHasMore && !searchLoading && searchQuery.trim()) {
           setSearchPage((prev) => prev + 1);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5, rootMargin: '200px' }
     );
 
-    if (searchObserver.current) searchObs.observe(searchObserver.current);
+    if (searchObserverRef.current) {
+      observer.observe(searchObserverRef.current);
+    }
 
-    return () => searchObs.disconnect();
-  }, [showSearchOverlay, hasMoreSearch, loading, searchQuery]);
+    return () => observer.disconnect();
+  }, [showSearchOverlay, searchHasMore, searchLoading, searchQuery]);
 
-  // Load more when pages change
+  // Debounced search
   useEffect(() => {
-    if (trendingPage > 0) loadTrendingShows();
-  }, [trendingPage]);
+    if (!showSearchOverlay || !searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
-  useEffect(() => {
-    if (newPage > 0) loadNewShows();
-  }, [newPage]);
-
-  useEffect(() => {
-    if (searchPage > 0 && searchQuery.trim()) searchShowsOverlay();
-  }, [searchPage]);
-
-  // Debounced search in overlay
-  useEffect(() => {
-    if (!showSearchOverlay) return;
-    
     const timer = setTimeout(() => {
-      if (searchQuery.trim()) {
-        setSearchPage(0);
-        setSearchResults([]);
-        searchShowsOverlay();
-      } else {
-        setSearchResults([]);
-      }
+      setSearchPage(0);
+      setSearchResults([]);
+      setSearchHasMore(true);
+      performSearch(searchQuery, 0);
     }, 300);
 
     return () => clearTimeout(timer);
   }, [searchQuery, showSearchOverlay]);
 
-  // Search users when query changes and on Users tab
+  // Load more search results when page increments
+  useEffect(() => {
+    if (searchPage > 0 && searchQuery.trim()) {
+      performSearch(searchQuery, searchPage);
+    }
+  }, [searchPage]);
+
+  // Search users when on Users tab
   useEffect(() => {
     if (activeTab === "users" && searchQuery.trim()) {
       searchUsers();
@@ -128,98 +133,83 @@ export default function DiscoverPage() {
     }
   }, [searchQuery, activeTab]);
 
-  async function loadTrendingShows() {
+  async function loadShows(filter: FilterType, pageNum: number) {
     if (loading) return;
     
     setLoading(true);
     try {
-      const results = await tvdbFetch(`/series/filter?page=${trendingPage}&sort=score&sortType=desc`);
+      let results = [];
+
+      if (filter === 'popular') {
+        results = await tvdbFetch(`/series/filter?page=${pageNum}&sort=score&sortType=desc`);
+      } else if (filter === 'new') {
+        const currentYear = new Date().getFullYear();
+        results = await tvdbFetch(`/search?query=${currentYear}&type=series&limit=20&page=${pageNum}`);
+      } else if (filter === 'trending') {
+        results = await tvdbFetch(`/series/filter?page=${pageNum}&sort=lastUpdated&sortType=desc`);
+      }
+
       const showsData = Array.isArray(results) ? results : [];
       const normalized = showsData.map(normalizeSeries);
-      
-      setTrendingShows((prev) => {
-        const combined = [...prev, ...normalized];
-        const seen = new Set();
-        return combined.filter((show: any) => {
-          if (seen.has(show.id)) return false;
-          seen.add(show.id);
-          return true;
-        });
-      });
-      
-      if (normalized.length < 20) setHasMoreTrending(false);
-    } catch (error) {
-      console.error("Error loading trending shows:", error);
-      toast.error("Failed to load shows");
-    } finally {
-      setLoading(false);
-    }
-  }
 
-
-  async function loadNewShows() {
-    if (loading) return;
-    
-    setLoading(true);
-    try {
-      const currentYear = new Date().getFullYear();
-      const results = await tvdbFetch(`/search?query=${currentYear}&type=series&limit=20&page=${newPage}`);
-      const showsData = Array.isArray(results) ? results : [];
-      const normalized = showsData.map(normalizeSeries);
-      
-      setNewShows((prev) => {
-        const combined = [...prev, ...normalized];
-        const seen = new Set();
-        return combined.filter((show: any) => {
-          if (seen.has(show.id)) return false;
-          seen.add(show.id);
-          return true;
-        });
-      });
-      
-      if (normalized.length < 20) setHasMoreNew(false);
-    } catch (error) {
-      console.error("Error loading new shows:", error);
-      toast.error("Failed to load shows");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function searchShowsOverlay() {
-    if (loading) return;
-    
-    setLoading(true);
-    try {
-      const results = await tvdbFetch(`/search?query=${encodeURIComponent(searchQuery)}&type=series&limit=20&page=${searchPage}`);
-      const showsData = Array.isArray(results) ? results : [];
-      const normalized = showsData.map(normalizeSeries);
-      
-      if (searchPage === 0) {
-        setSearchResults(normalized);
+      if (pageNum === 0) {
+        setShows(normalized);
       } else {
-        setSearchResults((prev) => {
+        setShows((prev) => {
           const combined = [...prev, ...normalized];
+          // Deduplicate by ID
           const seen = new Set();
-          return combined.filter((show: any) => {
+          return combined.filter((show) => {
             if (seen.has(show.id)) return false;
             seen.add(show.id);
             return true;
           });
         });
       }
-      
-      if (normalized.length < 20) setHasMoreSearch(false);
+
+      setHasMore(normalized.length >= 20);
     } catch (error) {
-      console.error("Error searching shows:", error);
-      toast.error("Failed to search shows");
+      console.error('Error loading shows:', error);
+      toast.error('Failed to load shows');
     } finally {
       setLoading(false);
     }
   }
 
+  async function performSearch(query: string, pageNum: number) {
+    if (searchLoading) return;
+    
+    setSearchLoading(true);
+    try {
+      const results = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series&limit=20&page=${pageNum}`);
+      const showsData = Array.isArray(results) ? results : [];
+      const normalized = showsData.map(normalizeSeries);
+
+      if (pageNum === 0) {
+        setSearchResults(normalized);
+      } else {
+        setSearchResults((prev) => {
+          const combined = [...prev, ...normalized];
+          const seen = new Set();
+          return combined.filter((show) => {
+            if (seen.has(show.id)) return false;
+            seen.add(show.id);
+            return true;
+          });
+        });
+      }
+
+      setSearchHasMore(normalized.length >= 20);
+    } catch (error) {
+      console.error('Error searching shows:', error);
+      toast.error('Failed to search shows');
+    } finally {
+      setSearchLoading(false);
+    }
+  }
+
   async function searchUsers() {
-    setLoading(true);
+    setUsersLoading(true);
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -233,8 +223,15 @@ export default function DiscoverPage() {
       console.error("Error searching users:", error);
       toast.error("Failed to search users");
     } finally {
-      setLoading(false);
+      setUsersLoading(false);
     }
+  }
+
+  function closeSearchOverlay() {
+    setShowSearchOverlay(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchPage(0);
   }
 
   return (
@@ -253,172 +250,167 @@ export default function DiscoverPage() {
           />
         </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Saturday Morning Wavy Background */}
-        <div className="sat-am-waves" aria-hidden="true" />
-        
-        <TabsList className="mb-6">
-          <TabsTrigger value="browse">Browse</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "browse" | "users")} className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="browse">Browse</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="browse">
-          {/* Trending Shows Rail */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Trending Shows</h2>
-            <div className="relative">
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                {trendingShows.map((show) => (
-                  <div key={show.id} className="flex-shrink-0 w-32 sm:w-40">
-                    <ShowCardComponent show={show} onClick={() => navigate(`/show/${show.id}`)} />
-                  </div>
-                ))}
-                <div ref={trendingObserver} className="flex-shrink-0 w-4" />
-                {loading && (
-                  <>
-                    {[...Array(5)].map((_, i) => (
-                      <Skeleton key={i} className="flex-shrink-0 w-32 sm:w-40 aspect-[2/3]" />
-                    ))}
-                  </>
-                )}
-              </div>
+          <TabsContent value="browse">
+            {/* Filter Tabs */}
+            <div className="mb-6">
+              <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as FilterType)} className="w-full">
+                <TabsList className="mb-6">
+                  <TabsTrigger value="popular">Popular</TabsTrigger>
+                  <TabsTrigger value="new">New</TabsTrigger>
+                  <TabsTrigger value="trending">Trending</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
-          </div>
 
-
-          {/* New Shows Rail */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">New Shows</h2>
-            <div className="relative">
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                {newShows.map((show) => (
-                  <div key={show.id} className="flex-shrink-0 w-32 sm:w-40">
-                    <ShowCardComponent show={show} onClick={() => navigate(`/show/${show.id}`)} />
-                  </div>
-                ))}
-                <div ref={newObserver} className="flex-shrink-0 w-4" />
-                {loading && (
-                  <>
-                    {[...Array(5)].map((_, i) => (
-                      <Skeleton key={i} className="flex-shrink-0 w-32 sm:w-40 aspect-[2/3]" />
-                    ))}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="users">
-          {!searchQuery.trim() && (
-            <div className="text-center py-12 text-muted-foreground">
-              Search for users to get started
-            </div>
-          )}
-          
-          {searchQuery.trim() && !loading && users.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              No users found
-            </div>
-          )}
-
-          {users.length > 0 && (
-            <div className="space-y-4">
-              {users.map((user) => (
-                <Card
-                  key={user.id}
-                  className="p-4 cursor-pointer hover:bg-accent transition-colors"
-                  onClick={() => navigate(`/user/${user.handle}`)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={user.avatar_url || undefined} />
-                      <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold">{user.handle}</p>
-                      {user.bio && <p className="text-sm text-muted-foreground line-clamp-1">{user.bio}</p>}
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-          
-          {loading && (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
-
-    {/* Search Overlay */}
-    {showSearchOverlay && (
-      <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="flex items-center gap-4 mb-6">
-            <Button variant="ghost" size="icon" onClick={() => {
-              setShowSearchOverlay(false);
-              setSearchQuery("");
-              setSearchResults([]);
-            }}>
-              <X className="h-6 w-6" />
-            </Button>
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search shows..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                autoFocus
-              />
-            </div>
-          </div>
-
-          {!searchQuery.trim() && (
-            <div className="text-center py-12 text-muted-foreground">
-              Start typing to search...
-            </div>
-          )}
-
-          {searchQuery.trim() && !loading && searchResults.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              No shows found
-            </div>
-          )}
-
-          {searchResults.length > 0 && (
+            {/* Vertical Grid of Shows */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {searchResults.map((show) => (
+              {shows.map((show) => (
                 <ShowCardComponent 
                   key={show.id} 
                   show={show} 
-                  onClick={() => {
-                    setShowSearchOverlay(false);
-                    navigate(`/show/${show.id}`);
-                  }} 
+                  onClick={() => navigate(`/show/${show.id}`)} 
                 />
               ))}
             </div>
-          )}
 
-          <div ref={searchObserver} className="h-4 mt-4" />
+            {/* Loading Skeleton */}
+            {loading && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+                {[...Array(10)].map((_, i) => (
+                  <Skeleton key={i} className="aspect-[2/3]" />
+                ))}
+              </div>
+            )}
 
-          {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-              {[...Array(10)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[2/3]" />
-              ))}
-            </div>
-          )}
-        </div>
+            {/* Infinite Scroll Trigger */}
+            <div ref={browseObserverRef} className="h-4 mt-8" />
+
+            {/* No More Results */}
+            {!hasMore && shows.length > 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                No more shows to load
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="users">
+            {!searchQuery.trim() && (
+              <div className="text-center py-12 text-muted-foreground">
+                Search for users to get started
+              </div>
+            )}
+
+            {searchQuery.trim() && !usersLoading && users.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                No users found
+              </div>
+            )}
+
+            {users.length > 0 && (
+              <div className="space-y-4">
+                {users.map((user) => (
+                  <Card
+                    key={user.id}
+                    className="p-4 cursor-pointer hover:bg-accent transition-colors"
+                    onClick={() => navigate(`/user/${user.handle}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={user.avatar_url || undefined} />
+                        <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">{user.handle}</p>
+                        {user.bio && <p className="text-sm text-muted-foreground line-clamp-1">{user.bio}</p>}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {usersLoading && (
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
-    )}
+
+      {/* Search Overlay */}
+      {showSearchOverlay && (
+        <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
+            {/* Header with Close Button */}
+            <div className="flex items-center gap-4 mb-6">
+              <Button variant="ghost" size="icon" onClick={closeSearchOverlay}>
+                <X className="h-6 w-6" />
+              </Button>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search shows..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Empty State */}
+            {!searchQuery.trim() && (
+              <div className="text-center py-12 text-muted-foreground">
+                Start typing to search for shows...
+              </div>
+            )}
+
+            {/* No Results */}
+            {searchQuery.trim() && !searchLoading && searchResults.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                No shows found for "{searchQuery}"
+              </div>
+            )}
+
+            {/* Search Results Grid */}
+            {searchResults.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {searchResults.map((show) => (
+                  <ShowCardComponent 
+                    key={show.id} 
+                    show={show} 
+                    onClick={() => {
+                      closeSearchOverlay();
+                      navigate(`/show/${show.id}`);
+                    }} 
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Search Loading Skeleton */}
+            {searchLoading && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+                {[...Array(10)].map((_, i) => (
+                  <Skeleton key={i} className="aspect-[2/3]" />
+                ))}
+              </div>
+            )}
+
+            {/* Infinite Scroll Trigger */}
+            <div ref={searchObserverRef} className="h-4 mt-8" />
+          </div>
+        </div>
+      )}
     </>
   );
 }

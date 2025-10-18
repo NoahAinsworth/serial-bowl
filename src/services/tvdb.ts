@@ -1,66 +1,9 @@
-import axios, { AxiosInstance } from 'axios';
-import { env } from '@/lib/env';
+import { tvdbFetch } from '@/lib/tvdb';
 
-class TVDBClient {
-  private client: AxiosInstance;
-  private token: string | null = null;
-  private tokenExpiry: number = 0;
-
-  constructor() {
-    this.client = axios.create({
-      baseURL: env.TVDB_BASE_URL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-
-  private async ensureAuthenticated() {
-    const now = Date.now();
-    if (this.token && this.tokenExpiry > now) {
-      return;
-    }
-
-    try {
-      const response = await this.client.post('/login', {
-        apikey: env.TVDB_API_KEY,
-      });
-      this.token = response.data.data.token;
-      this.tokenExpiry = now + 24 * 60 * 60 * 1000; // 24 hours
-      this.client.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async searchShows(query: string) {
-    await this.ensureAuthenticated();
-    const response = await this.client.get('/search', {
-      params: { query, type: 'series' },
-    });
-    return response.data.data;
-  }
-
-  async getShow(seriesId: number) {
-    await this.ensureAuthenticated();
-    const response = await this.client.get(`/series/${seriesId}`);
-    return response.data.data;
-  }
-
-  async getEpisodes(seriesId: number) {
-    await this.ensureAuthenticated();
-    const response = await this.client.get(`/series/${seriesId}/episodes/default`);
-    return response.data.data;
-  }
-
-  async getArtworks(seriesId: number) {
-    await this.ensureAuthenticated();
-    const response = await this.client.get(`/series/${seriesId}/artworks`);
-    return response.data.data;
-  }
-}
-
-export const tvdbClient = new TVDBClient();
+/**
+ * Unified TVDB service using the modern tvdbFetch client
+ * This ensures consistency with the discover page and binge points system
+ */
 
 // Normalize show data
 function normalizeShow(show: any) {
@@ -72,102 +15,129 @@ function normalizeShow(show: any) {
   };
 }
 
-// Export convenience functions
+// Export convenience functions using unified client
 export async function searchShows(query: string) {
-  const results = await tvdbClient.searchShows(query);
-  const mapped = results.map((show: any) => ({
-    id: show.tvdb_id,
-    tvdb_id: show.tvdb_id,
-    name: show.name,
-    overview: show.overview || '',
-    image: show.image_url || '',
-    image_url: show.image_url || '',
-    firstAired: show.first_air_time || '',
-    year: show.first_air_time?.split('-')[0] || '',
-  }));
-  return mapped;
+  try {
+    const results = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series&limit=20`);
+    const showsData = Array.isArray(results) ? results : [];
+    
+    return showsData.map((show: any) => ({
+      id: show.tvdb_id || show.id,
+      tvdb_id: show.tvdb_id || show.id,
+      name: show.name || 'Untitled',
+      overview: show.overview || '',
+      image: show.image_url || show.image || '',
+      image_url: show.image_url || show.image || '',
+      firstAired: show.first_air_time || show.firstAired || '',
+      year: show.year || (show.first_air_time || show.firstAired)?.split('-')[0] || '',
+    }));
+  } catch (error) {
+    console.error('Search shows error:', error);
+    return [];
+  }
 }
 
 export async function fetchBrowseShows(page = 1) {
-  // Use a mix of popular search terms to get diverse results
-  const searchTerms = [
-    'Breaking Bad', 'Game of Thrones', 'Stranger Things', 'The Office', 
-    'Friends', 'The Walking Dead', 'The Boys', 'Wednesday', 'Succession',
-    'The Last of Us', 'House of the Dragon', 'The Witcher', 'Peaky Blinders',
-    'Better Call Saul', 'The Crown', 'Dark', 'Narcos', 'Ozark'
-  ];
-  
-  const searchTerm = searchTerms[(page - 1) % searchTerms.length];
-  
-  const results = await tvdbClient.searchShows(searchTerm);
-  
-  // Take first 20 results
-  const normalized = results.slice(0, 20).map(normalizeShow);
-  
-  return normalized;
+  try {
+    const results = await tvdbFetch(`/series/filter?page=${page - 1}&sort=score&sortType=desc`);
+    const showsData = Array.isArray(results) ? results : [];
+    return showsData.slice(0, 20).map(normalizeShow);
+  } catch (error) {
+    console.error('Fetch browse shows error:', error);
+    return [];
+  }
 }
 
 export async function fetchNewShows(page = 1) {
-  // Search for shows from the current year
-  const currentYear = new Date().getFullYear();
-  const results = await tvdbClient.searchShows(currentYear.toString());
-  
-  // Filter to only shows that actually premiered recently (within last year)
-  const recentDate = new Date();
-  recentDate.setFullYear(recentDate.getFullYear() - 1);
-  
-  const recentShows = results
-    .filter((show: any) => {
-      const airDate = show.first_air_time || show.firstAired;
-      if (!airDate) return false;
-      
-      const showDate = new Date(airDate);
-      return showDate >= recentDate;
-    })
-    .slice(0, 20);
-  
-  return recentShows.map(normalizeShow);
+  try {
+    const currentYear = new Date().getFullYear();
+    const results = await tvdbFetch(`/search?query=${currentYear}&type=series&limit=20&page=${page - 1}`);
+    const showsData = Array.isArray(results) ? results : [];
+    
+    // Filter to recently aired shows
+    const recentDate = new Date();
+    recentDate.setFullYear(recentDate.getFullYear() - 1);
+    
+    return showsData
+      .filter((show: any) => {
+        const airDate = show.first_air_time || show.firstAired;
+        if (!airDate) return false;
+        return new Date(airDate) >= recentDate;
+      })
+      .slice(0, 20)
+      .map(normalizeShow);
+  } catch (error) {
+    console.error('Fetch new shows error:', error);
+    return [];
+  }
 }
 
 export async function getShow(id: number) {
-  const show = await tvdbClient.getShow(id);
-  return {
-    id: show.id,
-    name: show.name,
-    overview: show.overview || '',
-    image: show.image || '',
-    firstAired: show.firstAired || '',
-  };
+  try {
+    const show = await tvdbFetch(`/series/${id}/extended`);
+    return {
+      id: show.id,
+      name: show.name || 'Untitled',
+      overview: show.overview || '',
+      image: show.image || '',
+      firstAired: show.firstAired || show.first_air_time || '',
+    };
+  } catch (error) {
+    console.error(`Get show ${id} error:`, error);
+    throw new Error('Show not found');
+  }
 }
 
 export async function getSeasons(showId: number) {
-  const episodes = await tvdbClient.getEpisodes(showId);
-  const seasonsMap = new Map();
-  
-  episodes.episodes?.forEach((ep: any) => {
-    if (!seasonsMap.has(ep.seasonNumber)) {
-      seasonsMap.set(ep.seasonNumber, {
-        id: ep.seasonNumber,
-        number: ep.seasonNumber,
-        name: `Season ${ep.seasonNumber}`,
-        overview: '',
-        image: ep.image || '',
-      });
-    }
-  });
-  
-  return Array.from(seasonsMap.values()).sort((a, b) => a.number - b.number);
+  try {
+    const show = await tvdbFetch(`/series/${showId}/extended`);
+    const seasons = show.seasons || [];
+    
+    // Filter out season 0 (specials) and map to expected format
+    return seasons
+      .filter((season: any) => season.number > 0)
+      .map((season: any) => ({
+        id: season.id || season.number,
+        number: season.number,
+        name: season.name || `Season ${season.number}`,
+        overview: season.overview || '',
+        image: season.image || '',
+      }))
+      .sort((a: any, b: any) => a.number - b.number);
+  } catch (error) {
+    console.error(`Get seasons for show ${showId} error:`, error);
+    return [];
+  }
 }
 
 export async function getEpisodes(seriesId: number) {
-  const data = await tvdbClient.getEpisodes(seriesId);
-  return (data.episodes || []).map((ep: any) => ({
-    id: ep.id,
-    name: ep.name,
-    overview: ep.overview || '',
-    aired: ep.aired || '',
-    seasonNumber: ep.seasonNumber,
-    number: ep.number,
-    image: ep.image || '',
-  }));
+  try {
+    const show = await tvdbFetch(`/series/${seriesId}/extended`);
+    const allEpisodes: any[] = [];
+    
+    // Extract episodes from all seasons
+    if (show.seasons) {
+      for (const season of show.seasons) {
+        if (season.episodes) {
+          allEpisodes.push(...season.episodes);
+        }
+      }
+    }
+    
+    // Filter out specials (season 0) and map to expected format
+    return allEpisodes
+      .filter((ep: any) => ep.seasonNumber > 0)
+      .map((ep: any) => ({
+        id: ep.id,
+        name: ep.name || 'Untitled Episode',
+        overview: ep.overview || '',
+        aired: ep.aired || '',
+        seasonNumber: ep.seasonNumber,
+        number: ep.number || ep.episodeNumber,
+        image: ep.image || '',
+      }));
+  } catch (error) {
+    console.error(`Get episodes for series ${seriesId} error:`, error);
+    return [];
+  }
 }

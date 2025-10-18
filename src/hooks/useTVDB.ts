@@ -41,7 +41,8 @@ export function useTVDB() {
       const results = await searchShows(query);
       return results;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
+      console.error('Search error:', err);
+      setError('Failed to search shows. Please try again.');
       return [];
     } finally {
       setLoading(false);
@@ -51,15 +52,34 @@ export function useTVDB() {
   const fetchShow = useCallback(async (id: number): Promise<TVShow | null> => {
     setLoading(true);
     setError(null);
-    try {
-      const show = await getShow(id);
-      return show;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch show');
-      return null;
-    } finally {
-      setLoading(false);
+    
+    // Retry logic for robustness
+    let attempts = 0;
+    const maxAttempts = 2;
+    
+    while (attempts < maxAttempts) {
+      try {
+        const show = await getShow(id);
+        return show;
+      } catch (err) {
+        attempts++;
+        console.error(`Fetch show attempt ${attempts} failed:`, err);
+        
+        if (attempts >= maxAttempts) {
+          setError('Show not found. Please try another show.');
+          return null;
+        }
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } finally {
+        if (attempts >= maxAttempts) {
+          setLoading(false);
+        }
+      }
     }
+    
+    return null;
   }, []);
 
   const fetchSeasons = useCallback(async (showId: number): Promise<TVSeason[]> => {
