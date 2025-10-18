@@ -450,19 +450,6 @@ export default function WatchlistPage() {
         <h1 className="text-3xl font-bold neon-glow">Watchlist & Watched</h1>
       </div>
 
-      {/* DEBUG: Test Edge Function Button */}
-      <Card className="p-4 bg-yellow-500/10 border-yellow-500/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-yellow-600 dark:text-yellow-400">Debug Test</p>
-            <p className="text-sm text-muted-foreground">Test populate-content-counts edge function</p>
-          </div>
-          <Button onClick={testEdgeFunction} variant="outline">
-            Test Edge Function
-          </Button>
-        </div>
-      </Card>
-
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
         <TabsList className="w-full grid grid-cols-3">
           <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
