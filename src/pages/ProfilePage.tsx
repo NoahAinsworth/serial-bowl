@@ -529,6 +529,99 @@ export default function ProfilePage() {
           </div>
         </div>
 
+
+        <div className="px-4 mb-6 animate-fade-in">
+          <CinematicFavorites
+            shows={top3Shows}
+            onEdit={openSlotDialog}
+            onRemove={removeFromTop3}
+            badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'}
+            isOwner={true}
+          />
+        </div>
+
+        <Dialog open={showTop3Dialog} onOpenChange={(open) => {
+          setShowTop3Dialog(open);
+          if (!open) {
+            setSelectedSlot(null);
+            setSearchQuery('');
+            setSearchResults([]);
+          }
+        }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedSlot !== null ? `Edit Slot #${selectedSlot + 1}` : 'Add to Favorites'}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedSlot !== null 
+                  ? `Select a show for position #${selectedSlot + 1}` 
+                  : 'Search and add a show to your favorites'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Search for a show..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="max-h-[300px] overflow-y-auto space-y-2">
+                {searchingShows ? (
+                  <div className="text-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                  </div>
+                ) : (
+                  searchResults.map((show) => (
+                    <Card
+                      key={show.id}
+                      className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => selectedSlot !== null && addToTop3(show, selectedSlot)}
+                    >
+                      {show.image && (
+                        <img src={show.image} alt={show.name} className="w-12 h-16 object-cover rounded" />
+                      )}
+                      <div className="flex-1">
+                        <p className="font-semibold">{show.name}</p>
+                        {show.firstAired && (
+                          <p className="text-xs text-muted-foreground">{new Date(show.firstAired).getFullYear()}</p>
+                        )}
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Tabs defaultValue="posts" className="w-full mt-0">
+          <TabsList className="w-full grid grid-cols-3 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+            <TabsTrigger value="posts">Posts</TabsTrigger>
+            <TabsTrigger value="ratings">Ratings</TabsTrigger>
+            <TabsTrigger value="lists">Lists</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="posts" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+            <UserPosts userId={user!.id} />
+          </TabsContent>
+
+          <TabsContent value="ratings" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+            <UnifiedRatings userId={user!.id} />
+          </TabsContent>
+
+          <TabsContent value="lists" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+            <UserLists />
+          </TabsContent>
+        </Tabs>
+
+        {/* Binge Stats Section */}
+        {flags.BINGE_POINTS && (
+          <div className="px-4 mt-8 mb-4">
+            <h2 className="text-xl font-semibold text-foreground">Binge Stats</h2>
+            <Separator className="mt-2" />
+          </div>
+        )}
+
         {flags.BINGE_POINTS && (
           <div className="px-4 mb-6 animate-fade-in">
             <BingePointsDisplay
@@ -667,90 +760,6 @@ export default function ProfilePage() {
             </Card>
           </div>
         )}
-
-        <div className="px-4 mb-6 animate-fade-in">
-          <CinematicFavorites
-            shows={top3Shows}
-            onEdit={openSlotDialog}
-            onRemove={removeFromTop3}
-            badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'}
-            isOwner={true}
-          />
-        </div>
-
-        <Dialog open={showTop3Dialog} onOpenChange={(open) => {
-          setShowTop3Dialog(open);
-          if (!open) {
-            setSelectedSlot(null);
-            setSearchQuery('');
-            setSearchResults([]);
-          }
-        }}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedSlot !== null ? `Edit Slot #${selectedSlot + 1}` : 'Add to Favorites'}
-              </DialogTitle>
-              <DialogDescription>
-                {selectedSlot !== null 
-                  ? `Select a show for position #${selectedSlot + 1}` 
-                  : 'Search and add a show to your favorites'}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="Search for a show..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <div className="max-h-[300px] overflow-y-auto space-y-2">
-                {searchingShows ? (
-                  <div className="text-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                  </div>
-                ) : (
-                  searchResults.map((show) => (
-                    <Card
-                      key={show.id}
-                      className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => selectedSlot !== null && addToTop3(show, selectedSlot)}
-                    >
-                      {show.image && (
-                        <img src={show.image} alt={show.name} className="w-12 h-16 object-cover rounded" />
-                      )}
-                      <div className="flex-1">
-                        <p className="font-semibold">{show.name}</p>
-                        {show.firstAired && (
-                          <p className="text-xs text-muted-foreground">{new Date(show.firstAired).getFullYear()}</p>
-                        )}
-                      </div>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <Tabs defaultValue="posts" className="w-full mt-0">
-          <TabsList className="w-full grid grid-cols-3 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
-            <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="ratings">Ratings</TabsTrigger>
-            <TabsTrigger value="lists">Lists</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="posts" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <UserPosts userId={user!.id} />
-          </TabsContent>
-
-          <TabsContent value="ratings" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <UnifiedRatings userId={user!.id} />
-          </TabsContent>
-
-          <TabsContent value="lists" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <UserLists />
-          </TabsContent>
-        </Tabs>
       </div>
     </>
   );

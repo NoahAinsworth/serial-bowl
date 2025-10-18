@@ -23,6 +23,7 @@ import { AboutMeSection } from '@/components/AboutMeSection';
 import { CinematicFavorites } from '@/components/CinematicFavorites';
 import { Progress } from '@/components/ui/progress';
 import { BingePointsDisplay } from '@/components/BingePointsDisplay';
+import { Separator } from '@/components/ui/separator';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 export default function UserProfilePage() {
@@ -472,16 +473,6 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        {flags.BINGE_POINTS && (
-          <div className="px-4 mb-6 animate-fade-in">
-            <BingePointsDisplay
-              points={bingePoints}
-              badge={currentBadge}
-              showBreakdown={false}
-            />
-          </div>
-        )}
-
         <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
           <AboutMeSection 
             bio={profile.bio || ''} 
@@ -489,33 +480,6 @@ export default function UserProfilePage() {
             isOwner={false}
           />
         </div>
-
-        {/* Progress to next badge - MOVED HERE */}
-        {flags.BINGE_POINTS && nextTier && (
-          <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
-            <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-                  {currentBadge}
-                </span>
-                <div className="flex items-center gap-1 text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-                  <TrendingUp className="h-3 w-3" />
-                  <span className="text-xs font-semibold">Next: {nextTier.name}</span>
-                </div>
-              </div>
-              <Progress value={progress} className="h-2" />
-              <div className="text-xs text-black dark:text-white text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
-                {bingePoints} / {nextTier.min} Binge Points
-              </div>
-            </div>
-          </div>
-        )}
-
-        {flags.BINGE_POINTS && (
-          <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
-            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
-          </div>
-        )}
 
         <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
           <CinematicFavorites
@@ -572,6 +536,50 @@ export default function UserProfilePage() {
                 <UserRatings userId={userId} contentKind="episode" />
               </TabsContent>
             </Tabs>
+
+            {/* Binge Stats Section */}
+            {flags.BINGE_POINTS && (
+              <div className="mt-8 mb-4">
+                <h2 className="text-xl font-semibold text-foreground">Binge Stats</h2>
+                <Separator className="mt-2" />
+              </div>
+            )}
+
+            {flags.BINGE_POINTS && (
+              <div className="mb-6 animate-fade-in">
+                <BingePointsDisplay
+                  points={bingePoints}
+                  badge={currentBadge}
+                  showBreakdown={false}
+                />
+              </div>
+            )}
+
+            {flags.BINGE_POINTS && nextTier && (
+              <div className="mb-6 animate-fade-in">
+                <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+                      {currentBadge}
+                    </span>
+                    <div className="flex items-center gap-1 text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+                      <TrendingUp className="h-3 w-3" />
+                      <span className="text-xs font-semibold">Next: {nextTier.name}</span>
+                    </div>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                  <div className="text-xs text-black dark:text-white text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
+                    {bingePoints} / {nextTier.min} Binge Points
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {flags.BINGE_POINTS && (
+              <div className="mb-6 animate-fade-in">
+                <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
+              </div>
+            )}
           </div>
         ) : (
           <div className="px-2 sm:px-4 relative z-10">
