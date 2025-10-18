@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
-import { Loader2, Heart, MessageCircle, Repeat2, UserPlus } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Loader2, Heart, ThumbsDown, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function ActivityPage() {
@@ -23,49 +24,28 @@ export default function ActivityPage() {
   const loadNotifications = async () => {
     if (!user) return;
 
-    // Get reactions to user's thoughts
-    const { data: reactions } = await supabase
-      .from('reactions')
+    // Get reactions (likes/dislikes) to user's posts
+    const { data: postReactions } = await supabase
+      .from('post_reactions')
       .select(`
-        id,
-        reaction_type,
         created_at,
+        kind,
         user_id,
-        thought_id,
-        profiles!reactions_user_id_fkey (
-          handle
+        post_id,
+        profiles!post_reactions_user_id_fkey (
+          handle,
+          avatar_url
         ),
-        thoughts!inner (
-          user_id,
-          text_content
+        posts!inner (
+          author_id,
+          body,
+          kind
         )
       `)
-      .eq('thoughts.user_id', user.id)
+      .eq('posts.author_id', user.id)
       .neq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(20);
-
-    // Get comments on user's thoughts
-    const { data: comments } = await supabase
-      .from('comments')
-      .select(`
-        id,
-        created_at,
-        user_id,
-        thought_id,
-        text_content,
-        profiles!comments_user_id_fkey (
-          handle
-        ),
-        thoughts!inner (
-          user_id,
-          text_content
-        )
-      `)
-      .eq('thoughts.user_id', user.id)
-      .neq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(30);
 
     // Get new followers
     const { data: follows } = await supabase
@@ -74,37 +54,34 @@ export default function ActivityPage() {
         id,
         created_at,
         follower_id,
+        status,
         profiles!follows_follower_id_fkey (
-          handle
+          handle,
+          avatar_url
         )
       `)
       .eq('following_id', user.id)
+      .eq('status', 'accepted')
       .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(30);
 
     // Combine and sort all notifications
     const allNotifications = [
-      ...(reactions?.map((r: any) => ({
-        id: `reaction-${r.id}`,
-        type: r.reaction_type,
+      ...(postReactions?.map((r: any) => ({
+        id: `reaction-${r.post_id}-${r.user_id}`,
+        type: r.kind,
         user: r.profiles?.handle || 'Unknown',
-        thought: r.thoughts?.text_content || '',
-        thoughtId: r.thought_id,
+        avatarUrl: r.profiles?.avatar_url,
+        postId: r.post_id,
+        postBody: r.posts?.body || '',
+        postKind: r.posts?.kind || '',
         createdAt: r.created_at,
-      })) || []),
-      ...(comments?.map((c: any) => ({
-        id: `comment-${c.id}`,
-        type: 'comment',
-        user: c.profiles?.handle || 'Unknown',
-        thought: c.thoughts?.text_content || '',
-        thoughtId: c.thought_id,
-        comment: c.text_content,
-        createdAt: c.created_at,
       })) || []),
       ...(follows?.map((f: any) => ({
         id: `follow-${f.id}`,
         type: 'follow',
         user: f.profiles?.handle || 'Unknown',
+        avatarUrl: f.profiles?.avatar_url,
         createdAt: f.created_at,
       })) || []),
     ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -117,10 +94,8 @@ export default function ActivityPage() {
     switch (type) {
       case 'like':
         return <Heart className="h-5 w-5 text-red-500 fill-red-500" />;
-      case 'comment':
-        return <MessageCircle className="h-5 w-5 text-blue-500" />;
-      case 'rethink':
-        return <Repeat2 className="h-5 w-5 text-green-500" />;
+      case 'dislike':
+        return <ThumbsDown className="h-5 w-5 text-muted-foreground" />;
       case 'follow':
         return <UserPlus className="h-5 w-5 text-primary" />;
       default:
@@ -143,13 +118,9 @@ export default function ActivityPage() {
 
     switch (notif.type) {
       case 'like':
-        return <>{userLink} liked your thought</>;
+        return <>{userLink} liked your {notif.postKind || 'post'}</>;
       case 'dislike':
-        return <>{userLink} reacted to your thought</>;
-      case 'comment':
-        return <>{userLink} commented: "{notif.comment}"</>;
-      case 'rethink':
-        return <>{userLink} rethought your thought</>;
+        return <>{userLink} disliked your {notif.postKind || 'post'}</>;
       case 'follow':
         return <>{userLink} started following you</>;
       default:
@@ -183,15 +154,27 @@ export default function ActivityPage() {
             <Card
               key={notif.id}
               className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
-              onClick={() => notif.thoughtId && navigate('/')}
+              onClick={() => {
+                if (notif.postId) {
+                  navigate(`/post/${notif.postId}`);
+                } else if (notif.type === 'follow') {
+                  navigate(`/user/${notif.user}`);
+                }
+              }}
             >
               <div className="flex gap-3 items-start">
-                <div className="mt-1">{getIcon(notif.type)}</div>
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={notif.avatarUrl} />
+                  <AvatarFallback>{notif.user[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm">{getMessage(notif)}</p>
-                  {notif.thought && (
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                      "{notif.thought}"
+                  <div className="flex items-center gap-2">
+                    {getIcon(notif.type)}
+                    <p className="text-sm">{getMessage(notif)}</p>
+                  </div>
+                  {notif.postBody && (
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      "{notif.postBody}"
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground mt-2">
