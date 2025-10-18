@@ -100,7 +100,6 @@ All colors MUST be HSL.
       radial-gradient(ellipse at top left, rgba(200, 180, 255, 0.15) 0%, transparent 50%),
       radial-gradient(ellipse at top right, rgba(255, 200, 180, 0.12) 0%, transparent 50%),
       radial-gradient(ellipse at bottom center, rgba(180, 220, 255, 0.18) 0%, transparent 60%);
-    backdrop-filter: blur(100px);
   }
 
   .light h1, .light h2, .light .wordmark {
