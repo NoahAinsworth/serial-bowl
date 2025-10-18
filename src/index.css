@@ -97,11 +97,11 @@ All colors MUST be HSL.
     pointer-events: none;
     z-index: 1;
     background: 
-      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 180, 255, 0.45) 0%, transparent 60%),
-      radial-gradient(ellipse 70% 50% at 0% 50%, rgba(180, 220, 255, 0.4) 0%, transparent 50%),
-      radial-gradient(ellipse 70% 50% at 100% 50%, rgba(255, 200, 180, 0.38) 0%, transparent 50%),
-      radial-gradient(ellipse 100% 100% at 50% 100%, rgba(220, 200, 255, 0.35) 0%, transparent 70%),
-      linear-gradient(180deg, rgba(240, 235, 255, 0.6) 0%, rgba(255, 250, 245, 0.5) 100%);
+      radial-gradient(ellipse 80% 50% at 0% 0%, rgba(100, 220, 180, 0.45) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 50% at 0% 20%, rgba(120, 180, 255, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 50% at 100% 50%, rgba(255, 180, 100, 0.38) 0%, transparent 50%),
+      radial-gradient(ellipse 100% 80% at 50% 100%, rgba(255, 120, 180, 0.35) 0%, transparent 70%),
+      linear-gradient(180deg, rgba(200, 240, 235, 0.3) 0%, rgba(255, 230, 240, 0.3) 100%);
   }
 
   .light h1, .light h2, .light .wordmark {
