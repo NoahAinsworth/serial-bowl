@@ -50,6 +50,32 @@ export default function UserProfilePage() {
   const [thoughts, setThoughts] = useState<any[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
 
+  const getBadgeTextColor = (badge: string) => {
+    const colorMap: Record<string, string> = {
+      'Pilot Watcher': 'text-gray-400',
+      'Casual Viewer': 'text-blue-400',
+      'Marathon Madness': 'text-orange-400',
+      'Season Smasher': 'text-red-500',
+      'Series Finisher': 'text-purple-500',
+      'Stream Scholar': 'text-teal-400',
+      'Ultimate Binger': 'text-purple-500',
+    };
+    return colorMap[badge] || 'text-gray-400';
+  };
+
+  const getBadgeGradientText = (badge: string) => {
+    const gradientMap: Record<string, string> = {
+      'Pilot Watcher': 'bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent',
+      'Casual Viewer': 'bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent',
+      'Marathon Madness': 'bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent',
+      'Season Smasher': 'bg-gradient-to-r from-red-500 to-orange-600 bg-clip-text text-transparent',
+      'Series Finisher': 'bg-gradient-to-r from-purple-500 to-pink-600 bg-clip-text text-transparent',
+      'Stream Scholar': 'bg-gradient-to-r from-teal-400 to-cyan-600 bg-clip-text text-transparent',
+      'Ultimate Binger': 'bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent',
+    };
+    return gradientMap[badge] || 'bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent';
+  };
+
   useEffect(() => {
     if (handle) {
       loadProfile();
@@ -139,12 +165,13 @@ export default function UserProfilePage() {
     const seasonCount = ratings?.filter(r => r.item_type === 'season').length || 0;
     const episodeCount = ratings?.filter(r => r.item_type === 'episode').length || 0;
 
-    // Get count of all posts (consistent with ProfilePage)
+    // Get count of all posts excluding ratings
     const { count: postCount } = await supabase
       .from('posts')
       .select('*', { count: 'exact', head: true })
       .eq('author_id', profileData.id)
-      .is('deleted_at', null);
+      .is('deleted_at', null)
+      .neq('kind', 'rating');
 
     const { count: followers } = await supabase
       .from('follows')
@@ -302,7 +329,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col items-center gap-6">
             {/* Profile Ring with Badge */}
             <div className="relative inline-flex items-center gap-4">
-              <div className="w-48 h-48">
+              <div className="w-48 h-48 relative">
                 <ProfileRing points={bingePoints} badge={currentBadge}>
                   <Avatar className="w-full h-full border-4 border-background shadow-lg">
                     <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
@@ -311,6 +338,18 @@ export default function UserProfilePage() {
                     </AvatarFallback>
                   </Avatar>
                 </ProfileRing>
+                
+                {/* Follow button attached to profile circle */}
+                {user && userId && user.id !== userId && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2">
+                    <FollowRequestButton
+                      targetUserId={userId}
+                      isPrivate={profile.is_private}
+                      initialFollowStatus={followStatus}
+                      onStatusChange={() => loadProfile()}
+                    />
+                  </div>
+                )}
               </div>
               
               {/* Badge beside ring */}
@@ -322,30 +361,13 @@ export default function UserProfilePage() {
             {/* Name and handle */}
             <div className="text-center space-y-3 w-full max-w-md">
               {(profile as any).settings?.displayName && (
-                <h1 className="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                <h1 className={`text-3xl font-bold ${getBadgeGradientText(currentBadge)} drop-shadow-lg`}>
                   {(profile as any).settings.displayName}
                 </h1>
               )}
-              <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+              <p className={`text-lg drop-shadow-md ${getBadgeTextColor(currentBadge)}`}>
                 @{profile.handle || 'user'}
               </p>
-
-              {/* Progress to next badge */}
-              {flags.BINGE_POINTS && nextTier && (
-                <div className="space-y-2 px-4 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-foreground drop-shadow-sm">{currentBadge}</span>
-                    <div className="flex items-center gap-1 text-foreground/90">
-                      <TrendingUp className="h-3 w-3" />
-                      <span className="text-xs drop-shadow-sm">Next: {nextTier.name}</span>
-                    </div>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                  <div className="text-xs text-foreground/90 text-center drop-shadow-sm">
-                    {bingePoints} / {nextTier.min} Binge Points
-                  </div>
-                </div>
-              )}
 
               {/* Stats */}
               <div className="flex gap-6 text-sm justify-center pt-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
@@ -353,7 +375,7 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
                     {profile.postCount}
                   </span>
-                  <span className="text-foreground/90 font-medium drop-shadow-sm">Posts</span>
+                  <span className={`font-medium drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>Posts</span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -362,7 +384,7 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
                     {profile.followers}
                   </span>
-                  <span className="text-foreground/90 font-medium drop-shadow-sm">Followers</span>
+                  <span className={`font-medium drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>Followers</span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -371,7 +393,7 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
                     {profile.following}
                   </span>
-                  <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
+                  <span className={`font-medium drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>Following</span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -380,25 +402,13 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
                     #{userRank || '—'}
                   </span>
-                  <span className="text-foreground/90 font-medium drop-shadow-sm flex items-center gap-1">
+                  <span className={`font-medium drop-shadow-sm flex items-center gap-1 ${getBadgeTextColor(currentBadge)}`}>
                     <Trophy className="w-3 h-3" />
                     Rank
                   </span>
                 </button>
               </div>
             </div>
-
-            {/* Follow button */}
-            {user && userId && user.id !== userId && (
-              <FollowRequestButton
-                targetUserId={userId}
-                isPrivate={profile.is_private}
-                initialFollowStatus={followStatus}
-                onStatusChange={() => {
-                  loadProfile();
-                }}
-              />
-            )}
           </div>
         </div>
 
@@ -415,6 +425,33 @@ export default function UserProfilePage() {
             isOwner={false}
           />
         </div>
+
+        {/* Progress to next badge - MOVED HERE */}
+        {flags.BINGE_POINTS && nextTier && (
+          <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
+            <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
+              <div className="flex items-center justify-between text-sm">
+                <span className={`font-semibold drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>
+                  {currentBadge}
+                </span>
+                <div className="flex items-center gap-1 text-foreground/90">
+                  <TrendingUp className="h-3 w-3" />
+                  <span className="text-xs drop-shadow-sm">Next: {nextTier.name}</span>
+                </div>
+              </div>
+              <Progress value={progress} className="h-2" />
+              <div className="text-xs text-foreground/90 text-center drop-shadow-sm">
+                {bingePoints} / {nextTier.min} Binge Points
+              </div>
+            </div>
+          </div>
+        )}
+
+        {flags.BINGE_POINTS && (
+          <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
+            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
+          </div>
+        )}
 
         <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
           <CinematicFavorites
