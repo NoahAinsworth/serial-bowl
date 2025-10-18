@@ -33,6 +33,7 @@ import MessagesPage from "./pages/MessagesPage";
 import FollowersPage from "./pages/FollowersPage";
 import FollowingPage from "./pages/FollowingPage";
 import BingePage from "./pages/BingePage";
+import BingeBoardPage from "./pages/BingeBoardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -78,6 +79,7 @@ function AppRouter() {
                 <Route path="/following" element={<AppLayout><FollowingPage /></AppLayout>} />
                 <Route path="/user/:userId/following" element={<AppLayout><FollowingPage /></AppLayout>} />
                 <Route path="/binge" element={<AppLayout><BingePage /></AppLayout>} />
+                <Route path="/binge-board" element={<AppLayout><BingeBoardPage /></AppLayout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
     </div>

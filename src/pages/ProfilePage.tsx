@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Edit, Loader2, Share2, X, TrendingUp } from 'lucide-react';
+import { Edit, Loader2, Share2, X, TrendingUp, Trophy, Plus, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserPosts } from '@/components/UserPosts';
 import { UnifiedRatings } from '@/components/UnifiedRatings';
@@ -58,6 +58,10 @@ export default function ProfilePage() {
     completed_seasons: number;
     completed_shows: number;
   } | null>(null);
+  const [addShowsQuery, setAddShowsQuery] = useState('');
+  const [addShowsResults, setAddShowsResults] = useState<any[]>([]);
+  const [searchingAddShows, setSearchingAddShows] = useState(false);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -66,6 +70,7 @@ export default function ProfilePage() {
     }
     loadProfile();
     loadTop3Shows();
+    loadUserRank();
   }, [user]);
 
   useEffect(() => {
@@ -77,6 +82,18 @@ export default function ProfilePage() {
 
     return () => clearTimeout(delaySearch);
   }, [searchQuery, showTop3Dialog]);
+
+  useEffect(() => {
+    const delaySearch = setTimeout(() => {
+      if (addShowsQuery.trim()) {
+        searchAddShows(addShowsQuery);
+      } else {
+        setAddShowsResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delaySearch);
+  }, [addShowsQuery]);
 
   const loadProfile = async () => {
     if (!user) return;
@@ -128,6 +145,25 @@ export default function ProfilePage() {
     }
   };
 
+  const loadUserRank = async () => {
+    if (!user) return;
+
+    const { data: currentUser } = await supabase
+      .from('profiles')
+      .select('binge_points')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (currentUser) {
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .gt('binge_points', currentUser.binge_points);
+      
+      setUserRank((count || 0) + 1);
+    }
+  };
+
   const searchShows = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -147,6 +183,91 @@ export default function ProfilePage() {
       });
     }
     setSearchingShows(false);
+  };
+
+  const searchAddShows = async (query: string) => {
+    if (!query.trim()) {
+      setAddShowsResults([]);
+      return;
+    }
+
+    setSearchingAddShows(true);
+    try {
+      const results = await searchTVDB(query);
+      setAddShowsResults(results);
+    } catch (error) {
+      console.error('Error searching shows:', error);
+    }
+    setSearchingAddShows(false);
+  };
+
+  const addToWatched = async (show: any) => {
+    if (!user) return;
+
+    try {
+      const { data: existingContent } = await supabase
+        .from('content')
+        .select('id')
+        .eq('external_id', show.id.toString())
+        .eq('kind', 'show')
+        .maybeSingle();
+
+      let contentId = existingContent?.id;
+
+      if (!contentId) {
+        const { data: newContent, error: contentError } = await supabase
+          .from('content')
+          .insert({
+            external_id: show.id.toString(),
+            kind: 'show',
+            title: show.name,
+            poster_url: show.image,
+            metadata: { overview: show.overview },
+          })
+          .select('id')
+          .single();
+
+        if (contentError) throw contentError;
+        contentId = newContent.id;
+      }
+
+      const { error } = await supabase
+        .from('watched')
+        .insert({
+          user_id: user.id,
+          content_id: contentId,
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already marked as watched",
+            description: `${show.name} is already in your watched list`,
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Marked as watched",
+          description: `${show.name} has been added`,
+        });
+        
+        // Reload profile to update binge points
+        loadProfile();
+        loadUserRank();
+        setAddShowsQuery('');
+        setAddShowsResults([]);
+      }
+    } catch (error) {
+      console.error('Error adding to watched:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add show to watched list",
+        variant: "destructive",
+      });
+    }
   };
 
   const addToTop3 = async (show: any, slotIndex: number) => {
@@ -378,6 +499,18 @@ export default function ProfilePage() {
                 </span>
                 <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
               </button>
+              <button 
+                className="hover:underline group"
+                onClick={() => navigate('/binge-board')}
+              >
+                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  #{userRank || '—'}
+                </span>
+                <span className="text-foreground/90 font-medium drop-shadow-sm flex items-center gap-1">
+                  <Trophy className="w-3 h-3" />
+                  Rank
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -385,50 +518,123 @@ export default function ProfilePage() {
         {flags.BINGE_POINTS && (
           <div className="px-4 mb-6 animate-fade-in">
             <Card className="p-6 bg-card/70 backdrop-blur-md border-border/30">
-              <h3 className="text-lg font-semibold mb-4 text-foreground">Binge Stats</h3>
-              
-              {/* Trophy Case */}
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold mb-3 text-foreground/90">
-                  Trophy Case ({BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).length}/{BADGE_THRESHOLDS.length})
-                </h4>
-                <div className="overflow-x-auto">
-                  <div className="flex gap-4 pb-2">
-                    {BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).reverse().map((badge) => (
-                      <div 
-                        key={badge.name}
-                        className="flex-shrink-0 flex flex-col items-center gap-1"
-                      >
-                        <BadgeDisplay 
-                          badge={badge.name} 
-                          size="sm"
-                          showGlow={badge.name === currentBadge}
-                        />
-                        <div className="whitespace-nowrap bg-background/98 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/50 text-foreground shadow-lg">
-                          {badge.min} pts
-                        </div>
+              <Tabs defaultValue="stats" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="stats">Stats</TabsTrigger>
+                  <TabsTrigger value="add-shows">Add Shows</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="stats" className="space-y-4">
+                  {/* Trophy Case */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-foreground/90">
+                      Trophy Case ({BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).length}/{BADGE_THRESHOLDS.length})
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <div className="flex gap-4 pb-2">
+                        {BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).reverse().map((badge) => (
+                          <div 
+                            key={badge.name}
+                            className="flex-shrink-0 flex flex-col items-center gap-1"
+                          >
+                            <BadgeDisplay 
+                              badge={badge.name} 
+                              size="sm"
+                              showGlow={badge.name === currentBadge}
+                            />
+                            <div className="whitespace-nowrap bg-background/98 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/50 text-foreground shadow-lg">
+                              {badge.min} pts
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <Separator className="my-4" />
+                  <Separator className="my-4" />
 
-              {/* Binge Meter */}
-              <div>
-                <h4 className="text-sm font-semibold mb-3 text-foreground/90">Binge Meter</h4>
-                <BingePointsDisplay
-                  points={bingePoints}
-                  badge={currentBadge}
-                  episodePoints={bingeBreakdown?.episode_points}
-                  seasonBonuses={bingeBreakdown?.season_bonuses}
-                  showBonuses={bingeBreakdown?.show_bonuses}
-                  completedSeasons={bingeBreakdown?.completed_seasons}
-                  completedShows={bingeBreakdown?.completed_shows}
-                  showBreakdown={true}
-                />
-              </div>
+                  {/* Binge Meter */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-foreground/90">Binge Meter</h4>
+                    <BingePointsDisplay
+                      points={bingePoints}
+                      badge={currentBadge}
+                      episodePoints={bingeBreakdown?.episode_points}
+                      seasonBonuses={bingeBreakdown?.season_bonuses}
+                      showBonuses={bingeBreakdown?.show_bonuses}
+                      completedSeasons={bingeBreakdown?.completed_seasons}
+                      completedShows={bingeBreakdown?.completed_shows}
+                      showBreakdown={true}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="add-shows" className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-foreground/90">Search & Add to Watched</h4>
+                    <div className="relative mb-4">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Search for TV shows..."
+                        value={addShowsQuery}
+                        onChange={(e) => setAddShowsQuery(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+
+                    {searchingAddShows && (
+                      <div className="flex justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                      </div>
+                    )}
+
+                    {!searchingAddShows && addShowsResults.length > 0 && (
+                      <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto">
+                        {addShowsResults.map((show) => (
+                          <div
+                            key={show.id}
+                            className="group relative rounded-lg overflow-hidden bg-card/50 backdrop-blur border border-border/30 hover:border-primary/50 transition-all"
+                          >
+                            <img
+                              src={show.image || '/placeholder.svg'}
+                              alt={show.name}
+                              className="w-full aspect-[2/3] object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                              <Button
+                                size="sm"
+                                onClick={() => addToWatched(show)}
+                                className="w-full"
+                              >
+                                <Plus className="w-4 h-4 mr-1" />
+                                Add to Watched
+                              </Button>
+                            </div>
+                            <div className="p-2">
+                              <p className="text-xs font-medium text-foreground line-clamp-2">
+                                {show.name}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {!searchingAddShows && addShowsQuery && addShowsResults.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No shows found
+                      </div>
+                    )}
+
+                    {!addShowsQuery && (
+                      <div className="text-center py-8 text-muted-foreground text-sm">
+                        Search for TV shows to add to your watched list and earn binge points!
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </Card>
           </div>
         )}
