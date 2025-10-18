@@ -413,7 +413,7 @@ All colors MUST be HSL.
     --radius-md: 6px;
     --radius-lg: 8px;
     --btn-shape: 4px;
-    --tab-shape: 6px;
+    --tab-shape: 18px;
     --stroke-width: 1px;
     --stroke-style: solid;
     
@@ -684,7 +684,7 @@ All colors MUST be HSL.
     font-family: 'Press Start 2P', monospace;
     font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.6em;
     font-size: 0.65rem;
     color: hsl(var(--foreground));
     position: relative;
@@ -692,13 +692,13 @@ All colors MUST be HSL.
   }
   
   .the_one_with_the_theme .wordmark::after {
-    content: '• • • • • • • • • •';
+    content: '••••••••••';
     position: absolute;
-    left: 0.52em;
+    left: 0.5em;
     top: 50%;
     transform: translateY(-50%);
-    letter-spacing: 0.64em;
-    font-size: 1.2em;
+    letter-spacing: 1.15em;
+    font-size: 0.6em;
     background: linear-gradient(to right, 
       hsl(var(--friends-yellow)),
       hsl(var(--friends-orange)),
