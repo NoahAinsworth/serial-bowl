@@ -531,6 +531,21 @@ export default function ProfilePage() {
 
         {flags.BINGE_POINTS && (
           <div className="px-4 mb-6 animate-fade-in">
+            <BingePointsDisplay
+              points={bingePoints}
+              badge={currentBadge}
+              episodePoints={bingeBreakdown?.episode_points}
+              seasonBonuses={bingeBreakdown?.season_bonuses}
+              showBonuses={bingeBreakdown?.show_bonuses}
+              completedSeasons={bingeBreakdown?.completed_seasons}
+              completedShows={bingeBreakdown?.completed_shows}
+              showBreakdown={true}
+            />
+          </div>
+        )}
+
+        {flags.BINGE_POINTS && (
+          <div className="px-4 mb-6 animate-fade-in">
             <Card className="p-6 bg-card/70 backdrop-blur-md border-border/30">
               <Tabs defaultValue="stats" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">

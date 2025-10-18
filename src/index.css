@@ -513,36 +513,6 @@ All colors MUST be HSL.
     mix-blend-mode: overlay;
   }
 
-  /* VHS Timestamp Watermark */
-  .vhs_mode body::before {
-    content: 'VHS • REC';
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    font-family: 'VT323', monospace;
-    font-size: 1.1rem;
-    color: rgba(255, 0, 0, 0.7);
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-    letter-spacing: 2px;
-    pointer-events: none;
-    animation: vhs-flicker 0.15s infinite;
-  }
-
-  /* VHS Playback Controls Decoration */
-  .vhs_mode body::after {
-    content: '▶ ▓ ▓';
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.7rem;
-    color: rgba(255, 0, 255, 0.3);
-    z-index: 9999;
-    pointer-events: none;
-    letter-spacing: 8px;
-  }
-
   /* VHS Component Styling */
   .vhs_mode h1,
   .vhs_mode h2,

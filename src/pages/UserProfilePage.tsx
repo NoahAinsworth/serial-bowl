@@ -22,6 +22,7 @@ import { DynamicBackground } from '@/components/DynamicBackground';
 import { AboutMeSection } from '@/components/AboutMeSection';
 import { CinematicFavorites } from '@/components/CinematicFavorites';
 import { Progress } from '@/components/ui/progress';
+import { BingePointsDisplay } from '@/components/BingePointsDisplay';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 export default function UserProfilePage() {
@@ -470,6 +471,16 @@ export default function UserProfilePage() {
             </div>
           </div>
         </div>
+
+        {flags.BINGE_POINTS && (
+          <div className="px-4 mb-6 animate-fade-in">
+            <BingePointsDisplay
+              points={bingePoints}
+              badge={currentBadge}
+              showBreakdown={false}
+            />
+          </div>
+        )}
 
         <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
           <AboutMeSection 
