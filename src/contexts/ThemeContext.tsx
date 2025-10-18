@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-type ThemeMode = 'light' | 'dark' | 'upside_down' | 'the_one_with_the_theme' | 'green_wireframe' | 'donut_mode' | 'upper_east_side' | 'vhs_mode' | 'vhs_light_mode' | 'cinematic_light';
+type ThemeMode = 'light' | 'dark' | 'upside_down' | 'the_one_with_the_theme' | 'green_wireframe' | 'donut_mode' | 'upper_east_side' | 'vhs_light_mode';
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -18,9 +18,18 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setThemeState] = useState<ThemeMode>('light');
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme') as ThemeMode;
+    const stored = localStorage.getItem('theme');
     if (stored) {
-      setThemeState(stored);
+      // Migrate old theme names to new ones
+      if (stored === 'cinematic_light') {
+        setThemeState('light');
+        localStorage.setItem('theme', 'light');
+      } else if (stored === 'vhs_mode') {
+        setThemeState('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        setThemeState(stored as ThemeMode);
+      }
     }
   }, []);
 
@@ -29,7 +38,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('theme', newTheme);
     
     // Remove all theme classes
-    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side', 'vhs_mode', 'vhs_light_mode', 'cinematic_light');
+    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side', 'vhs_light_mode');
     document.documentElement.classList.add(newTheme);
     
     // Handle body classes for overlay effects
@@ -40,7 +49,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side', 'vhs_mode', 'vhs_light_mode', 'cinematic_light');
+    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side', 'vhs_light_mode');
     document.documentElement.classList.add(theme);
     
     // Handle body classes for overlay effects

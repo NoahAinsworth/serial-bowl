@@ -343,7 +343,7 @@ export default function UserProfilePage() {
             {/* Profile Ring with Badge */}
             <div className="relative inline-flex items-center gap-4">
               <div className="w-48 h-48 relative">
-                {theme === 'vhs_mode' ? (
+                {theme === 'dark' ? (
                   <VHSProfileRing size="lg">
                     <Avatar className="w-full h-full border-4 border-background shadow-lg">
                       <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />

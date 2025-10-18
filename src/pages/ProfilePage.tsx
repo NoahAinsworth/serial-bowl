@@ -420,7 +420,7 @@ export default function ProfilePage() {
             {/* Profile Ring with Badge */}
             <div className="relative inline-flex items-center gap-4">
               <div className="w-48 h-48">
-                {theme === 'vhs_mode' ? (
+                {theme === 'dark' ? (
                   <VHSProfileRing size="lg">
                     <Avatar className="w-full h-full">
                       <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
