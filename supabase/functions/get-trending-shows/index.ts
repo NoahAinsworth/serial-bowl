@@ -113,7 +113,30 @@ serve(async (req) => {
         if (searchResponse.ok) {
           const searchData = await searchResponse.json();
           if (searchData.data && searchData.data.length > 0) {
-            tvdbShows.push(searchData.data[0]);
+            const searchResult = searchData.data[0];
+            
+            // Extract the correct ID field (could be tvdb_id, objectID, or id)
+            const showId = searchResult.tvdb_id || searchResult.objectID || searchResult.id;
+            
+            if (showId) {
+              // Fetch full show data using extended endpoint for consistent format
+              const showResponse = await fetch(
+                `https://api4.thetvdb.com/v4/series/${showId}/extended`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${tvdbToken}`,
+                    Accept: "application/json",
+                  },
+                }
+              );
+              
+              if (showResponse.ok) {
+                const showData = await showResponse.json();
+                if (showData.data) {
+                  tvdbShows.push(showData.data);
+                }
+              }
+            }
           }
         }
       } catch (error) {
