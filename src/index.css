@@ -427,43 +427,43 @@ All colors MUST be HSL.
     --fx-overlay: linear-gradient(180deg, rgba(11, 11, 11, 0) 0%, rgba(26, 26, 26, 0.3) 100%);
   }
 
-  /* ========================= VHS MODE THEME ========================= */
+  /* ========================= VHS MODE THEME (CINEMATIC DARK) ========================= */
   .vhs_mode {
-    /* Base Colors - Dark with analog warmth */
-    --background: 220 20% 8%;           /* Deep navy-black */
-    --foreground: 280 5% 95%;           /* Slightly warm white */
+    /* Enhanced Base Colors - Navy/Indigo with depth */
+    --background: 222 25% 10%;          /* Navy-indigo base */
+    --foreground: 220 15% 96%;          /* Cool white */
     
-    /* Neon Accents */
+    /* Refined Neon Accents */
     --primary: 300 100% 65%;            /* Hot magenta */
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 280 60% 25%;           /* Deep purple */
+    --secondary: 258 80% 35%;           /* Deep violet */
     --secondary-foreground: 300 100% 85%;
     
-    --accent: 180 100% 50%;             /* Cyan */
-    --accent-foreground: 220 20% 10%;
+    --accent: 180 100% 55%;             /* Bright cyan */
+    --accent-foreground: 222 25% 10%;
     
     --destructive: 330 100% 60%;        /* Hot pink */
     --destructive-foreground: 0 0% 100%;
     
-    /* UI Components */
-    --card: 220 25% 12%;
-    --card-foreground: 280 5% 95%;
+    /* UI Components with gradient depth */
+    --card: 222 30% 14%;                /* Slightly lighter navy */
+    --card-foreground: 220 15% 96%;
     
-    --popover: 220 25% 12%;
-    --popover-foreground: 280 5% 95%;
+    --popover: 222 30% 14%;
+    --popover-foreground: 220 15% 96%;
     
-    --muted: 280 20% 20%;
-    --muted-foreground: 280 5% 70%;
+    --muted: 258 40% 18%;
+    --muted-foreground: 220 15% 75%;
     
-    --border: 280 60% 30%;
-    --input: 280 60% 25%;
+    --border: 258 60% 35%;
+    --input: 258 60% 25%;
     --ring: 300 100% 65%;
     
     /* VHS-specific colors */
     --vhs-magenta: 300 100% 65%;
-    --vhs-cyan: 180 100% 50%;
-    --vhs-purple: 270 100% 60%;
+    --vhs-cyan: 180 100% 55%;
+    --vhs-purple: 258 80% 35%;
     --vhs-pink: 330 100% 70%;
     
     /* Effects */
@@ -473,9 +473,17 @@ All colors MUST be HSL.
     
     /* Typography */
     font-family: 'Rajdhani', 'DM Sans', sans-serif;
+    
+    /* Ambient gradient background */
+    background: linear-gradient(
+      135deg, 
+      hsl(222 40% 15%), 
+      hsl(258 50% 20%), 
+      hsl(280 45% 18%)
+    );
   }
 
-  /* VHS Background Effects Layer - Scanlines */
+  /* VHS Background Effects - Enhanced Scanlines with Vignette */
   .vhs_mode::before {
     content: '';
     position: fixed;
@@ -486,18 +494,19 @@ All colors MUST be HSL.
     pointer-events: none;
     z-index: 9998;
     background-image: 
+      radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%),
       repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.15) 0px,
-        rgba(0, 0, 0, 0.15) 1px,
+        rgba(0, 0, 0, 0.12) 0px,
+        rgba(0, 0, 0, 0.12) 1px,
         transparent 1px,
         transparent 2px
       );
-    animation: vhs-scanline 8s linear infinite;
-    opacity: 0.3;
+    animation: vhs-scanline 10s linear infinite;
+    opacity: 0.4;
   }
 
-  /* VHS Grain Overlay */
+  /* VHS Grain Overlay - Enhanced */
   .vhs_mode::after {
     content: '';
     position: fixed;
@@ -508,58 +517,83 @@ All colors MUST be HSL.
     pointer-events: none;
     z-index: 9997;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.04;
-    animation: vhs-grain 0.5s infinite;
+    opacity: 0.06;
+    animation: vhs-grain 0.4s infinite;
     mix-blend-mode: overlay;
   }
-
-  /* VHS Component Styling */
-  .vhs_mode h1,
-  .vhs_mode h2,
-  .vhs_mode h3,
-  .vhs_mode h4,
-  .vhs_mode h5,
-  .vhs_mode h6 {
-    font-family: 'Audiowide', sans-serif;
-    font-weight: 400;
-    text-shadow: 
-      2px 0 0 rgba(255, 0, 255, 0.3),
-      -2px 0 0 rgba(0, 255, 255, 0.3),
-      0 0 20px rgba(255, 0, 255, 0.2);
+  
+  /* Moving Light Gradients */
+  .vhs_mode body {
+    background: linear-gradient(
+      270deg,
+      hsl(222 40% 12%),
+      hsl(258 50% 15%),
+      hsl(280 45% 14%),
+      hsl(258 50% 15%),
+      hsl(222 40% 12%)
+    );
+    background-size: 400% 400%;
+    animation: ambient-shift 20s ease infinite;
   }
 
-  /* VHS Cards */
+  /* VHS Typography - Futuristic Display Font */
+  .vhs_mode h1,
+  .vhs_mode h2,
+  .vhs_mode .wordmark {
+    font-family: 'Audiowide', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-shadow: 
+      2px 0 0 rgba(255, 0, 255, 0.4),
+      -2px 0 0 rgba(0, 255, 255, 0.4),
+      0 0 25px rgba(255, 0, 255, 0.3),
+      0 0 40px rgba(0, 255, 255, 0.2);
+  }
+
+  .vhs_mode p,
+  .vhs_mode span,
+  .vhs_mode div {
+    font-family: 'Rajdhani', 'DM Sans', sans-serif;
+    font-weight: 400;
+  }
+
+  /* VHS Cards - Glassmorphism with Glow Borders */
   .vhs_mode .bg-card {
     background: linear-gradient(
       135deg,
-      hsl(var(--card)) 0%,
-      hsl(var(--card) / 0.9) 100%
+      hsl(var(--card) / 0.7) 0%,
+      hsl(var(--card) / 0.5) 100%
     );
+    backdrop-filter: blur(12px) saturate(150%);
     border: 1px solid transparent;
     border-image: linear-gradient(
       135deg,
-      hsl(var(--vhs-magenta) / 0.4),
-      hsl(var(--vhs-cyan) / 0.4),
-      hsl(var(--vhs-purple) / 0.4)
+      hsl(var(--vhs-magenta) / 0.5),
+      hsl(var(--vhs-cyan) / 0.5),
+      hsl(var(--vhs-purple) / 0.3)
     ) 1;
     box-shadow: 
-      0 0 20px rgba(255, 0, 255, 0.1),
-      0 0 40px rgba(0, 255, 255, 0.05),
-      inset 0 0 60px rgba(255, 0, 255, 0.02);
-    transition: all 0.3s ease;
-    backdrop-filter: blur(8px);
+      0 4px 24px rgba(255, 0, 255, 0.12),
+      0 8px 48px rgba(0, 255, 255, 0.08),
+      inset 0 0 80px rgba(255, 0, 255, 0.03);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .vhs_mode .bg-card:hover {
-    transform: translate(-1px, 1px) rotate(-0.2deg);
+    transform: translateY(-2px) scale(1.01);
+    border-image: linear-gradient(
+      135deg,
+      hsl(var(--vhs-cyan) / 0.7),
+      hsl(var(--vhs-magenta) / 0.7),
+      hsl(var(--vhs-purple) / 0.5)
+    ) 1;
     box-shadow: 
-      0 0 30px rgba(255, 0, 255, 0.2),
-      0 0 50px rgba(0, 255, 255, 0.1),
-      inset 0 0 60px rgba(255, 0, 255, 0.03);
-    animation: vhs-jitter 0.3s ease-in-out;
+      0 6px 32px rgba(255, 0, 255, 0.2),
+      0 12px 64px rgba(0, 255, 255, 0.15),
+      inset 0 0 100px rgba(0, 255, 255, 0.05);
   }
 
-  /* VHS Buttons */
+  /* VHS Buttons - Cinematic Pulse Interaction */
   .vhs_mode button,
   .vhs_mode .btn-glow {
     font-family: 'Rajdhani', sans-serif;
@@ -575,7 +609,23 @@ All colors MUST be HSL.
       0 0 10px rgba(255, 0, 255, 0.2),
       0 0 20px rgba(0, 255, 255, 0.1),
       inset 0 0 30px rgba(255, 0, 255, 0.05);
-    transition: all 0.3s ease;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  
+  .vhs_mode button::before,
+  .vhs_mode .btn-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 0, 255, 0.2),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .vhs_mode button:hover:not(:disabled),
@@ -589,6 +639,12 @@ All colors MUST be HSL.
       0 0 40px rgba(0, 255, 255, 0.2),
       inset 0 0 40px rgba(255, 0, 255, 0.1);
     transform: translateY(-1px);
+  }
+  
+  .vhs_mode button:active::before,
+  .vhs_mode .btn-glow:active::before {
+    opacity: 1;
+    animation: vhs-pulse 0.6s ease-out;
   }
 
   /* VHS Progress Bars - Add Neon Glow */
@@ -619,7 +675,7 @@ All colors MUST be HSL.
     box-shadow: 0 4px 15px rgba(255, 0, 255, 0.3);
   }
 
-  /* VHS Input Fields */
+  /* VHS Input Fields - Glowing with Flicker */
   .vhs_mode input,
   .vhs_mode textarea {
     background: hsl(var(--input) / 0.5);
@@ -627,14 +683,16 @@ All colors MUST be HSL.
     box-shadow: 
       inset 0 0 20px rgba(0, 0, 0, 0.3),
       0 0 10px rgba(255, 0, 255, 0.1);
+    transition: all 0.3s ease;
   }
 
   .vhs_mode input:focus,
   .vhs_mode textarea:focus {
     border-color: hsl(var(--vhs-cyan));
     box-shadow: 
-      inset 0 0 20px rgba(0, 0, 0, 0.3),
+      inset 0 0 20px rgba(255, 0, 255, 0.1),
       0 0 15px rgba(0, 255, 255, 0.3);
+    animation: vhs-flicker 3s infinite;
   }
 
   /* VHS Links */
@@ -648,6 +706,338 @@ All colors MUST be HSL.
   .vhs_mode a:hover {
     color: hsl(var(--vhs-magenta));
     text-shadow: 0 0 15px rgba(255, 0, 255, 0.7);
+  }
+  
+  /* VHS Post Cards - Themed with Glow */
+  .vhs_mode .post-card {
+    border: 1px solid hsl(var(--vhs-magenta) / 0.3);
+  }
+
+  .vhs_mode .post-card:hover {
+    box-shadow: 
+      0 0 30px rgba(255, 0, 255, 0.2),
+      0 0 60px rgba(0, 255, 255, 0.1);
+  }
+  
+  /* VHS Discover Tabs - Neon Divider */
+  .vhs_mode .discover-tabs {
+    border-top: 1px solid transparent;
+    border-image: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--vhs-cyan) / 0.5),
+      transparent
+    ) 1;
+  }
+  
+  /* VHS Messages - Neon Avatar Outlines */
+  .vhs_mode .avatar-ring {
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, 
+      hsl(var(--vhs-magenta)), 
+      hsl(var(--vhs-cyan))
+    ) border-box;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+  }
+
+  .vhs_mode .message-read {
+    color: hsl(var(--vhs-cyan));
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+  }
+  
+  /* VHS Profile Stats - Floating Effect */
+  .vhs_mode .stats-card {
+    box-shadow: 
+      0 8px 32px rgba(255, 0, 255, 0.15),
+      0 0 60px rgba(0, 255, 255, 0.08);
+  }
+
+  .vhs_mode .level-bar-fill {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--vhs-magenta)),
+      hsl(var(--vhs-purple)),
+      hsl(var(--vhs-cyan))
+    );
+    background-size: 200% 100%;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+    animation: gradient-flow 3s ease infinite;
+  }
+
+  @keyframes gradient-flow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* VHS Neon Elements - Bloom Effect */
+  .vhs_mode .neon-text,
+  .vhs_mode .bright-element {
+    filter: brightness(1.1);
+    mix-blend-mode: screen;
+  }
+
+  .vhs_mode .intense-glow {
+    filter: blur(0.5px) brightness(1.2);
+  }
+
+  /* ========================= CINEMATIC LIGHT MODE ========================= */
+  .cinematic_light {
+    /* Base - Soft white with warm neutrals */
+    --background: 0 0% 98%;              /* Soft white */
+    --foreground: 240 10% 15%;           /* Deep charcoal */
+    
+    /* Pastel Gradient Accents */
+    --primary: 270 60% 70%;              /* Lavender */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 25 85% 75%;             /* Warm peach */
+    --secondary-foreground: 240 10% 15%;
+    
+    --accent: 200 70% 75%;               /* Sky blue */
+    --accent-foreground: 240 10% 15%;
+    
+    --destructive: 350 80% 65%;          /* Soft coral-red */
+    --destructive-foreground: 0 0% 100%;
+    
+    /* UI Components */
+    --card: 0 0% 100%;                   /* Pure white */
+    --card-foreground: 240 10% 15%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+    
+    --muted: 240 5% 93%;                 /* Light grey */
+    --muted-foreground: 240 5% 45%;
+    
+    --border: 270 30% 85%;               /* Lavender-tinted border */
+    --input: 240 5% 96%;
+    --ring: 270 60% 70%;
+    
+    /* Cinematic Light Colors */
+    --film-lavender: 270 60% 75%;
+    --film-peach: 25 85% 75%;
+    --film-sky: 200 70% 75%;
+    --film-coral: 15 80% 65%;
+    
+    /* Typography */
+    font-family: 'Poppins', 'Inter', sans-serif;
+  }
+
+  /* Light Film Grain Overlay */
+  .cinematic_light::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grainFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grainFilter)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    mix-blend-mode: multiply;
+  }
+
+  /* Matte Paper Texture */
+  .cinematic_light::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9997;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 0%,
+      rgba(240, 235, 255, 0.3) 100%
+    );
+    opacity: 0.5;
+  }
+
+  /* Typography - Clean & Cinematic */
+  .cinematic_light h1,
+  .cinematic_light h2,
+  .cinematic_light .wordmark {
+    font-family: 'Audiowide', 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--film-lavender)),
+      hsl(var(--film-peach)),
+      hsl(var(--film-sky))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cinematic_light p,
+  .cinematic_light span {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 400;
+  }
+
+  /* Cards - Frosted Glass with Soft Shadows */
+  .cinematic_light .bg-card {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.85) 100%
+    );
+    backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(200, 180, 230, 0.2);
+    box-shadow: 
+      0 2px 16px rgba(140, 100, 200, 0.08),
+      0 4px 32px rgba(140, 100, 200, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 16px;
+  }
+
+  .cinematic_light .bg-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+      0 4px 24px rgba(140, 100, 200, 0.12),
+      0 8px 48px rgba(140, 100, 200, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  /* Buttons - Lens Flare Effect */
+  .cinematic_light button {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary))
+    );
+    border: none;
+    box-shadow: 
+      0 2px 12px rgba(140, 100, 200, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cinematic_light button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.8) 0%,
+      transparent 60%
+    );
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.4s ease;
+  }
+
+  .cinematic_light button:active::before {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0s;
+  }
+
+  /* Input Fields - Glowing Cursor */
+  .cinematic_light textarea,
+  .cinematic_light input {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 
+      inset 0 2px 8px rgba(140, 100, 200, 0.05),
+      0 0 0 0 rgba(140, 100, 200, 0);
+    transition: all 0.3s ease;
+  }
+
+  .cinematic_light textarea:focus,
+  .cinematic_light input:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 
+      inset 0 2px 8px rgba(140, 100, 200, 0.08),
+      0 0 0 4px rgba(140, 100, 200, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  /* Home - Pastel Gradient for Binge Points */
+  .cinematic_light .binge-points-bar {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--film-lavender)),
+      hsl(var(--film-peach)),
+      hsl(var(--film-sky))
+    );
+    box-shadow: 0 2px 12px rgba(140, 100, 200, 0.2);
+  }
+
+  /* Discover - Bright Gradient Accent */
+  .cinematic_light .discover-tabs {
+    border-bottom: 2px solid transparent;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--film-lavender) / 0.3),
+      hsl(var(--film-peach) / 0.3),
+      transparent
+    ) bottom / 100% 2px no-repeat;
+  }
+
+  /* Create Post - Minimal Input with Vignette */
+  .cinematic_light .post-input-wrapper {
+    position: relative;
+  }
+
+  .cinematic_light .post-input-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 60%,
+      rgba(255, 250, 245, 0.4) 100%
+    );
+    border-radius: inherit;
+  }
+
+  /* Messages - Lavender Read Indicator */
+  .cinematic_light .message-read {
+    color: hsl(var(--film-lavender));
+  }
+
+  .cinematic_light .message-read::after {
+    content: '✓';
+    color: hsl(var(--film-lavender));
+    margin-left: 4px;
+  }
+
+  /* Profile - Progress Bar with Gradient */
+  .cinematic_light .progress-bar-fill {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--film-lavender)),
+      hsl(var(--film-coral))
+    );
+    box-shadow: 0 2px 12px rgba(140, 100, 200, 0.25);
+  }
+
+  /* Film Bloom Effect */
+  .cinematic_light .film-bloom {
+    filter: brightness(1.05) contrast(1.02);
+  }
+
+  /* Matte Highlight for Interactive Elements */
+  .cinematic_light .hover-matte:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(250, 245, 255, 0.95) 100%
+    );
   }
 
   /* Upside Down Scanline & Static Effects */
