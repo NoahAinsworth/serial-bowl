@@ -412,12 +412,6 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        {flags.BINGE_POINTS && (
-          <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
-            <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
-          </div>
-        )}
-
         <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
           <AboutMeSection 
             bio={profile.bio || ''} 

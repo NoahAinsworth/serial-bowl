@@ -105,7 +105,7 @@ export default function ProfilePage() {
       .maybeSingle();
 
     const [thoughtsRes, followersRes, followingRes] = await Promise.all([
-      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('author_id', user.id).is('deleted_at', null),
+      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('author_id', user.id).is('deleted_at', null).neq('kind', 'rating'),
       supabase.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', user.id),
       supabase.from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', user.id),
     ]);
