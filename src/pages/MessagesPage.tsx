@@ -6,10 +6,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
+import { useSearchParams } from 'react-router-dom';
 
 export default function MessagesPage() {
   const { user } = useAuth();
   const [requestCount, setRequestCount] = useState(0);
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'messages';
 
   useEffect(() => {
     if (!user) return;
@@ -55,7 +58,7 @@ export default function MessagesPage() {
     <div className="container max-w-4xl mx-auto py-6 px-4">
       <h1 className="text-3xl font-bold mb-6">Messages</h1>
       
-      <Tabs defaultValue="messages" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="requests" className="relative">
