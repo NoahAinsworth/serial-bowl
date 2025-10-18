@@ -23,14 +23,23 @@ export function WatchlistButton({ contentId, showTitle }: WatchlistButtonProps) 
   const checkWatchlist = async () => {
     if (!user) return;
 
-    const { data } = await supabase
-      .from('watchlist')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('content_id', contentId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('watchlist')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('content_id', contentId)
+        .maybeSingle();
 
-    setIsInWatchlist(!!data);
+      if (error) {
+        console.error('Error checking watchlist status:', error);
+        return;
+      }
+
+      setIsInWatchlist(!!data);
+    } catch (e) {
+      console.error('Exception checking watchlist status:', e);
+    }
   };
 
   const toggleWatchlist = async () => {
@@ -52,13 +61,22 @@ export function WatchlistButton({ contentId, showTitle }: WatchlistButtonProps) 
         .eq('user_id', user.id)
         .eq('content_id', contentId);
 
-      if (!error) {
-        setIsInWatchlist(false);
+      if (error) {
+        console.error('Error removing from watchlist:', error);
         toast({
-          title: "Removed from watchlist",
-          description: `${showTitle} removed from your watchlist`,
+          title: "Error",
+          description: "Failed to remove from watchlist",
+          variant: "destructive",
         });
+        setLoading(false);
+        return;
       }
+
+      setIsInWatchlist(false);
+      toast({
+        title: "Removed from watchlist",
+        description: `${showTitle} removed from your watchlist`,
+      });
     } else {
       const { error } = await supabase
         .from('watchlist')
@@ -67,13 +85,22 @@ export function WatchlistButton({ contentId, showTitle }: WatchlistButtonProps) 
           content_id: contentId,
         });
 
-      if (!error) {
-        setIsInWatchlist(true);
+      if (error) {
+        console.error('Error adding to watchlist:', error);
         toast({
-          title: "Added to watchlist",
-          description: `${showTitle} added to your watchlist`,
+          title: "Error",
+          description: "Failed to add to watchlist",
+          variant: "destructive",
         });
+        setLoading(false);
+        return;
       }
+
+      setIsInWatchlist(true);
+      toast({
+        title: "Added to watchlist",
+        description: `${showTitle} added to your watchlist`,
+      });
     }
 
     setLoading(false);
