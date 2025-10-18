@@ -370,11 +370,21 @@ export default function UserProfilePage() {
             {/* Name and handle */}
             <div className="text-center space-y-3 w-full max-w-md">
               {(profile as any).settings?.displayName && (
-                <h1 className="text-3xl font-bold text-black dark:text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                <h1 
+                  className="text-3xl font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
+                  style={{ 
+                    textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 8px rgba(0,0,0,0.9)'
+                  }}
+                >
                   {(profile as any).settings.displayName}
                 </h1>
               )}
-              <p className="text-lg text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
+              <p 
+                className="text-lg text-white font-semibold" 
+                style={{ 
+                  textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 6px rgba(0,0,0,0.9)'
+                }}
+              >
                 @{profile.handle || 'user'}
               </p>
 
@@ -384,7 +394,14 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.postCount}
                   </span>
-                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Posts</span>
+                  <span 
+                    className="font-semibold text-white text-xs" 
+                    style={{ 
+                      textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+                    }}
+                  >
+                    Posts
+                  </span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -393,7 +410,14 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.followers}
                   </span>
-                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Followers</span>
+                  <span 
+                    className="font-semibold text-white text-xs" 
+                    style={{ 
+                      textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+                    }}
+                  >
+                    Followers
+                  </span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -402,7 +426,14 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.following}
                   </span>
-                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Following</span>
+                  <span 
+                    className="font-semibold text-white text-xs" 
+                    style={{ 
+                      textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+                    }}
+                  >
+                    Following
+                  </span>
                 </button>
                 <button 
                   className="hover:underline group"
@@ -411,7 +442,12 @@ export default function UserProfilePage() {
                   <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     #{userRank || '—'}
                   </span>
-                  <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] flex items-center gap-1">
+                  <span 
+                    className="font-semibold text-white text-xs flex items-center gap-1" 
+                    style={{ 
+                      textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+                    }}
+                  >
                     <Trophy className="w-3 h-3" />
                     Rank
                   </span>

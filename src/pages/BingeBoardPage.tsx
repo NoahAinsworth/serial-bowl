@@ -100,10 +100,20 @@ export default function BingeBoardPage() {
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="px-4 pt-6 pb-4">
-          <h1 className="text-3xl font-bold text-foreground mb-2 drop-shadow-lg">
+          <h1 
+            className="text-3xl font-bold text-white mb-2" 
+            style={{ 
+              textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 8px rgba(0,0,0,0.9)'
+            }}
+          >
             Binge Board
           </h1>
-          <p className="text-foreground/80 drop-shadow">
+          <p 
+            className="text-white" 
+            style={{ 
+              textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+            }}
+          >
             Top Bingers of Serial Bowl
           </p>
         </div>
@@ -178,10 +188,20 @@ export default function BingeBoardPage() {
 
                   {/* User Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-foreground truncate">
+                    <div 
+                      className="font-semibold text-white truncate" 
+                      style={{ 
+                        textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+                      }}
+                    >
                       @{leaderUser.handle}
                     </div>
-                    <div className="text-sm text-foreground/70">
+                    <div 
+                      className="text-sm text-white/90" 
+                      style={{ 
+                        textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+                      }}
+                    >
                       {leaderUser.binge_points.toLocaleString()} points
                     </div>
                   </div>
