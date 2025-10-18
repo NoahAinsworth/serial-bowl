@@ -25,12 +25,14 @@ export function EpisodeCheckbox({ episodeId, showId, seasonNumber, episodeNumber
   const checkWatched = async () => {
     if (!user) return;
 
+    const compoundEpisodeId = `${showId}:${seasonNumber}:${episodeNumber}`;
+
     // First get or create the episode content
     let { data: content } = await supabase
       .from('content')
       .select('id')
       .eq('external_src', 'thetvdb')
-      .eq('external_id', episodeId)
+      .eq('external_id', compoundEpisodeId)
       .eq('kind', 'episode')
       .single();
 
@@ -39,7 +41,7 @@ export function EpisodeCheckbox({ episodeId, showId, seasonNumber, episodeNumber
         .from('content')
         .insert({
           external_src: 'thetvdb',
-          external_id: episodeId,
+          external_id: compoundEpisodeId,
           kind: 'episode',
           title: `S${seasonNumber}E${episodeNumber}`,
         })
@@ -73,12 +75,14 @@ export function EpisodeCheckbox({ episodeId, showId, seasonNumber, episodeNumber
 
     setLoading(true);
 
+    const compoundEpisodeId = `${showId}:${seasonNumber}:${episodeNumber}`;
+
     // Get or create content
     let { data: content } = await supabase
       .from('content')
       .select('id')
       .eq('external_src', 'thetvdb')
-      .eq('external_id', episodeId)
+      .eq('external_id', compoundEpisodeId)
       .eq('kind', 'episode')
       .single();
 
@@ -87,7 +91,7 @@ export function EpisodeCheckbox({ episodeId, showId, seasonNumber, episodeNumber
         .from('content')
         .insert({
           external_src: 'thetvdb',
-          external_id: episodeId,
+          external_id: compoundEpisodeId,
           kind: 'episode',
           title: `S${seasonNumber}E${episodeNumber}`,
         })
@@ -114,6 +118,9 @@ export function EpisodeCheckbox({ episodeId, showId, seasonNumber, episodeNumber
             watched_at: new Date().toISOString(),
           });
         setWatched(true);
+        
+        // Update binge points
+        await supabase.rpc('update_user_binge_points', { p_user_id: user.id });
       }
     }
 
