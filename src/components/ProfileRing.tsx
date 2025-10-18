@@ -7,13 +7,13 @@ interface ProfileRingProps {
 }
 
 const BADGE_THRESHOLDS = [
-  { name: 'Pilot Watcher', min: 0, max: 49, color: 'from-gray-400 to-gray-500' },
-  { name: 'Casual Viewer', min: 50, max: 149, color: 'from-blue-400 to-blue-600' },
-  { name: 'Marathon Madness', min: 150, max: 299, color: 'from-orange-400 to-yellow-500' },
-  { name: 'Season Smasher', min: 300, max: 499, color: 'from-red-500 to-orange-600' },
-  { name: 'Series Finisher', min: 500, max: 799, color: 'from-purple-500 to-pink-600' },
-  { name: 'Stream Scholar', min: 800, max: 1199, color: 'from-teal-400 to-cyan-600' },
-  { name: 'Ultimate Binger', min: 1200, max: Infinity, color: 'from-purple-500 via-pink-500 to-blue-500' },
+  { name: 'Pilot Watcher', min: 0, max: 149, color: 'from-gray-400 to-gray-500' },
+  { name: 'Casual Viewer', min: 150, max: 499, color: 'from-blue-400 to-blue-600' },
+  { name: 'Marathon Madness', min: 500, max: 1199, color: 'from-orange-400 to-yellow-500' },
+  { name: 'Season Smasher', min: 1200, max: 2499, color: 'from-red-500 to-orange-600' },
+  { name: 'Series Finisher', min: 2500, max: 4999, color: 'from-purple-500 to-pink-600' },
+  { name: 'Stream Scholar', min: 5000, max: 9999, color: 'from-teal-400 to-cyan-600' },
+  { name: 'Ultimate Binger', min: 10000, max: Infinity, color: 'from-purple-500 via-pink-500 to-blue-500' },
 ];
 
 const BADGE_COLORS = {

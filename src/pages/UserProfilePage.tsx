@@ -257,13 +257,13 @@ export default function UserProfilePage() {
   const bingePoints = profile.binge_points || 0;
 
   const BADGE_THRESHOLDS = [
-    { name: 'Pilot Watcher', min: 0, max: 49 },
-    { name: 'Casual Viewer', min: 50, max: 149 },
-    { name: 'Marathon Madness', min: 150, max: 299 },
-    { name: 'Season Smasher', min: 300, max: 499 },
-    { name: 'Series Finisher', min: 500, max: 799 },
-    { name: 'Stream Scholar', min: 800, max: 1199 },
-    { name: 'Ultimate Binger', min: 1200, max: Infinity },
+    { name: 'Pilot Watcher', min: 0, max: 149 },
+    { name: 'Casual Viewer', min: 150, max: 499 },
+    { name: 'Marathon Madness', min: 500, max: 1199 },
+    { name: 'Season Smasher', min: 1200, max: 2499 },
+    { name: 'Series Finisher', min: 2500, max: 4999 },
+    { name: 'Stream Scholar', min: 5000, max: 9999 },
+    { name: 'Ultimate Binger', min: 10000, max: Infinity },
   ];
 
   const currentTier = BADGE_THRESHOLDS.find(t => t.name === currentBadge) || BADGE_THRESHOLDS[0];

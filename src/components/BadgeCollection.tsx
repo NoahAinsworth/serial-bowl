@@ -9,12 +9,12 @@ interface BadgeCollectionProps {
 
 const BADGE_TIERS = [
   { name: 'Pilot Watcher', threshold: 0 },
-  { name: 'Casual Viewer', threshold: 50 },
-  { name: 'Marathon Madness', threshold: 150 },
-  { name: 'Season Smasher', threshold: 300 },
-  { name: 'Series Finisher', threshold: 500 },
-  { name: 'Stream Scholar', threshold: 800 },
-  { name: 'Ultimate Binger', threshold: 1200 },
+  { name: 'Casual Viewer', threshold: 150 },
+  { name: 'Marathon Madness', threshold: 500 },
+  { name: 'Season Smasher', threshold: 1200 },
+  { name: 'Series Finisher', threshold: 2500 },
+  { name: 'Stream Scholar', threshold: 5000 },
+  { name: 'Ultimate Binger', threshold: 10000 },
 ];
 
 export function BadgeCollection({ currentBadge, bingePoints }: BadgeCollectionProps) {
