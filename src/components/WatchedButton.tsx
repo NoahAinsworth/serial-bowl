@@ -84,7 +84,7 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         // Check content type to handle season/show marking
         const { data: content } = await supabase
           .from('content')
-          .select('kind, external_id')
+          .select('kind, external_id, external_src')
           .eq('id', contentId)
           .single();
 
@@ -149,15 +149,17 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         
         // Populate counts for shows and seasons via edge function with retry logic
         if (content?.kind === 'show' || content?.kind === 'season') {
-          console.log('🚀 Starting count population...');
-          console.log('📊 Content:', { kind: content.kind, external_id: content.external_id });
+          console.log('🚀 WatchedButton - Starting count population...');
+          console.log('📊 WatchedButton - Content:', { kind: content.kind, external_id: content.external_id, external_src: content.external_src });
+          console.log('📊 WatchedButton - Payload will be:', { external_id: content.external_id, kind: content.kind });
           
           let retries = 2;
           let lastError = null;
           
           for (let i = 0; i < retries; i++) {
             try {
-              console.log(`📡 Invoking edge function (attempt ${i + 1}/${retries})...`);
+              console.log(`📡 WatchedButton - Invoking edge function (attempt ${i + 1}/${retries})...`);
+              console.log(`📤 WatchedButton - Sending payload:`, JSON.stringify({ external_id: content.external_id, kind: content.kind }));
               
               const { data, error: countError } = await supabase.functions.invoke('populate-content-counts', {
                 body: {
@@ -166,28 +168,28 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
                 }
               });
               
-              console.log('📥 Edge function response:', { data, error: countError });
+              console.log('📥 WatchedButton - Edge function response:', { data, error: countError });
               
               if (!countError) {
-                console.log('🎉 Counts populated successfully!');
+                console.log('🎉 WatchedButton - Counts populated successfully!');
                 break; // Success, exit retry loop
               }
               
               lastError = countError;
-              console.warn(`⚠️ Attempt ${i + 1} failed:`, countError);
+              console.warn(`⚠️ WatchedButton - Attempt ${i + 1} failed:`, countError);
             } catch (e) {
               lastError = e;
-              console.error(`💥 Attempt ${i + 1} exception:`, e);
+              console.error(`💥 WatchedButton - Attempt ${i + 1} exception:`, e);
             }
             
             if (i < retries - 1) {
-              console.log('🔄 Retrying in 1 second...');
+              console.log('🔄 WatchedButton - Retrying in 1 second...');
               await new Promise(resolve => setTimeout(resolve, 1000));
             }
           }
           
           if (lastError) {
-            console.error('❌ All attempts failed:', lastError);
+            console.error('❌ WatchedButton - All attempts failed:', lastError);
             toast({
               title: "Warning",
               description: "Could not fetch episode counts. Your points may be inaccurate.",

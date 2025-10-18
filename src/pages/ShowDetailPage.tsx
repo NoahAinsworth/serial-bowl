@@ -64,6 +64,7 @@ export default function ShowDetailPage() {
       const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
+          external_src: 'thetvdb',
           external_id: externalId,
           kind: 'show',
           title: show.name,
@@ -79,6 +80,7 @@ export default function ShowDetailPage() {
         const { data: retryContent, error: retryError } = await supabase
           .from('content')
           .insert({
+            external_src: 'thetvdb',
             external_id: externalId,
             kind: 'show',
             title: show.name,
