@@ -361,48 +361,48 @@ export default function UserProfilePage() {
             {/* Name and handle */}
             <div className="text-center space-y-3 w-full max-w-md">
               {(profile as any).settings?.displayName && (
-                <h1 className={`text-3xl font-bold ${getBadgeGradientText(currentBadge)} drop-shadow-lg`}>
+                <h1 className={`text-3xl font-bold ${getBadgeGradientText(currentBadge)} drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]`}>
                   {(profile as any).settings.displayName}
                 </h1>
               )}
-              <p className={`text-lg drop-shadow-md ${getBadgeTextColor(currentBadge)}`}>
+              <p className={`text-lg ${getBadgeTextColor(currentBadge)} drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold`}>
                 @{profile.handle || 'user'}
               </p>
 
               {/* Stats */}
               <div className="flex gap-6 text-sm justify-center pt-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
                 <button className="hover:underline group">
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.postCount}
                   </span>
-                  <span className={`font-medium drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>Posts</span>
+                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>Posts</span>
                 </button>
                 <button 
                   className="hover:underline group"
                   onClick={() => navigate(`/user/${profile.handle}/followers`)}
                 >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.followers}
                   </span>
-                  <span className={`font-medium drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>Followers</span>
+                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>Followers</span>
                 </button>
                 <button 
                   className="hover:underline group"
                   onClick={() => navigate(`/user/${profile.handle}/following`)}
                 >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     {profile.following}
                   </span>
-                  <span className={`font-medium drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>Following</span>
+                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>Following</span>
                 </button>
                 <button 
                   className="hover:underline group"
                   onClick={() => navigate('/binge-board')}
                 >
-                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
+                  <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                     #{userRank || '—'}
                   </span>
-                  <span className={`font-medium drop-shadow-sm flex items-center gap-1 ${getBadgeTextColor(currentBadge)}`}>
+                  <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] flex items-center gap-1 ${getBadgeTextColor(currentBadge)}`}>
                     <Trophy className="w-3 h-3" />
                     Rank
                   </span>
@@ -425,16 +425,16 @@ export default function UserProfilePage() {
           <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
             <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
               <div className="flex items-center justify-between text-sm">
-                <span className={`font-semibold drop-shadow-sm ${getBadgeTextColor(currentBadge)}`}>
+                <span className={`font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] ${getBadgeTextColor(currentBadge)}`}>
                   {currentBadge}
                 </span>
-                <div className="flex items-center gap-1 text-foreground/90">
+                <div className="flex items-center gap-1 text-foreground/90 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                   <TrendingUp className="h-3 w-3" />
-                  <span className="text-xs drop-shadow-sm">Next: {nextTier.name}</span>
+                  <span className="text-xs font-semibold">Next: {nextTier.name}</span>
                 </div>
               </div>
               <Progress value={progress} className="h-2" />
-              <div className="text-xs text-foreground/90 text-center drop-shadow-sm">
+              <div className="text-xs text-foreground/90 text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
                 {bingePoints} / {nextTier.min} Binge Points
               </div>
             </div>
