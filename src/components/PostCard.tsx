@@ -133,8 +133,16 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
               externalId: post.item_id
             });
           } else if (post.item_type === 'show') {
+            const showId = parts[0];
+            const { data: showData } = await supabase
+              .from('content')
+              .select('title')
+              .eq('external_id', showId)
+              .eq('kind', 'show')
+              .maybeSingle();
+
             setContentInfo({
-              title: 'Show',
+              title: showData?.title || 'Unknown Show',
               type: 'show',
               externalId: post.item_id
             });
