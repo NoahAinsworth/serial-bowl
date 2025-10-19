@@ -29,9 +29,6 @@ export default function SeasonDetailPage() {
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
 
-  // Debug: Log the itemId being used
-  console.log('SeasonDetailPage - showId:', showId, 'seasonNumber:', seasonNumber, 'itemId:', `${showId}:${seasonNumber}`);
-
   useEffect(() => {
     if (showId && seasonNumber) {
       loadEpisodes(parseInt(showId), parseInt(seasonNumber));
@@ -47,7 +44,6 @@ export default function SeasonDetailPage() {
 
   const loadContentAndRating = async (externalId: string) => {
     if (!user) {
-      console.warn('User not authenticated, skipping content creation');
       return;
     }
 
@@ -72,7 +68,6 @@ export default function SeasonDetailPage() {
         .single();
       
       if (insertError?.code === '42501') {
-        console.error('RLS policy blocking insert. Refreshing session...');
         await supabase.auth.refreshSession();
         
         const { data: retryContent, error: retryError } = await supabase
@@ -87,7 +82,6 @@ export default function SeasonDetailPage() {
           .single();
         
         if (retryError) {
-          console.error('Failed to create content after auth refresh:', retryError);
           toast({
             title: "Authentication Error",
             description: "Please try signing out and back in",
@@ -98,7 +92,6 @@ export default function SeasonDetailPage() {
         
         content = retryContent;
       } else if (insertError) {
-        console.error('Error creating content:', insertError);
         return;
       } else {
         content = newContent;
@@ -106,7 +99,6 @@ export default function SeasonDetailPage() {
     }
 
     if (content) {
-      console.log('✅ SeasonDetailPage - ContentId set:', content.id, 'for externalId:', externalId);
       setContentId(content.id);
       
       if (user && showId && seasonNumber) {
@@ -264,10 +256,7 @@ export default function SeasonDetailPage() {
       {showId && seasonNumber && (
         <PostCreationDialog
           open={postDialogOpen}
-          onOpenChange={(open) => {
-            console.log('SeasonDetailPage passing itemId:', `${showId}:${seasonNumber}`);
-            setPostDialogOpen(open);
-          }}
+          onOpenChange={setPostDialogOpen}
           postType={postType}
           itemType="season"
           itemId={`${showId}:${seasonNumber}`}

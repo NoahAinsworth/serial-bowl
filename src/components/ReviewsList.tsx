@@ -51,13 +51,8 @@ export function ReviewsList({ contentId }: ReviewsListProps) {
       return;
     }
 
-    console.log('ReviewsList - Content found:', content);
-
-    // Fetch reviews from posts table - posts use item_id which matches content.external_id
     const itemType = content.kind as string;
     const itemId = content.external_id;
-    
-    console.log('ReviewsList - Querying posts:', { kind: 'review', item_type: itemType, item_id: itemId });
 
     // Fetch reviews from posts table
     const { data: reviewsData } = await supabase

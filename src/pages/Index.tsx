@@ -13,9 +13,5 @@ export default function Index() {
     }
   }, [user, navigate]);
 
-  if (!user) {
-    return <AuthPage />;
-  }
-
-  return null;
+  return <AuthPage />;
 }

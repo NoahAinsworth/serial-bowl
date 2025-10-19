@@ -228,13 +228,10 @@ export default function WatchlistPage() {
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     
-    console.log('[WatchlistPage] Searching for:', searchQuery);
     try {
       const results = await search(searchQuery);
-      console.log('[WatchlistPage] Search results:', results);
       setSearchResults(results);
     } catch (error) {
-      console.error('[WatchlistPage] Search error:', error);
       toast({
         title: "Search failed",
         description: error instanceof Error ? error.message : "Failed to search shows",
@@ -360,16 +357,11 @@ export default function WatchlistPage() {
           throw error;
         }
       } else {
-        // Populate counts via edge function with retry logic
-        console.log('🚀 Starting count population for show:', show.id || show.tvdb_id);
-
         let retries = 2;
         let lastError = null;
 
         for (let i = 0; i < retries; i++) {
           try {
-            console.log(`📡 Invoking edge function (attempt ${i + 1}/${retries})...`);
-            
             const { data, error: countError } = await supabase.functions.invoke('populate-content-counts', {
               body: {
                 external_id: (show.id || show.tvdb_id).toString(),
@@ -377,36 +369,23 @@ export default function WatchlistPage() {
               }
             });
             
-            console.log('📥 Edge function response:', { data, error: countError });
-            
             if (!countError) {
-              console.log('🎉 Counts populated successfully!');
               break;
             }
             
             lastError = countError;
-            console.warn(`⚠️ Attempt ${i + 1} failed:`, countError);
           } catch (e) {
             lastError = e;
-            console.error(`💥 Attempt ${i + 1} exception:`, e);
           }
           
           if (i < retries - 1) {
-            console.log('🔄 Retrying in 1 second...');
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
         }
 
-        if (lastError) {
-          console.error('❌ All attempts failed:', lastError);
-        }
-
-        // Recalculate binge points
-        console.log('🔄 Updating binge points...');
         await supabase.rpc('update_user_binge_points', {
           p_user_id: user.id
         });
-        console.log('✅ Binge points updated');
 
         // Fetch updated points for display
         const { data: pointsResult } = await supabase.rpc('calculate_binge_points', {
@@ -471,41 +450,32 @@ export default function WatchlistPage() {
   }
 
   const testEdgeFunction = async () => {
-    const testShowId = "121361"; // Game of Thrones
-    console.log('🔵 [TEST] Starting edge function test with show ID:', testShowId);
+    const testShowId = "121361";
     
     try {
       const { data, error } = await supabase.functions.invoke('populate-content-counts', {
         body: { external_id: testShowId, kind: 'show' }
       });
       
-      console.log('🔵 [TEST] Edge function response:', { data, error });
-      
       if (error) {
-        console.error('🔴 [TEST] Edge function error:', error);
         toast({
           title: "Test Failed",
           description: `Error: ${error.message || JSON.stringify(error)}`,
           variant: "destructive"
         });
       } else {
-        console.log('🟢 [TEST] Edge function SUCCESS:', data);
         toast({
           title: "Test Passed!",
           description: `Successfully populated counts for show ${testShowId}`,
         });
         
-        // Check if counts were actually saved
-        const { data: counts } = await supabase
+        await supabase
           .from('show_season_counts')
           .select('*')
           .eq('external_id', testShowId)
           .single();
-        
-        console.log('🔵 [TEST] Database counts after edge function:', counts);
       }
     } catch (err) {
-      console.error('🔴 [TEST] Exception:', err);
       toast({
         title: "Test Exception",
         description: err instanceof Error ? err.message : 'Unknown error',

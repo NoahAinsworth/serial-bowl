@@ -1,6 +1,30 @@
 import { z } from 'zod';
 
 /**
+ * Auth validation schema
+ */
+export const authSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email('Invalid email address')
+    .max(255, 'Email must be less than 255 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password must be less than 128 characters'),
+  handle: z
+    .string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters')
+    .max(50, 'Username must be less than 50 characters')
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, dashes, and underscores')
+    .optional(),
+});
+
+export type AuthFormData = z.infer<typeof authSchema>;
+
+/**
  * Profile validation schema
  */
 export const profileSchema = z.object({
@@ -56,6 +80,19 @@ export const commentSchema = z.object({
 });
 
 export type CommentFormData = z.infer<typeof commentSchema>;
+
+/**
+ * DM validation schema
+ */
+export const dmSchema = z.object({
+  text_content: z
+    .string()
+    .trim()
+    .min(1, 'Message cannot be empty')
+    .max(1000, 'Message must be less than 1000 characters'),
+});
+
+export type DMFormData = z.infer<typeof dmSchema>;
 
 /**
  * Rate limiting utility - debounces function calls

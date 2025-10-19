@@ -31,9 +31,6 @@ export function ThoughtsList({ contentId }: ThoughtsListProps) {
       return;
     }
 
-    console.log('ThoughtsList - Content found:', content);
-
-    // Fetch thoughts from posts table where kind='thought'
     const { data: thoughtPosts } = await supabase
       .from('posts')
       .select(`
@@ -53,8 +50,6 @@ export function ThoughtsList({ contentId }: ThoughtsListProps) {
       .eq('item_id', content.external_id)
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
-
-    console.log('ThoughtsList - Found thoughts:', thoughtPosts?.length || 0);
 
     if (thoughtPosts) {
       // Map to match ThoughtCard expected format

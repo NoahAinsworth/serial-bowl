@@ -414,12 +414,8 @@ export default function PostPage() {
         return;
       }
 
-      // Extract item_type and item_id from selectedContent
       const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
-      // Use external_id which now has the correctly formatted ID
       const itemId = (selectedContent as any).external_id;
-
-      console.log('[PostPage] Submitting review with itemType:', itemType, 'itemId:', itemId);
 
       const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
         p_item_type: itemType,

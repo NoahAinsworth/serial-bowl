@@ -49,7 +49,6 @@ export default function ShowDetailPage() {
 
   const loadContentAndRating = async (externalId: string) => {
     if (!user) {
-      console.warn('User not authenticated, skipping content creation');
       return;
     }
 
@@ -74,7 +73,6 @@ export default function ShowDetailPage() {
         .single();
 
       if (insertError?.code === '42501') {
-        console.error('RLS policy blocking insert. Refreshing session...');
         await supabase.auth.refreshSession();
         
         const { data: retryContent, error: retryError } = await supabase
@@ -90,26 +88,21 @@ export default function ShowDetailPage() {
           .single();
         
         if (retryError) {
-          console.error('Failed to create content after auth refresh:', retryError);
           toast.error('Authentication error. Please try signing out and back in.');
           return;
         }
         
         content = retryContent;
       } else if (insertError) {
-        console.error('Error creating content:', insertError);
         return;
-      } else {
-        content = newContent;
-      }
-    }
-
-    if (content) {
-      console.log('✅ ShowDetailPage - ContentId set:', content.id);
-      setContentId(content.id);
     } else {
-      console.warn('⚠️ ShowDetailPage - Failed to get contentId for show:', externalId);
+      content = newContent;
     }
+  }
+
+  if (content) {
+    setContentId(content.id);
+  }
 
     if (user) {
       const rating = await getRating({ itemType: 'show', itemId: parseInt(externalId) });
@@ -137,7 +130,6 @@ export default function ShowDetailPage() {
       setUserRating(newRating);
       toast.success('Rating saved!');
     } catch (error) {
-      console.error('Error saving rating:', error);
       toast.error('Failed to save rating');
     }
   };

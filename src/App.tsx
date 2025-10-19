@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AppLayout } from "./components/layouts/AppLayout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { useDeepLink } from "./hooks/useDeepLink";
 import Index from "./pages/Index";
@@ -52,34 +53,34 @@ function AppRouter() {
     <div className="min-h-screen bg-background text-foreground">
       <OfflineBanner />
       <Routes>
-                <Route path="/" element={<AppLayout><Index /></AppLayout>} />
-                <Route path="/home" element={<AppLayout><Home /></AppLayout>} />
+                <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/search" element={<AppLayout><SearchPage /></AppLayout>} />
-                <Route path="/show/:id" element={<AppLayout><ShowDetailPage /></AppLayout>} />
-                <Route path="/show/:showId/season/:seasonNumber" element={<AppLayout><SeasonDetailPage /></AppLayout>} />
-                <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<AppLayout><EpisodeDetailPage /></AppLayout>} />
-                <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
-                <Route path="/user/:handle" element={<AppLayout><UserProfilePage /></AppLayout>} />
-                <Route path="/profile/edit" element={<AppLayout><EditProfilePage /></AppLayout>} />
-                <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
-                <Route path="/watchlist" element={<AppLayout><WatchlistPage /></AppLayout>} />
-                <Route path="/watched" element={<AppLayout><WatchedPage /></AppLayout>} />
-                <Route path="/lists" element={<AppLayout><ListsPage /></AppLayout>} />
-                <Route path="/list/:id" element={<AppLayout><ListDetailPage /></AppLayout>} />
-                <Route path="/activity" element={<AppLayout><ActivityPage /></AppLayout>} />
-                <Route path="/discover" element={<AppLayout><DiscoverPage /></AppLayout>} />
-                <Route path="/stats" element={<AppLayout><StatsPage /></AppLayout>} />
-                <Route path="/post" element={<AppLayout><PostPage /></AppLayout>} />
-                <Route path="/post/:id" element={<AppLayout><PostDetailPage /></AppLayout>} />
-                <Route path="/messages" element={<AppLayout><MessagesPage /></AppLayout>} />
-                <Route path="/dms/:userId" element={<AppLayout><DMThreadPage /></AppLayout>} />
-                <Route path="/followers" element={<AppLayout><FollowersPage /></AppLayout>} />
-                <Route path="/user/:userId/followers" element={<AppLayout><FollowersPage /></AppLayout>} />
-                <Route path="/following" element={<AppLayout><FollowingPage /></AppLayout>} />
-                <Route path="/user/:userId/following" element={<AppLayout><FollowingPage /></AppLayout>} />
-                <Route path="/binge" element={<AppLayout><BingePage /></AppLayout>} />
-                <Route path="/binge-board" element={<AppLayout><BingeBoardPage /></AppLayout>} />
+                <Route path="/home" element={<ProtectedRoute><AppLayout><Home /></AppLayout></ProtectedRoute>} />
+                <Route path="/search" element={<ProtectedRoute><AppLayout><SearchPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/show/:id" element={<ProtectedRoute><AppLayout><ShowDetailPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/show/:showId/season/:seasonNumber" element={<ProtectedRoute><AppLayout><SeasonDetailPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/show/:showId/season/:seasonNumber/episode/:episodeNumber" element={<ProtectedRoute><AppLayout><EpisodeDetailPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><AppLayout><ProfilePage /></AppLayout></ProtectedRoute>} />
+                <Route path="/user/:handle" element={<ProtectedRoute><AppLayout><UserProfilePage /></AppLayout></ProtectedRoute>} />
+                <Route path="/profile/edit" element={<ProtectedRoute><AppLayout><EditProfilePage /></AppLayout></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><AppLayout><SettingsPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/watchlist" element={<ProtectedRoute><AppLayout><WatchlistPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/watched" element={<ProtectedRoute><AppLayout><WatchedPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/lists" element={<ProtectedRoute><AppLayout><ListsPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/list/:id" element={<ProtectedRoute><AppLayout><ListDetailPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/activity" element={<ProtectedRoute><AppLayout><ActivityPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/discover" element={<ProtectedRoute><AppLayout><DiscoverPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/stats" element={<ProtectedRoute><AppLayout><StatsPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/post" element={<ProtectedRoute><AppLayout><PostPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/post/:id" element={<ProtectedRoute><AppLayout><PostDetailPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/messages" element={<ProtectedRoute><AppLayout><MessagesPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/dms/:userId" element={<ProtectedRoute><AppLayout><DMThreadPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/followers" element={<ProtectedRoute><AppLayout><FollowersPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/user/:userId/followers" element={<ProtectedRoute><AppLayout><FollowersPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/following" element={<ProtectedRoute><AppLayout><FollowingPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/user/:userId/following" element={<ProtectedRoute><AppLayout><FollowingPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/binge" element={<ProtectedRoute><AppLayout><BingePage /></AppLayout></ProtectedRoute>} />
+                <Route path="/binge-board" element={<ProtectedRoute><AppLayout><BingeBoardPage /></AppLayout></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
     </div>
