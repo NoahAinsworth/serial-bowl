@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.7cc39a3b41aa4ff2a0c41d8e76270a1d',
+  appId: 'com.serialbowl.app',
   appName: 'Serial Bowl',
   webDir: 'dist',
   plugins: {
