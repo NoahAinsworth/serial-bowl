@@ -93,11 +93,45 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
           .maybeSingle();
 
         if (data && !error) {
-          setContentInfo({ 
-            title: data.title, 
-            type: data.kind as 'show' | 'season' | 'episode',
-            externalId: data.external_id 
-          });
+          // Format titles properly for episodes and seasons
+          if (data.kind === 'episode') {
+            const showId = parts[0];
+            const { data: showData } = await supabase
+              .from('content')
+              .select('title')
+              .eq('external_id', showId)
+              .eq('kind', 'show')
+              .maybeSingle();
+            
+            const showName = showData?.title || 'Show';
+            setContentInfo({
+              title: `${showName} - S${parts[1]}E${parts[2]}`,
+              type: 'episode',
+              externalId: data.external_id
+            });
+          } else if (data.kind === 'season') {
+            const showId = parts[0];
+            const { data: showData } = await supabase
+              .from('content')
+              .select('title')
+              .eq('external_id', showId)
+              .eq('kind', 'show')
+              .maybeSingle();
+            
+            const showName = showData?.title || 'Show';
+            setContentInfo({
+              title: `${showName} - Season ${parts[1]}`,
+              type: 'season',
+              externalId: data.external_id
+            });
+          } else {
+            // For shows, use the title directly
+            setContentInfo({ 
+              title: data.title, 
+              type: data.kind as 'show' | 'season' | 'episode',
+              externalId: data.external_id 
+            });
+          }
         } else {
           // Fallback: Create a readable title from the ID
           if (post.item_type === 'episode') {
