@@ -73,7 +73,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     <>
       <div className="flex flex-col h-screen bg-transparent relative z-10">
         {/* Header */}
-        <header className="sticky top-0 z-40 border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+        <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/70">
           <div className="flex h-14 items-center justify-between px-4">
             {theme === 'the_one_with_the_theme' ? (
               <h1 className="wordmark friends-wordmark">
@@ -112,7 +112,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="sticky bottom-0 z-40 border-t bg-white/80">
+        <nav className="sticky bottom-0 z-40 border-t bg-background/80">
           <div className="flex h-16 items-center justify-around px-2">
             {navItems.map(({ icon: Icon, label, path, showDot }) => (
               <Link
