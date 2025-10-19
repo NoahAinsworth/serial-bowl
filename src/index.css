@@ -1124,15 +1124,18 @@ All colors MUST be HSL.
   box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
 }
 
-/* Tabs - Compact sizing for monospace font */
-.static_tv [role="tablist"] {
-  font-size: 0.75rem;
+/* Static TV - Force smaller, more compact tabs */
+.static_tv [role="tab"] {
+  font-size: 0.625rem !important; /* 10px - smaller than text-xs */
+  font-weight: 600 !important; /* semibold instead of bold */
+  padding-left: 0.375rem !important; /* 6px - tighter than px-2 */
+  padding-right: 0.375rem !important;
 }
 
-.static_tv [role="tab"] {
-  font-weight: 600; /* semibold instead of bold */
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+@media (min-width: 640px) {
+  .static_tv [role="tab"] {
+    font-size: 0.75rem !important; /* 12px on larger screens */
+  }
 }
 
 /* Tabs with Glitch Transition */
