@@ -197,11 +197,11 @@ export default function Home() {
 
       {/* Feed Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedType)}>
-        <TabsList className="w-full mb-6 grid grid-cols-4">
-          <TabsTrigger value="trending">Trending</TabsTrigger>
-          <TabsTrigger value="hot-takes">Hot Takes</TabsTrigger>
-          <TabsTrigger value="following">Following</TabsTrigger>
-          <TabsTrigger value="new">New</TabsTrigger>
+        <TabsList className="w-full mb-6 grid grid-cols-4 text-xs sm:text-sm">
+          <TabsTrigger value="trending" className="px-2">Trending</TabsTrigger>
+          <TabsTrigger value="hot-takes" className="px-2">Hot Takes</TabsTrigger>
+          <TabsTrigger value="following" className="px-2">Following</TabsTrigger>
+          <TabsTrigger value="new" className="px-2">New</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
