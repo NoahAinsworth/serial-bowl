@@ -514,7 +514,7 @@ All colors MUST be HSL.
     /* Upside Down - Stranger Things Dark & Eerie */
     --background: 0 0% 8%;           /* Very dark background #141414 */
     --foreground: 0 0% 95%;          /* Light grey text */
-    --card: 0 0% 12%;                /* Dark card #1F1F1F */
+    --card: 0 0% 8%;                 /* Very dark grey #141414 (darker to match eerie vibe) */
     --card-foreground: 0 0% 95%;
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 95%;
@@ -568,7 +568,7 @@ All colors MUST be HSL.
     /* The One with the Theme - 90s Central Perk Cozy Vibes */
     --background: 280 28% 68%;        /* Monica's Wall Purple #B497BD */
     --foreground: 0 0% 12%;           /* Black Ink #1F1F1F */
-    --card: 0 0% 99%;                 /* Off-White #FFFDF6 */
+    --card: 39 100% 94%;              /* Warm cream #FFF3D1 (matches muted color) */
     --card-foreground: 0 0% 12%;
     --popover: 0 0% 99%;
     --popover-foreground: 0 0% 12%;
@@ -642,20 +642,20 @@ All colors MUST be HSL.
 
   .green_wireframe {
     /* Green Wireframe Mode - Y2K Cyber Aesthetic */
-    --background: 140 48% 3%;         /* Deep near-black #050806 */
+    --background: 0 0% 0%;            /* Pure black #000000 */
     --foreground: 120 100% 95%;       /* Light green text #E8FFE8 */
-    --card: 140 35% 5%;               /* Secondary background #0B1410 */
+    --card: 0 0% 5%;                  /* Very dark gray #0D0D0D */
     --card-foreground: 120 100% 95%;
-    --popover: 140 35% 5%;
+    --popover: 0 0% 5%;
     --popover-foreground: 120 100% 95%;
     --primary: 158 100% 50%;          /* Neon Green #00FF85 */
-    --primary-foreground: 140 48% 3%;
+    --primary-foreground: 0 0% 0%;    /* Black */
     --secondary: 162 100% 50%;        /* Electric Lime #00FFC2 */
-    --secondary-foreground: 140 48% 3%;
+    --secondary-foreground: 0 0% 0%;  /* Black */
     --muted: 140 35% 8%;
     --muted-foreground: 149 72% 76%;  /* Text Secondary #8CF0AA */
     --accent: 158 100% 50%;
-    --accent-foreground: 140 48% 3%;
+    --accent-foreground: 0 0% 0%;     /* Black */
     --destructive: 345 100% 62%;      /* Magenta pop #FF3D6A */
     --destructive-foreground: 120 100% 95%;
     --border: 158 100% 50% / 0.25;    /* Wireframe outline */
@@ -706,15 +706,15 @@ All colors MUST be HSL.
       0deg,
       transparent,
       transparent 2px,
-      rgba(0, 255, 133, 0.03) 2px,
-      rgba(0, 255, 133, 0.03) 4px
+      rgba(0, 255, 133, 0.12) 2px,
+      rgba(0, 255, 133, 0.12) 4px
     ),
     repeating-linear-gradient(
       90deg,
       transparent,
       transparent 2px,
-      rgba(0, 255, 133, 0.03) 2px,
-      rgba(0, 255, 133, 0.03) 4px
+      rgba(0, 255, 133, 0.12) 2px,
+      rgba(0, 255, 133, 0.12) 4px
     );
     --img-filter: brightness(0.9) contrast(1.1) saturate(0.8) hue-rotate(-10deg);
     --active-underline: linear-gradient(90deg, transparent, hsl(var(--neon-green)), transparent);
@@ -725,7 +725,7 @@ All colors MUST be HSL.
     /* Donut Mode - Simpsons Springfield Theme */
     --background: 201 71% 73%;        /* #87CEEB - Springfield Sky Blue */
     --foreground: 0 0% 12%;           /* #1E1E1E - Dark text */
-    --card: 0 0% 100%;                /* #FFFFFF - White card surfaces */
+    --card: 201 40% 96%;              /* Soft sky-tinted white #EBF6FA */
     --card-foreground: 0 0% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 12%;
@@ -778,7 +778,7 @@ All colors MUST be HSL.
     /* Upper East Side - Gossip Girl Glamour (Black & Gold) */
     --background: 0 0% 4%;            /* #0B0B0B - Deep black */
     --foreground: 40 30% 94%;         /* #F4EBD0 - Soft warm white */
-    --card: 0 0% 10%;                 /* #1A1A1A - Slightly lighter black for cards */
+    --card: 0 0% 7%;                  /* Deeper black #121212 for more contrast */
     --card-foreground: 40 30% 94%;
     --popover: 0 0% 10%;
     --popover-foreground: 40 30% 94%;
@@ -867,7 +867,7 @@ All colors MUST be HSL.
   --destructive-foreground: 0 0% 100%;
   
   /* UI Components */
-  --card: 0 0% 100%;                   /* Pure white */
+  --card: 30 20% 97%;                  /* Warm off-white (slightly darker than 98% background) */
   --card-foreground: 222 25% 10%;
   
   --popover: 0 0% 100%;
