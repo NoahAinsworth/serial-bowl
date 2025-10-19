@@ -1124,6 +1124,17 @@ All colors MUST be HSL.
   box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
 }
 
+/* Tabs - Compact sizing for monospace font */
+.static_tv [role="tablist"] {
+  font-size: 0.75rem;
+}
+
+.static_tv [role="tab"] {
+  font-weight: 600; /* semibold instead of bold */
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
 /* Tabs with Glitch Transition */
 .static_tv [role="tab"][data-state="active"] {
   background: linear-gradient(135deg, hsl(var(--graphite)), hsl(var(--steel)));
