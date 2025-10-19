@@ -223,7 +223,6 @@ export default function SettingsPage() {
             <SelectContent>
               <SelectItem value="light">Light</SelectItem>
               <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="vhs_light_mode">VHS Light Mode 📼☀️</SelectItem>
               <SelectItem value="green_wireframe">Green Wireframe</SelectItem>
               <SelectItem value="donut_mode">Donut Mode</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>

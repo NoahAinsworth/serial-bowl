@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-type ThemeMode = 'light' | 'dark' | 'upside_down' | 'the_one_with_the_theme' | 'green_wireframe' | 'donut_mode' | 'upper_east_side' | 'vhs_light_mode';
+type ThemeMode = 'light' | 'dark' | 'upside_down' | 'the_one_with_the_theme' | 'green_wireframe' | 'donut_mode' | 'upper_east_side';
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -38,7 +38,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('theme', newTheme);
     
     // Remove all theme classes
-    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side', 'vhs_light_mode');
+    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side');
     document.documentElement.classList.add(newTheme);
     
     // Handle body classes for overlay effects
@@ -49,7 +49,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side', 'vhs_light_mode');
+    document.documentElement.classList.remove('light', 'dark', 'upside_down', 'the_one_with_the_theme', 'green_wireframe', 'donut_mode', 'upper_east_side');
     document.documentElement.classList.add(theme);
     
     // Handle body classes for overlay effects
