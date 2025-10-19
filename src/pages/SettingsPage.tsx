@@ -228,6 +228,7 @@ export default function SettingsPage() {
               <SelectItem value="upside_down">Upside Down</SelectItem>
               <SelectItem value="the_one_with_the_theme">The One with the Theme</SelectItem>
               <SelectItem value="upper_east_side">Upper East Side</SelectItem>
+              <SelectItem value="static_tv">Static TV 📺⚡</SelectItem>
             </SelectContent>
           </Select>
         </div>
