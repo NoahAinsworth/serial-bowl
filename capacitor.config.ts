@@ -4,6 +4,10 @@ const config: CapacitorConfig = {
   appId: 'com.serialbowl.app',
   appName: 'Serial Bowl',
   webDir: 'dist',
+  server: {
+    url: 'https://7cc39a3b-41aa-4ff2-a0c4-1d8e76270a1d.lovableproject.com?forceHideBadge=true',
+    cleartext: true,
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
