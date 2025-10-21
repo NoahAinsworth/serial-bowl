@@ -33,7 +33,7 @@ export function CinematicFavorites({
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold text-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-        Your Top Shows 🍿
+        Your Top Shows
       </h2>
       
       <div className="relative overflow-x-auto pb-4 -mx-4 px-4">
