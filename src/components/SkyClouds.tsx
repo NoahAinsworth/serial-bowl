@@ -18,7 +18,7 @@ const mk = (): Cloud => ({
 export default function SkyClouds({ count = 8 }: { count?: number }) {
   const clouds = useMemo(() => Array.from({ length: count }, mk), [count]);
   return (
-    <div aria-hidden className="sb-clouds">
+    <div aria-hidden className="sb-clouds" style={{ zIndex: 1 }}>
       {clouds.map((c, i) => (
         <span
           key={i}

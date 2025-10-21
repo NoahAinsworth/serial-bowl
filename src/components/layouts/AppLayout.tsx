@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import SkyClouds from '@/components/SkyClouds';
+import { ThemeBackground } from '@/components/ThemeBackground';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface AppLayoutProps {
@@ -71,10 +72,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <>
+      <ThemeBackground />
       <div className="app-scroll">
         <div className="flex flex-col min-h-screen bg-transparent relative z-10">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/70" style={{ paddingTop: 'max(0.25rem, var(--safe-top))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)' }}>
+        <header className="fixed top-0 left-0 right-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/70" style={{ paddingTop: 'max(0.5rem, var(--safe-top))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)' }}>
           <div className="flex h-14 items-center justify-between px-4">
             {theme === 'the_one_with_the_theme' ? (
               <h1 className="wordmark friends-wordmark">
@@ -108,12 +110,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 pt-14 pb-20">
+        <main className="flex-1 pt-14 pb-24">
           {children}
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 mb-1 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80" style={{ paddingBottom: 'max(0.25rem, var(--safe-bottom))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)' }}>
+        <nav className="fixed bottom-0 left-0 right-0 z-40 mb-1 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80" style={{ paddingBottom: 'max(1rem, var(--safe-bottom))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)' }}>
           <div className="flex h-16 items-center justify-around px-2">
             {navItems.map(({ icon: Icon, label, path, showDot }) => (
               <Link
