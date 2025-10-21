@@ -26,6 +26,26 @@ html, body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+}
+
+/* Background & stacking fixes */
+#root, .app, body {
+  position: relative;
+  isolation: isolate;
+}
+
+.bg, .background, .decor, .noise {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.app-header, .nav, .topbar {
+  position: relative;
+  z-index: 10;
 }
 
 /* No film grain for flat Y2K aesthetic */
