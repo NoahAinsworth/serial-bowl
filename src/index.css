@@ -121,7 +121,7 @@ All colors MUST be HSL.
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: -7;
+    z-index: -1;
     background:
       radial-gradient(ellipse 80% 80% at 0% 0%, rgba(189, 147, 224, 0.7) 0%, transparent 50%),
       radial-gradient(ellipse 70% 70% at 100% 0%, rgba(240, 184, 169, 0.6) 0%, transparent 50%),
@@ -1426,7 +1426,7 @@ All colors MUST be HSL.
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: -5;                 /* keep behind your app UI */
+    z-index: -1;                 /* keep behind your app UI */
     overflow: hidden;
   }
 
@@ -1474,6 +1474,24 @@ All colors MUST be HSL.
     background:
       radial-gradient(ellipse at top left, rgba(255,111,174,0.06), transparent 40%),
       radial-gradient(ellipse at bottom right, rgba(255,217,15,0.05), transparent 45%);
+  }
+
+  /* Donut Mode - Sky gradient background */
+  .donut_mode body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    background: linear-gradient(
+      180deg,
+      rgba(135, 206, 250, 0.3) 0%,
+      rgba(173, 216, 230, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
   }
 
   /* Hide Lovable Badge */
