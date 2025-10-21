@@ -26,26 +26,6 @@ html, body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
-}
-
-/* Background & stacking fixes */
-#root, .app, body {
-  position: relative;
-  isolation: isolate;
-}
-
-.bg, .background, .decor, .noise {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.app-header, .nav, .topbar {
-  position: relative;
-  z-index: 10;
 }
 
 /* No film grain for flat Y2K aesthetic */
@@ -141,7 +121,7 @@ All colors MUST be HSL.
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: -7;
+    z-index: 1;
     background: 
       radial-gradient(ellipse 80% 80% at 0% 0%, rgba(189, 147, 224, 0.7) 0%, transparent 50%),
       radial-gradient(ellipse 70% 70% at 100% 0%, rgba(240, 184, 169, 0.6) 0%, transparent 50%),
@@ -1446,7 +1426,7 @@ All colors MUST be HSL.
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: -5;                 /* above DynamicBackground (-10), below content (0) */
+    z-index: 0;                 /* keep behind your app UI */
     overflow: hidden;
   }
 
