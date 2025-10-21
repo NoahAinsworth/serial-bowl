@@ -72,9 +72,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <>
-      <ThemeBackground />
       <div className="app-scroll">
         <div className="flex flex-col min-h-screen bg-transparent relative z-10">
+        <ThemeBackground />
+        <SkyClouds count={8} />
         {/* Header */}
         <header className="fixed top-0 left-0 right-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/70" style={{ paddingTop: 'max(0.5rem, var(--safe-top))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)' }}>
           <div className="flex h-14 items-center justify-between px-4">
@@ -110,7 +111,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 pt-14 pb-32">
+        <main className="flex-1 pt-14 pb-32 relative z-20">
           {children}
         </main>
 
@@ -140,7 +141,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </nav>
         </div>
       </div>
-      <SkyClouds count={8} />
     </>
   );
 };
