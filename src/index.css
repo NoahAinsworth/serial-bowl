@@ -141,7 +141,7 @@ All colors MUST be HSL.
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: 1;
+    z-index: -7;
     background: 
       radial-gradient(ellipse 80% 80% at 0% 0%, rgba(189, 147, 224, 0.7) 0%, transparent 50%),
       radial-gradient(ellipse 70% 70% at 100% 0%, rgba(240, 184, 169, 0.6) 0%, transparent 50%),
