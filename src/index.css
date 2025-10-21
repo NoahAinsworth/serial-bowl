@@ -1446,7 +1446,7 @@ All colors MUST be HSL.
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: -1;                 /* keep behind all content */
+    z-index: -5;                 /* above DynamicBackground (-10), below content (0) */
     overflow: hidden;
   }
 
