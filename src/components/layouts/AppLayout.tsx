@@ -108,12 +108,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 pb-20">
           {children}
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="sticky bottom-0 z-40 border-t bg-background/80" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80" style={{ paddingBottom: 'var(--safe-bottom)' }}>
           <div className="flex h-16 items-center justify-around px-2">
             {navItems.map(({ icon: Icon, label, path, showDot }) => (
               <Link

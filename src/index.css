@@ -121,8 +121,8 @@ All colors MUST be HSL.
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: 1;
-    background: 
+    z-index: -7;
+    background:
       radial-gradient(ellipse 80% 80% at 0% 0%, rgba(189, 147, 224, 0.7) 0%, transparent 50%),
       radial-gradient(ellipse 70% 70% at 100% 0%, rgba(240, 184, 169, 0.6) 0%, transparent 50%),
       radial-gradient(ellipse 90% 90% at 50% 100%, rgba(169, 207, 224, 0.65) 0%, transparent 55%),
@@ -1426,7 +1426,7 @@ All colors MUST be HSL.
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 0;                 /* keep behind your app UI */
+    z-index: -5;                 /* keep behind your app UI */
     overflow: hidden;
   }
 
