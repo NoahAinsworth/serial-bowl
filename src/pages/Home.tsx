@@ -143,7 +143,7 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-6 px-4 pt-12">
+    <div className="max-w-2xl mx-auto pb-6 px-4 pt-16">
       {/* Pour a Thought Bar */}
       <div className="mb-6 bg-card border-0 md:border rounded-none md:rounded-lg p-4">
         <div className="flex gap-2 mb-3">
