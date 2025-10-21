@@ -1507,8 +1507,8 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
-    background: var(--gradient-vignette), hsl(var(--background));
+    @apply bg-transparent text-foreground;
+    background: transparent;
     min-height: 100vh;
     font-family: var(--font-ui);
     letter-spacing: var(--letter-ui);
