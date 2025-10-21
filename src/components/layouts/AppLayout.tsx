@@ -111,7 +111,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 pt-14 pb-32 relative z-20">
+        <main className="flex-1 pt-20 pb-32 relative z-20">
           {children}
         </main>
 
