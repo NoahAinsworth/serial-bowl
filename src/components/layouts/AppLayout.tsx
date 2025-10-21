@@ -138,9 +138,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </nav>
         </div>
       </div>
-      <div className="background">
-        <SkyClouds count={8} />
-      </div>
+      <SkyClouds count={8} />
     </>
   );
 };
