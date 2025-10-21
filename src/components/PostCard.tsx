@@ -349,7 +349,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
   return (
     <article className={cn(
-      "relative py-4 bg-card border border-border/20 rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in",
+      "relative py-4 bg-card border-0 md:border md:border-border/20 rounded-none md:rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in",
       config.glow
     )}>
       {/* User Header */}
