@@ -1762,28 +1762,35 @@ export type Database = {
         }
         Returns: string
       }
-      api_rate_and_review: {
-        Args:
-          | {
+      api_rate_and_review:
+        | {
+            Args: {
               p_is_spoiler?: boolean
               p_item_id: string
               p_item_type: string
               p_review?: string
               p_score?: number
             }
-          | {
+            Returns: {
+              post_id: string
+              rating_score: number
+              review_id: string
+            }[]
+          }
+        | {
+            Args: {
               p_is_spoiler?: boolean
               p_item_id: string
               p_item_type: string
               p_review?: string
               p_score_any?: string
             }
-        Returns: {
-          post_id: string
-          rating_score: number
-          review_id: string
-        }[]
-      }
+            Returns: {
+              post_id: string
+              rating_score: number
+              review_id: string
+            }[]
+          }
       attention_score: {
         Args: {
           created: string
@@ -1815,10 +1822,7 @@ export type Database = {
         Args: { p_show_id: string; p_user: string }
         Returns: number
       }
-      detect_mature_content: {
-        Args: { text_body: string }
-        Returns: Json
-      }
+      detect_mature_content: { Args: { text_body: string }; Returns: Json }
       exp_decay: {
         Args: { created: string; half_life_hours: number }
         Returns: number
@@ -1858,10 +1862,7 @@ export type Database = {
           score: number
         }[]
       }
-      get_badge_tier: {
-        Args: { p_points: number }
-        Returns: string
-      }
+      get_badge_tier: { Args: { p_points: number }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
