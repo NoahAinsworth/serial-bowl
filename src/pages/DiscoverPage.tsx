@@ -14,6 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { showsCache } from "@/lib/showsCache";
 import { useAuth } from "@/contexts/AuthContext";
+import { WatchlistButton } from "@/components/WatchlistButton";
+import { WatchedButton } from "@/components/WatchedButton";
 
 type FilterType = 'popular' | 'new' | 'trending';
 
@@ -537,28 +539,105 @@ export default function DiscoverPage() {
 }
 
 function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => void }) {
+  const { user } = useAuth();
+  const [contentId, setContentId] = useState<string | null>(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      getOrCreateContent();
+    }
+  }, [show.id, user]);
+
+  const getOrCreateContent = async () => {
+    if (!user || isLoadingContent) return;
+
+    setIsLoadingContent(true);
+    try {
+      // Check if content already exists
+      const { data: existingContent, error: queryError } = await supabase
+        .from('content')
+        .select('id')
+        .eq('external_id', show.id.toString())
+        .eq('external_src', 'tvdb')
+        .maybeSingle();
+
+      if (queryError) {
+        console.error('Error checking content:', queryError);
+        setIsLoadingContent(false);
+        return;
+      }
+
+      if (existingContent) {
+        setContentId(existingContent.id);
+        setIsLoadingContent(false);
+        return;
+      }
+
+      // Create new content entry
+      const { data: newContent, error: insertError } = await supabase
+        .from('content')
+        .insert({
+          external_id: show.id.toString(),
+          external_src: 'tvdb',
+          kind: 'show',
+          title: show.title,
+          poster_url: show.posterUrl || null,
+          metadata: {
+            year: show.year,
+            firstAired: show.firstAired
+          }
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        console.error('Error creating content:', insertError);
+      } else if (newContent) {
+        setContentId(newContent.id);
+      }
+    } catch (e) {
+      console.error('Exception in getOrCreateContent:', e);
+    } finally {
+      setIsLoadingContent(false);
+    }
+  };
+
   return (
-    <Card
-      className="cursor-pointer overflow-hidden group hover:ring-2 hover:ring-primary transition-all"
-      onClick={onClick}
-    >
-      <div className="aspect-[2/3] relative">
-        <img
-          src={show.posterUrl || "/placeholder.svg"}
-          alt={show.title}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          decoding="async"
-          onError={(e) => {
-            e.currentTarget.src = "/placeholder.svg";
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="absolute bottom-0 left-0 right-0 p-3">
-            <h3 className="font-semibold text-white text-sm line-clamp-2">{show.title}</h3>
-            {show.year && <p className="text-xs text-white/80">{show.year}</p>}
+    <Card className="overflow-hidden group hover:ring-2 hover:ring-primary transition-all">
+      <div className="relative">
+        <div 
+          className="aspect-[2/3] relative cursor-pointer"
+          onClick={onClick}
+        >
+          <img
+            src={show.posterUrl || "/placeholder.svg"}
+            alt={show.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.svg";
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute bottom-0 left-0 right-0 p-3">
+              <h3 className="font-semibold text-white text-sm line-clamp-2">{show.title}</h3>
+              {show.year && <p className="text-xs text-white/80">{show.year}</p>}
+            </div>
           </div>
         </div>
+
+        {/* Action Buttons - Always visible, compact */}
+        {user && contentId && (
+          <div 
+            className="flex gap-1 p-2 bg-background/95 backdrop-blur-sm border-t border-border"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <WatchlistButton contentId={contentId} showTitle={show.title} />
+            <WatchedButton contentId={contentId} showTitle={show.title} />
+          </div>
+        )}
       </div>
     </Card>
   );
