@@ -4,4 +4,4 @@ project_id = "yqslvnsdqpsosqghpenq"
 verify_jwt = false
 
 [functions.get-trending-shows]
-verify_jwt = false
+verify_jwt = true
