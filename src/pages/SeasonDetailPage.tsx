@@ -40,18 +40,32 @@ export default function SeasonDetailPage() {
   const loadEpisodes = async (seriesId: number, season: number) => {
     // Fetch show to get name
     const showData = await fetchShow(seriesId);
-    if (showData) {
-      setShowName(showData.name);
+    
+    if (!showData || !showData.name) {
+      console.error('Failed to load show data for season');
+      toast({
+        title: "Error",
+        description: "Failed to load show information",
+        variant: "destructive",
+      });
+      return;
     }
+    
+    setShowName(showData.name);
     
     const episodesData = await fetchEpisodes(seriesId, season);
     setEpisodes(episodesData);
     
-    await loadContentAndRating(`${seriesId}:${season}`, showData?.name || '');
+    await loadContentAndRating(`${seriesId}:${season}`, showData.name);
   };
 
   const loadContentAndRating = async (externalId: string, showTitle: string) => {
     if (!user) {
+      return;
+    }
+
+    if (!showTitle || !showTitle.trim()) {
+      console.error('Cannot create content with empty show title');
       return;
     }
 
@@ -63,7 +77,7 @@ export default function SeasonDetailPage() {
       .eq('kind', 'season')
       .maybeSingle();
 
-    if (!content && !fetchError && seasonNumber && showTitle) {
+    if (!content && !fetchError && seasonNumber) {
       const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({

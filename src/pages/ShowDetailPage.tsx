@@ -58,6 +58,11 @@ export default function ShowDetailPage() {
       return;
     }
 
+    if (!showName || !showName.trim()) {
+      console.error('Cannot create content with empty show title');
+      return;
+    }
+
     let { data: content, error: fetchError } = await supabase
       .from('content')
       .select('id')

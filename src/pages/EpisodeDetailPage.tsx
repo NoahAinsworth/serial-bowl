@@ -43,21 +43,35 @@ export default function EpisodeDetailPage() {
   const loadEpisode = async (seriesId: number, season: number, epNum: number) => {
     // Fetch show to get name
     const showData = await fetchShow(seriesId);
-    if (showData) {
-      setShowName(showData.name);
+    
+    if (!showData || !showData.name) {
+      console.error('Failed to load show data for episode');
+      toast({
+        title: "Error",
+        description: "Failed to load show information",
+        variant: "destructive",
+      });
+      return;
     }
+    
+    setShowName(showData.name);
     
     const episodesData = await fetchEpisodes(seriesId, season);
     const foundEpisode = episodesData.find(ep => ep.number === epNum);
     
     if (foundEpisode) {
       setEpisode(foundEpisode);
-      await loadContentAndRating(foundEpisode, `${seriesId}:${season}:${epNum}`, showData?.name || '', season, epNum);
+      await loadContentAndRating(foundEpisode, `${seriesId}:${season}:${epNum}`, showData.name, season, epNum);
     }
   };
 
   const loadContentAndRating = async (episodeData: TVEpisode, externalId: string, showTitle: string, season: number, epNum: number) => {
     if (!user) {
+      return;
+    }
+
+    if (!showTitle || !showTitle.trim()) {
+      console.error('Cannot create content with empty show title');
       return;
     }
     
@@ -80,9 +94,7 @@ export default function EpisodeDetailPage() {
     }
 
     if (!content) {
-      const episodeTitle = showTitle 
-        ? `${showTitle} - S${season}E${epNum} - ${episodeData.name}`
-        : episodeData.name;
+      const episodeTitle = `${showTitle} - S${season}E${epNum} - ${episodeData.name}`;
       
       const { data: newContent, error: insertError } = await supabase
         .from('content')
