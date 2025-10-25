@@ -554,12 +554,12 @@ function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => v
 
     setIsLoadingContent(true);
     try {
-      // Check if content already exists
+      // Check if content already exists (match ShowDetailPage pattern)
       const { data: existingContent, error: queryError } = await supabase
         .from('content')
         .select('id')
         .eq('external_id', show.id.toString())
-        .eq('external_src', 'tvdb')
+        .eq('kind', 'show')
         .maybeSingle();
 
       if (queryError) {
@@ -574,12 +574,12 @@ function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => v
         return;
       }
 
-      // Create new content entry
+      // Create new content entry (match ShowDetailPage pattern)
       const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
+          external_src: 'thetvdb',
           external_id: show.id.toString(),
-          external_src: 'tvdb',
           kind: 'show',
           title: show.title,
           poster_url: show.posterUrl || null,
@@ -592,7 +592,22 @@ function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => v
         .single();
 
       if (insertError) {
-        console.error('Error creating content:', insertError);
+        // Handle duplicate key error - another request may have created it
+        if (insertError.code === '23505') {
+          // Re-query to get the existing content
+          const { data: retryContent } = await supabase
+            .from('content')
+            .select('id')
+            .eq('external_id', show.id.toString())
+            .eq('kind', 'show')
+            .maybeSingle();
+          
+          if (retryContent) {
+            setContentId(retryContent.id);
+          }
+        } else {
+          console.error('Error creating content:', insertError);
+        }
       } else if (newContent) {
         setContentId(newContent.id);
       }
