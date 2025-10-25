@@ -49,11 +49,11 @@ export default function ShowDetailPage() {
       const seasonsData = await fetchSeasons(showId);
       setSeasons(seasonsData);
       
-      await loadContentAndRating(showId.toString());
+      await loadContentAndRating(showId.toString(), showData.name);
     }
   };
 
-  const loadContentAndRating = async (externalId: string) => {
+  const loadContentAndRating = async (externalId: string, showName: string) => {
     if (!user) {
       return;
     }
@@ -65,15 +65,15 @@ export default function ShowDetailPage() {
       .eq('kind', 'show')
       .maybeSingle();
 
-    if (!content && !fetchError && show) {
+    if (!content && !fetchError) {
       const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
           external_id: externalId,
           kind: 'show',
-          title: show.name,
-          poster_url: show.image,
+          title: showName,
+          poster_url: show?.image,
         })
         .select('id')
         .single();
@@ -87,8 +87,8 @@ export default function ShowDetailPage() {
             external_src: 'thetvdb',
             external_id: externalId,
             kind: 'show',
-            title: show.name,
-            poster_url: show.image,
+            title: showName,
+            poster_url: show?.image,
           })
           .select('id')
           .single();

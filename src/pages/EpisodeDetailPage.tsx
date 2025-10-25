@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { PercentRating } from '@/components/PercentRating';
 import { ReviewsList } from '@/components/ReviewsList';
 import { ThoughtsList } from '@/components/ThoughtsList';
-import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
+import { useTVDB, TVEpisode, TVShow } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -25,9 +25,10 @@ export default function EpisodeDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { loading, fetchEpisodes } = useTVDB();
+  const { loading, fetchEpisodes, fetchShow } = useTVDB();
   
   const [episode, setEpisode] = useState<TVEpisode | null>(null);
+  const [showName, setShowName] = useState<string>('');
   const [userRating, setUserRating] = useState(0);
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
@@ -40,16 +41,22 @@ export default function EpisodeDetailPage() {
   }, [showId, seasonNumber, episodeNumber]);
 
   const loadEpisode = async (seriesId: number, season: number, epNum: number) => {
+    // Fetch show to get name
+    const showData = await fetchShow(seriesId);
+    if (showData) {
+      setShowName(showData.name);
+    }
+    
     const episodesData = await fetchEpisodes(seriesId, season);
     const foundEpisode = episodesData.find(ep => ep.number === epNum);
     
     if (foundEpisode) {
       setEpisode(foundEpisode);
-      await loadContentAndRating(foundEpisode, `${seriesId}:${season}:${epNum}`);
+      await loadContentAndRating(foundEpisode, `${seriesId}:${season}:${epNum}`, showData?.name || '', season, epNum);
     }
   };
 
-  const loadContentAndRating = async (episodeData: TVEpisode, externalId: string) => {
+  const loadContentAndRating = async (episodeData: TVEpisode, externalId: string, showTitle: string, season: number, epNum: number) => {
     if (!user) {
       return;
     }
@@ -73,13 +80,17 @@ export default function EpisodeDetailPage() {
     }
 
     if (!content) {
+      const episodeTitle = showTitle 
+        ? `${showTitle} - S${season}E${epNum} - ${episodeData.name}`
+        : episodeData.name;
+      
       const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
           external_id: externalId,
           kind: 'episode',
-          title: episodeData.name,
+          title: episodeTitle,
           air_date: episodeData.aired,
         })
         .select()
@@ -94,7 +105,7 @@ export default function EpisodeDetailPage() {
             external_src: 'thetvdb',
             external_id: externalId,
             kind: 'episode',
-            title: episodeData.name,
+            title: episodeTitle,
             air_date: episodeData.aired,
           })
           .select()
@@ -235,8 +246,14 @@ export default function EpisodeDetailPage() {
         
         {contentId && (
           <div className="flex gap-2 w-full overflow-hidden">
-            <WatchlistButton contentId={contentId} showTitle={episode.name} />
-            <WatchedButton contentId={contentId} showTitle={episode.name} />
+            <WatchlistButton 
+              contentId={contentId} 
+              showTitle={showName ? `${showName} - S${seasonNumber}E${episodeNumber} - ${episode.name}` : episode.name} 
+            />
+            <WatchedButton 
+              contentId={contentId} 
+              showTitle={showName ? `${showName} - S${seasonNumber}E${episodeNumber} - ${episode.name}` : episode.name} 
+            />
           </div>
         )}
         
@@ -285,7 +302,7 @@ export default function EpisodeDetailPage() {
           postType={postType}
           itemType="episode"
           itemId={`${showId}:${seasonNumber}:${episodeNumber}`}
-          contentTitle={episode.name}
+          contentTitle={showName ? `${showName} - S${seasonNumber}E${episodeNumber} - ${episode.name}` : episode.name}
           onSuccess={() => {
             setPostDialogOpen(false);
           }}

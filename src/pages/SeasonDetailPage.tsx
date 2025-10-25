@@ -5,7 +5,7 @@ import { PercentRating } from '@/components/PercentRating';
 import { EpisodeCheckbox } from '@/components/EpisodeCheckbox';
 import { ReviewsList } from '@/components/ReviewsList';
 import { ThoughtsList } from '@/components/ThoughtsList';
-import { useTVDB, TVEpisode } from '@/hooks/useTVDB';
+import { useTVDB, TVEpisode, TVShow } from '@/hooks/useTVDB';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -22,9 +22,10 @@ export default function SeasonDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { loading, fetchEpisodes } = useTVDB();
+  const { loading, fetchEpisodes, fetchShow } = useTVDB();
   
   const [episodes, setEpisodes] = useState<TVEpisode[]>([]);
+  const [showName, setShowName] = useState<string>('');
   const [userRating, setUserRating] = useState(0);
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
@@ -37,13 +38,19 @@ export default function SeasonDetailPage() {
   }, [showId, seasonNumber]);
 
   const loadEpisodes = async (seriesId: number, season: number) => {
+    // Fetch show to get name
+    const showData = await fetchShow(seriesId);
+    if (showData) {
+      setShowName(showData.name);
+    }
+    
     const episodesData = await fetchEpisodes(seriesId, season);
     setEpisodes(episodesData);
     
-    await loadContentAndRating(`${seriesId}:${season}`);
+    await loadContentAndRating(`${seriesId}:${season}`, showData?.name || '');
   };
 
-  const loadContentAndRating = async (externalId: string) => {
+  const loadContentAndRating = async (externalId: string, showTitle: string) => {
     if (!user) {
       return;
     }
@@ -56,14 +63,14 @@ export default function SeasonDetailPage() {
       .eq('kind', 'season')
       .maybeSingle();
 
-    if (!content && !fetchError && seasonNumber) {
+    if (!content && !fetchError && seasonNumber && showTitle) {
       const { data: newContent, error: insertError } = await supabase
         .from('content')
         .insert({
           external_src: 'thetvdb',
           external_id: externalId,
           kind: 'season',
-          title: `Season ${seasonNumber}`,
+          title: `${showTitle} - Season ${seasonNumber}`,
         })
         .select()
         .single();
@@ -77,7 +84,7 @@ export default function SeasonDetailPage() {
             external_src: 'thetvdb',
             external_id: externalId,
             kind: 'season',
-            title: `Season ${seasonNumber}`,
+            title: `${showTitle} - Season ${seasonNumber}`,
           })
           .select()
           .single();
@@ -182,8 +189,8 @@ export default function SeasonDetailPage() {
         <div className="space-y-4">
           {contentId && (
             <div className="flex gap-2 w-full overflow-hidden">
-              <WatchlistButton contentId={contentId} showTitle={`Season ${seasonNumber}`} />
-              <WatchedButton contentId={contentId} showTitle={`Season ${seasonNumber}`} />
+              <WatchlistButton contentId={contentId} showTitle={showName ? `${showName} - Season ${seasonNumber}` : `Season ${seasonNumber}`} />
+              <WatchedButton contentId={contentId} showTitle={showName ? `${showName} - Season ${seasonNumber}` : `Season ${seasonNumber}`} />
             </div>
           )}
           <div>
@@ -271,7 +278,7 @@ export default function SeasonDetailPage() {
           postType={postType}
           itemType="season"
           itemId={`${showId}:${seasonNumber}`}
-          contentTitle={`Season ${seasonNumber}`}
+          contentTitle={showName ? `${showName} - Season ${seasonNumber}` : `Season ${seasonNumber}`}
           onSuccess={() => {
             setPostDialogOpen(false);
           }}
