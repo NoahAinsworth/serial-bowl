@@ -123,8 +123,7 @@ export default function DMsPage() {
 
   return (
     <div className="container max-w-2xl mx-auto py-6 px-4">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold gradient-text">Messages</h1>
+      <div className="flex justify-end mb-6">
         <Button variant="outline" size="sm" onClick={() => setShowUserSearch(true)} className="btn-glow">
           <Search className="h-4 w-4 mr-2" />
           Search Users
