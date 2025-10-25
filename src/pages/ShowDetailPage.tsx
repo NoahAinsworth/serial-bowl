@@ -32,8 +32,13 @@ export default function ShowDetailPage() {
 
   useEffect(() => {
     if (id) {
-      const numericId = parseInt(id);
-      loadShow(numericId);
+      // Extract numeric ID from URL (handle "series-123" or "123")
+      const match = id.match(/(\d+)$/);
+      const numericId = match ? parseInt(match[1], 10) : parseInt(id, 10);
+      
+      if (!isNaN(numericId) && numericId > 0) {
+        loadShow(numericId);
+      }
     }
   }, [id]);
 
