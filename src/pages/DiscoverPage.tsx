@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { showsCache } from "@/lib/showsCache";
 
 type FilterType = 'popular' | 'new' | 'trending';
 
@@ -136,6 +137,27 @@ export default function DiscoverPage() {
   async function loadShows(filter: FilterType, pageNum: number) {
     if (loading) return;
     
+    // Check cache first
+    const cacheKey = `${filter}:${pageNum}`;
+    const cached = showsCache.get<ShowCard[]>(cacheKey);
+    if (cached) {
+      if (pageNum === 0) {
+        setShows(cached);
+      } else {
+        setShows((prev) => {
+          const combined = [...prev, ...cached];
+          const seen = new Set();
+          return combined.filter((show) => {
+            if (seen.has(show.id)) return false;
+            seen.add(show.id);
+            return true;
+          });
+        });
+      }
+      setHasMore(cached.length >= 20);
+      return;
+    }
+    
     setLoading(true);
     try {
       let results = [];
@@ -143,8 +165,37 @@ export default function DiscoverPage() {
       if (filter === 'popular') {
         results = await tvdbFetch(`/series/filter?page=${pageNum}&sort=score&sortType=desc`);
       } else if (filter === 'new') {
+        // Use proper new shows logic with date filtering
         const currentYear = new Date().getFullYear();
-        results = await tvdbFetch(`/search?query=${currentYear}&type=series&limit=20&page=${pageNum}`);
+        const allShows: any[] = [];
+        
+        // Search for current and previous year
+        for (const year of [currentYear, currentYear - 1]) {
+          try {
+            const yearResults = await tvdbFetch(`/search?query=${year}&type=series&limit=20&page=${pageNum}`);
+            const shows = Array.isArray(yearResults) ? yearResults : [];
+            allShows.push(...shows);
+          } catch (error) {
+            console.error(`Error fetching shows for year ${year}:`, error);
+          }
+        }
+        
+        // Filter to shows with recent first air date (within last year)
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        
+        const recentShows = allShows.filter(show => {
+          const firstAired = show.first_air_time || show.firstAired;
+          if (!firstAired) return false;
+          return new Date(firstAired) >= oneYearAgo;
+        });
+        
+        // Sort by first aired date (newest first)
+        results = recentShows.sort((a, b) => {
+          const dateA = new Date(a.first_air_time || a.firstAired || 0);
+          const dateB = new Date(b.first_air_time || b.firstAired || 0);
+          return dateB.getTime() - dateA.getTime();
+        });
       } else if (filter === 'trending') {
         // Use AI-powered trending shows
         const { data, error } = await supabase.functions.invoke('get-trending-shows', {
@@ -163,23 +214,33 @@ export default function DiscoverPage() {
 
       const showsData = Array.isArray(results) ? results : [];
       const normalized = showsData.map(normalizeSeries);
+      
+      // Deduplicate by ID
+      const seen = new Set<number>();
+      const uniqueNormalized = normalized.filter(show => {
+        if (seen.has(show.id)) return false;
+        seen.add(show.id);
+        return true;
+      });
+
+      // Cache the results
+      showsCache.set(cacheKey, uniqueNormalized);
 
       if (pageNum === 0) {
-        setShows(normalized);
+        setShows(uniqueNormalized);
       } else {
         setShows((prev) => {
-          const combined = [...prev, ...normalized];
-          // Deduplicate by ID
-          const seen = new Set();
+          const combined = [...prev, ...uniqueNormalized];
+          const seenCombined = new Set();
           return combined.filter((show) => {
-            if (seen.has(show.id)) return false;
-            seen.add(show.id);
+            if (seenCombined.has(show.id)) return false;
+            seenCombined.add(show.id);
             return true;
           });
         });
       }
 
-      setHasMore(normalized.length >= 20);
+      setHasMore(uniqueNormalized.length >= 20);
     } catch (error) {
       console.error('Error loading shows:', error);
       toast.error('Failed to load shows');
@@ -191,11 +252,35 @@ export default function DiscoverPage() {
   async function performSearch(query: string, pageNum: number) {
     if (searchLoading) return;
     
+    // Check cache first
+    const cacheKey = `search:${query}:${pageNum}`;
+    const cached = showsCache.get<ShowCard[]>(cacheKey);
+    if (cached) {
+      if (pageNum === 0) {
+        setSearchResults(cached);
+      } else {
+        setSearchResults((prev) => {
+          const combined = [...prev, ...cached];
+          const seen = new Set();
+          return combined.filter((show) => {
+            if (seen.has(show.id)) return false;
+            seen.add(show.id);
+            return true;
+          });
+        });
+      }
+      setSearchHasMore(cached.length >= 20);
+      return;
+    }
+    
     setSearchLoading(true);
     try {
       const results = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series&limit=20&page=${pageNum}`);
       const showsData = Array.isArray(results) ? results : [];
       const normalized = showsData.map(normalizeSeries);
+
+      // Cache the results
+      showsCache.set(cacheKey, normalized);
 
       if (pageNum === 0) {
         setSearchResults(normalized);
@@ -439,6 +524,7 @@ function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => v
           alt={show.title}
           className="w-full h-full object-cover"
           loading="lazy"
+          decoding="async"
           onError={(e) => {
             e.currentTarget.src = "/placeholder.svg";
           }}

@@ -12,9 +12,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WatchlistButton } from '@/components/WatchlistButton';
 import { WatchedButton } from '@/components/WatchedButton';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
+import { Button } from '@/components/ui/button';
 
 export default function SeasonDetailPage() {
   const { showId, seasonNumber } = useParams<{ showId: string; seasonNumber: string }>();
@@ -166,6 +167,16 @@ export default function SeasonDetailPage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(`/show/${showId}`)}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Show
+      </Button>
+      
       <Card className="p-6">
         <h1 className="text-3xl font-bold mb-4 neon-glow">Season {seasonNumber}</h1>
         <div className="space-y-4">

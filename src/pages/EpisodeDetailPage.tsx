@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { PercentRating } from '@/components/PercentRating';
 import { ReviewsList } from '@/components/ReviewsList';
@@ -11,9 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WatchlistButton } from '@/components/WatchlistButton';
 import { WatchedButton } from '@/components/WatchedButton';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
+import { Button } from '@/components/ui/button';
 
 export default function EpisodeDetailPage() {
   const { showId, seasonNumber, episodeNumber } = useParams<{ 
@@ -21,6 +22,7 @@ export default function EpisodeDetailPage() {
     seasonNumber: string;
     episodeNumber: string;
   }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { loading, fetchEpisodes } = useTVDB();
@@ -195,6 +197,16 @@ export default function EpisodeDetailPage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(`/show/${showId}/season/${seasonNumber}`)}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Season
+      </Button>
+      
       <Card className="p-6 space-y-4">
         <div>
           <p className="text-sm text-muted-foreground">
@@ -208,6 +220,8 @@ export default function EpisodeDetailPage() {
             src={episode.image}
             alt={episode.name}
             className="w-full h-auto rounded-lg"
+            loading="lazy"
+            decoding="async"
           />
         )}
         

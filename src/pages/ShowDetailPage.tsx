@@ -10,11 +10,12 @@ import { ThoughtsList } from '@/components/ThoughtsList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WatchlistButton } from '@/components/WatchlistButton';
 import { WatchedButton } from '@/components/WatchedButton';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { getRating } from '@/api/ratings';
 import { supabase } from '@/api/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 export default function ShowDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -152,6 +153,16 @@ export default function ShowDetailPage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in min-h-screen">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(-1)}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+      
       <Card className="p-6">
         <div className="flex flex-col md:flex-row gap-6">
           {show.image && (
@@ -160,6 +171,8 @@ export default function ShowDetailPage() {
                 src={show.image}
                 alt={show.name}
                 className="w-full md:w-48 h-auto md:h-72 object-cover rounded-lg"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           )}
