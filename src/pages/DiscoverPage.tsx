@@ -467,7 +467,7 @@ export default function DiscoverPage() {
 
       {/* Search Overlay */}
       {showSearchOverlay && (
-        <div className="fixed inset-0 bg-background z-[9999] overflow-y-auto">
+        <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
           <div className="container mx-auto px-4 py-6 max-w-7xl" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
             {/* Header with Close Button */}
             <div className="flex items-center gap-4 mb-6">
