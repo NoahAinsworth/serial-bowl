@@ -12,11 +12,13 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { showsCache } from "@/lib/showsCache";
+import { useAuth } from "@/contexts/AuthContext";
 
 type FilterType = 'popular' | 'new' | 'trending';
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   // Main tab state
   const [activeTab, setActiveTab] = useState<"browse" | "users">("browse");
@@ -197,14 +199,31 @@ export default function DiscoverPage() {
           return dateB.getTime() - dateA.getTime();
         });
       } else if (filter === 'trending') {
-        // Use AI-powered trending shows
+        // Verify user is authenticated
+        if (!user) {
+          toast.error('Please sign in to view trending shows');
+          setLoading(false);
+          return;
+        }
+
+        // Refresh session to ensure valid token
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          console.error('Session error:', sessionError);
+          toast.error('Authentication required. Please sign in again.');
+          setLoading(false);
+          return;
+        }
+
+        // Use AI-powered trending shows with explicit auth
         const { data, error } = await supabase.functions.invoke('get-trending-shows', {
           body: { page: pageNum }
         });
         
         if (error) {
           console.error('Error fetching trending shows:', error);
-          toast.error('Failed to load trending shows');
+          toast.error(`Failed to load trending shows: ${error.message || 'Unknown error'}`);
           setLoading(false);
           return;
         }
