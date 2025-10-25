@@ -216,9 +216,12 @@ export default function DiscoverPage() {
           return;
         }
 
-        // Use AI-powered trending shows with explicit auth
+        // Use AI-powered trending shows with explicit auth header
         const { data, error } = await supabase.functions.invoke('get-trending-shows', {
-          body: { page: pageNum }
+          body: { page: pageNum },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
         });
         
         if (error) {
@@ -464,8 +467,8 @@ export default function DiscoverPage() {
 
       {/* Search Overlay */}
       {showSearchOverlay && (
-        <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
-          <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="fixed inset-0 bg-background z-[9999] overflow-y-auto">
+          <div className="container mx-auto px-4 py-6 max-w-7xl" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
             {/* Header with Close Button */}
             <div className="flex items-center gap-4 mb-6">
               <Button variant="ghost" size="icon" onClick={closeSearchOverlay}>
