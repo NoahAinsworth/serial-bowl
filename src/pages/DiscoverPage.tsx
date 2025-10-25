@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -466,7 +467,7 @@ export default function DiscoverPage() {
       </div>
 
       {/* Search Overlay */}
-      {showSearchOverlay && (
+      {showSearchOverlay && createPortal(
         <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
           <div className="container mx-auto px-4 py-6 max-w-7xl" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
             {/* Header with Close Button */}
@@ -508,8 +509,8 @@ export default function DiscoverPage() {
                     key={show.id} 
                     show={show} 
                     onClick={() => {
-                      closeSearchOverlay();
                       navigate(`/show/${show.id}`);
+                      closeSearchOverlay();
                     }} 
                   />
                 ))}
@@ -525,10 +526,11 @@ export default function DiscoverPage() {
               </div>
             )}
 
-            {/* Infinite Scroll Trigger */}
+            {/* Infinite Scroll Trigger for Search */}
             <div ref={searchObserverRef} className="h-4 mt-8" />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
