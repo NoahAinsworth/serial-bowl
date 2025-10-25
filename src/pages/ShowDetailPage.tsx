@@ -161,11 +161,11 @@ export default function ShowDetailPage() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/discover')}
         className="mb-4"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
+        Back to Discover
       </Button>
       
       <Card className="p-6">
