@@ -51,6 +51,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
         const { data: content, error } = await supabase
           .from('content')
           .select('title, poster_url')
+          .eq('external_src', 'thetvdb')
           .eq('external_id', rating.item_id)
           .eq('kind', rating.item_type as 'show' | 'season' | 'episode')
           .maybeSingle();

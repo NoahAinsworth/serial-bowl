@@ -88,6 +88,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
         const { data, error } = await supabase
           .from('content')
           .select('title, external_id, kind, metadata')
+          .eq('external_src', 'thetvdb')
           .eq('external_id', post.item_id)
           .eq('kind', post.item_type as 'show' | 'season' | 'episode')
           .maybeSingle();
@@ -99,6 +100,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             const { data: showData } = await supabase
               .from('content')
               .select('title')
+              .eq('external_src', 'thetvdb')
               .eq('external_id', showId)
               .eq('kind', 'show')
               .maybeSingle();
@@ -114,6 +116,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             const { data: showData } = await supabase
               .from('content')
               .select('title')
+              .eq('external_src', 'thetvdb')
               .eq('external_id', showId)
               .eq('kind', 'show')
               .maybeSingle();
@@ -140,6 +143,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             const { data: showData } = await supabase
               .from('content')
               .select('title')
+              .eq('external_src', 'thetvdb')
               .eq('external_id', showId)
               .eq('kind', 'show')
               .maybeSingle();
@@ -156,6 +160,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             const { data: showData } = await supabase
               .from('content')
               .select('title')
+              .eq('external_src', 'thetvdb')
               .eq('external_id', showId)
               .eq('kind', 'show')
               .maybeSingle();
@@ -171,6 +176,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             const { data: showData } = await supabase
               .from('content')
               .select('title')
+              .eq('external_src', 'thetvdb')
               .eq('external_id', showId)
               .eq('kind', 'show')
               .maybeSingle();

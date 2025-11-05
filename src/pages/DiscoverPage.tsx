@@ -558,6 +558,7 @@ function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => v
       const { data: existingContent, error: queryError } = await supabase
         .from('content')
         .select('id')
+        .eq('external_src', 'thetvdb')
         .eq('external_id', show.id.toString())
         .eq('kind', 'show')
         .maybeSingle();
@@ -598,6 +599,7 @@ function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => v
           const { data: retryContent } = await supabase
             .from('content')
             .select('id')
+            .eq('external_src', 'thetvdb')
             .eq('external_id', show.id.toString())
             .eq('kind', 'show')
             .maybeSingle();

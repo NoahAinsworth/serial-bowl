@@ -39,6 +39,7 @@ export function UnifiedRatings({ userId }: UnifiedRatingsProps) {
         const { data: content } = await supabase
           .from('content')
           .select('title, poster_url')
+          .eq('external_src', 'thetvdb')
           .eq('external_id', rating.item_id)
           .eq('kind', rating.item_type as 'show' | 'season' | 'episode')
           .maybeSingle();

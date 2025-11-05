@@ -211,6 +211,7 @@ export default function ProfilePage() {
       const { data: existingContent } = await supabase
         .from('content')
         .select('id')
+        .eq('external_src', 'thetvdb')
         .eq('external_id', show.id.toString())
         .eq('kind', 'show')
         .maybeSingle();
@@ -221,6 +222,7 @@ export default function ProfilePage() {
         const { data: newContent, error: contentError } = await supabase
           .from('content')
           .insert({
+            external_src: 'thetvdb',
             external_id: show.id.toString(),
             kind: 'show',
             title: show.name,
