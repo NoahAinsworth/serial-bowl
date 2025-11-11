@@ -201,7 +201,7 @@ export default function ShowDetailPage() {
                 <div>
                   <p className="text-sm font-medium mb-2">Your Rating</p>
                   <PercentRating
-                    initialRating={userRating || 50}
+                    initialRating={userRating || 0}
                     onRate={handleRatingChange}
                     compact
                     showSaveButton

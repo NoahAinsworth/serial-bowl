@@ -209,7 +209,7 @@ export default function SeasonDetailPage() {
           )}
           <div>
             <p className="text-sm text-muted-foreground mb-2">Rate this season</p>
-            <PercentRating initialRating={userRating || 50} onRate={handleRate} />
+            <PercentRating initialRating={userRating || 0} onRate={handleRate} />
           </div>
           {contentId && (
             <div>

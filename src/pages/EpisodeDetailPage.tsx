@@ -271,7 +271,7 @@ export default function EpisodeDetailPage() {
         
         <div>
           <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
-          <PercentRating initialRating={userRating || 50} onRate={handleRate} />
+          <PercentRating initialRating={userRating || 0} onRate={handleRate} />
         </div>
         {contentId && (
           <div>
