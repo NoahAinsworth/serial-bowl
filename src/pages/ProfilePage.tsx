@@ -455,22 +455,25 @@ export default function ProfilePage() {
                   {profile.settings.displayName}
                 </h1>
               )}
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
                 <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                   @{profile?.handle || 'user'}
                 </p>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => navigate('/profile/edit')} 
-                  title="Edit profile"
-                  className="h-6 px-2 text-xs text-white/90"
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm px-2 py-0.5 bg-primary/20 border border-primary/30 rounded-full text-primary font-semibold">
+                    {currentBadge}
+                  </span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => navigate('/profile/edit')} 
+                    title="Edit profile"
+                    className="h-6 px-2 text-xs text-white/90"
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
-
-
             </div>
           </div>
         </div>
@@ -483,49 +486,34 @@ export default function ProfilePage() {
           />
         </div>
 
+        {/* Stats Chips */}
         <div className="px-4 mb-6 animate-fade-in">
-          <div className="bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
-            <div className="flex gap-6 text-sm justify-center">
-              <button 
-                className="hover:underline group"
-                onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
-              >
-                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
-                  {stats.thoughtsCount}
-                </span>
-                <span className="text-foreground/90 font-medium drop-shadow-sm">Posts</span>
-              </button>
-              <button 
-                className="hover:underline group"
-                onClick={() => navigate('/followers')}
-              >
-                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
-                  {stats.followersCount}
-                </span>
-                <span className="text-foreground/90 font-medium drop-shadow-sm">Followers</span>
-              </button>
-              <button 
-                className="hover:underline group"
-                onClick={() => navigate('/following')}
-              >
-                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
-                  {stats.followingCount}
-                </span>
-                <span className="text-foreground/90 font-medium drop-shadow-sm">Following</span>
-              </button>
-              <button 
-                className="hover:underline group"
-                onClick={() => navigate('/binge-board')}
-              >
-                <span className="font-bold text-foreground text-lg block group-hover:scale-110 transition-transform drop-shadow-sm">
-                  #{userRank || '—'}
-                </span>
-                <span className="text-foreground/90 font-medium drop-shadow-sm flex items-center gap-1">
-                  <Trophy className="w-3 h-3" />
-                  Rank
-                </span>
-              </button>
-            </div>
+          <div className="flex gap-2 flex-wrap justify-center">
+            <button 
+              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
+              onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
+            >
+              <span className="text-foreground">{stats.thoughtsCount}</span> Posts
+            </button>
+            <button 
+              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
+              onClick={() => navigate('/followers')}
+            >
+              <span className="text-foreground">{stats.followersCount}</span> Followers
+            </button>
+            <button 
+              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
+              onClick={() => navigate('/following')}
+            >
+              <span className="text-foreground">{stats.followingCount}</span> Following
+            </button>
+            <button 
+              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium flex items-center gap-1"
+              onClick={() => navigate('/binge-board')}
+            >
+              <Trophy className="w-3 h-3 text-primary" />
+              <span className="text-foreground">Rank #{userRank || '—'}</span>
+            </button>
           </div>
         </div>
 

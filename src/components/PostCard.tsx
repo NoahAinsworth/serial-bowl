@@ -355,12 +355,12 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
   return (
     <article className={cn(
-      "relative py-4 bg-card border-0 md:border md:border-border/20 rounded-none md:rounded-2xl px-4 mb-3 transition-all duration-200 animate-fade-in",
+      "relative py-3 bg-card border-0 md:border md:border-border/20 rounded-none md:rounded-2xl px-3 mb-2 transition-all duration-200 animate-fade-in active:scale-[0.98]",
       config.glow
     )}>
       {/* User Header */}
-      <div className="flex items-start gap-3 mb-3">
-        <Avatar className="h-10 w-10 cursor-pointer shrink-0" onClick={() => navigate(`/user/${post.user.handle}`)}>
+      <div className="flex items-start gap-2 mb-2">
+        <Avatar className="h-9 w-9 cursor-pointer shrink-0" onClick={() => navigate(`/user/${post.user.handle}`)}>
           <AvatarImage src={post.user.avatar_url || undefined} alt={post.user.handle} />
           <AvatarFallback>{post.user.handle[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>

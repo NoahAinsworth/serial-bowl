@@ -64,8 +64,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: Home, label: 'Home', path: '/home' },
     { icon: Search, label: 'Discover', path: '/discover' },
     { icon: PlusSquare, label: 'Post', path: '/post' },
-    { icon: MessageSquare, label: 'Messages', path: '/messages', showDot: unreadDMs > 0 },
-    { icon: Smile, label: 'Profile', path: '/profile' },
+    { icon: Trophy, label: 'Binge Board', path: '/binge-board' },
+    { icon: Smile, label: 'Profile', path: '/profile', showDot: unreadDMs > 0 },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -97,11 +97,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <h1 className="wordmark">Serial Bowl</h1>
             )}
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Library">
-                <Library className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/binge-board')} title="Binge Board">
-                <Trophy className="h-5 w-5" />
+              <Button variant="ghost" size="icon" onClick={() => navigate('/messages')} title="Inbox">
+                <MessageSquare className="h-5 w-5" />
+                {unreadDMs > 0 && (
+                  <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500"></div>
+                )}
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
                 <Settings className="h-5 w-5" />
@@ -115,8 +115,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           {children}
         </main>
 
-        {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95" style={{ paddingBottom: 'max(1rem, var(--safe-bottom))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)' }}>
+        {/* Bottom Navigation - Safari-safe fixed positioning */}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95" style={{ paddingBottom: 'max(1rem, var(--safe-bottom))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)', transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
           <div className="flex h-16 items-center justify-around px-2">
             {navItems.map(({ icon: Icon, label, path, showDot }) => (
               <Link

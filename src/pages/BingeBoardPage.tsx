@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Trophy, Medal, Award, Loader2 } from 'lucide-react';
 import { BadgeDisplay } from '@/components/BadgeDisplay';
 import { DynamicBackground } from '@/components/DynamicBackground';
+import { BingeProgressCard } from '@/components/BingeProgressCard';
 
 interface LeaderboardUser {
   id: string;
@@ -118,31 +119,52 @@ export default function BingeBoardPage() {
           </p>
         </div>
 
-        {/* Current User Rank Card */}
-        {user && userRank && (
+        {/* Current User Progress Card */}
+        {user && userRank && currentUserBadge && (
           <div className="px-4 mb-6">
-            <Card className="p-4 bg-primary/10 backdrop-blur-md border-primary/30">
-              <div className="flex items-center gap-4">
-                <div className="text-3xl font-bold text-primary">
-                  #{userRank}
-                </div>
-                <Avatar className="w-12 h-12 border-2 border-primary">
-                  <AvatarImage src={leaderboard.find(u => u.id === user.id)?.avatar_url || ''} />
-                  <AvatarFallback>
-                    {leaderboard.find(u => u.id === user.id)?.handle?.[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="font-semibold text-foreground">Your Rank</div>
-                  <div className="text-sm text-foreground/70">
-                    {leaderboard.find(u => u.id === user.id)?.binge_points || 0} points
-                  </div>
-                </div>
-                {currentUserBadge && (
-                  <BadgeDisplay badge={currentUserBadge} size="md" />
-                )}
-              </div>
-            </Card>
+            <BingeProgressCard
+              points={leaderboard.find(u => u.id === user.id)?.binge_points || 0}
+              badge={currentUserBadge}
+              trophiesEarned={(() => {
+                const BADGE_TIERS = [
+                  { name: 'Pilot Watcher', threshold: 0 },
+                  { name: 'Casual Viewer', threshold: 150 },
+                  { name: 'Marathon Madness', threshold: 500 },
+                  { name: 'Season Smasher', threshold: 1200 },
+                  { name: 'Series Finisher', threshold: 2500 },
+                  { name: 'Stream Scholar', threshold: 5000 },
+                  { name: 'Ultimate Binger', threshold: 10000 },
+                ];
+                const userPoints = leaderboard.find(u => u.id === user.id)?.binge_points || 0;
+                return BADGE_TIERS.filter(t => userPoints >= t.threshold).length;
+              })()}
+              totalTrophies={7}
+              userRank={userRank}
+              nextBadge={(() => {
+                const BADGE_TIERS = [
+                  { name: 'Pilot Watcher', threshold: 0 },
+                  { name: 'Casual Viewer', threshold: 150 },
+                  { name: 'Marathon Madness', threshold: 500 },
+                  { name: 'Season Smasher', threshold: 1200 },
+                  { name: 'Series Finisher', threshold: 2500 },
+                  { name: 'Stream Scholar', threshold: 5000 },
+                  { name: 'Ultimate Binger', threshold: 10000 },
+                ];
+                const userPoints = leaderboard.find(u => u.id === user.id)?.binge_points || 0;
+                const currentIndex = BADGE_TIERS.findIndex(t => t.name === currentUserBadge);
+                const nextTier = currentIndex < BADGE_TIERS.length - 1 ? BADGE_TIERS[currentIndex + 1] : null;
+                
+                if (!nextTier) return null;
+                
+                const progress = ((userPoints - BADGE_TIERS[currentIndex].threshold) / (nextTier.threshold - BADGE_TIERS[currentIndex].threshold)) * 100;
+                
+                return {
+                  name: nextTier.name,
+                  pointsNeeded: nextTier.threshold - userPoints,
+                  progress: progress
+                };
+              })()}
+            />
           </div>
         )}
 

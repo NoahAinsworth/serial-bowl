@@ -98,7 +98,7 @@ All colors MUST be HSL.
     font-family: 'Poppins', 'Inter', sans-serif;
   }
 
-  /* Light Film Grain Overlay */
+  /* Light Film Grain Overlay - Safari-safe (no mix-blend-mode) */
   .light::before {
     content: '';
     position: fixed;
@@ -110,7 +110,6 @@ All colors MUST be HSL.
     z-index: 9998;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grainFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grainFilter)'/%3E%3C/svg%3E");
     opacity: 0.03;
-    mix-blend-mode: multiply;
   }
 
   /* Light mode background gradient - now handled by ThemeBackground component */
@@ -223,6 +222,13 @@ All colors MUST be HSL.
     --vhs-purple: 258 80% 35%;
     --vhs-pink: 330 100% 70%;
     
+    /* Pastel gradients for Serial Bowl 2.0 */
+    --gradient-lavender-peach: linear-gradient(135deg, #D7C9FF 0%, #FFBDBD 100%);
+    --gradient-violet-pink: linear-gradient(135deg, #B27AFF 0%, #FF9AD5 100%);
+    --gradient-violet-cream: linear-gradient(135deg, #A47FFF 0%, #FFF8F5 100%);
+    --glow-purple: 0 4px 16px rgba(178, 122, 255, 0.3);
+    --glow-pink: 0 4px 16px rgba(255, 189, 189, 0.3);
+    
     /* Effects */
     --radius-lg: 0.5rem;
     --radius-md: 0.375rem;
@@ -263,7 +269,7 @@ All colors MUST be HSL.
     opacity: 0.4;
   }
 
-  /* VHS Grain Overlay - Enhanced */
+  /* VHS Grain Overlay - Safari-safe (no mix-blend-mode) */
   .dark::after {
     content: '';
     position: fixed;
@@ -276,7 +282,6 @@ All colors MUST be HSL.
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     opacity: 0.06;
     animation: vhs-grain 0.4s infinite;
-    mix-blend-mode: overlay;
   }
   
   /* Moving Light Gradients */

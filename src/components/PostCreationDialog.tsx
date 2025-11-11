@@ -134,26 +134,28 @@ export function PostCreationDialog({
             />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="spoiler"
-              checked={hasSpoilers}
-              onCheckedChange={(checked) => setHasSpoilers(checked as boolean)}
-            />
-            <Label htmlFor="spoiler" className="text-sm">
-              This contains spoilers
-            </Label>
-          </div>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="spoiler"
+                checked={hasSpoilers}
+                onCheckedChange={(checked) => setHasSpoilers(checked as boolean)}
+              />
+              <Label htmlFor="spoiler" className="text-sm">
+                This contains spoilers
+              </Label>
+            </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="mature"
-              checked={hasMature}
-              onCheckedChange={(checked) => setHasMature(checked as boolean)}
-            />
-            <Label htmlFor="mature" className="text-sm">
-              🔞 This contains mature content
-            </Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="mature"
+                checked={hasMature}
+                onCheckedChange={(checked) => setHasMature(checked as boolean)}
+              />
+              <Label htmlFor="mature" className="text-sm">
+                🔞 This contains mature content
+              </Label>
+            </div>
           </div>
 
           <Button
