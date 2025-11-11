@@ -325,8 +325,8 @@ export default function PostPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/mp4')) {
-      toast({ title: 'Error', description: 'Please select an MP4 video file', variant: 'destructive' });
+    if (!file.type.startsWith('video/')) {
+      toast({ title: 'Error', description: 'Please select a video file', variant: 'destructive' });
       return;
     }
 
@@ -670,7 +670,7 @@ export default function PostPage() {
               <input
                 ref={videoInputRef}
                 type="file"
-                accept="video/mp4"
+                accept="video/*"
                 onChange={handleVideoSelect}
                 className="hidden"
               />
@@ -684,7 +684,7 @@ export default function PostPage() {
                   disabled={videoStatus === 'uploading'}
                 >
                   <Film className="mr-2 h-4 w-4" />
-                  🎬 Add video (1 minute max)
+                  🎬 Add video (60s max)
                 </Button>
               ) : (
                 <Card className="p-4 space-y-3">
@@ -739,7 +739,7 @@ export default function PostPage() {
                   )}
 
                   <p className="text-xs text-muted-foreground">
-                    MP4 format • Max 60 seconds • Max 100 MB
+                    All formats supported • Max 60 seconds • Max 100 MB
                   </p>
                 </Card>
               )}
@@ -801,7 +801,7 @@ export default function PostPage() {
               <input
                 ref={videoInputRef}
                 type="file"
-                accept="video/mp4"
+                accept="video/*"
                 onChange={handleVideoSelect}
                 className="hidden"
               />
@@ -815,7 +815,7 @@ export default function PostPage() {
                   disabled={videoStatus === 'uploading'}
                 >
                   <Film className="mr-2 h-4 w-4" />
-                  🎬 Add video (1 minute max)
+                  🎬 Add video (60s max)
                 </Button>
               ) : (
                 <Card className="p-4 space-y-3">
@@ -870,7 +870,7 @@ export default function PostPage() {
                   )}
 
                   <p className="text-xs text-muted-foreground">
-                    MP4 format • Max 60 seconds • Max 100 MB
+                    All formats supported • Max 60 seconds • Max 100 MB
                   </p>
                 </Card>
               )}
