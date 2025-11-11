@@ -30,10 +30,25 @@ interface WatchedItem {
     title: string;
     poster_url?: string;
     external_id: string;
+    kind: string;
     metadata?: any;
   };
   watched_at: string;
 }
+
+const getContentUrl = (externalId: string, kind: string): string => {
+  const parts = externalId.split(':');
+  
+  if (kind === 'show') {
+    return `/show/${parts[0]}`;
+  } else if (kind === 'season') {
+    return `/show/${parts[0]}/season/${parts[1]}`;
+  } else if (kind === 'episode') {
+    return `/show/${parts[0]}/season/${parts[1]}/episode/${parts[2]}`;
+  }
+  
+  return `/show/${parts[0]}`;
+};
 
 export default function WatchlistPage() {
   const { user } = useAuth();
@@ -172,6 +187,7 @@ export default function WatchlistPage() {
           title,
           poster_url,
           external_id,
+          kind,
           metadata
         )
       `)
@@ -681,12 +697,12 @@ export default function WatchlistPage() {
                         src={item.content.poster_url}
                         alt={item.content.title}
                         className="w-24 h-36 object-cover rounded cursor-pointer"
-                        onClick={() => navigate(`/show/${item.content.external_id}`)}
+                        onClick={() => navigate(getContentUrl(item.content.external_id, item.content.kind))}
                       />
                     ) : (
                       <div 
                         className="w-24 h-36 bg-gradient-to-br from-primary to-secondary flex items-center justify-center rounded cursor-pointer"
-                        onClick={() => navigate(`/show/${item.content.external_id}`)}
+                        onClick={() => navigate(getContentUrl(item.content.external_id, item.content.kind))}
                       >
                         <span className="text-white font-bold text-center text-xs px-2">
                           {item.content.title}
@@ -697,7 +713,7 @@ export default function WatchlistPage() {
                     <div className="flex-1 flex flex-col">
                       <h3 
                         className="font-bold mb-1 cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => navigate(`/show/${item.content.external_id}`)}
+                        onClick={() => navigate(getContentUrl(item.content.external_id, item.content.kind))}
                       >
                         {item.content.title}
                       </h3>
