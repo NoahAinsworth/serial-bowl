@@ -602,28 +602,6 @@ export default function ProfilePage() {
           </TabsContent>
         </Tabs>
 
-        {/* Binge Stats Section */}
-        {flags.BINGE_POINTS && (
-          <div className="px-4 mt-8 mb-4">
-            <h2 className="text-xl font-semibold text-foreground">Binge Stats</h2>
-            <Separator className="mt-2" />
-          </div>
-        )}
-
-        {flags.BINGE_POINTS && (
-          <div className="px-4 mb-6 animate-fade-in">
-            <BingePointsDisplay
-              points={bingePoints}
-              badge={currentBadge}
-              episodePoints={bingeBreakdown?.episode_points}
-              seasonBonuses={bingeBreakdown?.season_bonuses}
-              showBonuses={bingeBreakdown?.show_bonuses}
-              completedSeasons={bingeBreakdown?.completed_seasons}
-              completedShows={bingeBreakdown?.completed_shows}
-              showBreakdown={true}
-            />
-          </div>
-        )}
 
         {flags.BINGE_POINTS && (
           <div className="px-4 mb-6 animate-fade-in">

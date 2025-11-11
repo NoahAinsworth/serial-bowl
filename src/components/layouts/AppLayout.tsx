@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy } from 'lucide-react';
+import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy, BookmarkPlus, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -96,14 +96,20 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             ) : (
               <h1 className="wordmark">Serial Bowl</h1>
             )}
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/messages')} title="Inbox">
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist" className="min-w-[44px] min-h-[44px]">
+                <BookmarkPlus className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/watched')} title="Watched" className="min-w-[44px] min-h-[44px]">
+                <Eye className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/messages')} title="Inbox" className="min-w-[44px] min-h-[44px]">
                 <MessageSquare className="h-5 w-5" />
                 {unreadDMs > 0 && (
                   <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500"></div>
                 )}
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings" className="min-w-[44px] min-h-[44px]">
                 <Settings className="h-5 w-5" />
               </Button>
             </div>
