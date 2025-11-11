@@ -12,17 +12,15 @@ import { useTVDB } from '@/hooks/useTVDB';
 
 interface WatchedItem {
   id: string;
-  content: {
-    id: string;
-    title: string;
-    poster_url?: string;
-    external_id: string;
-    kind: string;
-    metadata?: {
-      overview?: string;
-    };
-  };
+  user_id: string;
+  content_id: string;
   watched_at: string;
+  content_title: string;
+  content_poster_url: string | null;
+  content_external_id: string;
+  content_kind: string;
+  content_metadata: any;
+  show_title: string;
 }
 
 const getContentUrl = (externalId: string, kind: string): string => {
@@ -40,47 +38,24 @@ const getContentUrl = (externalId: string, kind: string): string => {
 };
 
 const formatContentTitle = (item: WatchedItem): string => {
-  const { title, kind, external_id, metadata } = item.content;
-  const parts = external_id.split(':');
+  const { content_title, content_kind, content_external_id, show_title } = item;
+  const parts = content_external_id.split(':');
   
   // For shows, return title as-is
-  if (kind === 'show') {
-    return title;
+  if (content_kind === 'show') {
+    return content_title;
   }
   
-  // Check if we already have a properly formatted title
-  if (title.includes(' - Season ') || title.includes(' - S')) {
-    return title;
+  // Use the fetched show_title for seasons and episodes
+  if (content_kind === 'season' && parts.length >= 2) {
+    return `${show_title} - Season ${parts[1]}`;
   }
   
-  // Extract show name from metadata if available
-  const showName = (metadata as any)?.show_name;
-  
-  if (kind === 'season' && parts.length >= 2) {
-    // If metadata has show_name, use it
-    if (showName) {
-      return `${showName} - Season ${parts[1]}`;
-    }
-    // If title is just "Season X", we can't determine show name without API call
-    // Return as-is to avoid "Season X - Season X"
-    if (title.startsWith('Season ')) {
-      return title;
-    }
-    // Title is the show name, format it
-    return `${title} - Season ${parts[1]}`;
+  if (content_kind === 'episode' && parts.length >= 3) {
+    return `${show_title} - S${parts[1]}E${parts[2]}`;
   }
   
-  if (kind === 'episode' && parts.length >= 3) {
-    if (showName) {
-      return `${showName} - S${parts[1]}E${parts[2]}`;
-    }
-    if (title.startsWith('Season ') || title.startsWith('Episode ')) {
-      return title;
-    }
-    return `${title} - S${parts[1]}E${parts[2]}`;
-  }
-  
-  return title;
+  return content_title;
 };
 
 export default function WatchedPage() {
@@ -115,28 +90,22 @@ export default function WatchedPage() {
   const loadWatched = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('watched')
-      .select(`
-        id,
-        watched_at,
-        content (
-          id,
-          title,
-          poster_url,
-          external_id,
-          kind,
-          metadata
-        )
-      `)
-      .eq('user_id', user.id)
-      .order('watched_at', { ascending: false });
+    try {
+      const { data, error } = await supabase.rpc('get_watched_with_show_titles', {
+        p_user_id: user.id
+      });
 
-    if (!error && data) {
-      setItems(data as any);
+      if (error) throw error;
+      setItems(data || []);
+    } catch (error) {
+      console.error('Error loading watched:', error);
+      toast({
+        title: "Error loading watched shows",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const searchShows = async (query: string) => {
@@ -376,20 +345,20 @@ export default function WatchedPage() {
               className="p-4 hover:border-primary/50 transition-all hover-scale"
             >
               <div className="flex gap-4">
-                {item.content.poster_url ? (
+                {item.content_poster_url ? (
                   <img
-                    src={item.content.poster_url}
-                    alt={item.content.title}
+                    src={item.content_poster_url}
+                    alt={formatContentTitle(item)}
                     className="w-24 h-36 object-cover rounded cursor-pointer"
-                    onClick={() => navigate(getContentUrl(item.content.external_id, item.content.kind))}
+                    onClick={() => navigate(getContentUrl(item.content_external_id, item.content_kind))}
                   />
                 ) : (
                   <div 
                     className="w-24 h-36 bg-gradient-to-br from-primary to-secondary flex items-center justify-center rounded cursor-pointer"
-                    onClick={() => navigate(getContentUrl(item.content.external_id, item.content.kind))}
+                    onClick={() => navigate(getContentUrl(item.content_external_id, item.content_kind))}
                   >
                     <span className="text-white font-bold text-center text-xs px-2">
-                      {item.content.title}
+                      {formatContentTitle(item)}
                     </span>
                   </div>
                 )}
@@ -397,13 +366,13 @@ export default function WatchedPage() {
                 <div className="flex-1 flex flex-col">
                   <h3 
                     className="font-bold mb-1 cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => navigate(getContentUrl(item.content.external_id, item.content.kind))}
+                    onClick={() => navigate(getContentUrl(item.content_external_id, item.content_kind))}
                   >
                     {formatContentTitle(item)}
                   </h3>
-                  {item.content.metadata?.overview && (
+                  {item.content_metadata?.overview && (
                     <p className="text-sm text-muted-foreground mb-2 line-clamp-2 flex-1">
-                      {item.content.metadata.overview}
+                      {item.content_metadata.overview}
                     </p>
                   )}
                   <div className="flex items-center justify-between mt-2">
@@ -413,7 +382,7 @@ export default function WatchedPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeFromWatched(item.id, item.content.title)}
+                      onClick={() => removeFromWatched(item.id, formatContentTitle(item))}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

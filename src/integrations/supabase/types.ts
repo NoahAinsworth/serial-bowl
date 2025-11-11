@@ -1863,6 +1863,36 @@ export type Database = {
         }[]
       }
       get_badge_tier: { Args: { p_points: number }; Returns: string }
+      get_watched_with_show_titles: {
+        Args: { p_user_id: string }
+        Returns: {
+          content_external_id: string
+          content_id: string
+          content_kind: string
+          content_metadata: Json
+          content_poster_url: string
+          content_title: string
+          id: string
+          show_title: string
+          user_id: string
+          watched_at: string
+        }[]
+      }
+      get_watchlist_with_show_titles: {
+        Args: { p_user_id: string }
+        Returns: {
+          content_external_id: string
+          content_id: string
+          content_kind: string
+          content_metadata: Json
+          content_poster_url: string
+          content_title: string
+          created_at: string
+          id: string
+          show_title: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
