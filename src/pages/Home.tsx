@@ -21,7 +21,7 @@ export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<FeedType>('new');
+  const [activeTab, setActiveTab] = useState<FeedType>('trending');
   const { posts, loading, loadingMore, reachedEnd, loadMore, refetch } = useFeed(activeTab);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [thoughtText, setThoughtText] = useState('');
@@ -87,7 +87,7 @@ export default function Home() {
     try {
       await createThought({ body: emoji });
       toast.success('Posted!');
-      setActiveTab('new');
+      setActiveTab('trending');
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         refetch();
@@ -114,7 +114,7 @@ export default function Home() {
       setThoughtText('');
       setHasSpoilers(false);
       setHasMature(false);
-      setActiveTab('new');
+      setActiveTab('trending');
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         refetch();
@@ -198,11 +198,10 @@ export default function Home() {
 
       {/* Feed Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedType)}>
-        <TabsList className="w-full mb-6 grid grid-cols-5 text-xs sm:text-sm">
+        <TabsList className="w-full mb-6 grid grid-cols-4 text-xs sm:text-sm">
           <TabsTrigger value="trending" className="px-2">Trending</TabsTrigger>
           <TabsTrigger value="hot-takes" className="px-2">Hot Takes</TabsTrigger>
           <TabsTrigger value="following" className="px-2">Following</TabsTrigger>
-          <TabsTrigger value="new" className="px-2">New</TabsTrigger>
           <TabsTrigger value="videos" className="px-2">🎬 Videos</TabsTrigger>
         </TabsList>
 

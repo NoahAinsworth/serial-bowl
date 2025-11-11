@@ -2,13 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import * as feedsApi from '@/api/feeds';
 
-export type FeedType = 'trending' | 'hot-takes' | 'following' | 'new' | 'videos';
+export type FeedType = 'trending' | 'hot-takes' | 'following' | 'videos';
 
 interface Cursors {
   trending?: { score: number; id: string };
   'hot-takes'?: { controversy: number; id: string };
   following?: { created_at: string; id: string };
-  new?: { created_at: string; id: string };
   videos?: { created_at: string; id: string };
 }
 
@@ -75,11 +74,8 @@ export function useFeed(feedType: FeedType) {
           result = await feedsApi.getHotTakes();
           break;
         case 'videos':
-          result = await feedsApi.getVideos();
-          break;
-        case 'new':
         default:
-          result = await feedsApi.getNew();
+          result = await feedsApi.getVideos();
       }
 
       setPosts(result.posts);
@@ -119,11 +115,8 @@ export function useFeed(feedType: FeedType) {
           result = await feedsApi.getHotTakes(cursor as any);
           break;
         case 'videos':
-          result = await feedsApi.getVideos(cursor as any);
-          break;
-        case 'new':
         default:
-          result = await feedsApi.getNew(cursor as any);
+          result = await feedsApi.getVideos(cursor as any);
       }
 
       // Dedupe by id
