@@ -51,21 +51,43 @@ const getContentUrl = (externalId: string, kind: string): string => {
 };
 
 const formatContentTitle = (item: WatchedItem): string => {
-  const { title, kind, external_id } = item.content;
+  const { title, kind, external_id, metadata } = item.content;
+  const parts = external_id.split(':');
   
-  // If title already contains the format we want, return it
-  if (title.includes(' - Season ') || title.includes(' - S') || kind === 'show') {
+  // For shows, return title as-is
+  if (kind === 'show') {
     return title;
   }
   
-  // Parse external_id to extract show info
-  const parts = external_id.split(':');
+  // Check if we already have a properly formatted title
+  if (title.includes(' - Season ') || title.includes(' - S')) {
+    return title;
+  }
+  
+  // Extract show name from metadata if available
+  const showName = (metadata as any)?.show_name;
   
   if (kind === 'season' && parts.length >= 2) {
-    // Format: "Show Title - Season X"
+    // If metadata has show_name, use it
+    if (showName) {
+      return `${showName} - Season ${parts[1]}`;
+    }
+    // If title is just "Season X", we can't determine show name without API call
+    // Return as-is to avoid "Season X - Season X"
+    if (title.startsWith('Season ')) {
+      return title;
+    }
+    // Title is the show name, format it
     return `${title} - Season ${parts[1]}`;
-  } else if (kind === 'episode' && parts.length >= 3) {
-    // Format: "Show Title - S1E1"
+  }
+  
+  if (kind === 'episode' && parts.length >= 3) {
+    if (showName) {
+      return `${showName} - S${parts[1]}E${parts[2]}`;
+    }
+    if (title.startsWith('Season ') || title.startsWith('Episode ')) {
+      return title;
+    }
     return `${title} - S${parts[1]}E${parts[2]}`;
   }
   
