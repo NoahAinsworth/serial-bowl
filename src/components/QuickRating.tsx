@@ -55,7 +55,7 @@ export function QuickRating({ itemId, itemType, compact = true }: QuickRatingPro
       if (error) throw error;
 
       setRating(newRating);
-      toast.success(`✅ Rating saved! +25 Binge Points`);
+      toast.success('✅ Rating saved! +25 Binge Points');
       setShowSlider(false);
     } catch (error) {
       toast.error('Failed to save rating');
