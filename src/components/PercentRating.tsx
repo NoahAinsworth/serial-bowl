@@ -58,7 +58,7 @@ export function PercentRating({
           value={[value]}
           onValueChange={handleValueChange}
           onValueCommit={handleCommit}
-          min={1}
+          min={0}
           max={100}
           step={1}
           disabled={disabled}
@@ -78,7 +78,7 @@ export function PercentRating({
           value={[value]}
           onValueChange={handleValueChange}
           onValueCommit={!showSaveButton ? handleCommit : undefined}
-          min={1}
+          min={0}
           max={100}
           step={1}
           disabled={disabled}
@@ -90,7 +90,7 @@ export function PercentRating({
           aria-valuetext={`${value} percent`}
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>1%</span>
+          <span>0%</span>
           <span>100%</span>
         </div>
       </div>

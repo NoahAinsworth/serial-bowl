@@ -83,7 +83,7 @@ export function QuickRating({ itemId, itemType, compact = true }: QuickRatingPro
   return (
     <div className="w-full min-w-[44px]" style={{ touchAction: 'manipulation' }}>
       <PercentRating
-        initialRating={rating || 50}
+        initialRating={rating || 0}
         onRate={handleRatingChange}
         compact={compact}
         showSaveButton={false}
