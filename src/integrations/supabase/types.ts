@@ -1868,7 +1868,7 @@ export type Database = {
         Returns: {
           content_external_id: string
           content_id: string
-          content_kind: string
+          content_kind: Database["public"]["Enums"]["content_kind"]
           content_metadata: Json
           content_poster_url: string
           content_title: string
@@ -1883,7 +1883,7 @@ export type Database = {
         Returns: {
           content_external_id: string
           content_id: string
-          content_kind: string
+          content_kind: Database["public"]["Enums"]["content_kind"]
           content_metadata: Json
           content_poster_url: string
           content_title: string
