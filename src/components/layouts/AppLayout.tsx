@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy } from 'lucide-react';
+import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy, Tv } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -114,6 +114,22 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <main className="flex-1 pt-28 pb-32 relative z-20">
           {children}
         </main>
+
+        {/* Floating Post FAB - Purple TV Remote */}
+        {user && (
+          <button
+            onClick={() => navigate('/post')}
+            className="fixed bottom-20 right-4 z-50 w-14 h-14 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, hsl(var(--violet)) 0%, hsl(var(--pink)) 100%)',
+              boxShadow: '0 4px 16px rgba(178, 122, 255, 0.4)',
+              touchAction: 'manipulation'
+            }}
+            aria-label="Create post"
+          >
+            <Tv className="h-6 w-6 text-white" />
+          </button>
+        )}
 
         {/* Bottom Navigation - Safari-safe fixed positioning */}
         <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95" style={{ paddingBottom: 'max(1rem, var(--safe-bottom))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)', transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>

@@ -77,7 +77,7 @@ export function SmartWatchButton({ contentId, showTitle }: SmartWatchButtonProps
 
       setIsInWatchlist(false);
       setIsWatched(true);
-      toast.success('✅ Marked as watched!');
+      toast.success(`✅ Marked as watched!`);
     } else {
       // Add to watchlist
       await supabase
@@ -88,7 +88,7 @@ export function SmartWatchButton({ contentId, showTitle }: SmartWatchButtonProps
         });
 
       setIsInWatchlist(true);
-      toast.success('Added to list');
+      toast.success(`+ Added to list`);
     }
 
     setLoading(false);

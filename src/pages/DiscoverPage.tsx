@@ -14,8 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { showsCache } from "@/lib/showsCache";
 import { useAuth } from "@/contexts/AuthContext";
-import { WatchlistButton } from "@/components/WatchlistButton";
-import { WatchedButton } from "@/components/WatchedButton";
+import { QuickRating } from '@/components/QuickRating';
+import { SmartWatchButton } from '@/components/SmartWatchButton';
 
 type FilterType = 'popular' | 'new' | 'trending';
 
@@ -645,14 +645,21 @@ function ShowCardComponent({ show, onClick }: { show: ShowCard; onClick: () => v
           </div>
         </div>
 
-        {/* Action Buttons - Always visible, compact */}
+        {/* Overlay with Quick Actions - TOP */}
         {user && contentId && (
           <div 
-            className="flex gap-1 p-2 bg-background/95 backdrop-blur-sm border-t border-border"
+            className="absolute top-2 left-2 right-2 flex gap-2 z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <WatchlistButton contentId={contentId} showTitle={show.title} />
-            <WatchedButton contentId={contentId} showTitle={show.title} />
+            <SmartWatchButton 
+              contentId={contentId} 
+              showTitle={show.title} 
+            />
+            <QuickRating 
+              itemId={show.id.toString()} 
+              itemType="show" 
+              compact={true} 
+            />
           </div>
         )}
       </div>
