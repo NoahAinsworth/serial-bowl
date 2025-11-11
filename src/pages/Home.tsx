@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFeed, type FeedType } from '@/hooks/useFeed';
 import { PostCard } from '@/components/PostCard';
+import { VideoPostCard } from '@/components/VideoPostCard';
 import { Loader2 } from 'lucide-react';
 import { createThought } from '@/api/posts';
 import { toast } from 'sonner';
@@ -197,11 +198,12 @@ export default function Home() {
 
       {/* Feed Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedType)}>
-        <TabsList className="w-full mb-6 grid grid-cols-4 text-xs sm:text-sm">
+        <TabsList className="w-full mb-6 grid grid-cols-5 text-xs sm:text-sm">
           <TabsTrigger value="trending" className="px-2">Trending</TabsTrigger>
           <TabsTrigger value="hot-takes" className="px-2">Hot Takes</TabsTrigger>
           <TabsTrigger value="following" className="px-2">Following</TabsTrigger>
           <TabsTrigger value="new" className="px-2">New</TabsTrigger>
+          <TabsTrigger value="videos" className="px-2">🎬 Videos</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
@@ -215,20 +217,36 @@ export default function Home() {
             </div>
           ) : (
             <>
-              {posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={{
-                    ...post,
-                    user: post.author,
-                    is_spoiler: post.has_spoilers,
-                  }}
-                  userHideSpoilers={userHideSpoilers}
-                  strictSafety={strictSafety}
-                  onReactionChange={refetch}
-                  onDelete={refetch}
-                />
-              ))}
+              {posts.map((post) => {
+                // Render VideoPostCard if post has video
+                if (post.video_url || post.video_bunny_id) {
+                  return (
+                    <VideoPostCard
+                      key={post.id}
+                      post={{
+                        ...post,
+                        profiles: post.author,
+                      }}
+                    />
+                  );
+                }
+                
+                // Otherwise render regular PostCard
+                return (
+                  <PostCard
+                    key={post.id}
+                    post={{
+                      ...post,
+                      user: post.author,
+                      is_spoiler: post.has_spoilers,
+                    }}
+                    userHideSpoilers={userHideSpoilers}
+                    strictSafety={strictSafety}
+                    onReactionChange={refetch}
+                    onDelete={refetch}
+                  />
+                );
+              })}
               
               {!reachedEnd && (
                 <div ref={sentinelRef} className="h-20 flex items-center justify-center">

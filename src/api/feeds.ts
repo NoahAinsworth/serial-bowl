@@ -17,6 +17,13 @@ export interface FeedPost {
   impressions_count: number;
   created_at: string;
   updated_at: string;
+  // Video fields
+  video_url?: string | null;
+  video_thumbnail_url?: string | null;
+  video_duration?: number | null;
+  video_file_size?: number | null;
+  video_bunny_id?: string | null;
+  video_status?: string | null;
   author: {
     id: string;
     handle: string;
@@ -234,6 +241,37 @@ export async function getNew(cursor?: TimeCursor): Promise<{ posts: FeedPost[]; 
     .select('*')
     .is('deleted_at', null)
     .neq('kind', 'rating') // Exclude rating-only posts from feed
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false });
+
+  if (cursor) {
+    query = query.or(`created_at.lt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.lt.${cursor.id})`);
+  }
+
+  const { data, error } = await query.limit(20);
+
+  if (error) throw error;
+
+  const enriched = await enrichPosts(data || []);
+
+  return {
+    posts: enriched,
+    nextCursor: enriched.length === 20 
+      ? { created_at: enriched[19].created_at, id: enriched[19].id } 
+      : undefined,
+  };
+}
+
+/**
+ * Videos: only posts with video attachments, ordered by created_at desc
+ */
+export async function getVideos(cursor?: TimeCursor): Promise<{ posts: FeedPost[]; nextCursor?: TimeCursor }> {
+  let query = supabase
+    .from('posts')
+    .select('*')
+    .is('deleted_at', null)
+    .not('video_bunny_id', 'is', null)
+    .eq('video_status', 'ready')
     .order('created_at', { ascending: false })
     .order('id', { ascending: false });
 

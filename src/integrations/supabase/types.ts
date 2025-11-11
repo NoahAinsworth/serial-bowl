@@ -913,6 +913,12 @@ export type Database = {
           reports_count: number | null
           reshares_count: number | null
           updated_at: string | null
+          video_bunny_id: string | null
+          video_duration: number | null
+          video_file_size: number | null
+          video_status: string | null
+          video_thumbnail_url: string | null
+          video_url: string | null
         }
         Insert: {
           author_id: string
@@ -935,6 +941,12 @@ export type Database = {
           reports_count?: number | null
           reshares_count?: number | null
           updated_at?: string | null
+          video_bunny_id?: string | null
+          video_duration?: number | null
+          video_file_size?: number | null
+          video_status?: string | null
+          video_thumbnail_url?: string | null
+          video_url?: string | null
         }
         Update: {
           author_id?: string
@@ -957,6 +969,12 @@ export type Database = {
           reports_count?: number | null
           reshares_count?: number | null
           updated_at?: string | null
+          video_bunny_id?: string | null
+          video_duration?: number | null
+          video_file_size?: number | null
+          video_status?: string | null
+          video_thumbnail_url?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -982,6 +1000,7 @@ export type Database = {
           minutes_watched: number | null
           settings: Json | null
           updated_at: string | null
+          video_storage_used: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -996,6 +1015,7 @@ export type Database = {
           minutes_watched?: number | null
           settings?: Json | null
           updated_at?: string | null
+          video_storage_used?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -1010,6 +1030,7 @@ export type Database = {
           minutes_watched?: number | null
           settings?: Json | null
           updated_at?: string | null
+          video_storage_used?: number | null
         }
         Relationships: []
       }

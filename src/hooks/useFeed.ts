@@ -2,13 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import * as feedsApi from '@/api/feeds';
 
-export type FeedType = 'trending' | 'hot-takes' | 'following' | 'new';
+export type FeedType = 'trending' | 'hot-takes' | 'following' | 'new' | 'videos';
 
 interface Cursors {
   trending?: { score: number; id: string };
   'hot-takes'?: { controversy: number; id: string };
   following?: { created_at: string; id: string };
   new?: { created_at: string; id: string };
+  videos?: { created_at: string; id: string };
 }
 
 export function useFeed(feedType: FeedType) {
@@ -73,6 +74,9 @@ export function useFeed(feedType: FeedType) {
         case 'hot-takes':
           result = await feedsApi.getHotTakes();
           break;
+        case 'videos':
+          result = await feedsApi.getVideos();
+          break;
         case 'new':
         default:
           result = await feedsApi.getNew();
@@ -113,6 +117,9 @@ export function useFeed(feedType: FeedType) {
           break;
         case 'hot-takes':
           result = await feedsApi.getHotTakes(cursor as any);
+          break;
+        case 'videos':
+          result = await feedsApi.getVideos(cursor as any);
           break;
         case 'new':
         default:
