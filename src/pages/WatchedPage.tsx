@@ -39,6 +39,28 @@ const getContentUrl = (externalId: string, kind: string): string => {
   return `/show/${parts[0]}`;
 };
 
+const formatContentTitle = (item: WatchedItem): string => {
+  const { title, kind, external_id } = item.content;
+  
+  // If title already contains the format we want, return it
+  if (title.includes(' - Season ') || title.includes(' - S') || kind === 'show') {
+    return title;
+  }
+  
+  // Parse external_id to extract show info
+  const parts = external_id.split(':');
+  
+  if (kind === 'season' && parts.length >= 2) {
+    // Format: "Show Title - Season X"
+    return `${title} - Season ${parts[1]}`;
+  } else if (kind === 'episode' && parts.length >= 3) {
+    // Format: "Show Title - S1E1"
+    return `${title} - S${parts[1]}E${parts[2]}`;
+  }
+  
+  return title;
+};
+
 export default function WatchedPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -355,7 +377,7 @@ export default function WatchedPage() {
                     className="font-bold mb-1 cursor-pointer hover:text-primary transition-colors"
                     onClick={() => navigate(getContentUrl(item.content.external_id, item.content.kind))}
                   >
-                    {item.content.title}
+                    {formatContentTitle(item)}
                   </h3>
                   {item.content.metadata?.overview && (
                     <p className="text-sm text-muted-foreground mb-2 line-clamp-2 flex-1">
