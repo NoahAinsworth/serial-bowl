@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,14 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTVDB, TVSeason, TVEpisode } from '@/hooks/useTVDB';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Film } from 'lucide-react';
 import { PercentRating } from '@/components/PercentRating';
 import { detectMatureContent } from '@/utils/profanityFilter';
 import { createThought } from '@/api/posts';
+import * as tus from 'tus-js-client';
 
 export default function PostPage() {
   const navigate = useNavigate();
@@ -40,6 +43,15 @@ export default function PostPage() {
   const [episodes, setEpisodes] = useState<TVEpisode[]>([]);
   const [loadingSeasons, setLoadingSeasons] = useState(false);
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+
+  // Video upload state
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoStatus, setVideoStatus] = useState<'idle' | 'uploading' | 'processing' | 'ready' | 'failed'>('idle');
+  const [videoBunnyId, setVideoBunnyId] = useState<string | null>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -309,6 +321,115 @@ export default function PostPage() {
     setEpisodes([]);
   };
 
+  const handleVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/mp4')) {
+      toast({ title: 'Error', description: 'Please select an MP4 video file', variant: 'destructive' });
+      return;
+    }
+
+    if (file.size > 104857600) {
+      toast({ title: 'Error', description: '⚠️ File too large (100 MB max)', variant: 'destructive' });
+      return;
+    }
+
+    const videoEl = document.createElement('video');
+    videoEl.preload = 'metadata';
+    
+    videoEl.onloadedmetadata = () => {
+      window.URL.revokeObjectURL(videoEl.src);
+      
+      if (videoEl.duration > 60) {
+        toast({ title: 'Error', description: '⚠️ Video must be 60 seconds or less', variant: 'destructive' });
+        return;
+      }
+
+      setVideoDuration(Math.floor(videoEl.duration));
+      setVideoFile(file);
+      setVideoPreview(URL.createObjectURL(file));
+      setVideoStatus('idle');
+    };
+
+    videoEl.src = URL.createObjectURL(file);
+  };
+
+  const handleRemoveVideo = () => {
+    setVideoFile(null);
+    setVideoPreview(null);
+    setVideoDuration(0);
+    setVideoStatus('idle');
+    setUploadProgress(0);
+    setVideoBunnyId(null);
+    if (videoInputRef.current) {
+      videoInputRef.current.value = '';
+    }
+  };
+
+  const uploadVideo = async (): Promise<string | null> => {
+    if (!videoFile || !user) return null;
+
+    try {
+      setVideoStatus('uploading');
+      
+      const { data: uploadData, error: uploadError } = await supabase.functions.invoke('create-video-upload', {
+        body: {
+          title: `Video by ${user.email} - ${new Date().toISOString()}`,
+          duration: videoDuration,
+          fileSize: videoFile.size,
+        },
+      });
+
+      if (uploadError) throw uploadError;
+
+      const { videoId, libraryId, signature, expirationTime, uploadUrl } = uploadData;
+      setVideoBunnyId(videoId);
+
+      return new Promise((resolve, reject) => {
+        const upload = new tus.Upload(videoFile, {
+          endpoint: uploadUrl,
+          metadata: {
+            library: libraryId,
+            videoId: videoId,
+          },
+          headers: {
+            'AuthorizationSignature': signature,
+            'AuthorizationExpire': String(expirationTime),
+            'VideoId': videoId,
+            'LibraryId': libraryId,
+          },
+          onProgress: (bytesUploaded, bytesTotal) => {
+            const percentage = Math.floor((bytesUploaded / bytesTotal) * 100);
+            setUploadProgress(percentage);
+          },
+          onSuccess: () => {
+            setVideoStatus('processing');
+            resolve(videoId);
+          },
+          onError: (error) => {
+            console.error('TUS upload error:', error);
+            setVideoStatus('failed');
+            reject(error);
+          },
+        });
+
+        upload.start();
+      });
+    } catch (error: any) {
+      console.error('Video upload error:', error);
+      setVideoStatus('failed');
+      toast({ title: 'Error', description: 'Failed to upload video', variant: 'destructive' });
+      return null;
+    }
+  };
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handlePost = async () => {
     if (!user) {
       toast({
@@ -319,7 +440,7 @@ export default function PostPage() {
       return;
     }
 
-    if (!content.trim()) return;
+    if (!content.trim() && !videoFile) return;
 
     if (postType === 'review' && !selectedContent) {
       toast({
@@ -377,22 +498,54 @@ export default function PostPage() {
 
     if (postType === 'thought') {
       try {
-        await createThought({ 
-          body: content.trim(), 
-          hasSpoilers: isSpoiler, 
-          hasMature: containsMature,
-          itemType: selectedContent?.kind,
-          itemId: selectedContent?.external_id,
-        });
+        let uploadedVideoId: string | null = null;
+
+        if (videoFile) {
+          uploadedVideoId = await uploadVideo();
+          if (!uploadedVideoId) {
+            setPosting(false);
+            return;
+          }
+        }
+
+        const { data: newPost, error: thoughtError } = await supabase
+          .from('posts')
+          .insert({
+            author_id: user.id,
+            kind: 'thought',
+            body: content.trim() || null,
+            item_type: selectedContent?.kind,
+            item_id: selectedContent?.external_id,
+            is_spoiler: isSpoiler,
+            has_spoilers: isSpoiler,
+            has_mature: containsMature,
+          })
+          .select('id')
+          .single();
+
+        if (thoughtError) throw thoughtError;
+
+        if (uploadedVideoId && newPost) {
+          await supabase
+            .from('posts')
+            .update({
+              video_bunny_id: uploadedVideoId,
+              video_status: 'processing',
+              video_duration: videoDuration,
+              video_file_size: videoFile!.size,
+            })
+            .eq('id', newPost.id);
+        }
         
         toast({
           title: "Success",
-          description: "Thought posted!",
+          description: videoFile ? "Video post created! Processing..." : "Thought posted!",
         });
         setContent('');
         setSelectedContent(null);
         setIsSpoiler(false);
         setContainsMature(false);
+        handleRemoveVideo();
         navigate('/');
       } catch (error: any) {
         console.error('Post error:', error);
@@ -417,7 +570,17 @@ export default function PostPage() {
       const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
       const itemId = (selectedContent as any).external_id;
 
-      const { error: reviewError } = await supabase.rpc('api_rate_and_review', {
+      let uploadedVideoId: string | null = null;
+
+      if (videoFile) {
+        uploadedVideoId = await uploadVideo();
+        if (!uploadedVideoId) {
+          setPosting(false);
+          return;
+        }
+      }
+
+      const { data: reviewPost, error: reviewError } = await supabase.rpc('api_rate_and_review', {
         p_item_type: itemType,
         p_item_id: itemId,
         p_score_any: rating > 0 ? String(rating) : null,
@@ -436,15 +599,39 @@ export default function PostPage() {
         return;
       }
 
+      if (uploadedVideoId && reviewPost) {
+        const { data: posts } = await supabase
+          .from('posts')
+          .select('id')
+          .eq('author_id', user.id)
+          .eq('kind', 'review')
+          .eq('item_id', itemId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (posts && posts.length > 0) {
+          await supabase
+            .from('posts')
+            .update({
+              video_bunny_id: uploadedVideoId,
+              video_status: 'processing',
+              video_duration: videoDuration,
+              video_file_size: videoFile!.size,
+            })
+            .eq('id', posts[0].id);
+        }
+      }
+
       toast({
         title: "Success",
-        description: "Posted!",
+        description: videoFile ? "Video review posted! Processing..." : "Posted!",
       });
       setContent('');
       setRating(0);
       setSelectedContent(null);
       setIsSpoiler(false);
       setContainsMature(false);
+      handleRemoveVideo();
       navigate('/');
     }
 
@@ -476,6 +663,86 @@ export default function PostPage() {
                   {content.length} / 500
                 </span>
               </div>
+            </div>
+
+            {/* Video Upload */}
+            <div className="space-y-3">
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/mp4"
+                onChange={handleVideoSelect}
+                className="hidden"
+              />
+
+              {!videoFile ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => videoInputRef.current?.click()}
+                  className="w-full"
+                  disabled={videoStatus === 'uploading'}
+                >
+                  <Film className="mr-2 h-4 w-4" />
+                  🎬 Add video (1 minute max)
+                </Button>
+              ) : (
+                <Card className="p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    {videoPreview && (
+                      <video
+                        src={videoPreview}
+                        className="w-20 h-20 rounded-lg object-cover"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{videoFile.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="text-xs">
+                          {formatDuration(videoDuration)}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {(videoFile.size / 1048576).toFixed(1)} MB
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveVideo}
+                      disabled={videoStatus === 'uploading'}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {videoStatus === 'uploading' && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span>Uploading...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <Progress value={uploadProgress} />
+                    </div>
+                  )}
+
+                  {videoStatus === 'processing' && (
+                    <Badge variant="secondary">
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                      Processing
+                    </Badge>
+                  )}
+
+                  {videoStatus === 'failed' && (
+                    <Badge variant="destructive">Upload Failed</Badge>
+                  )}
+
+                  <p className="text-xs text-muted-foreground">
+                    MP4 format • Max 60 seconds • Max 100 MB
+                  </p>
+                </Card>
+              )}
             </div>
 
             <div className="flex items-center space-x-2">
@@ -527,6 +794,86 @@ export default function PostPage() {
                   {content.length} / 500
                 </span>
               </div>
+            </div>
+
+            {/* Video Upload */}
+            <div className="space-y-3">
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/mp4"
+                onChange={handleVideoSelect}
+                className="hidden"
+              />
+
+              {!videoFile ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => videoInputRef.current?.click()}
+                  className="w-full"
+                  disabled={videoStatus === 'uploading'}
+                >
+                  <Film className="mr-2 h-4 w-4" />
+                  🎬 Add video (1 minute max)
+                </Button>
+              ) : (
+                <Card className="p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    {videoPreview && (
+                      <video
+                        src={videoPreview}
+                        className="w-20 h-20 rounded-lg object-cover"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{videoFile.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="text-xs">
+                          {formatDuration(videoDuration)}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {(videoFile.size / 1048576).toFixed(1)} MB
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveVideo}
+                      disabled={videoStatus === 'uploading'}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {videoStatus === 'uploading' && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span>Uploading...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <Progress value={uploadProgress} />
+                    </div>
+                  )}
+
+                  {videoStatus === 'processing' && (
+                    <Badge variant="secondary">
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                      Processing
+                    </Badge>
+                  )}
+
+                  {videoStatus === 'failed' && (
+                    <Badge variant="destructive">Upload Failed</Badge>
+                  )}
+
+                  <p className="text-xs text-muted-foreground">
+                    MP4 format • Max 60 seconds • Max 100 MB
+                  </p>
+                </Card>
+              )}
             </div>
 
             <div className="flex items-center space-x-2">
