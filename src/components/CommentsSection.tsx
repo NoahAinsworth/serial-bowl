@@ -37,10 +37,11 @@ interface Comment {
 }
 
 interface CommentsSectionProps {
-  thoughtId: string;
+  thoughtId?: string;
+  postId?: string;
 }
 
-export function CommentsSection({ thoughtId }: CommentsSectionProps) {
+export function CommentsSection({ thoughtId, postId }: CommentsSectionProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [comments, setComments] = useState<Comment[]>([]);
@@ -50,13 +51,13 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
 
   useEffect(() => {
     loadComments();
-  }, [thoughtId]);
+  }, [thoughtId, postId]);
 
   const loadComments = async () => {
     setLoading(true);
     
-    // Fetch comments
-    const { data: commentsData, error: commentsError } = await supabase
+    // Build query based on which ID is provided
+    let query = supabase
       .from('comments')
       .select(`
         id,
@@ -68,8 +69,18 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
           avatar_url
         )
       `)
-      .eq('thought_id', thoughtId)
       .order('created_at', { ascending: true });
+
+    if (postId) {
+      query = query.eq('post_id', postId);
+    } else if (thoughtId) {
+      query = query.eq('thought_id', thoughtId);
+    } else {
+      setLoading(false);
+      return;
+    }
+
+    const { data: commentsData, error: commentsError } = await query;
 
     if (commentsError || !commentsData) {
       setLoading(false);
@@ -152,13 +163,21 @@ export function CommentsSection({ thoughtId }: CommentsSectionProps) {
     }
 
     setPosting(true);
+    
+    const insertData: any = {
+      user_id: user.id,
+      text_content: newComment.trim(),
+    };
+    
+    if (postId) {
+      insertData.post_id = postId;
+    } else if (thoughtId) {
+      insertData.thought_id = thoughtId;
+    }
+    
     const { error } = await supabase
       .from('comments')
-      .insert({
-        thought_id: thoughtId,
-        user_id: user.id,
-        text_content: newComment.trim(),
-      });
+      .insert(insertData);
 
     if (error) {
       toast({

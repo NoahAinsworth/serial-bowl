@@ -234,6 +234,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          post_id: string | null
           text_content: string
           thought_id: string
           user_id: string
@@ -241,6 +242,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          post_id?: string | null
           text_content: string
           thought_id: string
           user_id: string
@@ -248,11 +250,19 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          post_id?: string | null
           text_content?: string
           thought_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "comments_thought_id_fkey"
             columns: ["thought_id"]

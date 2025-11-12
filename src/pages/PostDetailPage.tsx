@@ -240,7 +240,7 @@ export default function PostDetailPage() {
             onReactionChange={loadPost}
             onDelete={() => navigate('/')}
           />
-          <CommentsSection thoughtId={id!} />
+          <CommentsSection postId={id!} />
         </>
       )}
     </div>
