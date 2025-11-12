@@ -323,6 +323,16 @@ export default function PostPage() {
       return;
     }
 
+    // Validate video posts first
+    if (postType === 'video' && !videoEmbedUrl.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a video URL',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!content.trim() && !videoEmbedUrl && postType !== 'review') return;
 
     if (postType === 'review' && !selectedContent) {
@@ -380,15 +390,6 @@ export default function PostPage() {
     }
 
     if (postType === 'video') {
-      if (!videoEmbedUrl) {
-        toast({
-          title: 'Error',
-          description: 'Please enter a video URL',
-          variant: 'destructive',
-        });
-        setPosting(false);
-        return;
-      }
 
       // Validate URL is from supported platform
       const videoInfo = parseVideoUrl(videoEmbedUrl);
