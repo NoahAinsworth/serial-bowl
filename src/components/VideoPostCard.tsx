@@ -180,11 +180,32 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
               )}
             </div>
           ) : null}
+
+          {/* Post Content - only show when not hidden */}
+          <div className="p-4 space-y-3">
+            {/* Caption */}
+            {post.body && (
+              <p className="text-sm">{post.body}</p>
+            )}
+
+            {/* Content Tags */}
+            {post.item_type && post.item_id && (
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="outline" className="text-xs">
+                  {post.item_type === 'show' && '📺'}
+                  {post.item_type === 'season' && '📚'}
+                  {post.item_type === 'episode' && '📼'}
+                  {' '}
+                  {post.item_id}
+                </Badge>
+              </div>
+            )}
+          </div>
         </>
       )}
 
-      {/* Post Content */}
-      <div className="p-4 space-y-3">
+      {/* User Info and Engagement - always visible */}
+      <div className="p-4 space-y-3 pt-0">
         {/* User Info */}
         <div className="flex items-center gap-2">
           <Link to={`/profile/${post.profiles?.handle}`}>
@@ -204,24 +225,6 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
             </p>
           </div>
         </div>
-
-        {/* Caption */}
-        {post.body && (
-          <p className="text-sm">{post.body}</p>
-        )}
-
-        {/* Content Tags */}
-        {post.item_type && post.item_id && (
-          <div className="flex flex-wrap gap-1">
-            <Badge variant="outline" className="text-xs">
-              {post.item_type === 'show' && '📺'}
-              {post.item_type === 'season' && '📚'}
-              {post.item_type === 'episode' && '📼'}
-              {' '}
-              {post.item_id}
-            </Badge>
-          </div>
-        )}
 
         {/* Engagement Actions */}
         <div className="flex items-center gap-4 pt-3 border-t">
