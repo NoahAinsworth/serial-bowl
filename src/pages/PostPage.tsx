@@ -17,7 +17,7 @@ import { X, Loader2, Film } from 'lucide-react';
 import { PercentRating } from '@/components/PercentRating';
 import { detectMatureContent } from '@/utils/profanityFilter';
 import { createThought } from '@/api/posts';
-import * as tus from 'tus-js-client';
+import { parseVideoUrl } from '@/utils/videoEmbeds';
 
 export default function PostPage() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function PostPage() {
   const { toast } = useToast();
   const { search, fetchSeasons, fetchEpisodes } = useTVDB();
   
-  const [postType, setPostType] = useState<'thought' | 'review'>('thought');
+  const [postType, setPostType] = useState<'thought' | 'review' | 'video'>('thought');
   const [content, setContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -35,6 +35,7 @@ export default function PostPage() {
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [containsMature, setContainsMature] = useState(false);
+  const [videoEmbedUrl, setVideoEmbedUrl] = useState('');
   
   // For hierarchical selection
   const [selectedShow, setSelectedShow] = useState<any | null>(null);
@@ -43,15 +44,6 @@ export default function PostPage() {
   const [episodes, setEpisodes] = useState<TVEpisode[]>([]);
   const [loadingSeasons, setLoadingSeasons] = useState(false);
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
-
-  // Video upload state
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [videoDuration, setVideoDuration] = useState<number>(0);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [videoStatus, setVideoStatus] = useState<'idle' | 'uploading' | 'processing' | 'ready' | 'failed'>('idle');
-  const [videoBunnyId, setVideoBunnyId] = useState<string | null>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -321,115 +313,6 @@ export default function PostPage() {
     setEpisodes([]);
   };
 
-  const handleVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('video/')) {
-      toast({ title: 'Error', description: 'Please select a video file', variant: 'destructive' });
-      return;
-    }
-
-    if (file.size > 104857600) {
-      toast({ title: 'Error', description: '⚠️ File too large (100 MB max)', variant: 'destructive' });
-      return;
-    }
-
-    const videoEl = document.createElement('video');
-    videoEl.preload = 'metadata';
-    
-    videoEl.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(videoEl.src);
-      
-      if (videoEl.duration > 60) {
-        toast({ title: 'Error', description: '⚠️ Video must be 60 seconds or less', variant: 'destructive' });
-        return;
-      }
-
-      setVideoDuration(Math.floor(videoEl.duration));
-      setVideoFile(file);
-      setVideoPreview(URL.createObjectURL(file));
-      setVideoStatus('idle');
-    };
-
-    videoEl.src = URL.createObjectURL(file);
-  };
-
-  const handleRemoveVideo = () => {
-    setVideoFile(null);
-    setVideoPreview(null);
-    setVideoDuration(0);
-    setVideoStatus('idle');
-    setUploadProgress(0);
-    setVideoBunnyId(null);
-    if (videoInputRef.current) {
-      videoInputRef.current.value = '';
-    }
-  };
-
-  const uploadVideo = async (): Promise<string | null> => {
-    if (!videoFile || !user) return null;
-
-    try {
-      setVideoStatus('uploading');
-      
-      const { data: uploadData, error: uploadError } = await supabase.functions.invoke('create-video-upload', {
-        body: {
-          title: `Video by ${user.email} - ${new Date().toISOString()}`,
-          duration: videoDuration,
-          fileSize: videoFile.size,
-        },
-      });
-
-      if (uploadError) throw uploadError;
-
-      const { videoId, libraryId, signature, expirationTime, uploadUrl } = uploadData;
-      setVideoBunnyId(videoId);
-
-      return new Promise((resolve, reject) => {
-        const upload = new tus.Upload(videoFile, {
-          endpoint: uploadUrl,
-          metadata: {
-            library: libraryId,
-            videoId: videoId,
-          },
-          headers: {
-            'AuthorizationSignature': signature,
-            'AuthorizationExpire': String(expirationTime),
-            'VideoId': videoId,
-            'LibraryId': libraryId,
-          },
-          onProgress: (bytesUploaded, bytesTotal) => {
-            const percentage = Math.floor((bytesUploaded / bytesTotal) * 100);
-            setUploadProgress(percentage);
-          },
-          onSuccess: () => {
-            setVideoStatus('processing');
-            resolve(videoId);
-          },
-          onError: (error) => {
-            console.error('TUS upload error:', error);
-            setVideoStatus('failed');
-            reject(error);
-          },
-        });
-
-        upload.start();
-      });
-    } catch (error: any) {
-      console.error('Video upload error:', error);
-      setVideoStatus('failed');
-      toast({ title: 'Error', description: 'Failed to upload video', variant: 'destructive' });
-      return null;
-    }
-  };
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const handlePost = async () => {
     if (!user) {
       toast({
@@ -440,7 +323,7 @@ export default function PostPage() {
       return;
     }
 
-    if (!content.trim() && !videoFile) return;
+    if (!content.trim() && !videoEmbedUrl && postType !== 'review') return;
 
     if (postType === 'review' && !selectedContent) {
       toast({
@@ -496,18 +379,65 @@ export default function PostPage() {
       });
     }
 
+    if (postType === 'video') {
+      if (!videoEmbedUrl) {
+        toast({
+          title: 'Error',
+          description: 'Please enter a video URL',
+          variant: 'destructive',
+        });
+        setPosting(false);
+        return;
+      }
+
+      // Validate URL is from supported platform
+      const videoInfo = parseVideoUrl(videoEmbedUrl);
+      if (videoInfo.platform === 'unsupported') {
+        toast({
+          title: 'Error',
+          description: 'Unsupported video platform. Use YouTube, TikTok, Instagram, or Vimeo.',
+          variant: 'destructive',
+        });
+        setPosting(false);
+        return;
+      }
+
+      try {
+        const { error: postError } = await supabase
+          .from('posts')
+          .insert({
+            author_id: user.id,
+            kind: 'video',
+            body: content || null,
+            video_embed_url: videoEmbedUrl,
+            item_type: selectedContent?.kind || null,
+            item_id: selectedContent?.external_id || null,
+            has_spoilers: isSpoiler,
+            has_mature: containsMature,
+          });
+
+        if (postError) throw postError;
+
+        toast({
+          title: 'Success',
+          description: '✅ Video posted!',
+        });
+
+        navigate('/', { state: { scrollToTop: true } });
+        return;
+      } catch (error: any) {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to post video',
+          variant: 'destructive',
+        });
+        setPosting(false);
+        return;
+      }
+    }
+
     if (postType === 'thought') {
       try {
-        let uploadedVideoId: string | null = null;
-
-        if (videoFile) {
-          uploadedVideoId = await uploadVideo();
-          if (!uploadedVideoId) {
-            setPosting(false);
-            return;
-          }
-        }
-
         const { data: newPost, error: thoughtError } = await supabase
           .from('posts')
           .insert({
@@ -524,28 +454,15 @@ export default function PostPage() {
           .single();
 
         if (thoughtError) throw thoughtError;
-
-        if (uploadedVideoId && newPost) {
-          await supabase
-            .from('posts')
-            .update({
-              video_bunny_id: uploadedVideoId,
-              video_status: 'processing',
-              video_duration: videoDuration,
-              video_file_size: videoFile!.size,
-            })
-            .eq('id', newPost.id);
-        }
         
         toast({
           title: "Success",
-          description: videoFile ? "Video post created! Processing..." : "Thought posted!",
+          description: "Thought posted!",
         });
         setContent('');
         setSelectedContent(null);
         setIsSpoiler(false);
         setContainsMature(false);
-        handleRemoveVideo();
         navigate('/');
       } catch (error: any) {
         console.error('Post error:', error);
@@ -570,16 +487,6 @@ export default function PostPage() {
       const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
       const itemId = (selectedContent as any).external_id;
 
-      let uploadedVideoId: string | null = null;
-
-      if (videoFile) {
-        uploadedVideoId = await uploadVideo();
-        if (!uploadedVideoId) {
-          setPosting(false);
-          return;
-        }
-      }
-
       const { data: reviewPost, error: reviewError } = await supabase.rpc('api_rate_and_review', {
         p_item_type: itemType,
         p_item_id: itemId,
@@ -599,39 +506,15 @@ export default function PostPage() {
         return;
       }
 
-      if (uploadedVideoId && reviewPost) {
-        const { data: posts } = await supabase
-          .from('posts')
-          .select('id')
-          .eq('author_id', user.id)
-          .eq('kind', 'review')
-          .eq('item_id', itemId)
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (posts && posts.length > 0) {
-          await supabase
-            .from('posts')
-            .update({
-              video_bunny_id: uploadedVideoId,
-              video_status: 'processing',
-              video_duration: videoDuration,
-              video_file_size: videoFile!.size,
-            })
-            .eq('id', posts[0].id);
-        }
-      }
-
       toast({
         title: "Success",
-        description: videoFile ? "Video review posted! Processing..." : "Posted!",
+        description: "Posted!",
       });
       setContent('');
       setRating(0);
       setSelectedContent(null);
       setIsSpoiler(false);
       setContainsMature(false);
-      handleRemoveVideo();
       navigate('/');
     }
 
@@ -643,10 +526,11 @@ export default function PostPage() {
       <Card className="p-6 space-y-4">
         <h2 className="text-2xl font-bold">Create Post</h2>
         
-        <Tabs value={postType} onValueChange={(v) => setPostType(v as 'thought' | 'review')}>
-          <TabsList className="w-full grid grid-cols-2">
+        <Tabs value={postType} onValueChange={(v) => setPostType(v as 'thought' | 'review' | 'video')}>
+          <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="thought">Thought</TabsTrigger>
             <TabsTrigger value="review">Review</TabsTrigger>
+            <TabsTrigger value="video">🎬 Video</TabsTrigger>
           </TabsList>
 
           <TabsContent value="thought" className="space-y-4">
@@ -663,86 +547,6 @@ export default function PostPage() {
                   {content.length} / 500
                 </span>
               </div>
-            </div>
-
-            {/* Video Upload */}
-            <div className="space-y-3">
-              <input
-                ref={videoInputRef}
-                type="file"
-                accept="video/*"
-                onChange={handleVideoSelect}
-                className="hidden"
-              />
-
-              {!videoFile ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => videoInputRef.current?.click()}
-                  className="w-full"
-                  disabled={videoStatus === 'uploading'}
-                >
-                  <Film className="mr-2 h-4 w-4" />
-                  🎬 Add video (60s max)
-                </Button>
-              ) : (
-                <Card className="p-4 space-y-3">
-                  <div className="flex items-start gap-3">
-                    {videoPreview && (
-                      <video
-                        src={videoPreview}
-                        className="w-20 h-20 rounded-lg object-cover"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{videoFile.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {formatDuration(videoDuration)}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {(videoFile.size / 1048576).toFixed(1)} MB
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveVideo}
-                      disabled={videoStatus === 'uploading'}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {videoStatus === 'uploading' && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span>Uploading...</span>
-                        <span>{uploadProgress}%</span>
-                      </div>
-                      <Progress value={uploadProgress} />
-                    </div>
-                  )}
-
-                  {videoStatus === 'processing' && (
-                    <Badge variant="secondary">
-                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                      Processing
-                    </Badge>
-                  )}
-
-                  {videoStatus === 'failed' && (
-                    <Badge variant="destructive">Upload Failed</Badge>
-                  )}
-
-                  <p className="text-xs text-muted-foreground">
-                    All formats supported • Max 60 seconds • Max 100 MB
-                  </p>
-                </Card>
-              )}
             </div>
 
             <div className="flex items-center space-x-2">
@@ -796,86 +600,6 @@ export default function PostPage() {
               </div>
             </div>
 
-            {/* Video Upload */}
-            <div className="space-y-3">
-              <input
-                ref={videoInputRef}
-                type="file"
-                accept="video/*"
-                onChange={handleVideoSelect}
-                className="hidden"
-              />
-
-              {!videoFile ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => videoInputRef.current?.click()}
-                  className="w-full"
-                  disabled={videoStatus === 'uploading'}
-                >
-                  <Film className="mr-2 h-4 w-4" />
-                  🎬 Add video (60s max)
-                </Button>
-              ) : (
-                <Card className="p-4 space-y-3">
-                  <div className="flex items-start gap-3">
-                    {videoPreview && (
-                      <video
-                        src={videoPreview}
-                        className="w-20 h-20 rounded-lg object-cover"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{videoFile.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {formatDuration(videoDuration)}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {(videoFile.size / 1048576).toFixed(1)} MB
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveVideo}
-                      disabled={videoStatus === 'uploading'}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {videoStatus === 'uploading' && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span>Uploading...</span>
-                        <span>{uploadProgress}%</span>
-                      </div>
-                      <Progress value={uploadProgress} />
-                    </div>
-                  )}
-
-                  {videoStatus === 'processing' && (
-                    <Badge variant="secondary">
-                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                      Processing
-                    </Badge>
-                  )}
-
-                  {videoStatus === 'failed' && (
-                    <Badge variant="destructive">Upload Failed</Badge>
-                  )}
-
-                  <p className="text-xs text-muted-foreground">
-                    All formats supported • Max 60 seconds • Max 100 MB
-                  </p>
-                </Card>
-              )}
-            </div>
-
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="spoiler-review"
@@ -904,9 +628,59 @@ export default function PostPage() {
               </Label>
             </div>
           </TabsContent>
+
+          <TabsContent value="video" className="space-y-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="video-url">Video URL *</Label>
+                <Input
+                  id="video-url"
+                  placeholder="Paste YouTube, TikTok, Instagram, or Vimeo link..."
+                  value={videoEmbedUrl}
+                  onChange={(e) => setVideoEmbedUrl(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Supported: YouTube, TikTok, Instagram Reels, Vimeo
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="video-caption">Caption (optional)</Label>
+                <Textarea
+                  id="video-caption"
+                  placeholder="Write a caption for your video..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  maxLength={1000}
+                  rows={4}
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {content.length}/1000
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="spoiler-video"
+                  checked={isSpoiler}
+                  onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
+                />
+                <Label htmlFor="spoiler-video">Contains spoilers</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="mature-video"
+                  checked={containsMature}
+                  onCheckedChange={(checked) => setContainsMature(checked as boolean)}
+                />
+                <Label htmlFor="mature-video">🔞 Mature content</Label>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
 
-        {selectedContent && (
+        {selectedContent && postType !== 'review' && (
           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-md">
             <button
               onClick={async () => {
@@ -953,8 +727,9 @@ export default function PostPage() {
           </div>
         )}
 
-        <div className="space-y-2">
-          <Label>{postType === 'review' ? 'Select content to review *' : 'Tag content (optional)'}</Label>
+        {postType !== 'video' && (
+          <div className="space-y-2">
+            <Label>{postType === 'review' ? 'Select content to review *' : 'Tag content (optional)'}</Label>
           
           {!selectedShow && (
             <>
@@ -1097,10 +872,16 @@ export default function PostPage() {
             </div>
           )}
         </div>
+        )}
 
         <Button
           onClick={handlePost}
-          disabled={!content.trim() || posting || (postType === 'review' && (!selectedContent || rating === 0))}
+          disabled={
+            posting || 
+            (postType === 'thought' && !content.trim()) ||
+            (postType === 'review' && (!selectedContent || rating === 0)) ||
+            (postType === 'video' && !videoEmbedUrl)
+          }
           className="w-full btn-glow"
         >
           {posting ? (
@@ -1109,7 +890,7 @@ export default function PostPage() {
               Posting...
             </>
           ) : (
-            postType === 'review' ? 'Post Review' : 'Post Thought'
+            postType === 'review' ? 'Post Review' : postType === 'video' ? 'Post Video' : 'Post Thought'
           )}
         </Button>
       </Card>
