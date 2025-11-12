@@ -35,7 +35,7 @@ export function PostCreationDialog({
   const { user } = useAuth();
   const navigate = useNavigate();
   const [text, setText] = useState('');
-  const [rating, setRating] = useState(50);
+  const [rating, setRating] = useState(0);
   const [hasSpoilers, setHasSpoilers] = useState(false);
   const [hasMature, setHasMature] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -86,7 +86,7 @@ export function PostCreationDialog({
       }
 
       setText('');
-      setRating(50);
+      setRating(0);
       setHasSpoilers(false);
       setHasMature(false);
       onOpenChange(false);
