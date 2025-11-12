@@ -5,14 +5,18 @@ import { useNavigate } from 'react-router-dom';
 interface SafetyOverlayProps {
   type: 'spoiler' | 'sexual' | 'both';
   onRevealSpoiler?: () => void;
+  spoilerTitle?: string;
 }
 
-export function SafetyOverlay({ type, onRevealSpoiler }: SafetyOverlayProps) {
+export function SafetyOverlay({ type, onRevealSpoiler, spoilerTitle }: SafetyOverlayProps) {
   const navigate = useNavigate();
 
   if (type === 'spoiler') {
+    const spoilerText = spoilerTitle ? `Contains spoilers for ${spoilerTitle}` : 'Contains spoilers';
+    
     return (
-      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none gap-2">
+        <p className="text-sm text-muted-foreground pointer-events-auto">⚠️ {spoilerText}</p>
         <Button 
           variant="outline" 
           size="sm"

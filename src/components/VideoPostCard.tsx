@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,21 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
   const [localReplies] = useState(post.replies_count);
   const [localReaction, setLocalReaction] = useState(post.userReaction);
   const [showSpoiler, setShowSpoiler] = useState(false);
+  const [contentInfo, setContentInfo] = useState<{ title: string } | null>(null);
+
+  // Fetch content info for spoiler title
+  useEffect(() => {
+    if (post.item_type && post.item_id) {
+      supabase
+        .from('content')
+        .select('title')
+        .eq('external_id', post.item_id)
+        .single()
+        .then(({ data }) => {
+          if (data) setContentInfo(data);
+        });
+    }
+  }, [post.item_type, post.item_id]);
 
   const handleLike = async () => {
     if (!user) {
@@ -143,7 +158,8 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
         <div className="relative aspect-video bg-muted flex items-center justify-center">
           <SafetyOverlay 
             type={safetyType} 
-            onRevealSpoiler={() => setShowSpoiler(true)} 
+            onRevealSpoiler={() => setShowSpoiler(true)}
+            spoilerTitle={contentInfo?.title}
           />
         </div>
       ) : (
