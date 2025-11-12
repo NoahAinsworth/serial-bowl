@@ -414,7 +414,8 @@ export default function PostPage() {
             item_type: selectedContent?.kind || null,
             item_id: selectedContent?.external_id || null,
             is_spoiler: isSpoiler,
-            contains_mature: containsMature,
+            has_spoilers: isSpoiler,
+            has_mature: containsMature,
           });
 
         if (postError) throw postError;
