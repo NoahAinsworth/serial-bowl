@@ -27,10 +27,13 @@ export function UserPosts({ userId }: UserPostsProps) {
           if (data?.settings) {
             const settings = data.settings as any;
             setUserHideSpoilers(settings?.safety?.hide_spoilers ?? true);
+            setStrictSafety(settings?.safety?.strict_safety ?? false);
           }
         });
     }
   }, [user]);
+
+  const [strictSafety, setStrictSafety] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -88,7 +91,7 @@ export function UserPosts({ userId }: UserPostsProps) {
             user: post.author // Map author to user for PostCard compatibility
           }} 
           userHideSpoilers={userHideSpoilers} 
-          strictSafety={false} 
+          strictSafety={strictSafety} 
         />
       ))}
     </div>

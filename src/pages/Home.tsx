@@ -226,6 +226,8 @@ export default function Home() {
                         ...post,
                         profiles: post.author,
                       }}
+                      userHideSpoilers={userHideSpoilers}
+                      strictSafety={strictSafety}
                       onReactionChange={refetch}
                       onDelete={refetch}
                     />

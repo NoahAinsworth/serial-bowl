@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { EmbeddedVideoPlayer } from './EmbeddedVideoPlayer';
+import { SafetyOverlay } from './SafetyOverlay';
 
 interface VideoPostCardProps {
   post: {
@@ -26,6 +27,8 @@ interface VideoPostCardProps {
     created_at: string;
     item_type?: string | null;
     item_id?: string | null;
+    has_spoilers?: boolean;
+    has_mature?: boolean;
     likes_count: number;
     dislikes_count: number;
     replies_count: number;
@@ -35,17 +38,20 @@ interface VideoPostCardProps {
       avatar_url: string | null;
     };
   };
+  userHideSpoilers?: boolean;
+  strictSafety?: boolean;
   onReactionChange?: () => void;
   onDelete?: () => void;
 }
 
-export function VideoPostCard({ post, onReactionChange, onDelete }: VideoPostCardProps) {
+export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = false, onReactionChange, onDelete }: VideoPostCardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [localLikes, setLocalLikes] = useState(post.likes_count);
   const [localDislikes, setLocalDislikes] = useState(post.dislikes_count);
   const [localReplies] = useState(post.replies_count);
   const [localReaction, setLocalReaction] = useState(post.userReaction);
+  const [showSpoiler, setShowSpoiler] = useState(false);
 
   const handleLike = async () => {
     if (!user) {
@@ -119,25 +125,47 @@ export function VideoPostCard({ post, onReactionChange, onDelete }: VideoPostCar
     }
   };
 
+  // Check if content should be hidden
+  const shouldHideSpoiler = userHideSpoilers && post.has_spoilers && !showSpoiler;
+  const shouldHideMature = strictSafety && post.has_mature;
+  const shouldHide = shouldHideSpoiler || shouldHideMature;
+
+  const safetyType = shouldHideSpoiler && shouldHideMature 
+    ? 'both' 
+    : shouldHideSpoiler 
+    ? 'spoiler' 
+    : 'sexual';
+
   return (
     <Card className="overflow-hidden rounded-xl shadow-lg border-border mb-4">
       {/* Video Embed or Old Video */}
-      {post.video_embed_url ? (
-        <EmbeddedVideoPlayer url={post.video_embed_url} />
-      ) : post.video_thumbnail_url ? (
-        <div className="relative aspect-video bg-muted">
-          <img 
-            src={post.video_thumbnail_url} 
-            alt="Video thumbnail" 
-            className="w-full h-full object-cover"
+      {shouldHide ? (
+        <div className="relative aspect-video bg-muted flex items-center justify-center">
+          <SafetyOverlay 
+            type={safetyType} 
+            onRevealSpoiler={() => setShowSpoiler(true)} 
           />
-          {post.video_status === 'processing' && (
-            <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground">
-              Processing…
-            </Badge>
-          )}
         </div>
-      ) : null}
+      ) : (
+        <>
+          {post.video_embed_url ? (
+            <EmbeddedVideoPlayer url={post.video_embed_url} />
+          ) : post.video_thumbnail_url ? (
+            <div className="relative aspect-video bg-muted">
+              <img 
+                src={post.video_thumbnail_url} 
+                alt="Video thumbnail" 
+                className="w-full h-full object-cover"
+              />
+              {post.video_status === 'processing' && (
+                <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground">
+                  Processing…
+                </Badge>
+              )}
+            </div>
+          ) : null}
+        </>
+      )}
 
       {/* Post Content */}
       <div className="p-4 space-y-3">
