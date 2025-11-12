@@ -189,14 +189,14 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
             )}
 
             {/* Content Tags */}
-            {post.item_type && post.item_id && (
+            {post.item_type && contentInfo?.title && (
               <div className="flex flex-wrap gap-1">
                 <Badge variant="outline" className="text-xs">
                   {post.item_type === 'show' && '📺'}
                   {post.item_type === 'season' && '📚'}
                   {post.item_type === 'episode' && '📼'}
                   {' '}
-                  {post.item_id}
+                  {contentInfo.title}
                 </Badge>
               </div>
             )}
