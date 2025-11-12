@@ -413,8 +413,8 @@ export default function PostPage() {
             video_embed_url: videoEmbedUrl,
             item_type: selectedContent?.kind || null,
             item_id: selectedContent?.external_id || null,
-            has_spoilers: isSpoiler,
-            has_mature: containsMature,
+            is_spoiler: isSpoiler,
+            contains_mature: containsMature,
           });
 
         if (postError) throw postError;
@@ -427,6 +427,7 @@ export default function PostPage() {
         navigate('/', { state: { scrollToTop: true } });
         return;
       } catch (error: any) {
+        console.error('Video post error:', error);
         toast({
           title: 'Error',
           description: error.message || 'Failed to post video',
@@ -728,9 +729,9 @@ export default function PostPage() {
           </div>
         )}
 
-        {postType !== 'video' && (
+        {postType !== 'review' && (
           <div className="space-y-2">
-            <Label>{postType === 'review' ? 'Select content to review *' : 'Tag content (optional)'}</Label>
+            <Label>Tag content (optional)</Label>
           
           {!selectedShow && (
             <>
