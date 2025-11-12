@@ -25,7 +25,7 @@ export default function PostPage() {
   const { toast } = useToast();
   const { search, fetchSeasons, fetchEpisodes } = useTVDB();
   
-  const [postType, setPostType] = useState<'thought' | 'review' | 'video'>('thought');
+  const [postType, setPostType] = useState<'thought' | 'review'>('thought');
   const [content, setContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -323,17 +323,7 @@ export default function PostPage() {
       return;
     }
 
-    // Validate video posts first
-    if (postType === 'video' && !videoEmbedUrl.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Please enter a video URL',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!content.trim() && !videoEmbedUrl && postType !== 'review') return;
+    if (!content.trim() && postType !== 'review') return;
 
     if (postType === 'review' && !selectedContent) {
       toast({
@@ -387,56 +377,6 @@ export default function PostPage() {
         user_id: user.id,
         role: 'user',
       });
-    }
-
-    if (postType === 'video') {
-
-      // Validate URL is from supported platform
-      const videoInfo = parseVideoUrl(videoEmbedUrl);
-      if (videoInfo.platform === 'unsupported') {
-        toast({
-          title: 'Error',
-          description: 'Unsupported video platform. Use YouTube, TikTok, Instagram, or Vimeo.',
-          variant: 'destructive',
-        });
-        setPosting(false);
-        return;
-      }
-
-      try {
-        const { error: postError } = await supabase
-          .from('posts')
-          .insert({
-            author_id: user.id,
-            kind: 'thought',
-            body: content || null,
-            video_embed_url: videoEmbedUrl,
-            item_type: selectedContent?.kind || null,
-            item_id: selectedContent?.external_id || null,
-            is_spoiler: isSpoiler,
-            has_spoilers: isSpoiler,
-            has_mature: containsMature,
-          });
-
-        if (postError) throw postError;
-
-        toast({
-          title: 'Success',
-          description: '✅ Video posted!',
-        });
-
-        navigate('/', { state: { scrollToTop: true } });
-        return;
-      } catch (error: any) {
-        console.error('Video post error:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to post video',
-          variant: 'destructive',
-        });
-        setPosting(false);
-        return;
-      }
     }
 
     if (postType === 'thought') {
@@ -529,11 +469,10 @@ export default function PostPage() {
       <Card className="p-6 space-y-4">
         <h2 className="text-2xl font-bold">Create Post</h2>
         
-        <Tabs value={postType} onValueChange={(v) => setPostType(v as 'thought' | 'review' | 'video')}>
-          <TabsList className="w-full grid grid-cols-3">
+        <Tabs value={postType} onValueChange={(v) => setPostType(v as 'thought' | 'review')}>
+          <TabsList className="w-full grid grid-cols-2">
             <TabsTrigger value="thought">Thought</TabsTrigger>
             <TabsTrigger value="review">Review</TabsTrigger>
-            <TabsTrigger value="video">Video</TabsTrigger>
           </TabsList>
 
           <TabsContent value="thought" className="space-y-4">
@@ -629,56 +568,6 @@ export default function PostPage() {
               >
                 🔞 This contains mature content
               </Label>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="video" className="space-y-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="video-url">Video URL *</Label>
-                <Input
-                  id="video-url"
-                  placeholder="Paste YouTube, TikTok, Instagram, or Vimeo link..."
-                  value={videoEmbedUrl}
-                  onChange={(e) => setVideoEmbedUrl(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Supported: YouTube, TikTok, Instagram Reels, Vimeo
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="video-caption">Caption (optional)</Label>
-                <Textarea
-                  id="video-caption"
-                  placeholder="Write a caption for your video..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  maxLength={1000}
-                  rows={4}
-                />
-                <p className="text-xs text-muted-foreground text-right">
-                  {content.length}/1000
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="spoiler-video"
-                  checked={isSpoiler}
-                  onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
-                />
-                <Label htmlFor="spoiler-video">Contains spoilers</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="mature-video"
-                  checked={containsMature}
-                  onCheckedChange={(checked) => setContainsMature(checked as boolean)}
-                />
-                <Label htmlFor="mature-video">🔞 Mature content</Label>
-              </div>
             </div>
           </TabsContent>
         </Tabs>
@@ -882,8 +771,7 @@ export default function PostPage() {
           disabled={
             posting || 
             (postType === 'thought' && !content.trim()) ||
-            (postType === 'review' && (!selectedContent || rating === 0)) ||
-            (postType === 'video' && !videoEmbedUrl)
+            (postType === 'review' && (!selectedContent || rating === 0))
           }
           className="w-full btn-glow"
         >
@@ -893,7 +781,7 @@ export default function PostPage() {
               Posting...
             </>
           ) : (
-            postType === 'review' ? 'Post Review' : postType === 'video' ? 'Post Video' : 'Post Thought'
+            postType === 'review' ? 'Post Review' : 'Post Thought'
           )}
         </Button>
       </Card>
