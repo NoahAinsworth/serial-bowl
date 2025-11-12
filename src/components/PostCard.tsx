@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { replaceProfanity } from '@/utils/profanityFilter';
 import { EditPostDialog } from '@/components/EditPostDialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { EmbeddedVideoPlayer } from '@/components/EmbeddedVideoPlayer';
 
 interface PostCardProps {
   post: {
@@ -39,6 +40,7 @@ interface PostCardProps {
     userReaction?: 'like' | 'dislike';
     created_at: string;
     edited_at?: string | null;
+    video_embed_url?: string | null;
   };
   userHideSpoilers: boolean;
   strictSafety: boolean;
@@ -493,11 +495,20 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                           <p className="text-xs text-muted-foreground">Loading history...</p>
                         ) : (
                           editHistory.map((edit) => (
-                            <div key={edit.id} className="text-sm">
-                              <div className="text-xs text-muted-foreground mb-1">
+                            <div key={edit.id} className="text-xs space-y-1">
+                              <div className="text-muted-foreground">
                                 {new Date(edit.edited_at).toLocaleString()}
                               </div>
-                              <div className="text-muted-foreground whitespace-pre-wrap">{edit.previous_body}</div>
+                              {edit.previous_body && (
+                                <div className="text-foreground/80 line-through">
+                                  {replaceProfanity(edit.previous_body)}
+                                </div>
+                              )}
+                              {edit.previous_rating_percent !== null && (
+                                <div className="text-foreground/80 line-through">
+                                  Rating: {edit.previous_rating_percent}%
+                                </div>
+                              )}
                             </div>
                           ))
                         )}
@@ -505,6 +516,12 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                     </CollapsibleContent>
                   </Collapsible>
                 )}
+              </div>
+            )}
+            
+            {post.video_embed_url && (
+              <div className="mt-3">
+                <EmbeddedVideoPlayer url={post.video_embed_url} />
               </div>
             )}
           </>
