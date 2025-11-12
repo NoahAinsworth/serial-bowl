@@ -307,10 +307,7 @@ export default function EpisodeDetailPage() {
       {showId && seasonNumber && episodeNumber && episode && (
         <PostCreationDialog
           open={postDialogOpen}
-          onOpenChange={(open) => {
-            console.log('EpisodeDetailPage passing itemId:', `${showId}:${seasonNumber}:${episodeNumber}`);
-            setPostDialogOpen(open);
-          }}
+          onOpenChange={setPostDialogOpen}
           postType={postType}
           itemType="episode"
           itemId={`${showId}:${seasonNumber}:${episodeNumber}`}
