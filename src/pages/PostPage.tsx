@@ -530,7 +530,7 @@ export default function PostPage() {
           <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="thought">Thought</TabsTrigger>
             <TabsTrigger value="review">Review</TabsTrigger>
-            <TabsTrigger value="video">🎬 Video</TabsTrigger>
+            <TabsTrigger value="video">Video</TabsTrigger>
           </TabsList>
 
           <TabsContent value="thought" className="space-y-4">

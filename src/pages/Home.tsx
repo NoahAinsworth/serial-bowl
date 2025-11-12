@@ -202,7 +202,7 @@ export default function Home() {
           <TabsTrigger value="trending" className="px-2">Trending</TabsTrigger>
           <TabsTrigger value="hot-takes" className="px-2">Hot Takes</TabsTrigger>
           <TabsTrigger value="following" className="px-2">Following</TabsTrigger>
-          <TabsTrigger value="videos" className="px-2">🎬 Videos</TabsTrigger>
+          <TabsTrigger value="videos" className="px-2">Videos</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
