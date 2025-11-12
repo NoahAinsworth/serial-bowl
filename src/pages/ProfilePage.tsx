@@ -585,11 +585,10 @@ export default function ProfilePage() {
         </Dialog>
 
         <Tabs defaultValue="posts" className="w-full mt-0">
-          <TabsList className="w-full grid grid-cols-4 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+          <TabsList className="w-full grid grid-cols-3 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="ratings">Ratings</TabsTrigger>
             <TabsTrigger value="lists">Lists</TabsTrigger>
-            <TabsTrigger value="videos">🎥 Videos</TabsTrigger>
           </TabsList>
 
           <TabsContent value="posts" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
@@ -602,10 +601,6 @@ export default function ProfilePage() {
 
           <TabsContent value="lists" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
             <UserLists />
-          </TabsContent>
-
-          <TabsContent value="videos" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <UserVideos userId={user!.id} />
           </TabsContent>
         </Tabs>
 

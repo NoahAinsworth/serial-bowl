@@ -408,7 +408,7 @@ export default function PostPage() {
           .from('posts')
           .insert({
             author_id: user.id,
-            kind: 'video',
+            kind: 'thought',
             body: content || null,
             video_embed_url: videoEmbedUrl,
             item_type: selectedContent?.kind || null,
