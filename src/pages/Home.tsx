@@ -217,8 +217,8 @@ export default function Home() {
           ) : (
             <>
               {posts.map((post) => {
-                // Render VideoPostCard if post has video
-                if (post.video_url || post.video_bunny_id) {
+                // Render VideoPostCard if post has video (old or new)
+                if (post.video_url || post.video_bunny_id || post.video_embed_url) {
                   return (
                     <VideoPostCard
                       key={post.id}
@@ -226,6 +226,8 @@ export default function Home() {
                         ...post,
                         profiles: post.author,
                       }}
+                      onReactionChange={refetch}
+                      onDelete={refetch}
                     />
                   );
                 }

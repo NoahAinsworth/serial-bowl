@@ -29,7 +29,7 @@ export function UserVideos({ userId }: UserVideosProps) {
           )
         `)
         .eq('author_id', userId)
-        .not('video_bunny_id', 'is', null)
+        .or('video_bunny_id.not.is.null,video_embed_url.not.is.null')
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
 

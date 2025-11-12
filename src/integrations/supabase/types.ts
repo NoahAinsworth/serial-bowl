@@ -915,6 +915,7 @@ export type Database = {
           updated_at: string | null
           video_bunny_id: string | null
           video_duration: number | null
+          video_embed_url: string | null
           video_file_size: number | null
           video_status: string | null
           video_thumbnail_url: string | null
@@ -943,6 +944,7 @@ export type Database = {
           updated_at?: string | null
           video_bunny_id?: string | null
           video_duration?: number | null
+          video_embed_url?: string | null
           video_file_size?: number | null
           video_status?: string | null
           video_thumbnail_url?: string | null
@@ -971,6 +973,7 @@ export type Database = {
           updated_at?: string | null
           video_bunny_id?: string | null
           video_duration?: number | null
+          video_embed_url?: string | null
           video_file_size?: number | null
           video_status?: string | null
           video_thumbnail_url?: string | null

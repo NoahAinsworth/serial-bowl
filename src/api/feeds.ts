@@ -24,6 +24,7 @@ export interface FeedPost {
   video_file_size?: number | null;
   video_bunny_id?: string | null;
   video_status?: string | null;
+  video_embed_url?: string | null;
   author: {
     id: string;
     handle: string;
@@ -96,32 +97,57 @@ interface TrendingCursor {
 }
 
 /**
- * Trending: score = ((likes - dislikes)*1.7 + replies*1.2 + 3) / power(age_hours+1, 1.25)
+ * Trending: Twitter-style velocity-based algorithm
+ * - Minimum 30 minutes age
+ * - Must have at least 1 engagement
+ * - Score based on velocity (engagement/hour) with time decay
  */
 export async function getTrending(cursor?: TrendingCursor): Promise<{ posts: FeedPost[]; nextCursor?: TrendingCursor }> {
   const { data, error } = await supabase
     .from('posts')
     .select('*')
     .is('deleted_at', null)
-    .neq('kind', 'rating') // Exclude rating-only posts from feed
-    .limit(100); // Fetch more to sort client-side
+    .neq('kind', 'rating')
+    .limit(200);
 
   if (error) throw error;
 
-  const posts = (data || []).map((post: any) => {
-    const ageHours = (Date.now() - new Date(post.created_at).getTime()) / (1000 * 60 * 60);
-    const score = ((post.likes_count - post.dislikes_count) * 1.7 + post.replies_count * 1.2 + 3) / Math.pow(ageHours + 1, 1.25);
-    return { ...post, _score: score };
-  });
+  const now = Date.now();
+  
+  const posts = (data || [])
+    .map((post: any) => {
+      const ageMs = now - new Date(post.created_at).getTime();
+      const ageHours = ageMs / (1000 * 60 * 60);
+      
+      // Don't show posts younger than 30 minutes
+      if (ageHours < 0.5) {
+        return { ...post, _score: -1 };
+      }
+      
+      const totalEngagement = post.likes_count + post.dislikes_count + post.replies_count;
+      
+      // Must have at least 1 engagement to trend
+      if (totalEngagement === 0) {
+        return { ...post, _score: -1 };
+      }
+      
+      // Twitter-style velocity score
+      const netScore = (post.likes_count * 2) - (post.dislikes_count * 0.5) + (post.replies_count * 3);
+      const velocity = totalEngagement / Math.max(ageHours, 1);
+      const timePenalty = Math.pow(ageHours + 2, 1.5);
+      
+      const score = (netScore + velocity * 10) / timePenalty;
+      
+      return { ...post, _score: score };
+    })
+    .filter((p: any) => p._score > 0);
 
-  // Sort by score descending, then by id for stability
   posts.sort((a: any, b: any) => {
     if (b._score !== a._score) return b._score - a._score;
     return b.id.localeCompare(a.id);
   });
 
-  // Filter by cursor if provided
-  const filtered = cursor 
+  const filtered = cursor
     ? posts.filter((p: any) => p._score < cursor.score || (p._score === cursor.score && p.id < cursor.id))
     : posts;
 
@@ -130,8 +156,8 @@ export async function getTrending(cursor?: TrendingCursor): Promise<{ posts: Fee
 
   return {
     posts: enriched,
-    nextCursor: result.length === 20 
-      ? { score: result[19]._score, id: result[19].id } 
+    nextCursor: result.length === 20
+      ? { score: result[19]._score, id: result[19].id }
       : undefined,
   };
 }
@@ -263,15 +289,14 @@ export async function getNew(cursor?: TimeCursor): Promise<{ posts: FeedPost[]; 
 }
 
 /**
- * Videos: only posts with video attachments, ordered by created_at desc
+ * Videos: posts with video attachments (both old uploads and new embeds), ordered by created_at desc
  */
 export async function getVideos(cursor?: TimeCursor): Promise<{ posts: FeedPost[]; nextCursor?: TimeCursor }> {
   let query = supabase
     .from('posts')
     .select('*')
     .is('deleted_at', null)
-    .not('video_bunny_id', 'is', null)
-    .eq('video_status', 'ready')
+    .or('video_bunny_id.not.is.null,video_embed_url.not.is.null')
     .order('created_at', { ascending: false })
     .order('id', { ascending: false });
 

@@ -1,18 +1,24 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Play, X } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MessageCircle, MoreHorizontal, Trash, ExternalLink } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { EmbeddedVideoPlayer } from './EmbeddedVideoPlayer';
 
 interface VideoPostCardProps {
   post: {
     id: string;
     author_id: string;
     body: string | null;
+    video_embed_url?: string | null;
     video_url?: string | null;
     video_thumbnail_url?: string | null;
     video_duration?: number | null;
@@ -20,151 +26,222 @@ interface VideoPostCardProps {
     created_at: string;
     item_type?: string | null;
     item_id?: string | null;
+    likes_count: number;
+    dislikes_count: number;
+    replies_count: number;
+    userReaction?: 'like' | 'dislike';
     profiles?: {
       handle: string;
       avatar_url: string | null;
     };
   };
+  onReactionChange?: () => void;
+  onDelete?: () => void;
 }
 
-export function VideoPostCard({ post }: VideoPostCardProps) {
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+export function VideoPostCard({ post, onReactionChange, onDelete }: VideoPostCardProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [localLikes, setLocalLikes] = useState(post.likes_count);
+  const [localDislikes, setLocalDislikes] = useState(post.dislikes_count);
+  const [localReplies] = useState(post.replies_count);
+  const [localReaction, setLocalReaction] = useState(post.userReaction);
 
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const handleLike = async () => {
+    if (!user) {
+      toast.error('You must be logged in');
+      return;
+    }
+
+    const wasLiked = localReaction === 'like';
+    const wasDisliked = localReaction === 'dislike';
+
+    // Optimistic UI update
+    setLocalReaction(wasLiked ? undefined : 'like');
+    setLocalLikes(wasLiked ? localLikes - 1 : localLikes + 1);
+    if (wasDisliked) setLocalDislikes(localDislikes - 1);
+
+    try {
+      if (wasLiked) {
+        await supabase.from('post_reactions').delete().match({ post_id: post.id, user_id: user.id });
+      } else {
+        await supabase.from('post_reactions').upsert({ post_id: post.id, user_id: user.id, kind: 'like' });
+      }
+      onReactionChange?.();
+    } catch (error) {
+      // Revert on error
+      setLocalReaction(post.userReaction);
+      setLocalLikes(post.likes_count);
+      setLocalDislikes(post.dislikes_count);
+      toast.error('Failed to update reaction');
+    }
   };
 
-  const handlePlayClick = () => {
-    if (post.video_status === 'ready') {
-      setIsPlayerOpen(true);
+  const handleDislike = async () => {
+    if (!user) {
+      toast.error('You must be logged in');
+      return;
+    }
+
+    const wasDisliked = localReaction === 'dislike';
+    const wasLiked = localReaction === 'like';
+
+    // Optimistic UI update
+    setLocalReaction(wasDisliked ? undefined : 'dislike');
+    setLocalDislikes(wasDisliked ? localDislikes - 1 : localDislikes + 1);
+    if (wasLiked) setLocalLikes(localLikes - 1);
+
+    try {
+      if (wasDisliked) {
+        await supabase.from('post_reactions').delete().match({ post_id: post.id, user_id: user.id });
+      } else {
+        await supabase.from('post_reactions').upsert({ post_id: post.id, user_id: user.id, kind: 'dislike' });
+      }
+      onReactionChange?.();
+    } catch (error) {
+      // Revert on error
+      setLocalReaction(post.userReaction);
+      setLocalLikes(post.likes_count);
+      setLocalDislikes(post.dislikes_count);
+      toast.error('Failed to update reaction');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Delete this video post?')) return;
+
+    try {
+      await supabase.from('posts').update({ deleted_at: new Date().toISOString() }).eq('id', post.id);
+      toast.success('Video post deleted');
+      onDelete?.();
+    } catch (error) {
+      toast.error('Failed to delete');
     }
   };
 
   return (
-    <>
-      <Card className="overflow-hidden rounded-xl shadow-lg border-border">
-        {/* Video Poster */}
+    <Card className="overflow-hidden rounded-xl shadow-lg border-border mb-4">
+      {/* Video Embed or Old Video */}
+      {post.video_embed_url ? (
+        <EmbeddedVideoPlayer url={post.video_embed_url} />
+      ) : post.video_thumbnail_url ? (
         <div className="relative aspect-video bg-muted">
-          {post.video_thumbnail_url ? (
-            <img 
-              src={post.video_thumbnail_url} 
-              alt="Video thumbnail" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
-              <span className="text-4xl">🎬</span>
-            </div>
-          )}
-
-          {/* Status Badge */}
+          <img 
+            src={post.video_thumbnail_url} 
+            alt="Video thumbnail" 
+            className="w-full h-full object-cover"
+          />
           {post.video_status === 'processing' && (
             <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground">
               Processing…
             </Badge>
           )}
-          {post.video_status === 'uploading' && (
-            <Badge className="absolute top-2 right-2 bg-muted text-muted-foreground">
-              Uploading…
-            </Badge>
-          )}
-          {post.video_status === 'failed' && (
-            <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground">
-              Failed
-            </Badge>
-          )}
-
-          {/* Play Button Overlay */}
-          {post.video_status === 'ready' && (
-            <button 
-              className="absolute inset-0 flex items-center justify-center group transition-opacity hover:opacity-90"
-              onClick={handlePlayClick}
-            >
-              <div className="w-16 h-16 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Play className="h-8 w-8 text-primary fill-primary ml-1" />
-              </div>
-            </button>
-          )}
-
-          {/* Duration Badge */}
-          {post.video_duration && (
-            <Badge className="absolute bottom-2 right-2 bg-black/70 text-white">
-              {formatDuration(post.video_duration)}
-            </Badge>
-          )}
         </div>
+      ) : null}
 
-        {/* Post Content */}
-        <div className="p-4">
-          {/* User Info */}
-          <div className="flex items-center gap-2 mb-3">
-            <Link to={`/profile/${post.profiles?.handle}`}>
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={post.profiles?.avatar_url || undefined} />
-                <AvatarFallback>
-                  {post.profiles?.handle?.[0]?.toUpperCase() || '?'}
-                </AvatarFallback>
-              </Avatar>
+      {/* Post Content */}
+      <div className="p-4 space-y-3">
+        {/* User Info */}
+        <div className="flex items-center gap-2">
+          <Link to={`/profile/${post.profiles?.handle}`}>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={post.profiles?.avatar_url || undefined} />
+              <AvatarFallback>
+                {post.profiles?.handle?.[0]?.toUpperCase() || '?'}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+          <div className="flex-1">
+            <Link to={`/profile/${post.profiles?.handle}`} className="font-semibold text-sm hover:underline">
+              @{post.profiles?.handle}
             </Link>
-            <div className="flex-1">
-              <Link to={`/profile/${post.profiles?.handle}`} className="font-semibold text-sm hover:underline">
-                @{post.profiles?.handle}
-              </Link>
-              <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+            </p>
           </div>
-
-          {/* Caption */}
-          {post.body && (
-            <p className="text-sm mb-3">{post.body}</p>
-          )}
-
-          {/* Content Tags */}
-          {post.item_type && post.item_id && (
-            <div className="flex flex-wrap gap-1">
-              <Badge variant="outline" className="text-xs">
-                {post.item_type === 'show' && '📺'}
-                {post.item_type === 'season' && '📚'}
-                {post.item_type === 'episode' && '📼'}
-                {' '}
-                {post.item_id}
-              </Badge>
-            </div>
-          )}
         </div>
-      </Card>
 
-      {/* Fullscreen Video Player */}
-      <Dialog open={isPlayerOpen} onOpenChange={setIsPlayerOpen}>
-        <DialogContent className="max-w-full h-full p-0 bg-black border-0">
-          <div className="relative w-full h-full flex items-center justify-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
-              onClick={() => setIsPlayerOpen(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
+        {/* Caption */}
+        {post.body && (
+          <p className="text-sm">{post.body}</p>
+        )}
 
-            {post.video_url && (
-              <video
-                src={post.video_url}
-                poster={post.video_thumbnail_url || undefined}
-                controls
-                autoPlay
-                playsInline
-                preload="metadata"
-                className="w-full h-full object-contain"
-              />
-            )}
+        {/* Content Tags */}
+        {post.item_type && post.item_id && (
+          <div className="flex flex-wrap gap-1">
+            <Badge variant="outline" className="text-xs">
+              {post.item_type === 'show' && '📺'}
+              {post.item_type === 'season' && '📚'}
+              {post.item_type === 'episode' && '📼'}
+              {' '}
+              {post.item_id}
+            </Badge>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        )}
+
+        {/* Engagement Actions */}
+        <div className="flex items-center gap-4 pt-3 border-t">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLike}
+            className={cn(localReaction === 'like' && 'text-primary')}
+          >
+            <ThumbsUp className={cn('h-4 w-4 mr-1', localReaction === 'like' && 'fill-primary')} />
+            {localLikes}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDislike}
+            className={cn(localReaction === 'dislike' && 'text-destructive')}
+          >
+            <ThumbsDown className={cn('h-4 w-4 mr-1', localReaction === 'dislike' && 'fill-destructive')} />
+            {localDislikes}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(`/post/${post.id}`)}
+          >
+            <MessageCircle className="h-4 w-4 mr-1" />
+            {localReplies}
+          </Button>
+
+          <div className="flex-1" />
+
+          {/* More Actions Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate(`/post/${post.id}`)}>
+                <MessageCircle className="mr-2 h-4 w-4" />
+                View Comments
+              </DropdownMenuItem>
+              {(post.video_embed_url || post.video_url) && (
+                <DropdownMenuItem asChild>
+                  <a href={post.video_embed_url || post.video_url || '#'} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Open Original
+                  </a>
+                </DropdownMenuItem>
+              )}
+              {user?.id === post.author_id && (
+                <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                  <Trash className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </Card>
   );
 }
