@@ -68,6 +68,23 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
     }
   }, [post.item_type, post.item_id]);
 
+  const getContentUrl = (itemType: string, itemId: string) => {
+    const parts = itemId.split(':');
+    const tvdbId = parts[0];
+    
+    if (itemType === 'show') {
+      return `/show/${tvdbId}`;
+    } else if (itemType === 'season') {
+      const seasonNum = parts[1];
+      return `/show/${tvdbId}/season/${seasonNum}`;
+    } else if (itemType === 'episode') {
+      const seasonNum = parts[1];
+      const episodeNum = parts[2];
+      return `/show/${tvdbId}/season/${seasonNum}/episode/${episodeNum}`;
+    }
+    return '#';
+  };
+
   const handleLike = async () => {
     if (!user) {
       toast.error('You must be logged in');
@@ -189,15 +206,20 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
             )}
 
             {/* Content Tags */}
-            {post.item_type && contentInfo?.title && (
+            {post.item_type && contentInfo?.title && post.item_id && (
               <div className="flex flex-wrap gap-1">
-                <Badge variant="outline" className="text-xs">
-                  {post.item_type === 'show' && '📺'}
-                  {post.item_type === 'season' && '📚'}
-                  {post.item_type === 'episode' && '📼'}
-                  {' '}
-                  {contentInfo.title}
-                </Badge>
+                <Link 
+                  to={getContentUrl(post.item_type, post.item_id)}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Badge variant="outline" className="text-xs hover:bg-accent cursor-pointer transition-colors">
+                    {post.item_type === 'show' && '📺'}
+                    {post.item_type === 'season' && '📚'}
+                    {post.item_type === 'episode' && '📼'}
+                    {' '}
+                    {contentInfo.title}
+                  </Badge>
+                </Link>
               </div>
             )}
           </div>
