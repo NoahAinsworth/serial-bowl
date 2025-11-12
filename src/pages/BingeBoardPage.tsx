@@ -110,7 +110,7 @@ export default function BingeBoardPage() {
             Binge Board
           </h1>
           <p 
-            className="text-white" 
+            className="text-white/70" 
             style={{ 
               textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
             }}
