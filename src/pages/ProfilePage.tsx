@@ -459,7 +459,7 @@ export default function ProfilePage() {
               )}
               <div className="flex items-center justify-center gap-2 flex-wrap">
                 <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                  @{profile?.handle || 'user'}
+                  {profile?.handle?.startsWith('@') ? profile.handle : `@${profile?.handle || 'user'}`}
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-sm px-2 py-0.5 bg-primary/20 border border-primary/30 rounded-full text-primary font-semibold">

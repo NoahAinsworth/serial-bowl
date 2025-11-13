@@ -216,7 +216,7 @@ export default function BingeBoardPage() {
                         textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
                       }}
                     >
-                      @{leaderUser.handle}
+                      {leaderUser.handle.startsWith('@') ? leaderUser.handle : `@${leaderUser.handle}`}
                     </div>
                     <div 
                       className="text-sm text-white/90" 

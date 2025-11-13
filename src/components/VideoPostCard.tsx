@@ -240,7 +240,7 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
           </Link>
           <div className="flex-1">
             <Link to={`/profile/${post.profiles?.handle}`} className="font-semibold text-sm hover:underline">
-              @{post.profiles?.handle}
+              {post.profiles?.handle?.startsWith('@') ? post.profiles.handle : `@${post.profiles?.handle}`}
             </Link>
             <p className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}

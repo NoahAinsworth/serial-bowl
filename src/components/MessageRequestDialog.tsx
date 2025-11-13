@@ -55,7 +55,7 @@ export function MessageRequestDialog({
         <DialogHeader>
           <DialogTitle>Send Message Request</DialogTitle>
           <DialogDescription>
-            You and @{recipientHandle} don't follow each other. Send a message request to start a conversation.
+            You and {recipientHandle.startsWith('@') ? recipientHandle : `@${recipientHandle}`} don't follow each other. Send a message request to start a conversation.
           </DialogDescription>
         </DialogHeader>
 

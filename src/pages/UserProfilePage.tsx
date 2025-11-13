@@ -400,7 +400,7 @@ export default function UserProfilePage() {
                   textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 6px rgba(0,0,0,0.9)'
                 }}
               >
-                @{profile.handle || 'user'}
+                {profile.handle.startsWith('@') ? profile.handle : `@${profile.handle}`}
               </p>
 
               {/* Stats */}

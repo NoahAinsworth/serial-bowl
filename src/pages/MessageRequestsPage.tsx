@@ -159,7 +159,7 @@ export default function MessageRequestsPage() {
                   className="font-semibold cursor-pointer hover:underline"
                   onClick={() => navigate(`/profile/${request.sender.handle}`)}
                 >
-                  @{request.sender.handle}
+                  {request.sender.handle.startsWith('@') ? request.sender.handle : `@${request.sender.handle}`}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   {new Date(request.created_at).toLocaleDateString()}
