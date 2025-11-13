@@ -221,15 +221,14 @@ export default function SettingsPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Light (Neobrutalism)</SelectItem>
-              <SelectItem value="dark">Dark (Neobrutalism)</SelectItem>
+              <SelectItem value="light">Light</SelectItem>
+              <SelectItem value="dark">Dark</SelectItem>
               <SelectItem value="green_wireframe">Green Wireframe</SelectItem>
               <SelectItem value="static_tv">Static TV</SelectItem>
               <SelectItem value="donut_mode">Donut Mode</SelectItem>
               <SelectItem value="upside_down">Upside Down</SelectItem>
               <SelectItem value="the_one_with_the_theme">The One with the Theme</SelectItem>
               <SelectItem value="upper_east_side">Upper East Side</SelectItem>
-              <SelectItem value="neobrutalism">Neobrutalism (Legacy)</SelectItem>
             </SelectContent>
           </Select>
         </div>
