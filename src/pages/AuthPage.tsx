@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { env } from '@/lib/env';
+import { SerialBowlLogo } from '@/components/SerialBowlLogo';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -201,9 +202,15 @@ export default function AuthPage() {
         
         <Card className="w-full max-w-md p-8 border-[3px] border-border shadow-brutal bg-card">
           <div className="text-center mb-8">
-            <div className="inline-block px-6 py-3 bg-neo-lavender rounded-2xl border-[3px] border-border mb-4 shadow-brutal">
-              <h2 className="text-2xl font-black text-black dark:text-white">Create New Password</h2>
+            <div className="mb-4">
+              <div className="inline-block px-6 py-3 bg-neo-lavender rounded-2xl border-[3px] border-border shadow-brutal">
+                <SerialBowlLogo 
+                  width={160} 
+                  className="text-black dark:text-white" 
+                />
+              </div>
             </div>
+            <h2 className="text-xl font-black text-foreground mb-2">Create New Password</h2>
             <p className="text-foreground font-semibold">Enter your new password below</p>
           </div>
           <div className="space-y-4">
@@ -260,7 +267,10 @@ export default function AuthPage() {
         <div className="text-center mb-8">
           {/* Logo/Brand area with colorful background pill */}
           <div className="inline-block px-6 py-3 bg-neo-pink rounded-2xl border-[3px] border-border mb-4 shadow-brutal">
-            <h1 className="text-3xl font-black text-black dark:text-white">Serial Bowl</h1>
+            <SerialBowlLogo 
+              width={180} 
+              className="text-black dark:text-white" 
+            />
           </div>
           <p className="text-foreground font-semibold text-lg">Your bingeing experience awaits!</p>
         </div>
