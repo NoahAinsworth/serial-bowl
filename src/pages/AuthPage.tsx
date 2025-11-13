@@ -194,11 +194,17 @@ export default function AuthPage() {
   // Show password reset form if arriving from email link
   if (isResettingPassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center gradient-cloud px-4">
-        <Card className="w-full max-w-md p-8 border-0">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4 relative overflow-hidden">
+        {/* Decorative background shapes */}
+        <div className="absolute top-10 left-10 w-32 h-32 bg-neo-lavender opacity-20 rounded-3xl rotate-12 blur-xl" />
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-neo-amber opacity-20 rounded-3xl -rotate-12 blur-xl" />
+        
+        <Card className="w-full max-w-md p-8 border-[3px] border-border shadow-brutal bg-card">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-2">Create New Password</h2>
-            <p className="text-muted-foreground">Enter your new password below</p>
+            <div className="inline-block px-6 py-3 bg-neo-lavender rounded-2xl border-[3px] border-border mb-4 shadow-brutal">
+              <h2 className="text-2xl font-black text-black dark:text-white">Create New Password</h2>
+            </div>
+            <p className="text-foreground font-semibold">Enter your new password below</p>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -226,7 +232,7 @@ export default function AuthPage() {
             <Button
               onClick={handleUpdatePassword}
               disabled={loading}
-              className="w-full btn-glow"
+              className="w-full bg-neo-pink hover:bg-neo-pink/90 text-black dark:text-white font-bold border-[3px] border-border shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_rgba(255,255,255,0.2)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:active:shadow-[2px_2px_0px_rgba(255,255,255,0.1)] transition-all"
             >
               {loading ? (
                 <>
@@ -244,16 +250,35 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-cloud px-4">
-      <Card className="w-full max-w-md p-8 border-0">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 relative overflow-hidden">
+      {/* Decorative background shapes */}
+      <div className="absolute top-10 left-10 w-32 h-32 bg-neo-pink opacity-20 rounded-3xl rotate-12 blur-xl" />
+      <div className="absolute bottom-20 right-20 w-40 h-40 bg-neo-amber opacity-20 rounded-3xl -rotate-12 blur-xl" />
+      <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-neo-lavender opacity-20 rounded-3xl blur-xl" />
+      
+      <Card className="w-full max-w-md p-8 border-[3px] border-border shadow-brutal bg-card">
         <div className="text-center mb-8">
-          <p className="text-muted-foreground font-medium">Your bingeing experience awaits!</p>
+          {/* Logo/Brand area with colorful background pill */}
+          <div className="inline-block px-6 py-3 bg-neo-pink rounded-2xl border-[3px] border-border mb-4 shadow-brutal">
+            <h1 className="text-3xl font-black text-black dark:text-white">Serial Bowl</h1>
+          </div>
+          <p className="text-foreground font-semibold text-lg">Your bingeing experience awaits!</p>
         </div>
 
         <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-6 p-1 bg-muted border-[3px] border-border rounded-xl">
+            <TabsTrigger 
+              value="signin" 
+              className="data-[state=active]:bg-neo-pink data-[state=active]:text-black dark:data-[state=active]:text-white font-bold border-[2px] border-transparent data-[state=active]:border-border rounded-lg"
+            >
+              Sign In
+            </TabsTrigger>
+            <TabsTrigger 
+              value="signup"
+              className="data-[state=active]:bg-neo-amber data-[state=active]:text-black dark:data-[state=active]:text-white font-bold border-[2px] border-transparent data-[state=active]:border-border rounded-lg"
+            >
+              Sign Up
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin" className="space-y-4">
@@ -282,7 +307,7 @@ export default function AuthPage() {
             <Button
               onClick={handleSignIn}
               disabled={loading || !email || !password}
-              className="w-full btn-glow"
+              className="w-full bg-neo-pink hover:bg-neo-pink/90 text-black dark:text-white font-bold border-[3px] border-border shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_rgba(255,255,255,0.2)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:active:shadow-[2px_2px_0px_rgba(255,255,255,0.1)] transition-all"
             >
               {loading ? (
                 <>
@@ -303,9 +328,9 @@ export default function AuthPage() {
                 Forgot password?
               </Button>
             ) : (
-              <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+              <div className="space-y-3 p-4 bg-neo-baby-blue/30 dark:bg-neo-lavender/20 rounded-lg border-[3px] border-border">
                 <div className="space-y-2">
-                  <Label htmlFor="reset-email">Email for password reset</Label>
+                  <Label className="font-bold">Email for password reset</Label>
                   <Input
                     id="reset-email"
                     type="email"
@@ -319,7 +344,7 @@ export default function AuthPage() {
                   <Button
                     onClick={handlePasswordReset}
                     disabled={loading || !resetEmail}
-                    className="flex-1"
+                    className="flex-1 bg-neo-amber hover:bg-neo-amber/90 text-black dark:text-white font-bold border-[3px] border-border"
                     size="sm"
                   >
                     {loading ? (
@@ -337,6 +362,7 @@ export default function AuthPage() {
                       setShowResetForm(false);
                       setResetEmail('');
                     }}
+                    className="border-[3px] border-border font-bold"
                     size="sm"
                   >
                     Cancel
@@ -381,7 +407,7 @@ export default function AuthPage() {
             <Button
               onClick={handleSignUp}
               disabled={loading || !email || !password || !handle}
-              className="w-full btn-glow"
+              className="w-full bg-neo-amber hover:bg-neo-amber/90 text-black dark:text-white font-bold border-[3px] border-border shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_rgba(255,255,255,0.2)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:active:shadow-[2px_2px_0px_rgba(255,255,255,0.1)] transition-all"
             >
               {loading ? (
                 <>

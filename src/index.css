@@ -57,60 +57,62 @@ All colors MUST be HSL.
 
   :root,
   .light {
-    /* Base - Soft white with warm neutrals */
-    --background: 0 0% 98%;              /* Soft white */
-    --foreground: 240 10% 15%;           /* Deep charcoal */
+    /* Neobrutalism Light - Vibrant & Clean */
+    --background: 201 30% 94%;          /* Light grey-blue #E8EEF4 */
+    --foreground: 0 0% 0%;              /* Pure black text */
     
-    /* Pastel Gradient Accents */
-    --primary: 270 60% 70%;              /* Lavender */
-    --primary-foreground: 0 0% 100%;
+    /* Brand Colors (Neobrutalism Palette) */
+    --primary: 333 99% 72%;             /* Hot Pink #FE5BD6 */
+    --primary-foreground: 0 0% 0%;
     
-    --secondary: 25 85% 75%;             /* Warm peach */
-    --secondary-foreground: 240 10% 15%;
+    --secondary: 46 100% 61%;           /* Amber #FEC437 */
+    --secondary-foreground: 0 0% 0%;
     
-    --accent: 200 70% 75%;               /* Sky blue */
-    --accent-foreground: 240 10% 15%;
+    --accent: 246 45% 64%;              /* Lavender #897BC1 */
+    --accent-foreground: 0 0% 0%;
     
-    --destructive: 350 80% 65%;          /* Soft coral-red */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
     /* UI Components */
-    --card: 0 0% 100%;                   /* Pure white */
-    --card-foreground: 240 10% 15%;
+    --card: 0 0% 100%;                  /* White cards */
+    --card-foreground: 0 0% 0%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover-foreground: 0 0% 0%;
     
-    --muted: 240 5% 93%;                 /* Light grey */
-    --muted-foreground: 240 5% 45%;
+    --muted: 201 53% 88%;               /* Baby Blue #C9D9F0 */
+    --muted-foreground: 0 0% 20%;
     
-    --border: 270 30% 85%;               /* Lavender-tinted border */
-    --input: 240 5% 96%;
-    --ring: 270 60% 70%;
+    --border: 0 0% 0%;                  /* Black borders */
+    --input: 0 0% 100%;
+    --ring: 333 99% 72%;
     
-    /* Cinematic Light Colors */
-    --film-lavender: 270 60% 75%;
-    --film-peach: 25 85% 75%;
-    --film-sky: 200 70% 75%;
-    --film-coral: 15 80% 65%;
+    /* Extended Palette */
+    --neo-pink: 333 99% 72%;
+    --neo-amber: 46 100% 61%;
+    --neo-lavender: 246 45% 64%;
+    --neo-baby-blue: 201 53% 88%;
+    --neo-lime: 88 83% 74%;
+    --neo-coral: 14 100% 71%;
+    
+    /* Effects */
+    --shadow-brutal: 6px 6px 0px rgba(0, 0, 0, 1);
+    --shadow-brutal-hover: 8px 8px 0px rgba(0, 0, 0, 1);
+    --shadow-brutal-active: 2px 2px 0px rgba(0, 0, 0, 1);
     
     /* Typography */
-    font-family: 'Poppins', 'Inter', sans-serif;
+    --font-weight-display: 800;
+    --font-weight-ui: 600;
+    
+    /* Shapes */
+    --radius: 16px;
+    --stroke-width: 3px;
+    
+    font-family: 'DM Sans', 'Inter', sans-serif;
   }
 
-  /* Light Film Grain Overlay - Safari-safe (no mix-blend-mode) */
-  .light::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 9998;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grainFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grainFilter)'/%3E%3C/svg%3E");
-    opacity: 0.03;
-  }
+  /* No film grain in neobrutalism light mode */
 
   /* Light mode background gradient - now handled by ThemeBackground component */
   /* .light::after {
@@ -129,284 +131,178 @@ All colors MUST be HSL.
       linear-gradient(135deg, rgba(230, 215, 240, 0.4) 0%, rgba(240, 230, 235, 0.4) 50%, rgba(215, 235, 245, 0.4) 100%);
   } */
 
-  .light h1, .light h2, .light .wordmark {
-    font-family: 'Audiowide', 'Poppins', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    background: linear-gradient(135deg, hsl(var(--film-lavender)), hsl(var(--film-peach)), hsl(var(--film-sky)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .light h1, .light h2, .light h3, .light .wordmark {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: hsl(var(--foreground));
   }
 
   .light p, .light span {
-    font-family: 'Poppins', 'Inter', sans-serif;
-    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
   }
 
   .light .bg-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(200, 180, 230, 0.15);
-    box-shadow: 0 2px 16px rgba(140, 100, 200, 0.08), 0 4px 32px rgba(140, 100, 200, 0.04);
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 16px;
+    background: white;
+    border: 3px solid black;
+    box-shadow: var(--shadow-brutal);
+    transition: all 0.2s ease;
   }
 
   .light .bg-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 24px rgba(140, 100, 200, 0.12), 0 8px 48px rgba(140, 100, 200, 0.08);
+    transform: translate(-1px, -1px);
+    box-shadow: var(--shadow-brutal-hover);
   }
 
   .light button {
-    background: rgba(220, 220, 225, 0.9);
-    color: hsl(var(--foreground));
-    border: 1px solid rgba(200, 200, 210, 0.5);
-    transition: all 0.25s ease;
+    border: 3px solid black;
+    font-weight: 700;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+    transition: all 0.15s ease;
   }
 
-  .light button:hover {
-    background: rgba(210, 210, 220, 1);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 12px rgba(140, 100, 200, 0.15);
+  .light button:not(:disabled):hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+  }
+
+  .light button:not(:disabled):active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
   }
 
   .light textarea, .light input {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid hsl(var(--border));
-    box-shadow: inset 0 2px 8px rgba(140, 100, 200, 0.05), 0 0 0 0 rgba(140, 100, 200, 0);
-    transition: all 0.3s ease;
+    border: 3px solid black;
+    font-weight: 600;
+    background: white;
+    transition: all 0.2s ease;
   }
 
   .light textarea:focus, .light input:focus {
-    border-color: hsl(var(--primary));
-    box-shadow: inset 0 2px 8px rgba(140, 100, 200, 0.08), 0 0 0 4px rgba(140, 100, 200, 0.1);
-    background: rgba(255, 255, 255, 0.95);
+    outline: none;
+    border-color: black;
+    box-shadow: 0 0 0 4px hsl(var(--neo-pink) / 0.3);
   }
 
-  /* ========================= DARK MODE (VHS MODE) ========================= */
+  /* ========================= DARK MODE (NEOBRUTALISM DARK) ========================= */
   .dark {
-    /* Enhanced Base Colors - Navy/Indigo with depth */
-    --background: 222 25% 10%;          /* Navy-indigo base */
-    --foreground: 220 15% 96%;          /* Cool white */
+    /* Neobrutalism Dark - Same vibrant colors, dark background */
+    --background: 240 10% 12%;          /* Dark blue-grey #1A1D24 */
+    --foreground: 0 0% 100%;            /* White text */
     
-    /* Refined Neon Accents */
-    --primary: 300 100% 65%;            /* Hot magenta */
-    --primary-foreground: 0 0% 100%;
+    /* Brand Colors (SAME as light mode) */
+    --primary: 333 99% 72%;             /* Hot Pink #FE5BD6 */
+    --primary-foreground: 0 0% 0%;
     
-    --secondary: 258 80% 35%;           /* Deep violet */
-    --secondary-foreground: 300 100% 85%;
+    --secondary: 46 100% 61%;           /* Amber #FEC437 */
+    --secondary-foreground: 0 0% 0%;
     
-    --accent: 180 100% 55%;             /* Bright cyan */
-    --accent-foreground: 222 25% 10%;
+    --accent: 246 45% 64%;              /* Lavender #897BC1 */
+    --accent-foreground: 0 0% 100%;
     
-    --destructive: 330 100% 60%;        /* Hot pink */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    /* UI Components with gradient depth */
-    --card: 222 30% 14%;                /* Slightly lighter navy */
-    --card-foreground: 220 15% 96%;
+    /* UI Components */
+    --card: 240 8% 18%;                 /* Slightly lighter dark #282B33 */
+    --card-foreground: 0 0% 100%;
     
-    --popover: 222 30% 14%;
-    --popover-foreground: 220 15% 96%;
+    --popover: 240 8% 18%;
+    --popover-foreground: 0 0% 100%;
     
-    --muted: 258 40% 18%;
-    --muted-foreground: 220 15% 75%;
+    --muted: 240 10% 25%;               /* Dark muted blue */
+    --muted-foreground: 0 0% 80%;
     
-    --border: 258 60% 35%;
-    --input: 258 60% 25%;
-    --ring: 300 100% 65%;
+    --border: 0 0% 100%;                /* White borders (inverted) */
+    --input: 240 8% 18%;
+    --ring: 333 99% 72%;
     
-    /* VHS-specific colors */
-    --vhs-magenta: 300 100% 65%;
-    --vhs-cyan: 180 100% 55%;
-    --vhs-purple: 258 80% 35%;
-    --vhs-pink: 330 100% 70%;
+    /* Extended Palette (SAME) */
+    --neo-pink: 333 99% 72%;
+    --neo-amber: 46 100% 61%;
+    --neo-lavender: 246 45% 64%;
+    --neo-baby-blue: 201 53% 88%;
+    --neo-lime: 88 83% 74%;
+    --neo-coral: 14 100% 71%;
     
-    /* Pastel gradients for Serial Bowl 2.0 */
-    --gradient-lavender-peach: linear-gradient(135deg, #D7C9FF 0%, #FFBDBD 100%);
-    --gradient-violet-pink: linear-gradient(135deg, #B27AFF 0%, #FF9AD5 100%);
-    --gradient-violet-cream: linear-gradient(135deg, #A47FFF 0%, #FFF8F5 100%);
-    --glow-purple: 0 4px 16px rgba(178, 122, 255, 0.3);
-    --glow-pink: 0 4px 16px rgba(255, 189, 189, 0.3);
-    
-    /* Effects */
-    --radius-lg: 0.5rem;
-    --radius-md: 0.375rem;
-    --radius-sm: 0.25rem;
+    /* Effects (white shadows for dark mode) */
+    --shadow-brutal: 6px 6px 0px rgba(255, 255, 255, 0.15);
+    --shadow-brutal-hover: 8px 8px 0px rgba(255, 255, 255, 0.2);
+    --shadow-brutal-active: 2px 2px 0px rgba(255, 255, 255, 0.1);
     
     /* Typography */
-    font-family: 'Rajdhani', 'DM Sans', sans-serif;
+    --font-weight-display: 800;
+    --font-weight-ui: 600;
     
-    /* Ambient gradient background */
-    background: linear-gradient(
-      135deg, 
-      hsl(222 40% 15%), 
-      hsl(258 50% 20%), 
-      hsl(280 45% 18%)
-    );
+    /* Shapes */
+    --radius: 16px;
+    --stroke-width: 3px;
+    
+    font-family: 'DM Sans', 'Inter', sans-serif;
   }
 
-  /* VHS Background Effects - Enhanced Scanlines with Vignette */
-  .dark::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 9998;
-    background-image: 
-      radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%),
-      repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.12) 0px,
-        rgba(0, 0, 0, 0.12) 1px,
-        transparent 1px,
-        transparent 2px
-      );
-    animation: vhs-scanline 10s linear infinite;
-    opacity: 0.4;
-  }
+  /* No VHS effects in neobrutalism dark mode */
 
-  /* VHS Grain Overlay - Safari-safe (no mix-blend-mode) */
-  .dark::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 9997;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.06;
-    animation: vhs-grain 0.4s infinite;
-  }
-  
-  /* Moving Light Gradients */
-  .dark body {
-    background: linear-gradient(
-      270deg,
-      hsl(222 40% 12%),
-      hsl(258 50% 15%),
-      hsl(280 45% 14%),
-      hsl(258 50% 15%),
-      hsl(222 40% 12%)
-    );
-    background-size: 400% 400%;
-    animation: ambient-shift 20s ease infinite;
-  }
-
-  /* VHS Typography - Futuristic Display Font */
   .dark h1,
   .dark h2,
+  .dark h3,
   .dark .wordmark {
-    font-family: 'Audiowide', sans-serif;
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    text-shadow: 
-      2px 0 0 rgba(255, 0, 255, 0.4),
-      -2px 0 0 rgba(0, 255, 255, 0.4),
-      0 0 25px rgba(255, 0, 255, 0.3),
-      0 0 40px rgba(0, 255, 255, 0.2);
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: hsl(var(--foreground));
   }
 
   .dark p,
-  .dark span,
-  .dark div {
-    font-family: 'Rajdhani', 'DM Sans', sans-serif;
-    font-weight: 400;
+  .dark span {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
   }
 
-  /* VHS Cards - Glassmorphism with Glow Borders */
   .dark .bg-card {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--card) / 0.7) 0%,
-      hsl(var(--card) / 0.5) 100%
-    );
-    backdrop-filter: blur(12px) saturate(150%);
-    border: 1px solid transparent;
-    border-image: linear-gradient(
-      135deg,
-      hsl(var(--vhs-magenta) / 0.5),
-      hsl(var(--vhs-cyan) / 0.5),
-      hsl(var(--vhs-purple) / 0.3)
-    ) 1;
-    box-shadow: 
-      0 4px 24px rgba(255, 0, 255, 0.12),
-      0 8px 48px rgba(0, 255, 255, 0.08),
-      inset 0 0 80px rgba(255, 0, 255, 0.03);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: hsl(var(--card));
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-brutal);
+    transition: all 0.2s ease;
   }
 
   .dark .bg-card:hover {
-    transform: translateY(-2px) scale(1.01);
-    border-image: linear-gradient(
-      135deg,
-      hsl(var(--vhs-cyan) / 0.7),
-      hsl(var(--vhs-magenta) / 0.7),
-      hsl(var(--vhs-purple) / 0.5)
-    ) 1;
-    box-shadow: 
-      0 6px 32px rgba(255, 0, 255, 0.2),
-      0 12px 64px rgba(0, 255, 255, 0.15),
-      inset 0 0 100px rgba(0, 255, 255, 0.05);
+    transform: translate(-1px, -1px);
+    box-shadow: var(--shadow-brutal-hover);
   }
 
-  /* VHS Buttons - Cinematic Pulse Interaction */
-  .dark button,
-  .dark .btn-glow {
-    font-family: 'Rajdhani', sans-serif;
+  .dark button {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    font-weight: 700;
+    box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.15);
+    transition: all 0.15s ease;
+  }
+
+  .dark button:not(:disabled):hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.2);
+  }
+
+  .dark button:not(:disabled):active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.1);
+  }
+
+  .dark textarea,
+  .dark input {
+    border: 3px solid rgba(255, 255, 255, 0.2);
     font-weight: 600;
-    letter-spacing: 0.5px;
-    border: 1px solid hsl(var(--vhs-magenta) / 0.5);
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary) / 0.1),
-      hsl(var(--accent) / 0.1)
-    );
-    box-shadow: 
-      0 0 10px rgba(255, 0, 255, 0.2),
-      0 0 20px rgba(0, 255, 255, 0.1),
-      inset 0 0 30px rgba(255, 0, 255, 0.05);
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-  }
-  
-  .dark button::before,
-  .dark .btn-glow::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(
-      circle at center,
-      rgba(255, 0, 255, 0.2),
-      transparent 70%
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    background: hsl(var(--input));
+    color: hsl(var(--foreground));
+    transition: all 0.2s ease;
   }
 
-  .dark button:hover:not(:disabled),
-  .dark .btn-glow:hover {
-    text-shadow: 
-      1px 0 2px rgba(255, 0, 255, 0.8),
-      -1px 0 2px rgba(0, 255, 255, 0.8),
-      0 0 15px rgba(255, 0, 255, 0.5);
-    box-shadow: 
-      0 0 20px rgba(255, 0, 255, 0.4),
-      0 0 40px rgba(0, 255, 255, 0.2),
-      inset 0 0 40px rgba(255, 0, 255, 0.1);
-    transform: translateY(-1px);
-  }
-  
-  .dark button:active::before,
-  .dark .btn-glow:active::before {
-    opacity: 1;
-    animation: vhs-pulse 0.6s ease-out;
+  .dark textarea:focus,
+  .dark input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 4px hsl(var(--neo-pink) / 0.3);
   }
 
   /* VHS Progress Bars - Add Neon Glow */
