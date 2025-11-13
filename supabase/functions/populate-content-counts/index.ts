@@ -59,7 +59,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
   
-  // Health check endpoint
+  // Health check endpoint (unauthenticated)
   if (req.method === 'GET') {
     console.log('🏥 Health check requested');
     return new Response(
@@ -71,6 +71,34 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
+
+  // Require authentication for POST requests
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    console.error('❌ Missing Authorization header');
+    return new Response(
+      JSON.stringify({ error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Verify JWT token and get user
+  const authClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const { data: { user }, error: authError } = await authClient.auth.getUser();
+  if (authError || !user) {
+    console.error('❌ Authentication failed:', authError?.message);
+    return new Response(
+      JSON.stringify({ error: 'Invalid authentication' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  console.log('✅ Authenticated user:', user.id);
 
   let external_id = ''
   let kind = ''
