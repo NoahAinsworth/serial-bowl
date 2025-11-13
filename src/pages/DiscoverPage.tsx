@@ -168,7 +168,18 @@ export default function DiscoverPage() {
       let results = [];
 
       if (filter === 'popular') {
-        results = await tvdbFetch(`/series/filter?page=${pageNum}&sort=score&sortType=desc`);
+        const rawResults = await tvdbFetch(`/series/filter?page=${pageNum}&sort=score&sortType=desc`);
+        // Enrich with extended data to get images
+        results = await Promise.all(
+          (Array.isArray(rawResults) ? rawResults : []).slice(0, 20).map(async (show: any) => {
+            try {
+              const extended = await tvdbFetch(`/series/${show.id}/extended`);
+              return { ...show, image: extended.image };
+            } catch {
+              return show;
+            }
+          })
+        );
       } else if (filter === 'new') {
         // Use proper new shows logic with date filtering
         const currentYear = new Date().getFullYear();
@@ -300,9 +311,22 @@ export default function DiscoverPage() {
     
     setSearchLoading(true);
     try {
-      const results = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series&limit=20&page=${pageNum}`);
-      const showsData = Array.isArray(results) ? results : [];
-      const normalized = showsData.map(normalizeSeries);
+      const rawResults = await tvdbFetch(`/search?query=${encodeURIComponent(query)}&type=series&limit=20&page=${pageNum}`);
+      const showsData = Array.isArray(rawResults) ? rawResults : [];
+      
+      // Enrich with extended data to get images
+      const enriched = await Promise.all(
+        showsData.slice(0, 20).map(async (show: any) => {
+          try {
+            const extended = await tvdbFetch(`/series/${show.id}/extended`);
+            return { ...show, image: extended.image };
+          } catch {
+            return show;
+          }
+        })
+      );
+      
+      const normalized = enriched.map(normalizeSeries);
 
       // Cache the results
       showsCache.set(cacheKey, normalized);
