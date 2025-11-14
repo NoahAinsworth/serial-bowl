@@ -62,7 +62,7 @@ export function UserVideos({ userId }: UserVideosProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
       {videos.map((video) => (
-        <VideoPostCard key={video.id} post={video} />
+        <VideoPostCard key={video.id} post={video} onDelete={loadVideos} />
       ))}
     </div>
   );
