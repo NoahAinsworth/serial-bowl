@@ -48,7 +48,7 @@ export async function createThought(params: CreateThoughtParams) {
 }
 
 export async function deletePost(postId: string): Promise<void> {
-  const { error } = await supabase.rpc('soft_delete_post', {
+  const { error } = await supabase.rpc('soft_delete_post' as any, {
     p_post_id: postId
   });
 
