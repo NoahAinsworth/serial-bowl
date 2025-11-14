@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { sharePost } from '@/api/messages';
+import { deletePost } from '@/api/posts';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { replaceProfanity } from '@/utils/profanityFilter';
@@ -312,11 +313,12 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
   const handleDelete = async () => {
     try {
-      await supabase.from('posts' as any).update({ deleted_at: new Date().toISOString() }).eq('id', post.id);
+      await deletePost(post.id);
       setDeleted(true);
       toast.success('Post deleted');
       onDelete?.();
     } catch (error) {
+      console.error('Delete post error:', error);
       toast.error('Failed to delete post');
     }
   };
