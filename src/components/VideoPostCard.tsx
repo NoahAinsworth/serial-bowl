@@ -155,8 +155,7 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
       onDelete?.();
     } catch (error: any) {
       console.error('Delete video post error:', error);
-      const errorMessage = error?.message || 'Failed to delete video post';
-      toast.error(errorMessage);
+      toast.error('Failed to delete video post. Please try again.');
     }
   };
 

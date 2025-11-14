@@ -63,6 +63,10 @@ export function UserPosts({ userId }: UserPostsProps) {
     setLoading(false);
   };
 
+  const handlePostDeleted = (postId: string) => {
+    setPosts(prev => prev.filter(p => p.id !== postId));
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -92,7 +96,7 @@ export function UserPosts({ userId }: UserPostsProps) {
           }} 
           userHideSpoilers={userHideSpoilers} 
           strictSafety={strictSafety}
-          onDelete={loadPosts}
+          onDelete={() => handlePostDeleted(post.id)}
           onReactionChange={loadPosts}
         />
       ))}

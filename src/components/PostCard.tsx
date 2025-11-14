@@ -314,15 +314,18 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this post?')) return;
     
+    // Optimistically remove from UI
+    setDeleted(true);
+    
     try {
       await deletePost(post.id);
-      setDeleted(true);
       toast.success('Post deleted');
       onDelete?.();
     } catch (error: any) {
+      // Revert on failure
+      setDeleted(false);
       console.error('Delete post error:', error);
-      const errorMessage = error?.message || 'Failed to delete post';
-      toast.error(errorMessage);
+      toast.error('Failed to delete post. Please try again.');
     }
   };
 
