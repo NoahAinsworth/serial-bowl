@@ -25,7 +25,7 @@ export default function PostPage() {
   const { toast } = useToast();
   const { search, fetchSeasons, fetchEpisodes } = useTVDB();
   
-  const [postType, setPostType] = useState<'thought' | 'review'>('thought');
+  const [postType, setPostType] = useState<'thought' | 'review' | 'video'>('thought');
   const [content, setContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -316,28 +316,46 @@ export default function PostPage() {
   const handlePost = async () => {
     if (!user) {
       toast({
-        title: "Sign in required",
-        description: "Please sign in to post",
+        title: "Authentication required",
+        description: "Please sign in to post.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!content.trim() && postType !== 'review') return;
-
-    if (postType === 'review' && !selectedContent) {
+    // Validation
+    if (postType === 'thought' && !content.trim() && !selectedContent) {
       toast({
-        title: "Selection required",
-        description: "Please select a show, season, or episode to review",
+        title: "Content required",
+        description: "Please write something or tag content to post.",
         variant: "destructive",
       });
       return;
     }
 
-    if (postType === 'review' && rating === 0) {
+    if (postType === 'review') {
+      if (!selectedContent) {
+        toast({
+          title: "Content required",
+          description: "Please select a show, season, or episode to review.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (rating === 0) {
+        toast({
+          title: "Rating required",
+          description: "Please provide a rating for your review.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (postType === 'video' && !videoEmbedUrl.trim()) {
       toast({
-        title: "Rating required",
-        description: "Please select a rating for your review",
+        title: "Video URL required",
+        description: "Please provide a video URL to post.",
         variant: "destructive",
       });
       return;
@@ -379,8 +397,8 @@ export default function PostPage() {
       });
     }
 
-    if (postType === 'thought') {
-      try {
+    try {
+      if (postType === 'thought' || postType === 'video') {
         const { data: newPost, error: thoughtError } = await supabase
           .from('posts')
           .insert({
@@ -392,6 +410,7 @@ export default function PostPage() {
             is_spoiler: isSpoiler,
             has_spoilers: isSpoiler,
             has_mature: containsMature,
+            video_embed_url: postType === 'video' ? videoEmbedUrl.trim() : null,
           })
           .select('id')
           .single();
@@ -399,66 +418,57 @@ export default function PostPage() {
         if (thoughtError) throw thoughtError;
         
         toast({
-          title: "Success",
-          description: "Thought posted!",
+          title: "Posted!",
+          description: postType === 'video' ? "Your video has been shared." : "Your thought has been shared.",
         });
         setContent('');
+        setVideoEmbedUrl('');
         setSelectedContent(null);
         setIsSpoiler(false);
         setContainsMature(false);
         navigate('/');
-      } catch (error: any) {
-        console.error('Post error:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to post thought",
-          variant: "destructive",
+      } else if (postType === 'review') {
+        if (!selectedContent) {
+          toast({
+            title: "Error",
+            description: "Please select content to review",
+            variant: "destructive",
+          });
+          setPosting(false);
+          return;
+        }
+
+        const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
+        const itemId = (selectedContent as any).external_id;
+
+        const { data: reviewPost, error: reviewError } = await supabase.rpc('api_rate_and_review', {
+          p_item_type: itemType,
+          p_item_id: itemId,
+          p_score_any: rating > 0 ? String(rating) : null,
+          p_review: content.trim() || null,
+          p_is_spoiler: isSpoiler,
         });
-      }
-    } else {
-      // Post review using the unified database function
-      if (!selectedContent) {
+
+        if (reviewError) throw reviewError;
+
         toast({
-          title: "Error",
-          description: "Please select content to review",
-          variant: "destructive",
+          title: "Posted!",
+          description: "Your review has been shared.",
         });
-        setPosting(false);
-        return;
+        setContent('');
+        setRating(0);
+        setSelectedContent(null);
+        setIsSpoiler(false);
+        setContainsMature(false);
+        navigate('/');
       }
-
-      const itemType = selectedContent.kind as 'show' | 'season' | 'episode';
-      const itemId = (selectedContent as any).external_id;
-
-      const { data: reviewPost, error: reviewError } = await supabase.rpc('api_rate_and_review', {
-        p_item_type: itemType,
-        p_item_id: itemId,
-        p_score_any: rating > 0 ? String(rating) : null,
-        p_review: content.trim() || null,
-        p_is_spoiler: isSpoiler,
-      });
-
-      if (reviewError) {
-        console.error('Review error:', reviewError);
-        toast({
-          title: "Error",
-          description: reviewError.message || "Failed to post review",
-          variant: "destructive",
-        });
-        setPosting(false);
-        return;
-      }
-
+    } catch (error: any) {
+      console.error('Post error:', error);
       toast({
-        title: "Success",
-        description: "Posted!",
+        title: "Error",
+        description: error.message || "Failed to post",
+        variant: "destructive",
       });
-      setContent('');
-      setRating(0);
-      setSelectedContent(null);
-      setIsSpoiler(false);
-      setContainsMature(false);
-      navigate('/');
     }
 
     setPosting(false);
@@ -469,10 +479,11 @@ export default function PostPage() {
       <Card className="p-6 space-y-4">
         <h2 className="text-2xl font-bold">Create Post</h2>
         
-        <Tabs value={postType} onValueChange={(v) => setPostType(v as 'thought' | 'review')}>
-          <TabsList className="w-full grid grid-cols-2">
+        <Tabs value={postType} onValueChange={(v) => setPostType(v as 'thought' | 'review' | 'video')}>
+          <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="thought">Thought</TabsTrigger>
             <TabsTrigger value="review">Review</TabsTrigger>
+            <TabsTrigger value="video">Video</TabsTrigger>
           </TabsList>
 
           <TabsContent value="thought" className="space-y-4">
@@ -570,209 +581,130 @@ export default function PostPage() {
               </Label>
             </div>
           </TabsContent>
+
+          {/* Video Tab */}
+          <TabsContent value="video" className="space-y-4">
+            <div>
+              <Label className="mb-2 block">Video URL *</Label>
+              <Input
+                placeholder="Paste YouTube, TikTok, Instagram, or Twitter video URL..."
+                value={videoEmbedUrl}
+                onChange={(e) => setVideoEmbedUrl(e.target.value)}
+                type="url"
+              />
+            </div>
+            
+            <div>
+              <Label className="mb-2 block">Caption (optional)</Label>
+              <Textarea
+                placeholder="Add a caption to your video..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="min-h-[100px] resize-none"
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-muted-foreground">
+                  {content.length} / 500
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="video-spoiler" 
+                checked={isSpoiler}
+                onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
+              />
+              <Label
+                htmlFor="video-spoiler"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                This contains spoilers
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="video-mature" 
+                checked={containsMature}
+                onCheckedChange={(checked) => setContainsMature(checked as boolean)}
+              />
+              <Label
+                htmlFor="video-mature"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                🔞 This contains mature content
+              </Label>
+            </div>
+          </TabsContent>
         </Tabs>
 
-        {selectedContent && postType !== 'review' && (
-          <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-md">
-            <button
-              onClick={async () => {
-                try {
-                  const { data } = await supabase
-                    .from('content')
-                    .select('external_id, metadata')
-                    .eq('id', selectedContent.id)
-                    .single();
-                  
-                  if (data?.external_id) {
-                    if (selectedContent.kind === 'show') {
-                      navigate(`/show/${data.external_id}`);
-                    } else if (selectedContent.kind === 'season' && data.metadata) {
-                      const metadata = data.metadata as any;
-                      navigate(`/show/${metadata.show_id}/season/${metadata.season_number}`);
-                    } else if (selectedContent.kind === 'episode' && data.metadata) {
-                      const metadata = data.metadata as any;
-                      navigate(`/show/${metadata.show_id}/season/${metadata.season_number}/episode/${metadata.episode_number}`);
-                    }
-                  }
-                } catch (error) {
-                  console.error('Navigation error:', error);
-                }
-              }}
-              className="text-sm text-primary flex-1 text-left hover:underline"
-              type="button"
-            >
-              {selectedContent.kind === 'show' && '📺 '}
-              {selectedContent.kind === 'season' && '📁 '}
-              {selectedContent.kind === 'episode' && '🎬 '}
-              {formatContentDisplay(selectedContent)}
-            </button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSelectedContent(null);
-                resetSelection();
-              }}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+        {/* Video Tab */}
+        <TabsContent value="video" className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Video URL *</Label>
+            <Input
+              placeholder="Paste YouTube, TikTok, Instagram, or Twitter video URL..."
+              value={videoEmbedUrl}
+              onChange={(e) => setVideoEmbedUrl(e.target.value)}
+              type="url"
+            />
           </div>
-        )}
-
-        {postType !== 'review' && (
-          <div className="space-y-2">
-            <Label>Tag content (optional)</Label>
           
-          {!selectedShow && (
-            <>
-              <Input
-                placeholder="Search for a show..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              
-              {searching && (
-                <div className="flex justify-center py-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              )}
-              
-              {searchResults.length > 0 && (
-                <div className="max-h-48 overflow-y-auto space-y-2 border rounded-md p-2 bg-background z-50">
-                  {searchResults.map((show) => (
-                    <button
-                      key={show.id}
-                      onClick={() => handleSelectShow(show)}
-                      className="w-full text-left px-3 py-2 hover:bg-muted rounded-md transition-colors"
-                      type="button"
-                    >
-                      <p className="font-medium">{show.name}</p>
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {show.overview}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-
-          {selectedShow && !selectedSeason && (
-            <div className="space-y-2 border rounded-md p-3 bg-background">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-medium text-sm">Select from: {selectedShow.name}</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={resetSelection}
-                  type="button"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSelectShowAsTag(selectedShow)}
-                className="w-full"
-                type="button"
-              >
-                Tag entire show
-              </Button>
-
-              {loadingSeasons ? (
-                <div className="flex justify-center py-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Or select a season:</p>
-                  {seasons.map((season) => (
-                    <div key={season.id} className="grid grid-cols-3 gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSelectSeason(season)}
-                        className="col-span-2 justify-start"
-                        type="button"
-                      >
-                        {season.name}
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => handleSelectSeasonAsTag(season)}
-                        type="button"
-                      >
-                        Tag
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+          <div>
+            <Label className="mb-2 block">Caption (optional)</Label>
+            <Textarea
+              placeholder="Add a caption to your video..."
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="min-h-[100px] resize-none"
+              maxLength={500}
+            />
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-sm text-muted-foreground">
+                {content.length} / 500
+              </span>
             </div>
-          )}
+          </div>
 
-          {selectedSeason && (
-            <div className="space-y-2 border rounded-md p-3 bg-background">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-medium text-sm">{selectedSeason.name}</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedSeason(null);
-                    setEpisodes([]);
-                  }}
-                  type="button"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="video-spoiler" 
+              checked={isSpoiler}
+              onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
+            />
+            <Label
+              htmlFor="video-spoiler"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              This contains spoilers
+            </Label>
+          </div>
 
-              {loadingEpisodes ? (
-                <div className="flex justify-center py-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  <p className="text-sm text-muted-foreground mb-2">Select an episode:</p>
-                  {episodes.map((episode) => (
-                    <button
-                      key={episode.id}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleSelectEpisode(episode);
-                      }}
-                      className="w-full text-left px-4 py-3 border rounded-md hover:bg-muted hover:border-primary transition-colors cursor-pointer bg-background"
-                      type="button"
-                    >
-                      <p className="font-medium text-sm">
-                        {episode.number}. {episode.name}
-                      </p>
-                      {episode.overview && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                          {episode.overview}
-                        </p>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        )}
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="video-mature" 
+              checked={containsMature}
+              onCheckedChange={(checked) => setContainsMature(checked as boolean)}
+            />
+            <Label
+              htmlFor="video-mature"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              🔞 This contains mature content
+            </Label>
+          </div>
+        </TabsContent>
 
         <Button
           onClick={handlePost}
-          disabled={
-            posting || 
-            (postType === 'thought' && !content.trim()) ||
-            (postType === 'review' && (!selectedContent || rating === 0))
-          }
+            disabled={
+              posting || 
+              (postType === 'thought' && !content.trim() && !selectedContent) ||
+              (postType === 'review' && (!selectedContent || rating === 0)) ||
+              (postType === 'video' && !videoEmbedUrl.trim())
+            }
           className="w-full btn-glow"
         >
           {posting ? (
@@ -781,7 +713,9 @@ export default function PostPage() {
               Posting...
             </>
           ) : (
-            postType === 'review' ? 'Post Review' : 'Post Thought'
+            postType === 'review' ? 'Post Review' : 
+            postType === 'video' ? 'Post Video' : 
+            'Post Thought'
           )}
         </Button>
       </Card>
