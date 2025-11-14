@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { deletePost } from '@/api/posts';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -149,10 +150,11 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
     if (!confirm('Delete this video post?')) return;
 
     try {
-      await supabase.from('posts').update({ deleted_at: new Date().toISOString() }).eq('id', post.id);
+      await deletePost(post.id);
       toast.success('Video post deleted');
       onDelete?.();
     } catch (error) {
+      console.error('Delete video post error:', error);
       toast.error('Failed to delete');
     }
   };
