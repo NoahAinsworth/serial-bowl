@@ -91,7 +91,9 @@ export function UserPosts({ userId }: UserPostsProps) {
             user: post.author // Map author to user for PostCard compatibility
           }} 
           userHideSpoilers={userHideSpoilers} 
-          strictSafety={strictSafety} 
+          strictSafety={strictSafety}
+          onDelete={loadPosts}
+          onReactionChange={loadPosts}
         />
       ))}
     </div>
