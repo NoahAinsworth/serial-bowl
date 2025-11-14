@@ -47,7 +47,7 @@ export async function createThought(params: CreateThoughtParams) {
   return data;
 }
 
-export async function deletePost(postId: string) {
+export async function deletePost(postId: string): Promise<void> {
   const userId = await getUserId();
   if (!userId) throw new Error('Not authenticated');
 
@@ -59,10 +59,8 @@ export async function deletePost(postId: string) {
 
   if (error) {
     console.error('Delete post error:', error);
-    throw new Error(error.message || 'Failed to delete post');
+    throw error;
   }
-
-  return { success: true };
 }
 
 export async function react(postId: string, kind: 'like' | 'dislike') {
