@@ -51,25 +51,18 @@ export async function deletePost(postId: string) {
   const userId = await getUserId();
   if (!userId) throw new Error('Not authenticated');
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('posts')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', postId)
-    .eq('author_id', userId)
-    .select('id')
-    .single();
+    .eq('author_id', userId);
 
   if (error) {
     console.error('Delete post error:', error);
     throw new Error(error.message || 'Failed to delete post');
   }
 
-  // Verify the post was actually updated
-  if (!data) {
-    throw new Error('Post not found or you do not have permission to delete it');
-  }
-
-  return data;
+  return { success: true };
 }
 
 export async function react(postId: string, kind: 'like' | 'dislike') {
