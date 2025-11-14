@@ -640,6 +640,181 @@ export default function PostPage() {
           </TabsContent>
         </Tabs>
 
+        {/* Universal Content Tagging Section */}
+        <div className="space-y-4 pt-4 border-t">
+          <div>
+            <Label className="mb-2 block">
+              {postType === 'review' ? 'Tag Content *' : 'Tag Content (optional)'}
+            </Label>
+            
+            {/* Selected Content Display */}
+            {selectedContent && (
+              <div className="mb-3 p-3 bg-muted rounded-lg flex items-center justify-between">
+                <div>
+                  <div className="font-medium">{selectedContent.title}</div>
+                  <div className="text-sm text-muted-foreground capitalize">
+                    {selectedContent.kind}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetSelection}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
+            {/* Show Search Input */}
+            {!selectedShow && (
+              <div className="relative">
+                <Input
+                  placeholder={postType === 'review' ? "Search for a show to review..." : "Search for a show to tag..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searching && (
+                  <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-3" />
+                )}
+              </div>
+            )}
+
+            {/* Search Results */}
+            {searchResults.length > 0 && !selectedShow && (
+              <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
+                {searchResults.map((show) => (
+                  <div
+                    key={show.id}
+                    className="p-3 hover:bg-muted rounded-lg cursor-pointer flex items-center gap-3"
+                    onClick={() => handleSelectShow(show)}
+                  >
+                    {show.posterUrl && (
+                      <img
+                        src={show.posterUrl}
+                        alt={show.title}
+                        className="w-12 h-16 object-cover rounded"
+                      />
+                    )}
+                    <div>
+                      <div className="font-medium">{show.title}</div>
+                      {show.year && (
+                        <div className="text-sm text-muted-foreground">{show.year}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Show Selected - Display Seasons */}
+            {selectedShow && !selectedSeason && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <div className="font-medium">{selectedShow.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      Choose a season or tag this show
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSelectShowAsTag(selectedShow)}
+                    >
+                      Tag Show
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={resetSelection}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {loadingSeasons ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {seasons.map((season) => (
+                      <div
+                        key={season.id}
+                        className="p-3 border rounded-lg hover:bg-muted cursor-pointer flex items-center justify-between"
+                        onClick={() => handleSelectSeason(season)}
+                      >
+                        <span className="font-medium">Season {season.number}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Season Selected - Display Episodes */}
+            {selectedSeason && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <div className="font-medium">{selectedShow!.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      Season {selectedSeason.number}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSelectSeasonAsTag(selectedSeason)}
+                    >
+                      Tag Season
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedSeason(null);
+                        setEpisodes([]);
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {loadingEpisodes ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {episodes.map((episode) => (
+                      <div
+                        key={episode.id}
+                        className="p-3 border rounded-lg hover:bg-muted cursor-pointer"
+                        onClick={() => handleSelectEpisode(episode)}
+                      >
+                        <div className="font-medium">
+                          Episode {episode.number}: {episode.name}
+                        </div>
+                        {episode.overview && (
+                          <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                            {episode.overview}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         <Button
           onClick={handlePost}
             disabled={
