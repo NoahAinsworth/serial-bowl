@@ -12,6 +12,7 @@ import { deletePost } from '@/api/posts';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { EmbeddedVideoPlayer } from './EmbeddedVideoPlayer';
 import { SafetyOverlay } from './SafetyOverlay';
 
@@ -53,6 +54,7 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
   const [localReplies] = useState(post.replies_count);
   const [localReaction, setLocalReaction] = useState(post.userReaction);
   const [showSpoiler, setShowSpoiler] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [contentInfo, setContentInfo] = useState<{ title: string } | null>(null);
 
   // Fetch content info for spoiler title
@@ -147,7 +149,7 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this video post?')) return;
+    setShowDeleteDialog(false);
     
     try {
       await deletePost(post.id);
@@ -304,7 +306,7 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
                 </DropdownMenuItem>
               )}
               {user?.id === post.author_id && (
-                <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
                   <Trash className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
@@ -313,6 +315,21 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
           </DropdownMenu>
         </div>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Video Post</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this video post? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
