@@ -48,14 +48,9 @@ export async function createThought(params: CreateThoughtParams) {
 }
 
 export async function deletePost(postId: string): Promise<void> {
-  const userId = await getUserId();
-  if (!userId) throw new Error('Not authenticated');
-
-  const { error } = await supabase
-    .from('posts')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', postId)
-    .eq('author_id', userId);
+  const { error } = await supabase.rpc('soft_delete_post', {
+    p_post_id: postId
+  });
 
   if (error) {
     console.error('Delete post error:', error);
