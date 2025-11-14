@@ -640,63 +640,6 @@ export default function PostPage() {
           </TabsContent>
         </Tabs>
 
-        {/* Video Tab */}
-        <TabsContent value="video" className="space-y-4">
-          <div>
-            <Label className="mb-2 block">Video URL *</Label>
-            <Input
-              placeholder="Paste YouTube, TikTok, Instagram, or Twitter video URL..."
-              value={videoEmbedUrl}
-              onChange={(e) => setVideoEmbedUrl(e.target.value)}
-              type="url"
-            />
-          </div>
-          
-          <div>
-            <Label className="mb-2 block">Caption (optional)</Label>
-            <Textarea
-              placeholder="Add a caption to your video..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="min-h-[100px] resize-none"
-              maxLength={500}
-            />
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-sm text-muted-foreground">
-                {content.length} / 500
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="video-spoiler" 
-              checked={isSpoiler}
-              onCheckedChange={(checked) => setIsSpoiler(checked as boolean)}
-            />
-            <Label
-              htmlFor="video-spoiler"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              This contains spoilers
-            </Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="video-mature" 
-              checked={containsMature}
-              onCheckedChange={(checked) => setContainsMature(checked as boolean)}
-            />
-            <Label
-              htmlFor="video-mature"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              🔞 This contains mature content
-            </Label>
-          </div>
-        </TabsContent>
-
         <Button
           onClick={handlePost}
             disabled={
