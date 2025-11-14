@@ -147,15 +147,16 @@ export function VideoPostCard({ post, userHideSpoilers = true, strictSafety = fa
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete this video post?')) return;
-
+    if (!confirm('Are you sure you want to delete this video post?')) return;
+    
     try {
       await deletePost(post.id);
       toast.success('Video post deleted');
       onDelete?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Delete video post error:', error);
-      toast.error('Failed to delete');
+      const errorMessage = error?.message || 'Failed to delete video post';
+      toast.error(errorMessage);
     }
   };
 
