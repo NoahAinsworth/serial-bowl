@@ -644,7 +644,7 @@ export default function PostPage() {
         <div className="space-y-4 pt-4 border-t">
           <div>
             <Label className="mb-2 block">
-              {postType === 'review' ? 'Tag Content *' : 'Tag Content (optional)'}
+              {postType === 'review' ? 'Tag a Show *' : 'Tag a Show (optional)'}
             </Label>
             
             {/* Selected Content Display */}
@@ -689,15 +689,15 @@ export default function PostPage() {
                     className="p-3 hover:bg-muted rounded-lg cursor-pointer flex items-center gap-3"
                     onClick={() => handleSelectShow(show)}
                   >
-                    {show.posterUrl && (
+                    {(show.image || show.image_url) && (
                       <img
-                        src={show.posterUrl}
-                        alt={show.title}
+                        src={show.image || show.image_url}
+                        alt={show.name}
                         className="w-12 h-16 object-cover rounded"
                       />
                     )}
                     <div>
-                      <div className="font-medium">{show.title}</div>
+                      <div className="font-medium">{show.name}</div>
                       {show.year && (
                         <div className="text-sm text-muted-foreground">{show.year}</div>
                       )}
