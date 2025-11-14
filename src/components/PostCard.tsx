@@ -7,6 +7,7 @@ import { Heart, MessageCircle, Trash2, ThumbsDown, MoreVertical, EyeOff, Flag, S
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { sharePost } from '@/api/messages';
@@ -62,6 +63,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showEditHistory, setShowEditHistory] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editHistory, setEditHistory] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode'; externalId: string } | null>(null);
@@ -312,7 +314,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
+    setShowDeleteDialog(false);
     
     // Optimistically remove from UI
     setDeleted(true);
@@ -418,7 +420,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDelete}>
+                <DropdownMenuItem onClick={() => setShowDeleteDialog(true)}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
                 </DropdownMenuItem>
@@ -599,6 +601,21 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
         post={post}
         onSuccess={onReactionChange || (() => {})}
       />
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this post? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </article>
   );
 }
