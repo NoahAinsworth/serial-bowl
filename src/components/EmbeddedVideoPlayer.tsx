@@ -32,24 +32,13 @@ export function EmbeddedVideoPlayer({ url }: EmbeddedVideoPlayerProps) {
 
   return (
     <div className={`relative w-full ${aspectRatioClass} bg-black rounded-xl overflow-hidden`}>
-      {videoInfo.platform === 'twitter' ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <Button variant="outline" asChild>
-            <a href={url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              View on Twitter
-            </a>
-          </Button>
-        </div>
-      ) : (
-        <iframe
-          src={videoInfo.embedUrl}
-          className="absolute inset-0 w-full h-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          title="Embedded video"
-        />
-      )}
+      <iframe
+        src={videoInfo.embedUrl}
+        className="absolute inset-0 w-full h-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        title="Embedded video"
+      />
     </div>
   );
 }

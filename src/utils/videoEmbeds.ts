@@ -6,14 +6,14 @@ export interface VideoEmbedInfo {
 }
 
 export function parseVideoUrl(url: string): VideoEmbedInfo {
-  // YouTube: youtube.com/watch?v=ID or youtu.be/ID
-  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+  // YouTube: Supports watch, shorts, embed, and youtu.be URLs
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
   if (youtubeMatch) {
     return {
       platform: 'youtube',
       embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}`,
       originalUrl: url,
-      aspectRatio: '16:9'
+      aspectRatio: url.includes('/shorts/') ? '9:16' : '16:9'
     };
   }
 
@@ -55,7 +55,7 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
   if (twitterMatch) {
     return {
       platform: 'twitter',
-      embedUrl: url,
+      embedUrl: `https://platform.twitter.com/embed/Tweet.html?id=${twitterMatch[1]}&theme=dark&dnt=true`,
       originalUrl: url,
       aspectRatio: '16:9'
     };

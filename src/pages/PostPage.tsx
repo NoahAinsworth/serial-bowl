@@ -659,7 +659,10 @@ export default function PostPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={resetSelection}
+                  onClick={() => {
+                    setSelectedContent(null);
+                    resetSelection();
+                  }}
                 >
                   <X className="h-4 w-4" />
                 </Button>
