@@ -26,7 +26,7 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
       embedUrl: `https://www.tiktok.com/embed/v2/${tiktokMatch[1]}`,
       originalUrl: url,
       aspectRatio: '9:16',
-      recommendedHeight: 800
+      recommendedHeight: 650
     };
   }
 
@@ -38,7 +38,7 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
       embedUrl: `https://www.instagram.com/p/${instagramMatch[1]}/embed`,
       originalUrl: url,
       aspectRatio: '1:1',
-      recommendedHeight: 750
+      recommendedHeight: 600
     };
   }
 
@@ -61,7 +61,7 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
       embedUrl: `https://platform.twitter.com/embed/Tweet.html?id=${twitterMatch[1]}&theme=dark&dnt=true`,
       originalUrl: url,
       aspectRatio: '16:9',
-      recommendedHeight: 700
+      recommendedHeight: 550
     };
   }
 
