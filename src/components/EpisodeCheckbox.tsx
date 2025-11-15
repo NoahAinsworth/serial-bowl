@@ -136,7 +136,7 @@ export function EpisodeCheckbox({ episodeId, showId, seasonNumber, episodeNumber
       className="p-1 h-8 w-8"
     >
       {watched ? (
-        <CheckCircle2 className="h-5 w-5 text-primary" />
+        <Circle className="h-5 w-5 text-primary fill-current" />
       ) : (
         <Circle className="h-5 w-5 text-muted-foreground" />
       )}
