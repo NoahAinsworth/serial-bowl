@@ -3,6 +3,7 @@ export interface VideoEmbedInfo {
   embedUrl: string;
   originalUrl: string;
   aspectRatio: '16:9' | '9:16' | '1:1';
+  recommendedHeight?: number;
 }
 
 export function parseVideoUrl(url: string): VideoEmbedInfo {
@@ -24,7 +25,8 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
       platform: 'tiktok',
       embedUrl: `https://www.tiktok.com/embed/v2/${tiktokMatch[1]}`,
       originalUrl: url,
-      aspectRatio: '9:16'
+      aspectRatio: '9:16',
+      recommendedHeight: 800
     };
   }
 
@@ -35,7 +37,8 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
       platform: 'instagram',
       embedUrl: `https://www.instagram.com/p/${instagramMatch[1]}/embed`,
       originalUrl: url,
-      aspectRatio: '1:1'
+      aspectRatio: '1:1',
+      recommendedHeight: 750
     };
   }
 
@@ -57,7 +60,8 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
       platform: 'twitter',
       embedUrl: `https://platform.twitter.com/embed/Tweet.html?id=${twitterMatch[1]}&theme=dark&dnt=true`,
       originalUrl: url,
-      aspectRatio: '16:9'
+      aspectRatio: '16:9',
+      recommendedHeight: 700
     };
   }
 
