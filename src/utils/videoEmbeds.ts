@@ -31,14 +31,15 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
   }
 
   // Instagram: instagram.com/p/ID or instagram.com/reel/ID
-  const instagramMatch = url.match(/instagram\.com\/(?:p|reel)\/([a-zA-Z0-9_-]+)/);
+  const instagramMatch = url.match(/instagram\.com\/(p|reel)\/([a-zA-Z0-9_-]+)/);
   if (instagramMatch) {
+    const isReel = instagramMatch[1] === 'reel';
     return {
       platform: 'instagram',
-      embedUrl: `https://www.instagram.com/p/${instagramMatch[1]}/embed`,
+      embedUrl: `https://www.instagram.com/${instagramMatch[1]}/${instagramMatch[2]}/embed`,
       originalUrl: url,
-      aspectRatio: '1:1',
-      recommendedHeight: 600
+      aspectRatio: isReel ? '9:16' : '1:1',
+      recommendedHeight: isReel ? 650 : 600
     };
   }
 
