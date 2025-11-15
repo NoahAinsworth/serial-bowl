@@ -58,10 +58,10 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
   if (twitterMatch) {
     return {
       platform: 'twitter',
-      embedUrl: `https://platform.twitter.com/embed/Tweet.html?id=${twitterMatch[1]}&theme=dark&dnt=true`,
+      embedUrl: `https://twitter.com/i/videos/tweet/${twitterMatch[1]}`,
       originalUrl: url,
       aspectRatio: '16:9',
-      recommendedHeight: 550
+      recommendedHeight: 400
     };
   }
 
