@@ -31,11 +31,11 @@ export function EmbeddedVideoPlayer({ url }: EmbeddedVideoPlayerProps) {
   }[videoInfo.aspectRatio];
 
   const containerStyle = videoInfo.recommendedHeight 
-    ? { height: `${videoInfo.recommendedHeight}px` }
+    ? { height: `${videoInfo.recommendedHeight}px`, maxWidth: videoInfo.aspectRatio === '9:16' ? '360px' : undefined }
     : undefined;
 
   const containerClass = videoInfo.recommendedHeight
-    ? 'relative w-full bg-black rounded-xl overflow-hidden'
+    ? 'relative w-full bg-black rounded-xl overflow-hidden mx-auto'
     : `relative w-full ${aspectRatioClass} bg-black rounded-xl overflow-hidden`;
 
   return (
