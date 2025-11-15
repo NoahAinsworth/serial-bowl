@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AppLayout } from "./components/layouts/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { OfflineBanner } from "./components/OfflineBanner";
+import { UpdateNotification } from "./components/UpdateNotification";
 import { useDeepLink } from "./hooks/useDeepLink";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
@@ -52,6 +53,7 @@ function AppRouter() {
   return (
     <div className="min-h-screen bg-transparent text-foreground">
       <OfflineBanner />
+      <UpdateNotification />
       <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
