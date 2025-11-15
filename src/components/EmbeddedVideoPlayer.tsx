@@ -45,6 +45,7 @@ export function EmbeddedVideoPlayer({ url }: EmbeddedVideoPlayerProps) {
         className="absolute inset-0 w-full h-full"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
+        scrolling="no"
         title="Embedded video"
       />
     </div>
