@@ -30,8 +30,16 @@ export function EmbeddedVideoPlayer({ url }: EmbeddedVideoPlayerProps) {
     '1:1': 'aspect-square'
   }[videoInfo.aspectRatio];
 
+  const containerStyle = videoInfo.recommendedHeight 
+    ? { height: `${videoInfo.recommendedHeight}px` }
+    : undefined;
+
+  const containerClass = videoInfo.recommendedHeight
+    ? 'relative w-full bg-black rounded-xl overflow-hidden'
+    : `relative w-full ${aspectRatioClass} bg-black rounded-xl overflow-hidden`;
+
   return (
-    <div className={`relative w-full ${aspectRatioClass} bg-black rounded-xl overflow-hidden`}>
+    <div className={containerClass} style={containerStyle}>
       <iframe
         src={videoInfo.embedUrl}
         className="absolute inset-0 w-full h-full"
