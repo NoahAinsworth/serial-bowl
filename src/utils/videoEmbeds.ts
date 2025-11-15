@@ -39,7 +39,7 @@ export function parseVideoUrl(url: string): VideoEmbedInfo {
       embedUrl: `https://www.instagram.com/${instagramMatch[1]}/${instagramMatch[2]}/embed`,
       originalUrl: url,
       aspectRatio: isReel ? '9:16' : '1:1',
-      recommendedHeight: isReel ? 650 : 600
+      recommendedHeight: isReel ? 450 : 600
     };
   }
 
