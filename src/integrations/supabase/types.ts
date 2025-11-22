@@ -237,7 +237,7 @@ export type Database = {
           parent_id: string | null
           post_id: string | null
           text_content: string
-          thought_id: string
+          thought_id: string | null
           user_id: string
         }
         Insert: {
@@ -246,7 +246,7 @@ export type Database = {
           parent_id?: string | null
           post_id?: string | null
           text_content: string
-          thought_id: string
+          thought_id?: string | null
           user_id: string
         }
         Update: {
@@ -255,7 +255,7 @@ export type Database = {
           parent_id?: string | null
           post_id?: string | null
           text_content?: string
-          thought_id?: string
+          thought_id?: string | null
           user_id?: string
         }
         Relationships: [
