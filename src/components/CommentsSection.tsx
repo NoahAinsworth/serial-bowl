@@ -67,7 +67,8 @@ export function CommentsSection({ thoughtId, postId }: CommentsSectionProps) {
         text_content,
         created_at,
         parent_id,
-        profiles!comments_user_id_fkey (
+        user_id,
+        profiles:user_id (
           id,
           handle,
           avatar_url
