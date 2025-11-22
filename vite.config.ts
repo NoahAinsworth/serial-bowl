@@ -22,28 +22,6 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'supabase-storage',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/functions\/.*/i,
-            handler: 'NetworkFirst',
-            method: 'GET',
-            options: {
-              cacheName: 'supabase-functions',
-              networkTimeoutSeconds: 10,
-            },
-          },
-        ],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
       },
