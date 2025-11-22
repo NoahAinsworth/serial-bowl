@@ -7,8 +7,8 @@ export interface VideoEmbedInfo {
 }
 
 export function parseVideoUrl(url: string): VideoEmbedInfo {
-  // YouTube: Supports watch, shorts, embed, and youtu.be URLs
-  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  // YouTube: Supports watch, shorts, embed, and youtu.be URLs with query parameters
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[&?#]|$)/);
   if (youtubeMatch) {
     return {
       platform: 'youtube',
