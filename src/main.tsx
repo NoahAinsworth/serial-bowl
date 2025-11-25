@@ -18,13 +18,7 @@ if ((window as any).Capacitor) {
   }
 }
 
-// Register service worker for PWA (web only)
-if ('serviceWorker' in navigator && !(window as any).Capacitor) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // Silently fail if SW registration fails
-    });
-  });
-}
+// Service worker is registered automatically by vite-plugin-pwa
+// No manual registration needed
 
 createRoot(document.getElementById("root")!).render(<App />);
