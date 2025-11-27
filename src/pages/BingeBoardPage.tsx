@@ -95,7 +95,7 @@ export default function BingeBoardPage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 relative">
+    <div className="min-h-screen pb-20 relative bg-yellow-400">
       <DynamicBackground badge={currentUserBadge || 'Pilot Watcher'} />
       
       <div className="max-w-4xl mx-auto relative z-10">
