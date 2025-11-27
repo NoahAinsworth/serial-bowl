@@ -10,8 +10,9 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Edit, Loader2, Share2, X, TrendingUp, Trophy, Plus, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserPosts } from '@/components/UserPosts';
-import { UnifiedRatings } from '@/components/UnifiedRatings';
-import { UserLists } from '@/components/UserLists';
+import { UserRatings } from '@/components/UserRatings';
+import { UserThoughts } from '@/components/UserThoughts';
+import { UserReviews } from '@/components/UserReviews';
 import { FollowRequestsList } from '@/components/FollowRequestsList';
 import { VideoPostCard } from '@/components/VideoPostCard';
 import { UserVideos } from '@/components/UserVideos';
@@ -585,22 +586,45 @@ export default function ProfilePage() {
         </Dialog>
 
         <Tabs defaultValue="posts" className="w-full mt-0">
-          <TabsList className="w-full grid grid-cols-3 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
+          <TabsList className="w-full grid grid-cols-4 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
             <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="ratings">Ratings</TabsTrigger>
-            <TabsTrigger value="lists">Lists</TabsTrigger>
+            <TabsTrigger value="shows">Shows</TabsTrigger>
+            <TabsTrigger value="seasons">Seasons</TabsTrigger>
+            <TabsTrigger value="episodes">Episodes</TabsTrigger>
           </TabsList>
 
           <TabsContent value="posts" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <UserPosts userId={user!.id} />
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="w-full grid grid-cols-3 mb-4">
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="thoughts">Thoughts</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="all" className="mt-0">
+                <UserPosts userId={user!.id} />
+              </TabsContent>
+
+              <TabsContent value="thoughts" className="mt-0">
+                <UserThoughts userId={user!.id} />
+              </TabsContent>
+
+              <TabsContent value="reviews" className="mt-0">
+                <UserReviews userId={user!.id} />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
-          <TabsContent value="ratings" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <UnifiedRatings userId={user!.id} />
+          <TabsContent value="shows" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20 py-4">
+            <UserRatings userId={user!.id} contentKind="show" />
           </TabsContent>
 
-          <TabsContent value="lists" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <UserLists />
+          <TabsContent value="seasons" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20 py-4">
+            <UserRatings userId={user!.id} contentKind="season" />
+          </TabsContent>
+
+          <TabsContent value="episodes" className="mt-0 px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20 py-4">
+            <UserRatings userId={user!.id} contentKind="episode" />
           </TabsContent>
         </Tabs>
 
