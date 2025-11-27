@@ -77,14 +77,32 @@ export function ProfilePictureUpload({
   }, []);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[ProfilePic] File select triggered');
     const file = event.target.files?.[0];
-    if (!file || !user) return;
+    
+    if (!file) {
+      console.log('[ProfilePic] No file selected');
+      return;
+    }
+    
+    if (!user) {
+      console.error('[ProfilePic] No user found');
+      toast({
+        title: "Authentication error",
+        description: "You must be logged in to upload a profile picture",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('[ProfilePic] File selected:', file.name, file.type, file.size);
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
+      console.error('[ProfilePic] Invalid file type:', file.type);
       toast({
         title: "Invalid file type",
-        description: "Please select an image file",
+        description: "Please select an image file (JPG, PNG, etc.)",
         variant: "destructive",
       });
       return;
@@ -92,6 +110,7 @@ export function ProfilePictureUpload({
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
+      console.error('[ProfilePic] File too large:', file.size);
       toast({
         title: "File too large",
         description: "Please select an image under 5MB",
@@ -100,28 +119,62 @@ export function ProfilePictureUpload({
       return;
     }
 
-    // Create object URL for cropping
-    const imageUrl = URL.createObjectURL(file);
-    setImageToCrop(imageUrl);
-    setCropDialogOpen(true);
+    try {
+      // Create object URL for cropping
+      console.log('[ProfilePic] Creating preview URL');
+      const imageUrl = URL.createObjectURL(file);
+      setImageToCrop(imageUrl);
+      setCropDialogOpen(true);
+      console.log('[ProfilePic] Crop dialog opened');
+    } catch (error) {
+      console.error('[ProfilePic] Error creating preview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to preview image",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCropSave = async () => {
-    if (!imageToCrop || !croppedAreaPixels || !user) return;
+    console.log('[ProfilePic] Crop save initiated');
+    
+    if (!imageToCrop) {
+      console.error('[ProfilePic] No image to crop');
+      return;
+    }
+    
+    if (!croppedAreaPixels) {
+      console.error('[ProfilePic] No crop area defined');
+      return;
+    }
+    
+    if (!user) {
+      console.error('[ProfilePic] No user');
+      toast({
+        title: "Authentication error",
+        description: "You must be logged in to upload",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploading(true);
     setCropDialogOpen(false);
 
     try {
+      console.log('[ProfilePic] Cropping image...');
       // Get cropped image blob
       const croppedBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      console.log('[ProfilePic] Image cropped, blob size:', croppedBlob.size);
 
       // Create a unique file name with user ID in the path (required by RLS policy)
       const fileName = `${Date.now()}.jpeg`;
       const filePath = `${user.id}/${fileName}`;
+      console.log('[ProfilePic] Uploading to:', filePath);
 
       // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, croppedBlob, {
           cacheControl: '3600',
@@ -129,7 +182,12 @@ export function ProfilePictureUpload({
           contentType: 'image/jpeg',
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('[ProfilePic] Upload error:', uploadError);
+        throw uploadError;
+      }
+      
+      console.log('[ProfilePic] Upload successful:', uploadData);
 
       // Get public URL with timestamp to prevent caching
       const { data: { publicUrl } } = supabase.storage
@@ -138,35 +196,45 @@ export function ProfilePictureUpload({
 
       // Add cache-busting parameter
       const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+      console.log('[ProfilePic] Public URL generated:', avatarUrl);
 
       // Update profile with new avatar URL
+      console.log('[ProfilePic] Updating profile...');
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: avatarUrl })
         .eq('id', user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('[ProfilePic] Profile update error:', updateError);
+        throw updateError;
+      }
+      
+      console.log('[ProfilePic] Profile updated successfully');
 
       setPreviewUrl(avatarUrl);
       onUploadComplete?.(avatarUrl);
 
       toast({
-        title: "Success",
-        description: "Profile picture updated!",
+        title: "Success!",
+        description: "Profile picture updated successfully",
       });
       
       // Clean up
       URL.revokeObjectURL(imageToCrop);
       setImageToCrop(null);
     } catch (error: any) {
-      console.error('Avatar upload error details:', {
-        error,
+      console.error('[ProfilePic] Upload failed - Full error:', error);
+      console.error('[ProfilePic] Error details:', {
         message: error?.message,
         statusCode: error?.statusCode,
         name: error?.name,
-        userId: user?.id,
+        code: error?.code,
+        details: error?.details,
         hint: error?.hint,
+        userId: user?.id,
       });
+      
       toast({
         title: "Upload failed",
         description: error.message || "Failed to upload profile picture. Please try again.",
@@ -186,6 +254,7 @@ export function ProfilePictureUpload({
   };
 
   const handleClick = () => {
+    console.log('[ProfilePic] Camera button clicked');
     fileInputRef.current?.click();
   };
 
