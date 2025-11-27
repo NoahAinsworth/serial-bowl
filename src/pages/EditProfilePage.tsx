@@ -136,7 +136,7 @@ export default function EditProfilePage() {
     const { error } = await supabase
       .from('profiles')
       .update({
-        handle: profile.handle.trim(),
+        handle: profile.handle.trim().toLowerCase(),
         bio: profile.bio.trim(),
         settings: {
           ...currentSettings,
@@ -235,8 +235,8 @@ export default function EditProfilePage() {
               id="handle"
               value={profile.handle}
               onChange={(e) => {
-                // Strip @ symbol if user types it
-                const value = e.target.value.replace(/^@/, '');
+                // Strip @ symbol and convert to lowercase
+                const value = e.target.value.replace(/^@/, '').toLowerCase();
                 setProfile({ ...profile, handle: value });
               }}
               placeholder="yourhandle"

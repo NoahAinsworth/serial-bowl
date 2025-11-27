@@ -99,7 +99,9 @@ export default function AuthPage() {
       password,
       options: {
         data: {
-          handle: handle.startsWith('@') ? handle : `@${handle}`,
+          handle: handle.startsWith('@') 
+            ? handle.toLowerCase() 
+            : `@${handle.toLowerCase()}`,
         },
         emailRedirectTo: env.AUTH_REDIRECT,
       },
