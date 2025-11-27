@@ -17,6 +17,7 @@ interface ProfilePictureUploadProps {
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
+    image.crossOrigin = 'anonymous';
     image.addEventListener('load', () => resolve(image));
     image.addEventListener('error', (error) => reject(error));
     image.src = url;
@@ -133,6 +134,11 @@ export function ProfilePictureUpload({
         description: "Failed to preview image",
         variant: "destructive",
       });
+    } finally {
+      // Reset file input for clean state
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -253,7 +259,8 @@ export function ProfilePictureUpload({
     setCropDialogOpen(false);
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     console.log('[ProfilePic] Camera button clicked');
     fileInputRef.current?.click();
   };
