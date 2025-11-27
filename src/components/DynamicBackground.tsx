@@ -37,8 +37,7 @@ export function DynamicBackground({ badge }: DynamicBackgroundProps) {
       {/* Base gradient */}
       <div 
         className={cn(
-          "absolute inset-0 bg-gradient-to-br transition-all duration-1000",
-          theme.gradient
+          "absolute inset-0 bg-yellow-400 transition-all duration-1000"
         )}
       />
       
