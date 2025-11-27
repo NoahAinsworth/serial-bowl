@@ -159,10 +159,17 @@ export function ProfilePictureUpload({
       URL.revokeObjectURL(imageToCrop);
       setImageToCrop(null);
     } catch (error: any) {
-      console.error('Error uploading avatar:', error);
+      console.error('Avatar upload error details:', {
+        error,
+        message: error?.message,
+        statusCode: error?.statusCode,
+        name: error?.name,
+        userId: user?.id,
+        hint: error?.hint,
+      });
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload profile picture",
+        description: error.message || "Failed to upload profile picture. Please try again.",
         variant: "destructive",
       });
     } finally {
