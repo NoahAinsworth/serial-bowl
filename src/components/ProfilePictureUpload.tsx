@@ -108,12 +108,12 @@ export function ProfilePictureUpload({
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
       console.error('[ProfilePic] File too large:', file.size);
       toast({
         title: "File too large",
-        description: "Please select an image under 5MB",
+        description: "Please select an image under 10MB",
         variant: "destructive",
       });
       return;
