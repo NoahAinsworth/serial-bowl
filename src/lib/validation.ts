@@ -19,6 +19,7 @@ export const authSchema = z.object({
     .min(3, 'Username must be at least 3 characters')
     .max(50, 'Username must be less than 50 characters')
     .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, dashes, and underscores')
+    .transform(val => val.toLowerCase())
     .optional(),
 });
 
@@ -33,7 +34,8 @@ export const profileSchema = z.object({
     .trim()
     .min(1, 'Username is required')
     .max(50, 'Username must be less than 50 characters')
-    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, dashes, and underscores'),
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, dashes, and underscores')
+    .transform(val => val.toLowerCase()),
   displayName: z
     .string()
     .trim()
