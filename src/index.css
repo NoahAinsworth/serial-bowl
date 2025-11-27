@@ -96,6 +96,9 @@ All colors MUST be HSL.
     --neo-lime: 88 83% 74%;
     --neo-coral: 14 100% 71%;
     
+    /* Yellow for backgrounds */
+    --yellow: 51 100% 50%;              /* Vibrant yellow #FFED00 */
+    
     /* Effects */
     --shadow-brutal: 6px 6px 0px rgba(0, 0, 0, 1);
     --shadow-brutal-hover: 8px 8px 0px rgba(0, 0, 0, 1);
