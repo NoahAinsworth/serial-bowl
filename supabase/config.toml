@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.get-trending-shows]
 verify_jwt = true
+
+[functions.export-users]
+verify_jwt = false
