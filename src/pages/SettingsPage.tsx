@@ -184,7 +184,7 @@ export default function SettingsPage() {
   };
   
   const handleSendReport = () => {
-    const subject = encodeURIComponent('Serial Bowl™ Report');
+    const subject = encodeURIComponent('serial bowl™ Report');
     const body = encodeURIComponent(
       `Reason: ${reportForm.reason}\n\nDescription:\n${reportForm.description}\n\nUsername or Link:\n${reportForm.userOrLink}`
     );
@@ -392,13 +392,13 @@ export default function SettingsPage() {
                   
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">1. Introduction</h3>
-                    <p>Welcome to <strong>Serial Bowl™</strong> ("we," "us," "our"). Serial Bowl™ is a social TV-tracking app owned and operated by Noah Ainsworth. These Terms govern your use of the app. By using Serial Bowl™, you agree to these Terms.</p>
-                    <p className="text-xs text-muted-foreground italic">Trademark note: "Serial Bowl™" is used as a common-law trademark. Registration pending.</p>
+                    <p>Welcome to <strong>serial bowl™</strong> ("we," "us," "our"). serial bowl™ is a social TV-tracking app owned and operated by Noah Ainsworth. These Terms govern your use of the app. By using serial bowl™, you agree to these Terms.</p>
+                    <p className="text-xs text-muted-foreground italic">Trademark note: "serial bowl™" is used as a common-law trademark. Registration pending.</p>
                   </div>
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">2. Eligibility</h3>
-                    <p>You must be at least <strong>13 years old</strong> to use Serial Bowl™. If you are under 18, you may only use the app with parental or guardian permission.</p>
+                    <p>You must be at least <strong>13 years old</strong> to use serial bowl™. If you are under 18, you may only use the app with parental or guardian permission.</p>
                   </div>
 
                   <div className="space-y-3">
@@ -416,31 +416,31 @@ export default function SettingsPage() {
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">4. User-Generated Content</h3>
                     <p>You may post thoughts, reviews, ratings, comments, profile information, DMs, and external video links. You own the content you create.</p>
-                    <p>By posting, you give Serial Bowl™ a <strong>non-exclusive, worldwide, royalty-free license</strong> to display and distribute your content within the app.</p>
+                    <p>By posting, you give serial bowl™ a <strong>non-exclusive, worldwide, royalty-free license</strong> to display and distribute your content within the app.</p>
                     <p>You agree that you will not post prohibited material, violate copyright laws, or upload videos (links only). We may remove harmful or illegal content.</p>
                   </div>
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">5. External Video Links</h3>
-                    <p>Serial Bowl™ only supports <strong>links</strong> to videos (YouTube, TikTok, IG, Vimeo, etc.). Serial Bowl™ does <strong>NOT</strong> host or store videos. All linked content follows the rules of the platforms they come from.</p>
+                    <p>serial bowl™ only supports <strong>links</strong> to videos (YouTube, TikTok, IG, Vimeo, etc.). serial bowl™ does <strong>NOT</strong> host or store videos. All linked content follows the rules of the platforms they come from.</p>
                   </div>
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">6. Intellectual Property</h3>
-                    <p>Serial Bowl™, its design, UI, graphics, branding, icons, characters (including "BingeBot"), and features are the property of Noah Ainsworth.</p>
+                    <p>serial bowl™, its design, UI, graphics, branding, icons, characters (including "BingeBot"), and features are the property of Noah Ainsworth.</p>
                     <p>You are prohibited from:</p>
                     <ul className="list-disc pl-6 space-y-1">
-                      <li>Copying the Serial Bowl™ brand</li>
-                      <li>Using the Serial Bowl™ name, likeness, BingeBot, or UI without permission</li>
+                      <li>Copying the serial bowl™ brand</li>
+                      <li>Using the serial bowl™ name, likeness, BingeBot, or UI without permission</li>
                       <li>Reverse engineering or creating derivative works</li>
                       <li>Reposting the app's content</li>
                     </ul>
-                    <p className="font-semibold">Trademark Notice: Serial Bowl™ and BingeBot™ are claimed as common-law trademarks. All rights reserved.</p>
+                    <p className="font-semibold">Trademark Notice: serial bowl™ and BingeBot™ are claimed as common-law trademarks. All rights reserved.</p>
                   </div>
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">7. AI Assistant (BingeBot)</h3>
-                    <p>Serial Bowl™ contains an AI assistant called <strong>BingeBot™</strong>.</p>
+                    <p>serial bowl™ contains an AI assistant called <strong>BingeBot™</strong>.</p>
                     
                     <div className="space-y-2">
                       <p className="font-semibold">BingeBot can:</p>
@@ -476,8 +476,8 @@ export default function SettingsPage() {
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">8. Use of AI & Data Handling</h3>
-                    <p>Serial Bowl™ uses <strong>Google Gemini</strong> for general TV information retrieval. Gemini is used ONLY for TV metadata, show summaries, actor data, character info, and episode descriptions.</p>
-                    <p className="font-semibold">Serial Bowl™ never sends personal data, DMs, posts, reviews, ratings, watch history, or private content to Gemini or any external AI.</p>
+                    <p>serial bowl™ uses <strong>Google Gemini</strong> for general TV information retrieval. Gemini is used ONLY for TV metadata, show summaries, actor data, character info, and episode descriptions.</p>
+                    <p className="font-semibold">serial bowl™ never sends personal data, DMs, posts, reviews, ratings, watch history, or private content to Gemini or any external AI.</p>
                   </div>
 
                   <div className="space-y-3">
@@ -494,7 +494,7 @@ export default function SettingsPage() {
                       <li>Share explicit content</li>
                       <li>Engage in copyright infringement</li>
                       <li>Attempt to misuse BingeBot</li>
-                      <li>Use Serial Bowl™ for anything outside TV purposes</li>
+                      <li>Use serial bowl™ for anything outside TV purposes</li>
                       <li>Post illegal or harmful content</li>
                       <li>Attempt to hack or exploit the app</li>
                       <li>Attempt to bypass moderation</li>
@@ -508,12 +508,12 @@ export default function SettingsPage() {
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">12. Disclaimer</h3>
-                    <p>Serial Bowl™ is provided "as is." We do not guarantee accuracy or uptime. BingeBot™ responses may contain errors. Use at your own risk.</p>
+                    <p>serial bowl™ is provided "as is." We do not guarantee accuracy or uptime. BingeBot™ responses may contain errors. Use at your own risk.</p>
                   </div>
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">13. Limitation of Liability</h3>
-                    <p>To the maximum extent allowed by law, Serial Bowl™ is not liable for user behavior, AI responses, data loss, third-party platforms, linked content, or damages from app use.</p>
+                    <p>To the maximum extent allowed by law, serial bowl™ is not liable for user behavior, AI responses, data loss, third-party platforms, linked content, or damages from app use.</p>
                   </div>
 
                   <div className="space-y-3">
@@ -535,7 +535,7 @@ export default function SettingsPage() {
                   
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">1. Overview</h3>
-                    <p>Serial Bowl™ ("we," "our") respects your privacy. This policy explains what we collect and how we protect it.</p>
+                    <p>serial bowl™ ("we," "our") respects your privacy. This policy explains what we collect and how we protect it.</p>
                   </div>
 
                   <div className="space-y-3">
@@ -560,7 +560,7 @@ export default function SettingsPage() {
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-base">3. What We DO NOT Collect</h3>
-                    <p>Serial Bowl™ does <strong>NOT</strong> collect or store:</p>
+                    <p>serial bowl™ does <strong>NOT</strong> collect or store:</p>
                     <ul className="list-disc pl-6 space-y-1">
                       <li>Phone numbers or addresses</li>
                       <li>Payment information</li>
@@ -656,7 +656,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <p className="text-muted-foreground">Violations can lead to warnings, suspensions, or bans. Our goal is to keep Serial Bowl™ a safe and welcoming place for everyone.</p>
+                  <p className="text-muted-foreground">Violations can lead to warnings, suspensions, or bans. Our goal is to keep serial bowl™ a safe and welcoming place for everyone.</p>
                 </AccordionContent>
               </AccordionItem>
 
@@ -764,7 +764,7 @@ export default function SettingsPage() {
 
             <div className="mt-6 pt-6 border-t border-border text-center">
               <p className="text-xs text-muted-foreground">
-                Serial Bowl™ is an independent project by Noah Ainsworth. Policies may be updated.
+                serial bowl™ is an independent project by Noah Ainsworth. Policies may be updated.
               </p>
             </div>
           </Card>
