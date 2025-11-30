@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy, BookmarkPlus } from 'lucide-react';
+import { Home, PlusSquare, MessageSquare, Smile, Search, Settings, Library, Trophy, BookmarkPlus, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import SkyClouds from '@/components/SkyClouds';
 import { ThemeBackground } from '@/components/ThemeBackground';
 import { useTheme } from '@/contexts/ThemeContext';
+import { BingeBotAI } from '@/components/BingeBotAI';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -20,6 +21,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { theme } = useTheme();
   const [unreadDMs, setUnreadDMs] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [bingeBotOpen, setBingeBotOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -142,6 +144,24 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             ))}
           </div>
         </nav>
+
+        {/* Floating BingeBot Button */}
+        <Button
+          onClick={() => setBingeBotOpen(true)}
+          className="fixed bottom-24 right-4 z-50 h-14 w-14 rounded-full 
+                     bg-gradient-to-br from-purple-400 to-pink-400 
+                     border-3 border-border shadow-xl
+                     hover:scale-110 transition-transform"
+          style={{ 
+            paddingBottom: 'max(0rem, var(--safe-bottom))',
+            animation: 'bounce 2s infinite'
+          }}
+        >
+          <Bot className="h-7 w-7 text-white drop-shadow-md" />
+        </Button>
+
+        {/* BingeBot Chat Modal */}
+        <BingeBotAI open={bingeBotOpen} onOpenChange={setBingeBotOpen} />
         </div>
       </div>
     </>
