@@ -31,8 +31,8 @@ export function CinematicFavorites({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold text-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+    <div>
+      <h2 className="text-lg font-bold mb-3 text-foreground">
         Your Top Shows
       </h2>
       

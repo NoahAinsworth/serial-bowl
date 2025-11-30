@@ -29,6 +29,7 @@ import { CinematicFavorites } from '@/components/CinematicFavorites';
 import { Progress } from '@/components/ui/progress';
 import { BingePointsDisplay } from '@/components/BingePointsDisplay';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -387,6 +395,16 @@ export default function ProfilePage() {
   const currentBadge = profile?.badge_tier || 'Pilot Watcher';
   const bingePoints = profile?.binge_points || 0;
 
+  const BADGE_TIERS = [
+    { name: 'Pilot Watcher', threshold: 0 },
+    { name: 'Casual Viewer', threshold: 150 },
+    { name: 'Marathon Madness', threshold: 500 },
+    { name: 'Season Smasher', threshold: 1200 },
+    { name: 'Series Finisher', threshold: 2500 },
+    { name: 'Stream Scholar', threshold: 5000 },
+    { name: 'Ultimate Binger', threshold: 10000 },
+  ];
+
   const BADGE_THRESHOLDS = [
     { name: 'Pilot Watcher', min: 0, max: 149 },
     { name: 'Casual Viewer', min: 150, max: 499 },
@@ -415,16 +433,15 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="max-w-4xl mx-auto relative pb-12">
-        <div className="px-4 mb-6 animate-fade-in">
+      <div className="max-w-4xl mx-auto relative pb-20">
+        <div className="px-4 space-y-4">
           <FollowRequestsList />
-        </div>
 
-        <div className="px-3 py-6 mb-4 animate-fade-in relative">
+        <div className="px-3 py-4 animate-fade-in relative">
           {/* Profile Picture and Name Section */}
-          <div className="flex flex-col items-center mb-6">
+          <div className="flex flex-col items-center">
             {/* Handle above profile pic */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-2">
               <p className="text-sm text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-medium">
                 {profile?.handle?.startsWith('@') ? profile.handle : `@${profile?.handle || 'user'}`}
               </p>
@@ -432,7 +449,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Profile Picture */}
-            <div className="w-24 h-24 mb-3">
+            <div className="w-24 h-24 mb-2">
               {theme === 'dark' ? (
                 <VHSProfileRing size="md">
                   <Avatar className="w-full h-full">
@@ -461,8 +478,8 @@ export default function ProfilePage() {
               </h1>
             )}
 
-            {/* Stats with subtle shadow underneath */}
-            <div className="flex gap-8 justify-center text-center mb-4">
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-4 w-full max-w-sm text-sm">
               <button 
                 className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] !border-none !rounded-none !shadow-none"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
@@ -496,23 +513,20 @@ export default function ProfilePage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 w-full max-w-xs">
+            <div className="flex gap-3 w-full max-w-sm">
               <Button 
-                variant="ghost" 
-                size="sm" 
+                variant="outline" 
                 onClick={() => navigate('/profile/edit')} 
-                className="flex-1 h-9 font-semibold bg-white/10 backdrop-blur-sm hover:bg-white/20"
+                className="flex-1 rounded-full border-2 h-10"
               >
-                <Edit className="h-4 w-4 mr-1.5" />
-                Edit
+                Edit Profile
               </Button>
               <Button 
-                variant="ghost" 
-                size="sm" 
+                variant="outline" 
                 onClick={handleShare}
-                className="flex-1 h-9 font-semibold bg-white/10 backdrop-blur-sm hover:bg-white/20"
+                className="flex-1 rounded-full border-2 h-10"
               >
-                <Share2 className="h-4 w-4 mr-1.5" />
+                <Share2 className="h-4 w-4 mr-2" />
                 Share
               </Button>
             </div>
@@ -520,7 +534,7 @@ export default function ProfilePage() {
 
           {/* Bio */}
           {profile?.bio && (
-            <div className="text-center px-4">
+            <div className="text-center">
               <p className="text-sm text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-relaxed">
                 {profile.bio}
               </p>
@@ -528,8 +542,8 @@ export default function ProfilePage() {
           )}
         </div>
 
-
-        <div className="px-3 mb-5 animate-fade-in">
+        {/* Top Shows Card */}
+        <Card className="rounded-2xl border-2 border-border/30 p-4 bg-card/30 backdrop-blur-sm">
           <CinematicFavorites
             shows={top3Shows}
             onEdit={openSlotDialog}
@@ -537,7 +551,7 @@ export default function ProfilePage() {
             badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'}
             isOwner={true}
           />
-        </div>
+        </Card>
 
         <Dialog open={showTop3Dialog} onOpenChange={(open) => {
           setShowTop3Dialog(open);
@@ -593,18 +607,22 @@ export default function ProfilePage() {
           </DialogContent>
         </Dialog>
 
-        <Tabs defaultValue="posts" className="w-full mt-0">
-          <TabsList className="w-full grid grid-cols-2 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10 h-12">
-            <TabsTrigger value="posts" className="text-xs sm:text-sm">Posts</TabsTrigger>
-            <TabsTrigger value="ratings" className="text-xs sm:text-sm">Ratings</TabsTrigger>
+        <Tabs defaultValue="posts" className="w-full space-y-4">
+          <TabsList className="w-full grid grid-cols-2 rounded-full bg-muted/30 p-1.5 h-14 border-2 border-border/50">
+            <TabsTrigger value="posts" className="rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">
+              Posts
+            </TabsTrigger>
+            <TabsTrigger value="ratings" className="rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">
+              Ratings
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="posts" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-4 h-10">
-                <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
-                <TabsTrigger value="thoughts" className="text-xs sm:text-sm">Thoughts</TabsTrigger>
-                <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reviews</TabsTrigger>
+          <TabsContent value="posts" className="space-y-4 rounded-b-2xl border-x-2 border-b-2 border-border/20 p-4">
+            <Tabs defaultValue="all" className="space-y-4">
+              <TabsList className="w-full grid grid-cols-3 mb-4 h-9 rounded-full bg-muted/20 p-0.5 border border-border/30">
+                <TabsTrigger value="all" className="text-xs rounded-full">All</TabsTrigger>
+                <TabsTrigger value="thoughts" className="text-xs rounded-full">Thoughts</TabsTrigger>
+                <TabsTrigger value="reviews" className="text-xs rounded-full">Reviews</TabsTrigger>
               </TabsList>
 
               <TabsContent value="all" className="mt-0">
@@ -621,12 +639,12 @@ export default function ProfilePage() {
             </Tabs>
           </TabsContent>
 
-          <TabsContent value="ratings" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
-            <Tabs defaultValue="shows" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-4 h-10">
-                <TabsTrigger value="shows" className="text-xs sm:text-sm">Shows</TabsTrigger>
-                <TabsTrigger value="seasons" className="text-xs sm:text-sm">Seasons</TabsTrigger>
-                <TabsTrigger value="episodes" className="text-xs sm:text-sm">Episodes</TabsTrigger>
+          <TabsContent value="ratings" className="space-y-4 rounded-b-2xl border-x-2 border-b-2 border-border/20 p-4">
+            <Tabs defaultValue="shows" className="space-y-4">
+              <TabsList className="w-full grid grid-cols-3 mb-4 h-9 rounded-full bg-muted/20 p-0.5 border border-border/30">
+                <TabsTrigger value="shows" className="text-xs rounded-full">Shows</TabsTrigger>
+                <TabsTrigger value="seasons" className="text-xs rounded-full">Seasons</TabsTrigger>
+                <TabsTrigger value="episodes" className="text-xs rounded-full">Episodes</TabsTrigger>
               </TabsList>
               <TabsContent value="shows" className="mt-0 py-4">
                 <UserRatings userId={user!.id} contentKind="show" />
@@ -641,139 +659,127 @@ export default function ProfilePage() {
           </TabsContent>
         </Tabs>
 
-
+        {/* Your Stats Card */}
         {flags.BINGE_POINTS && (
-          <div className="px-4 mb-6 animate-fade-in">
-            <Card className="p-6 bg-card/70 backdrop-blur-md border-border/30">
-              <Tabs defaultValue="stats" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="stats">Stats</TabsTrigger>
-                  <TabsTrigger value="add-shows">Add Shows</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="stats" className="space-y-4">
-                  {/* Trophy Case */}
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-semibold text-foreground/90">
-                        Trophy Case ({BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).length}/{BADGE_THRESHOLDS.length})
-                      </h4>
-                      <button 
-                        className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium flex items-center gap-1"
-                        onClick={() => navigate('/binge-board')}
-                      >
-                        <Trophy className="w-3 h-3 text-primary" />
-                        <span className="text-foreground">Rank #{userRank || '—'}</span>
-                      </button>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <div className="flex gap-4 pb-2">
-                        {BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).reverse().map((badge) => (
-                          <div 
-                            key={badge.name}
-                            className="flex-shrink-0 flex flex-col items-center gap-1"
-                          >
-                            <BadgeDisplay 
-                              badge={badge.name} 
-                              size="sm"
-                              showGlow={badge.name === currentBadge}
-                            />
-                            <div className="whitespace-nowrap bg-background/98 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/50 text-foreground shadow-lg">
-                              {badge.min} pts
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator className="my-4" />
-
-                  {/* Binge Meter */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-3 text-foreground/90">Binge Meter</h4>
-                    <BingePointsDisplay
-                      points={bingePoints}
-                      badge={currentBadge}
-                      episodePoints={bingeBreakdown?.episode_points}
-                      seasonBonuses={bingeBreakdown?.season_bonuses}
-                      showBonuses={bingeBreakdown?.show_bonuses}
-                      completedSeasons={bingeBreakdown?.completed_seasons}
-                      completedShows={bingeBreakdown?.completed_shows}
-                      showBreakdown={true}
-                    />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="add-shows" className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-semibold mb-3 text-foreground/90">Search & Add to Watched</h4>
-                    <div className="relative mb-4">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Card className="rounded-2xl border-2 border-border/30 p-5 bg-card/50 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-foreground">Your Stats</h3>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="rounded-full border-2 h-9">
+                    <Plus className="h-4 w-4 mr-1" /> Add Shows
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[80vh]">
+                  <SheetHeader>
+                    <SheetTitle>Search & Add to Watched</SheetTitle>
+                  </SheetHeader>
+                  <div className="py-4 space-y-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input
-                        type="text"
                         placeholder="Search for TV shows..."
                         value={addShowsQuery}
                         onChange={(e) => setAddShowsQuery(e.target.value)}
                         className="pl-10"
                       />
                     </div>
-
-                    {searchingAddShows && (
-                      <div className="flex justify-center py-8">
-                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                      </div>
-                    )}
-
-                    {!searchingAddShows && addShowsResults.length > 0 && (
-                      <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto">
-                        {addShowsResults.map((show) => (
-                          <div
-                            key={show.id}
-                            className="group relative rounded-lg overflow-hidden bg-card/50 backdrop-blur border border-border/30 hover:border-primary/50 transition-all"
-                          >
-                            <img
-                              src={show.image || '/placeholder.svg'}
-                              alt={show.name}
-                              className="w-full aspect-[2/3] object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                              <Button
-                                size="sm"
-                                onClick={() => addToWatched(show)}
-                                className="w-full"
-                              >
-                                <Plus className="w-4 h-4 mr-1" />
-                                Add to Watched
-                              </Button>
-                            </div>
-                            <div className="p-2">
-                              <p className="text-xs font-medium text-foreground line-clamp-2">
-                                {show.name}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {!searchingAddShows && addShowsQuery && addShowsResults.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        No shows found
-                      </div>
-                    )}
-
-                    {!addShowsQuery && (
-                      <div className="text-center py-8 text-muted-foreground text-sm">
-                        Search for TV shows to add to your watched list and earn binge points!
-                      </div>
-                    )}
+                    <ScrollArea className="h-[calc(80vh-200px)]">
+                      {searchingAddShows && (
+                        <div className="flex justify-center py-8">
+                          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        </div>
+                      )}
+                      {!searchingAddShows && addShowsResults.length > 0 && (
+                        <div className="grid grid-cols-2 gap-4">
+                          {addShowsResults.map((show) => (
+                            <Card
+                              key={show.id}
+                              className="cursor-pointer hover:border-primary transition-colors overflow-hidden"
+                              onClick={() => addToWatched(show)}
+                            >
+                              <div className="aspect-[2/3] relative">
+                                {show.image ? (
+                                  <img
+                                    src={show.image}
+                                    alt={show.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                                    <span className="text-muted-foreground text-xs">No Image</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-3">
+                                <h3 className="font-semibold text-sm line-clamp-2">{show.name}</h3>
+                                {show.firstAired && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {new Date(show.firstAired).getFullYear()}
+                                  </p>
+                                )}
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                      {!searchingAddShows && addShowsQuery && addShowsResults.length === 0 && (
+                        <div className="text-center py-8 text-muted-foreground">
+                          No shows found
+                        </div>
+                      )}
+                      {!addShowsQuery && (
+                        <div className="text-center py-8 text-muted-foreground text-sm">
+                          Search for TV shows to add to your watched list and earn binge points!
+                        </div>
+                      )}
+                    </ScrollArea>
                   </div>
-                </TabsContent>
-              </Tabs>
-            </Card>
-          </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            {/* Trophy Case */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-foreground">
+                  Trophy Case ({BADGE_TIERS.filter(t => bingePoints >= t.threshold).length}/{BADGE_TIERS.length})
+                </h4>
+                {userRank && (
+                  <button 
+                    className="px-3 py-1 bg-primary/10 rounded-full text-xs font-medium border border-primary/30 flex items-center gap-1.5 hover:bg-primary/20 transition-colors"
+                    onClick={() => navigate('/binge-board')}
+                  >
+                    <Trophy className="h-3 w-3 text-primary" />
+                    <span className="text-primary">Rank #{userRank}</span>
+                  </button>
+                )}
+              </div>
+              <BadgeCollection
+                currentBadge={currentBadge}
+                bingePoints={bingePoints}
+              />
+            </div>
+
+            <Separator className="my-4" />
+
+            {/* Binge Meter */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-foreground">Binge Meter</h4>
+              <BingePointsDisplay
+                points={bingePoints}
+                badge={currentBadge}
+                episodePoints={bingeBreakdown?.episode_points}
+                seasonBonuses={bingeBreakdown?.season_bonuses}
+                showBonuses={bingeBreakdown?.show_bonuses}
+                completedSeasons={bingeBreakdown?.completed_seasons}
+                completedShows={bingeBreakdown?.completed_shows}
+                showBreakdown={true}
+              />
+            </div>
+          </Card>
         )}
+        </div>
       </div>
     </>
   );
