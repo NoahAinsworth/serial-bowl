@@ -394,7 +394,7 @@ export default function UserProfilePage() {
 
             {/* Follow Button */}
             {user && userId && user.id !== userId && (
-              <div className="w-full max-w-xs">
+              <div className="flex justify-center w-full">
                 <FollowRequestButton 
                   targetUserId={userId} 
                   isPrivate={profile.is_private} 
