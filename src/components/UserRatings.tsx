@@ -183,10 +183,6 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
                     <p className="text-sm font-semibold line-clamp-3">{rating.title}</p>
                   </div>
                 )}
-                <div className="absolute top-2 right-2">
-                  <RatingBadge rating={rating.score} size="sm" />
-                </div>
-                
                 {/* Delete button - always visible */}
                 <Button
                   variant="destructive"
@@ -196,6 +192,10 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
                 >
                   <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
+                
+                <div className="absolute bottom-2 right-2">
+                  <RatingBadge rating={rating.score} size="sm" />
+                </div>
               </div>
               <div className="p-3">
                 <p className="text-xs font-semibold line-clamp-2 mb-1">{rating.title}</p>
