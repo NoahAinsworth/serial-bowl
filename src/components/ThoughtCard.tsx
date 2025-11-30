@@ -393,7 +393,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={() => handleReaction('like')}
-              className={`transition-all duration-200 ${
+              className={`border-0 shadow-none transition-all duration-200 ${
                 localReaction === 'like' 
                   ? 'text-primary bg-primary/10 hover:bg-primary/20 scale-105' 
                   : 'hover:bg-accent/10 scale-100'
@@ -410,7 +410,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={handleDislike}
-              className={`transition-all duration-200 ${
+              className={`border-0 shadow-none transition-all duration-200 ${
                 localReaction === 'dislike' 
                   ? 'text-destructive bg-destructive/10 hover:bg-destructive/20 scale-105' 
                   : 'hover:bg-accent/10 scale-100'
@@ -427,7 +427,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="active:text-accent transition-colors"
+              className="border-0 shadow-none active:text-accent transition-colors"
             >
               <MessageCircle className="h-4 w-4 mr-1" />
               <span className="text-sm">{thought.comments}</span>
