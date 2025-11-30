@@ -132,38 +132,39 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
     try {
       if (localReaction === type) {
         await supabase
-          .from('reactions')
+          .from('post_reactions')
           .delete()
-          .eq('thought_id', thought.id)
+          .eq('post_id', thought.id)
           .eq('user_id', user.id)
-          .eq('reaction_type', type);
+          .eq('kind', type);
 
         if (type === 'like') setLocalLikes(prev => prev - 1);
         setLocalReaction(undefined);
       } else {
         if (localReaction === 'dislike') {
           await supabase
-            .from('thought_dislikes')
+            .from('post_reactions')
             .delete()
-            .eq('thought_id', thought.id)
-            .eq('user_id', user.id);
+            .eq('post_id', thought.id)
+            .eq('user_id', user.id)
+            .eq('kind', 'dislike');
 
           setLocalDislikes(prev => prev - 1);
         }
 
         await supabase
-          .from('reactions')
+          .from('post_reactions')
           .insert({
-            thought_id: thought.id,
+            post_id: thought.id,
             user_id: user.id,
-            reaction_type: type,
+            kind: type,
           });
 
         if (type === 'like') setLocalLikes(prev => prev + 1);
         setLocalReaction(type);
       }
 
-      // Don't trigger immediate refetch - let realtime updates handle it
+      onReactionChange?.();
     } catch (error) {
       toast({
         title: "Error",
@@ -188,37 +189,39 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
 
       if (isDisliked) {
         await supabase
-          .from('thought_dislikes')
+          .from('post_reactions')
           .delete()
-          .eq('thought_id', thought.id)
-          .eq('user_id', user.id);
+          .eq('post_id', thought.id)
+          .eq('user_id', user.id)
+          .eq('kind', 'dislike');
 
         setLocalDislikes(prev => prev - 1);
         setLocalReaction(undefined);
       } else {
         if (localReaction === 'like') {
           await supabase
-            .from('reactions')
+            .from('post_reactions')
             .delete()
-            .eq('thought_id', thought.id)
+            .eq('post_id', thought.id)
             .eq('user_id', user.id)
-            .eq('reaction_type', 'like');
+            .eq('kind', 'like');
 
           setLocalLikes(prev => prev - 1);
         }
 
         await supabase
-          .from('thought_dislikes')
+          .from('post_reactions')
           .insert({
-            thought_id: thought.id,
+            post_id: thought.id,
             user_id: user.id,
+            kind: 'dislike',
           });
 
         setLocalDislikes(prev => prev + 1);
         setLocalReaction('dislike');
       }
 
-      // Don't trigger immediate refetch - let realtime updates handle it
+      onReactionChange?.();
     } catch (error) {
       toast({
         title: "Error",
@@ -234,10 +237,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
     setDeleting(true);
     try {
       const { error } = await supabase
-        .from('thoughts')
-        .delete()
-        .eq('id', thought.id)
-        .eq('user_id', user.id);
+        .rpc('soft_delete_post', { p_post_id: thought.id });
 
       if (error) throw error;
 
@@ -410,7 +410,7 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
             </Button>
           </div>
 
-          {showComments && <CommentsSection thoughtId={thought.id} />}
+          {showComments && <CommentsSection postId={thought.id} />}
         </div>
       </div>
     </article>
