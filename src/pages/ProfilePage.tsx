@@ -779,48 +779,6 @@ export default function ProfilePage() {
             </div>
           </Card>
         )}
-
-        {/* Your Activity Section */}
-        <Card className="rounded-2xl border-2 border-border/30 p-5 bg-card/50 backdrop-blur-sm">
-          <h3 className="text-lg font-bold text-foreground mb-4">Your Activity</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              className="h-auto py-4 flex flex-col items-center gap-2"
-              onClick={() => navigate('/stats-pro')}
-            >
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Advanced Stats</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto py-4 flex flex-col items-center gap-2"
-              onClick={() => navigate('/wrapped')}
-            >
-              <Trophy className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">TV Wrapped</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto py-4 flex flex-col items-center gap-2"
-              onClick={() => navigate('/watch-party')}
-            >
-              <MessageCircle className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Watch Parties</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto py-4 flex flex-col items-center gap-2"
-              onClick={() => navigate('/collections')}
-            >
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Collections</span>
-            </Button>
-          </div>
-        </Card>
         </div>
       </div>
     </>

@@ -16,9 +16,6 @@ import { showsCache } from "@/lib/showsCache";
 import { useAuth } from "@/contexts/AuthContext";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { WatchedButton } from "@/components/WatchedButton";
-import { CollectionCard } from "@/components/collections/CollectionCard";
-import { FollowSuggestions } from "@/components/FollowSuggestions";
-import { Folder, Sparkles } from "lucide-react";
 
 type FilterType = 'popular' | 'new' | 'trending';
 
@@ -48,25 +45,9 @@ export default function DiscoverPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   
-  // Collections state
-  const [featuredCollections, setFeaturedCollections] = useState<any[]>([]);
-  const [collectionsLoading, setCollectionsLoading] = useState(false);
-  
-  // Recommended shows state
-  const [recommendedShows, setRecommendedShows] = useState<ShowCard[]>([]);
-  const [recommendedLoading, setRecommendedLoading] = useState(false);
-  
   // Refs for infinite scroll
   const browseObserverRef = useRef<HTMLDivElement>(null);
   const searchObserverRef = useRef<HTMLDivElement>(null);
-
-  // Load featured collections and recommendations on mount
-  useEffect(() => {
-    loadFeaturedCollections();
-    if (user) {
-      loadRecommendedShows();
-    }
-  }, [user]);
 
   // Load initial shows when filter changes
   useEffect(() => {
@@ -304,98 +285,6 @@ export default function DiscoverPage() {
     }
   }
 
-  async function loadFeaturedCollections() {
-    setCollectionsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('collections')
-        .select(`
-          *,
-          creator:profiles!collections_user_id_fkey(handle),
-          collection_items(count)
-        `)
-        .or('is_curated.eq.true,is_ai_generated.eq.true')
-        .eq('is_public', true)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-
-      const transformedCollections = (data || []).map((col: any) => ({
-        ...col,
-        item_count: col.collection_items?.[0]?.count || 0,
-        creator: col.creator,
-      }));
-
-      setFeaturedCollections(transformedCollections);
-    } catch (error) {
-      console.error('Error loading collections:', error);
-    } finally {
-      setCollectionsLoading(false);
-    }
-  }
-
-  async function loadRecommendedShows() {
-    if (!user) return;
-    
-    setRecommendedLoading(true);
-    try {
-      // Get user's watch history
-      const { data: watchedData } = await supabase
-        .from('watched')
-        .select('content_id')
-        .eq('user_id', user.id)
-        .limit(20);
-
-      if (!watchedData || watchedData.length === 0) {
-        setRecommendedLoading(false);
-        return;
-      }
-
-      // Get content details for watched shows
-      const { data: contentData } = await supabase
-        .from('content')
-        .select('external_id, metadata')
-        .in('id', watchedData.map(w => w.content_id))
-        .eq('kind', 'show');
-
-      if (!contentData || contentData.length === 0) {
-        setRecommendedLoading(false);
-        return;
-      }
-
-      // Use TVDB to get similar shows based on genres
-      const genres = new Set<string>();
-      contentData.forEach(show => {
-        const metadata = show.metadata as any;
-        if (metadata?.genres) {
-          metadata.genres.forEach((g: string) => genres.add(g));
-        }
-      });
-
-      if (genres.size === 0) {
-        setRecommendedLoading(false);
-        return;
-      }
-
-      // Search for shows with similar genres
-      const genreArray = Array.from(genres).slice(0, 3);
-      const results = await tvdbFetch(`/search?query=${genreArray[0]}&type=series&limit=10`);
-      const showsData = Array.isArray(results) ? results : [];
-      
-      // Filter out already watched shows
-      const watchedIds = new Set(contentData.map(c => c.external_id));
-      const filtered = showsData.filter(show => !watchedIds.has(show.id.toString()));
-      
-      const normalized = filtered.map(normalizeSeries).slice(0, 6);
-      setRecommendedShows(normalized);
-    } catch (error) {
-      console.error('Error loading recommended shows:', error);
-    } finally {
-      setRecommendedLoading(false);
-    }
-  }
-
   async function performSearch(query: string, pageNum: number) {
     if (searchLoading) return;
     
@@ -514,64 +403,6 @@ export default function DiscoverPage() {
           </TabsList>
 
           <TabsContent value="browse">
-            {/* Recommended Shows Section */}
-            {user && !recommendedLoading && recommendedShows.length > 0 && (
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    <h2 className="text-xl font-bold">Recommended for You</h2>
-                  </div>
-                </div>
-                <div className="overflow-x-auto pb-4 -mx-4 px-4">
-                  <div className="flex gap-4 min-w-max">
-                    {recommendedShows.map((show) => (
-                      <div key={show.id} className="w-32">
-                        <ShowCardComponent
-                          show={show}
-                          onClick={() => navigate(`/show/${show.id}`)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Collections Section */}
-            {!collectionsLoading && featuredCollections.length > 0 && (
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Folder className="h-5 w-5" />
-                    <h2 className="text-xl font-bold">Featured Collections</h2>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/collections')}>
-                    View All
-                  </Button>
-                </div>
-                <div className="overflow-x-auto pb-4 -mx-4 px-4">
-                  <div className="flex gap-4 min-w-max">
-                    {featuredCollections.slice(0, 6).map((collection) => (
-                      <div key={collection.id} className="w-48">
-                        <CollectionCard
-                          id={collection.id}
-                          name={collection.name}
-                          description={collection.description}
-                          coverUrl={collection.cover_url}
-                          itemCount={collection.item_count}
-                          isCurated={collection.is_curated}
-                          isAiGenerated={collection.is_ai_generated}
-                          isPublic={collection.is_public}
-                          creatorHandle={collection.creator?.handle}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Filter Tabs */}
             <div className="mb-6">
               <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as FilterType)} className="w-full">
@@ -615,13 +446,6 @@ export default function DiscoverPage() {
           </TabsContent>
 
           <TabsContent value="users">
-            {/* Follow Suggestions */}
-            {!searchQuery.trim() && user && (
-              <div className="mb-6">
-                <FollowSuggestions />
-              </div>
-            )}
-
             {!searchQuery.trim() && (
               <div className="text-center py-12 text-muted-foreground">
                 Search for users to get started

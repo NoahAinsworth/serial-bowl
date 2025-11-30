@@ -4,18 +4,14 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Heart, ThumbsDown, UserPlus, CheckCheck, MessageSquare } from 'lucide-react';
+import { Loader2, Heart, ThumbsDown, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { toast } from 'sonner';
 
 export default function ActivityPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'likes' | 'follows' | 'comments'>('all');
 
   useEffect(() => {
     if (user) {
@@ -127,29 +123,6 @@ export default function ActivityPage() {
     setLoading(false);
   };
 
-  const markAllAsRead = async () => {
-    if (!user) return;
-    
-    try {
-      const unreadIds = notifications
-        .filter(n => n.type === 'comment_reply' && !n.read)
-        .map(n => n.id);
-      
-      if (unreadIds.length > 0) {
-        await supabase
-          .from('notifications')
-          .update({ read: true })
-          .in('id', unreadIds);
-        
-        toast.success('Marked all as read');
-        loadNotifications();
-      }
-    } catch (error) {
-      console.error('Error marking as read:', error);
-      toast.error('Failed to mark as read');
-    }
-  };
-
   const getIcon = (type: string) => {
     switch (type) {
       case 'like':
@@ -159,19 +132,11 @@ export default function ActivityPage() {
       case 'follow':
         return <UserPlus className="h-5 w-5 text-secondary" />;
       case 'comment_reply':
-        return <MessageSquare className="h-5 w-5 text-accent" />;
+        return <Heart className="h-5 w-5 text-accent" />;
       default:
         return null;
     }
   };
-
-  const filteredNotifications = notifications.filter(notif => {
-    if (filter === 'all') return true;
-    if (filter === 'likes') return notif.type === 'like';
-    if (filter === 'follows') return notif.type === 'follow';
-    if (filter === 'comments') return notif.type === 'comment_reply' || notif.type === 'dislike';
-    return true;
-  });
 
   const getMessage = (notif: any) => {
     const handle = notif.user?.handle?.startsWith('@') 
@@ -261,20 +226,8 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto py-6 px-4 pb-24">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold neon-glow">Activity</h1>
-        {user && notifications.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={markAllAsRead}
-          >
-            <CheckCheck className="h-4 w-4 mr-2" />
-            Mark all read
-          </Button>
-        )}
-      </div>
+    <div className="container max-w-2xl mx-auto py-6 px-4">
+      <h1 className="text-3xl font-bold mb-6 neon-glow">Activity</h1>
       
       {!user ? (
         <Card className="p-8 text-center">
@@ -285,23 +238,8 @@ export default function ActivityPage() {
           <p className="text-muted-foreground">No notifications yet. Start engaging with the community!</p>
         </Card>
       ) : (
-        <>
-          <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="mb-6">
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="likes">Likes</TabsTrigger>
-              <TabsTrigger value="follows">Follows</TabsTrigger>
-              <TabsTrigger value="comments">Comments</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {filteredNotifications.length === 0 ? (
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">No {filter} notifications</p>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {filteredNotifications.map((notif) => (
+        <div className="space-y-3">
+          {notifications.map((notif) => (
             <Card
               key={notif.id}
               className="p-4 cursor-pointer hover:border-primary/50 transition-all hover-scale"
@@ -335,9 +273,7 @@ export default function ActivityPage() {
               </div>
             </Card>
           ))}
-            </div>
-          )}
-        </>
+        </div>
       )}
     </div>
   );

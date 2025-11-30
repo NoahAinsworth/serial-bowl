@@ -38,24 +38,6 @@ import FollowingPage from "./pages/FollowingPage";
 import BingePage from "./pages/BingePage";
 import BingeBoardPage from "./pages/BingeBoardPage";
 import NotFound from "./pages/NotFound";
-// Collections
-import CollectionsPage from "./pages/collections/CollectionsPage";
-import CollectionDetailPage from "./pages/collections/CollectionDetailPage";
-import CollectionCreatePage from "./pages/collections/CollectionCreatePage";
-// Lists expansion
-import ListCreatePage from "./pages/lists/ListCreatePage";
-import ListEditPage from "./pages/lists/ListEditPage";
-import ListBuilderPage from "./pages/lists/ListBuilderPage";
-import AIListBuilderPage from "./pages/lists/AIListBuilderPage";
-// Watch Party
-import WatchPartyPage from "./pages/watch-party/WatchPartyPage";
-import WatchPartyRoomPage from "./pages/watch-party/WatchPartyRoomPage";
-// Stats Pro
-import AdvancedStatsPage from "./pages/stats-pro/AdvancedStatsPage";
-import TVWrappedPage from "./pages/stats-pro/TVWrappedPage";
-// Premium
-import PremiumPage from "./pages/premium/PremiumPage";
-import ManageSubscriptionPage from "./pages/premium/ManageSubscriptionPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,30 +84,6 @@ function AppRouter() {
                 <Route path="/user/:userId/following" element={<ProtectedRoute><AppLayout><FollowingPage /></AppLayout></ProtectedRoute>} />
                 <Route path="/binge" element={<ProtectedRoute><AppLayout><BingePage /></AppLayout></ProtectedRoute>} />
                 <Route path="/binge-board" element={<ProtectedRoute><AppLayout><BingeBoardPage /></AppLayout></ProtectedRoute>} />
-                
-                {/* Collections */}
-                <Route path="/collections" element={<ProtectedRoute><AppLayout><CollectionsPage /></AppLayout></ProtectedRoute>} />
-                <Route path="/collections/create" element={<ProtectedRoute><AppLayout><CollectionCreatePage /></AppLayout></ProtectedRoute>} />
-                <Route path="/collection/:id" element={<ProtectedRoute><AppLayout><CollectionDetailPage /></AppLayout></ProtectedRoute>} />
-                
-                {/* Lists expansion */}
-                <Route path="/lists/create" element={<ProtectedRoute><AppLayout><ListCreatePage /></AppLayout></ProtectedRoute>} />
-                <Route path="/lists/edit/:id" element={<ProtectedRoute><AppLayout><ListEditPage /></AppLayout></ProtectedRoute>} />
-                <Route path="/lists/builder" element={<ProtectedRoute><AppLayout><ListBuilderPage /></AppLayout></ProtectedRoute>} />
-                <Route path="/lists/ai-builder" element={<ProtectedRoute><AppLayout><AIListBuilderPage /></AppLayout></ProtectedRoute>} />
-                
-                {/* Watch Party */}
-                <Route path="/watch-party" element={<ProtectedRoute><AppLayout><WatchPartyPage /></AppLayout></ProtectedRoute>} />
-                <Route path="/watch-party/:id" element={<ProtectedRoute><AppLayout><WatchPartyRoomPage /></AppLayout></ProtectedRoute>} />
-                
-                {/* Stats Pro */}
-                <Route path="/stats-pro" element={<ProtectedRoute><AppLayout><AdvancedStatsPage /></AppLayout></ProtectedRoute>} />
-                <Route path="/wrapped" element={<ProtectedRoute><AppLayout><TVWrappedPage /></AppLayout></ProtectedRoute>} />
-                
-                {/* Premium (prepared, not active) */}
-                <Route path="/premium" element={<ProtectedRoute><AppLayout><PremiumPage /></AppLayout></ProtectedRoute>} />
-                <Route path="/premium/manage" element={<ProtectedRoute><AppLayout><ManageSubscriptionPage /></AppLayout></ProtectedRoute>} />
-                
                 <Route path="*" element={<NotFound />} />
               </Routes>
     </div>

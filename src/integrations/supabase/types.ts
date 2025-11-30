@@ -158,98 +158,6 @@ export type Database = {
         }
         Relationships: []
       }
-      collection_items: {
-        Row: {
-          collection_id: string | null
-          content_id: string | null
-          created_at: string | null
-          id: string
-          notes: string | null
-          position: number | null
-        }
-        Insert: {
-          collection_id?: string | null
-          content_id?: string | null
-          created_at?: string | null
-          id?: string
-          notes?: string | null
-          position?: number | null
-        }
-        Update: {
-          collection_id?: string | null
-          content_id?: string | null
-          created_at?: string | null
-          id?: string
-          notes?: string | null
-          position?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collection_items_collection_id_fkey"
-            columns: ["collection_id"]
-            isOneToOne: false
-            referencedRelation: "collections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collection_items_content_id_fkey"
-            columns: ["content_id"]
-            isOneToOne: false
-            referencedRelation: "content"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      collections: {
-        Row: {
-          ai_prompt: string | null
-          cover_url: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          is_ai_generated: boolean | null
-          is_curated: boolean | null
-          is_public: boolean | null
-          name: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          ai_prompt?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_ai_generated?: boolean | null
-          is_curated?: boolean | null
-          is_public?: boolean | null
-          name: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          ai_prompt?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_ai_generated?: boolean | null
-          is_curated?: boolean | null
-          is_public?: boolean | null
-          name?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collections_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       comment_dislikes: {
         Row: {
           comment_id: string
@@ -477,34 +385,25 @@ export type Database = {
       }
       custom_lists: {
         Row: {
-          ai_prompt: string | null
-          cover_url: string | null
           created_at: string | null
           description: string | null
           id: string
-          is_ai_generated: boolean | null
           is_public: boolean | null
           name: string
           user_id: string
         }
         Insert: {
-          ai_prompt?: string | null
-          cover_url?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
-          is_ai_generated?: boolean | null
           is_public?: boolean | null
           name: string
           user_id: string
         }
         Update: {
-          ai_prompt?: string | null
-          cover_url?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
-          is_ai_generated?: boolean | null
           is_public?: boolean | null
           name?: string
           user_id?: string
@@ -820,24 +719,18 @@ export type Database = {
           created_at: string | null
           id: string
           list_id: string
-          notes: string | null
-          position: number | null
         }
         Insert: {
           content_id: string
           created_at?: string | null
           id?: string
           list_id: string
-          notes?: string | null
-          position?: number | null
         }
         Update: {
           content_id?: string
           created_at?: string | null
           id?: string
           list_id?: string
-          notes?: string | null
-          position?: number | null
         }
         Relationships: [
           {
@@ -1834,182 +1727,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      user_subscriptions: {
-        Row: {
-          created_at: string | null
-          current_period_end: string | null
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          tier: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          current_period_end?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          current_period_end?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      watch_parties: {
-        Row: {
-          created_at: string | null
-          current_episode: number | null
-          current_season: number | null
-          host_id: string
-          id: string
-          name: string
-          show_id: string | null
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          current_episode?: number | null
-          current_season?: number | null
-          host_id: string
-          id?: string
-          name: string
-          show_id?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          current_episode?: number | null
-          current_season?: number | null
-          host_id?: string
-          id?: string
-          name?: string
-          show_id?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "watch_parties_host_id_fkey"
-            columns: ["host_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "watch_parties_show_id_fkey"
-            columns: ["show_id"]
-            isOneToOne: false
-            referencedRelation: "content"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      watch_party_members: {
-        Row: {
-          binge_points_earned: number | null
-          joined_at: string | null
-          party_id: string
-          progress_episode: number | null
-          progress_season: number | null
-          role: string | null
-          user_id: string
-        }
-        Insert: {
-          binge_points_earned?: number | null
-          joined_at?: string | null
-          party_id: string
-          progress_episode?: number | null
-          progress_season?: number | null
-          role?: string | null
-          user_id: string
-        }
-        Update: {
-          binge_points_earned?: number | null
-          joined_at?: string | null
-          party_id?: string
-          progress_episode?: number | null
-          progress_season?: number | null
-          role?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "watch_party_members_party_id_fkey"
-            columns: ["party_id"]
-            isOneToOne: false
-            referencedRelation: "watch_parties"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "watch_party_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      watch_party_messages: {
-        Row: {
-          content: string
-          created_at: string | null
-          id: string
-          party_id: string | null
-          reaction_type: string | null
-          user_id: string | null
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          id?: string
-          party_id?: string | null
-          reaction_type?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          id?: string
-          party_id?: string | null
-          reaction_type?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "watch_party_messages_party_id_fkey"
-            columns: ["party_id"]
-            isOneToOne: false
-            referencedRelation: "watch_parties"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "watch_party_messages_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       watched: {
         Row: {

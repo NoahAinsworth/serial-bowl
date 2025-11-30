@@ -411,25 +411,6 @@ export default function SettingsPage() {
         </Card>
       )}
 
-      {/* Premium & Plans */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Premium & Plans</h2>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Current Plan</p>
-              <p className="text-sm text-muted-foreground">Free</p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/premium')}
-            >
-              View Plans
-            </Button>
-          </div>
-        </div>
-      </Card>
-
         <Button onClick={() => navigate('/profile')} className="w-full btn-glow">
           Done
         </Button>

@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, TrendingUp, Star, MessageSquare, Heart, Trophy } from 'lucide-react';
@@ -19,7 +17,6 @@ interface UserStats {
 
 export default function StatsPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -122,14 +119,9 @@ export default function StatsPage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <TrendingUp className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold neon-glow">Your Stats</h1>
-        </div>
-        <Button onClick={() => navigate('/stats-pro')} className="btn-glow">
-          Advanced Stats →
-        </Button>
+      <div className="flex items-center gap-3">
+        <TrendingUp className="h-8 w-8 text-primary" />
+        <h1 className="text-3xl font-bold neon-glow">Your Stats</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
