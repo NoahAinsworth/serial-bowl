@@ -12,18 +12,18 @@ export function PostTypeSelector({ onReviewClick, onThoughtClick }: PostTypeSele
       <Button
         variant="outline"
         onClick={onReviewClick}
-        className="w-full h-auto py-3 flex-col gap-1 text-xs"
+        className="w-full h-auto py-3 flex-col gap-1.5 text-xs rounded-full border-2"
       >
         <Star className="h-5 w-5" />
-        <span className="whitespace-nowrap">WRITE REVIEW</span>
+        <span className="whitespace-nowrap font-semibold">WRITE REVIEW</span>
       </Button>
       <Button
         variant="outline"
         onClick={onThoughtClick}
-        className="w-full h-auto py-3 flex-col gap-1 text-xs"
+        className="w-full h-auto py-3 flex-col gap-1.5 text-xs rounded-full border-2"
       >
         <MessageSquare className="h-5 w-5" />
-        <span className="whitespace-nowrap">SHARE THOUGHT</span>
+        <span className="whitespace-nowrap font-semibold">SHARE THOUGHT</span>
       </Button>
     </div>
   );
