@@ -146,19 +146,24 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </nav>
 
         {/* Floating BingeBot Button */}
-        <Button
+        <button
           onClick={() => setBingeBotOpen(true)}
-          className="fixed bottom-24 right-4 z-50 h-14 w-14 rounded-full 
-                     bg-gradient-to-br from-purple-400 to-pink-400 
-                     border-3 border-border shadow-xl
-                     hover:scale-110 transition-transform"
+          className="fixed bottom-24 right-4 z-50 h-16 w-16 rounded-full 
+                     border-3 border-border shadow-xl overflow-hidden
+                     hover:scale-110 transition-transform animate-bounce"
           style={{ 
-            paddingBottom: 'max(0rem, var(--safe-bottom))',
-            animation: 'bounce 2s infinite'
+            paddingBottom: 'max(0rem, var(--safe-bottom))'
           }}
         >
-          <Bot className="h-7 w-7 text-white drop-shadow-md" />
-        </Button>
+          <video
+            src="/videos/bingebot-character.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        </button>
 
         {/* BingeBot Chat Modal */}
         <BingeBotAI open={bingeBotOpen} onOpenChange={setBingeBotOpen} />
