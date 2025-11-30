@@ -184,12 +184,12 @@ export default function SettingsPage() {
   };
   
   const handleSendReport = () => {
-    const subject = encodeURIComponent('Serialbowl Report');
+    const subject = encodeURIComponent('Serial Bowl™ Report');
     const body = encodeURIComponent(
       `Reason: ${reportForm.reason}\n\nDescription:\n${reportForm.description}\n\nUsername or Link:\n${reportForm.userOrLink}`
     );
     
-    window.location.href = `mailto:serialbowlofficial@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:contact@theserialbowl.com?subject=${subject}&body=${body}`;
     
     toast({
       title: "Thanks for reporting",
@@ -387,37 +387,332 @@ export default function SettingsPage() {
             <Accordion type="single" collapsible className="w-full" value={openAccordion} onValueChange={setOpenAccordion}>
               <AccordionItem value="terms">
                 <AccordionTrigger className="text-lg font-semibold">Terms of Service</AccordionTrigger>
-                <AccordionContent className="space-y-3 text-foreground">
-                  <p>By using Serialbowl, you agree not to misuse or exploit the platform.</p>
-                  <p>You retain ownership of your posts but grant Serialbowl permission to display and share them publicly within the app.</p>
-                  <p>We reserve the right to remove or restrict content that violates these terms or harms the community.</p>
-                  <p>Continued use of Serialbowl means you agree to these terms and any future updates.</p>
-                  <p>For any questions, contact serialbowlofficial@gmail.com.</p>
+                <AccordionContent className="space-y-4 text-foreground text-sm">
+                  <p className="text-muted-foreground italic">Last updated: January 2025</p>
+                  
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">1. Introduction</h3>
+                    <p>Welcome to <strong>Serial Bowl™</strong> ("we," "us," "our"). Serial Bowl™ is a social TV-tracking app owned and operated by Noah Ainsworth. These Terms govern your use of the app. By using Serial Bowl™, you agree to these Terms.</p>
+                    <p className="text-xs text-muted-foreground italic">Trademark note: "Serial Bowl™" is used as a common-law trademark. Registration pending.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">2. Eligibility</h3>
+                    <p>You must be at least <strong>13 years old</strong> to use Serial Bowl™. If you are under 18, you may only use the app with parental or guardian permission.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">3. Your Account</h3>
+                    <p>You are responsible for:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Securing your login credentials</li>
+                      <li>All activity under your account</li>
+                      <li>Not impersonating other users</li>
+                      <li>Not abusing platform features</li>
+                    </ul>
+                    <p>We may suspend or terminate accounts that violate these Terms.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">4. User-Generated Content</h3>
+                    <p>You may post thoughts, reviews, ratings, comments, profile information, DMs, and external video links. You own the content you create.</p>
+                    <p>By posting, you give Serial Bowl™ a <strong>non-exclusive, worldwide, royalty-free license</strong> to display and distribute your content within the app.</p>
+                    <p>You agree that you will not post prohibited material, violate copyright laws, or upload videos (links only). We may remove harmful or illegal content.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">5. External Video Links</h3>
+                    <p>Serial Bowl™ only supports <strong>links</strong> to videos (YouTube, TikTok, IG, Vimeo, etc.). Serial Bowl™ does <strong>NOT</strong> host or store videos. All linked content follows the rules of the platforms they come from.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">6. Intellectual Property</h3>
+                    <p>Serial Bowl™, its design, UI, graphics, branding, icons, characters (including "BingeBot"), and features are the property of Noah Ainsworth.</p>
+                    <p>You are prohibited from:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Copying the Serial Bowl™ brand</li>
+                      <li>Using the Serial Bowl™ name, likeness, BingeBot, or UI without permission</li>
+                      <li>Reverse engineering or creating derivative works</li>
+                      <li>Reposting the app's content</li>
+                    </ul>
+                    <p className="font-semibold">Trademark Notice: Serial Bowl™ and BingeBot™ are claimed as common-law trademarks. All rights reserved.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">7. AI Assistant (BingeBot)</h3>
+                    <p>Serial Bowl™ contains an AI assistant called <strong>BingeBot™</strong>.</p>
+                    
+                    <div className="space-y-2">
+                      <p className="font-semibold">BingeBot can:</p>
+                      <ul className="list-disc pl-6 space-y-1">
+                        <li>Answer TV-related questions</li>
+                        <li>Provide actor, character, and episode info</li>
+                        <li>Recommend shows</li>
+                        <li>Navigate to any show/season/episode</li>
+                        <li>Apply ratings on behalf of the user when explicitly asked</li>
+                        <li>Refuse non-TV questions</li>
+                        <li>Decline harmful requests</li>
+                        <li>Provide spoiler warnings</li>
+                      </ul>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="font-semibold">BingeBot CANNOT:</p>
+                      <ul className="list-disc pl-6 space-y-1">
+                        <li>Provide legal, medical, political, or personal advice</li>
+                        <li>Engage in non-TV conversations</li>
+                        <li>Reveal private or personal information</li>
+                        <li>Replace professional guidance</li>
+                        <li>Guarantee factual accuracy</li>
+                        <li>Perform irreversible actions without user confirmation</li>
+                      </ul>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="font-semibold">AI Rating Actions:</p>
+                      <p>If the user asks BingeBot to rate content, BingeBot will: (1) Identify the show/season/episode, (2) Identify rating value (0–100), (3) Request confirmation, (4) Save the rating using the same logic as manual user input. Users are responsible for ratings applied through BingeBot.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">8. Use of AI & Data Handling</h3>
+                    <p>Serial Bowl™ uses <strong>Google Gemini</strong> for general TV information retrieval. Gemini is used ONLY for TV metadata, show summaries, actor data, character info, and episode descriptions.</p>
+                    <p className="font-semibold">Serial Bowl™ never sends personal data, DMs, posts, reviews, ratings, watch history, or private content to Gemini or any external AI.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">9. Privacy</h3>
+                    <p>Your data is protected. See our <strong>Privacy Policy</strong> for full details.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">10. Prohibited Behavior</h3>
+                    <p>You may not:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Harass or threaten others</li>
+                      <li>Post hate speech</li>
+                      <li>Share explicit content</li>
+                      <li>Engage in copyright infringement</li>
+                      <li>Attempt to misuse BingeBot</li>
+                      <li>Use Serial Bowl™ for anything outside TV purposes</li>
+                      <li>Post illegal or harmful content</li>
+                      <li>Attempt to hack or exploit the app</li>
+                      <li>Attempt to bypass moderation</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">11. Termination</h3>
+                    <p>We may terminate accounts for violations. You may delete your account at any time.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">12. Disclaimer</h3>
+                    <p>Serial Bowl™ is provided "as is." We do not guarantee accuracy or uptime. BingeBot™ responses may contain errors. Use at your own risk.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">13. Limitation of Liability</h3>
+                    <p>To the maximum extent allowed by law, Serial Bowl™ is not liable for user behavior, AI responses, data loss, third-party platforms, linked content, or damages from app use.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">14. Governing Law</h3>
+                    <p>These Terms follow the laws of the United States.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">15. Contact</h3>
+                    <p>For support or legal concerns: <strong>contact@theserialbowl.com</strong></p>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="privacy">
                 <AccordionTrigger className="text-lg font-semibold">Privacy Policy</AccordionTrigger>
-                <AccordionContent className="space-y-3 text-foreground">
-                  <p>Serialbowl only collects the information needed to provide core features such as user profiles, ratings, and recommendations.</p>
-                  <p>We do not sell or share your personal data with any third parties.</p>
-                  <p>You can request account deletion or data export anytime in Settings → Account or by emailing serialbowlofficial@gmail.com.</p>
+                <AccordionContent className="space-y-4 text-foreground text-sm">
+                  <p className="text-muted-foreground italic">Last updated: January 2025</p>
+                  
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">1. Overview</h3>
+                    <p>Serial Bowl™ ("we," "our") respects your privacy. This policy explains what we collect and how we protect it.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">2. Information We Collect</h3>
+                    <div className="space-y-2">
+                      <p className="font-semibold">You provide:</p>
+                      <ul className="list-disc pl-6 space-y-1">
+                        <li>Email, username, avatar, bio</li>
+                        <li>Posts, reviews, ratings, comments</li>
+                        <li>Watchlist & watched history</li>
+                        <li>DMs and settings</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="font-semibold">Automatically collected:</p>
+                      <ul className="list-disc pl-6 space-y-1">
+                        <li>Device info, error logs</li>
+                        <li>App usage and navigation events</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">3. What We DO NOT Collect</h3>
+                    <p>Serial Bowl™ does <strong>NOT</strong> collect or store:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Phone numbers or addresses</li>
+                      <li>Payment information</li>
+                      <li>Camera roll media or videos</li>
+                      <li>Sensitive demographic data or ID documents</li>
+                      <li>Cookies from advertisers</li>
+                      <li>Personal data sent to Gemini</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">4. How We Use Data</h3>
+                    <p>We use your data to:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Maintain your account</li>
+                      <li>Display your posts</li>
+                      <li>Sync ratings & watch history</li>
+                      <li>Operate BingeBot™ safely</li>
+                      <li>Personalize the app and improve features</li>
+                    </ul>
+                    <p className="font-semibold">We do not sell your personal data.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">5. External Services</h3>
+                    <p><strong>Supabase:</strong> Handles auth, storage, and real-time data.</p>
+                    <p><strong>Gemini:</strong> Used ONLY to retrieve public TV metadata. We do not send private user data to Gemini.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">6. Data Security</h3>
+                    <p>Supabase uses encrypted storage. Your data is protected.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">7. Your Rights</h3>
+                    <p>You may:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Edit your data</li>
+                      <li>Delete your account</li>
+                      <li>Export your data</li>
+                      <li>Adjust privacy settings</li>
+                      <li>Block users and report content</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">8. Children's Privacy</h3>
+                    <p>Not intended for users under 13.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">9. Contact</h3>
+                    <p><strong>contact@theserialbowl.com</strong></p>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="guidelines">
                 <AccordionTrigger className="text-lg font-semibold">Community Guidelines</AccordionTrigger>
-                <AccordionContent className="space-y-3 text-foreground">
-                  <p>Serialbowl is designed for respectful, creative TV discussion.</p>
-                  <p className="font-semibold">The following actions are strictly prohibited:</p>
-                  <ul className="list-disc pl-6 space-y-1">
-                    <li>Hate speech, racial or ethnic slurs, or discriminatory language targeting gender, sexuality, or religion.</li>
-                    <li>Harassment, bullying, or threats.</li>
-                    <li>Posting sexually explicit, violent, or hateful content.</li>
-                    <li>Impersonation, spam, or spreading misinformation.</li>
-                  </ul>
-                  <p>Violations can lead to warnings, suspensions, or bans.</p>
-                  <p>Our goal is to keep Serialbowl a safe and welcoming place for everyone.</p>
+                <AccordionContent className="space-y-4 text-foreground text-sm">
+                  <p>Users must:</p>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-semibold">✔ Be respectful</p>
+                      <p className="text-muted-foreground">No harassment, abuse, or hate.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">✔ Post responsibly</p>
+                      <p className="text-muted-foreground">No graphic violence, sexual content, or dangerous acts.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">✔ Use spoiler tags</p>
+                      <p className="text-muted-foreground">Major plot points must be flagged.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">✔ Avoid spam</p>
+                      <p className="text-muted-foreground">No mass advertising or scams.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">✔ Follow copyright rules</p>
+                      <p className="text-muted-foreground">Links only; no uploads.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">✔ Keep BingeBot safe</p>
+                      <p className="text-muted-foreground">Do not prompt it to produce harmful content.</p>
+                    </div>
+                  </div>
+
+                  <p className="text-muted-foreground">Violations can lead to warnings, suspensions, or bans. Our goal is to keep Serial Bowl™ a safe and welcoming place for everyone.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="spoiler-mature">
+                <AccordionTrigger className="text-lg font-semibold">Spoiler & Mature Content Policy</AccordionTrigger>
+                <AccordionContent className="space-y-4 text-foreground text-sm">
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">Spoilers</h3>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Must be tagged</li>
+                      <li>BingeBot must warn before revealing them</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">Mature Content</h3>
+                    <p>Allowed only if labeled; must not include:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Sexual content with minors</li>
+                      <li>Graphic violence</li>
+                      <li>Criminal acts</li>
+                      <li>Abuse</li>
+                    </ul>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="copyright">
+                <AccordionTrigger className="text-lg font-semibold">Copyright & DMCA Policy</AccordionTrigger>
+                <AccordionContent className="space-y-4 text-foreground text-sm">
+                  <p>You may only post content you have rights to.</p>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">Not allowed:</h3>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Uploading copyrighted media</li>
+                      <li>Posting full scenes</li>
+                      <li>Posting copyrighted images you do not own</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">Allowed:</h3>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li>Links to third-party videos</li>
+                      <li>Quotes within fair use</li>
+                      <li>Original reviews</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-base">Takedown Requests:</h3>
+                    <p>Email: <strong>contact@theserialbowl.com</strong></p>
+                    <p>Subject: "DMCA Request"</p>
+                    <p>Include ownership proof.</p>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
 
@@ -469,7 +764,7 @@ export default function SettingsPage() {
 
             <div className="mt-6 pt-6 border-t border-border text-center">
               <p className="text-xs text-muted-foreground">
-                Serialbowl is an independent project by Noah Ainsworth. All app content and policies are currently in development.
+                Serial Bowl™ is an independent project by Noah Ainsworth. Policies may be updated.
               </p>
             </div>
           </Card>
