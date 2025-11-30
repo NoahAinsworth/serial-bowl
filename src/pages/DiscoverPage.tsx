@@ -16,6 +16,8 @@ import { showsCache } from "@/lib/showsCache";
 import { useAuth } from "@/contexts/AuthContext";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { WatchedButton } from "@/components/WatchedButton";
+import { CollectionCard } from "@/components/collections/CollectionCard";
+import { Folder } from "lucide-react";
 
 type FilterType = 'popular' | 'new' | 'trending';
 
@@ -45,9 +47,18 @@ export default function DiscoverPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   
+  // Collections state
+  const [featuredCollections, setFeaturedCollections] = useState<any[]>([]);
+  const [collectionsLoading, setCollectionsLoading] = useState(false);
+  
   // Refs for infinite scroll
   const browseObserverRef = useRef<HTMLDivElement>(null);
   const searchObserverRef = useRef<HTMLDivElement>(null);
+
+  // Load featured collections on mount
+  useEffect(() => {
+    loadFeaturedCollections();
+  }, []);
 
   // Load initial shows when filter changes
   useEffect(() => {
@@ -285,6 +296,37 @@ export default function DiscoverPage() {
     }
   }
 
+  async function loadFeaturedCollections() {
+    setCollectionsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('collections')
+        .select(`
+          *,
+          creator:profiles!collections_user_id_fkey(handle),
+          collection_items(count)
+        `)
+        .or('is_curated.eq.true,is_ai_generated.eq.true')
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      const transformedCollections = (data || []).map((col: any) => ({
+        ...col,
+        item_count: col.collection_items?.[0]?.count || 0,
+        creator: col.creator,
+      }));
+
+      setFeaturedCollections(transformedCollections);
+    } catch (error) {
+      console.error('Error loading collections:', error);
+    } finally {
+      setCollectionsLoading(false);
+    }
+  }
+
   async function performSearch(query: string, pageNum: number) {
     if (searchLoading) return;
     
@@ -403,6 +445,40 @@ export default function DiscoverPage() {
           </TabsList>
 
           <TabsContent value="browse">
+            {/* Collections Section */}
+            {!collectionsLoading && featuredCollections.length > 0 && (
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Folder className="h-5 w-5" />
+                    <h2 className="text-xl font-bold">Featured Collections</h2>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/collections')}>
+                    View All
+                  </Button>
+                </div>
+                <div className="overflow-x-auto pb-4 -mx-4 px-4">
+                  <div className="flex gap-4 min-w-max">
+                    {featuredCollections.slice(0, 6).map((collection) => (
+                      <div key={collection.id} className="w-48">
+                        <CollectionCard
+                          id={collection.id}
+                          name={collection.name}
+                          description={collection.description}
+                          coverUrl={collection.cover_url}
+                          itemCount={collection.item_count}
+                          isCurated={collection.is_curated}
+                          isAiGenerated={collection.is_ai_generated}
+                          isPublic={collection.is_public}
+                          creatorHandle={collection.creator?.handle}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Filter Tabs */}
             <div className="mb-6">
               <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as FilterType)} className="w-full">
