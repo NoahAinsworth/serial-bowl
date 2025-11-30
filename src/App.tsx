@@ -41,6 +41,7 @@ import NotFound from "./pages/NotFound";
 // Collections
 import CollectionsPage from "./pages/collections/CollectionsPage";
 import CollectionDetailPage from "./pages/collections/CollectionDetailPage";
+import CollectionCreatePage from "./pages/collections/CollectionCreatePage";
 // Lists expansion
 import ListCreatePage from "./pages/lists/ListCreatePage";
 import ListEditPage from "./pages/lists/ListEditPage";
@@ -104,6 +105,7 @@ function AppRouter() {
                 
                 {/* Collections */}
                 <Route path="/collections" element={<ProtectedRoute><AppLayout><CollectionsPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/collections/create" element={<ProtectedRoute><AppLayout><CollectionCreatePage /></AppLayout></ProtectedRoute>} />
                 <Route path="/collection/:id" element={<ProtectedRoute><AppLayout><CollectionDetailPage /></AppLayout></ProtectedRoute>} />
                 
                 {/* Lists expansion */}
