@@ -70,17 +70,17 @@ export default function TVWrappedPage() {
 
       let topShow = { name: 'No shows yet', episodes: 0, poster: '' };
       if (topShowId) {
-        const { data: showData } = await supabase
-          .from('shows')
-          .select('title, poster_url')
-          .eq('id', topShowId)
-          .single();
+        // Find the show from watched content
+        const showFromWatched = watchedShows?.find(w => {
+          const metadata = w.content?.metadata as any;
+          return metadata?.tvdb_id === topShowId || w.content?.external_id === topShowId.toString();
+        });
 
-        if (showData) {
+        if (showFromWatched?.content) {
           topShow = {
-            name: showData.title,
+            name: showFromWatched.content.title,
             episodes: maxCount,
-            poster: showData.poster_url || ''
+            poster: showFromWatched.content.poster_url || ''
           };
         }
       }
