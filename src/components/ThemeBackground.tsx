@@ -18,10 +18,10 @@ export function ThemeBackground() {
           className="absolute inset-0"
           style={{
             background: `
-              radial-gradient(ellipse 80% 80% at 0% 0%, rgba(189, 147, 224, 0.7) 0%, transparent 50%),
-              radial-gradient(ellipse 70% 70% at 100% 0%, rgba(240, 184, 169, 0.6) 0%, transparent 50%),
-              radial-gradient(ellipse 90% 90% at 50% 100%, rgba(169, 207, 224, 0.65) 0%, transparent 55%),
-              linear-gradient(135deg, rgba(230, 215, 240, 0.4) 0%, rgba(240, 230, 235, 0.4) 50%, rgba(215, 235, 245, 0.4) 100%)
+              radial-gradient(ellipse 60% 60% at 10% 20%, rgba(214, 175, 242, 0.4) 0%, transparent 50%),
+              radial-gradient(ellipse 70% 70% at 90% 10%, rgba(255, 209, 232, 0.35) 0%, transparent 50%),
+              radial-gradient(ellipse 80% 80% at 50% 80%, rgba(207, 233, 255, 0.4) 0%, transparent 60%),
+              linear-gradient(135deg, rgba(233, 215, 255, 0.25) 0%, rgba(255, 235, 245, 0.25) 50%, rgba(207, 233, 255, 0.25) 100%)
             `
           }}
         />

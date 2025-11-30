@@ -57,59 +57,64 @@ All colors MUST be HSL.
 
   :root,
   .light {
-    /* Neobrutalism Light - Vibrant & Clean */
-    --background: 201 30% 94%;          /* Light grey-blue #E8EEF4 */
+    /* Pastel Sticker OS - Playful & Soft */
+    --background: 0 0% 98%;             /* Soft white #FAFAFA */
     --foreground: 0 0% 0%;              /* Pure black text */
     
-    /* Brand Colors (Neobrutalism Palette) */
-    --primary: 333 99% 72%;             /* Hot Pink #FE5BD6 */
+    /* Pastel Sticker Colors */
+    --primary: 340 100% 78%;            /* Pastel Pink #FF91C7 */
     --primary-foreground: 0 0% 0%;
     
-    --secondary: 46 100% 61%;           /* Amber #FEC437 */
+    --secondary: 48 100% 65%;           /* Pastel Yellow #FFD74E */
     --secondary-foreground: 0 0% 0%;
     
-    --accent: 246 45% 64%;              /* Lavender #897BC1 */
+    --accent: 220 100% 90%;             /* Soft Sky Blue #CFE9FF */
     --accent-foreground: 0 0% 0%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
     /* UI Components */
-    --card: 0 0% 100%;                  /* White cards */
+    --card: 0 0% 100%;                  /* Pure white cards */
     --card-foreground: 0 0% 0%;
     
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
     
-    --muted: 201 53% 88%;               /* Baby Blue #C9D9F0 */
-    --muted-foreground: 0 0% 20%;
+    --muted: 260 100% 93%;              /* Light Lavender #E9D7FF */
+    --muted-foreground: 0 0% 30%;
     
-    --border: 0 0% 0%;                  /* Black borders */
+    --border: 0 0% 0%;                  /* Black outlines */
     --input: 0 0% 100%;
-    --ring: 333 99% 72%;
+    --ring: 340 100% 78%;
     
-    /* Extended Palette */
-    --neo-pink: 333 99% 72%;
-    --neo-amber: 46 100% 61%;
-    --neo-lavender: 246 45% 64%;
-    --neo-baby-blue: 201 53% 88%;
-    --neo-lime: 88 83% 74%;
-    --neo-coral: 14 100% 71%;
+    /* Pastel Sticker Palette */
+    --sticker-pink: 340 100% 78%;       /* #FF91C7 */
+    --sticker-yellow: 48 100% 65%;      /* #FFD74E */
+    --sticker-sky: 220 100% 90%;        /* #CFE9FF */
+    --sticker-lavender: 260 100% 93%;   /* #E9D7FF */
     
-    /* Yellow for backgrounds */
-    --yellow: 51 100% 50%;              /* Vibrant yellow #FFED00 */
+    /* Outline System */
+    --outline-width: 3px;
+    --outline-color: 0 0% 0%;           /* Black outlines */
     
-    /* Effects */
-    --shadow-brutal: 6px 6px 0px rgba(0, 0, 0, 1);
-    --shadow-brutal-hover: 8px 8px 0px rgba(0, 0, 0, 1);
-    --shadow-brutal-active: 2px 2px 0px rgba(0, 0, 0, 1);
+    /* Pastel Gradients */
+    --gradient-purple-pink: linear-gradient(135deg, hsl(280 70% 85%) 0%, hsl(340 100% 85%) 100%);
+    --gradient-pink-blue: linear-gradient(135deg, hsl(340 100% 85%) 0%, hsl(220 100% 85%) 100%);
+    --gradient-lavender-sky: linear-gradient(135deg, hsl(260 100% 93%) 0%, hsl(220 100% 90%) 100%);
+    
+    /* Sticker Shadows */
+    --shadow-sticker: 4px 4px 0px rgba(0, 0, 0, 0.15);
+    --shadow-sticker-hover: 6px 6px 0px rgba(0, 0, 0, 0.2);
+    --shadow-sticker-active: 2px 2px 0px rgba(0, 0, 0, 0.1);
     
     /* Typography */
-    --font-weight-display: 800;
+    --font-weight-display: 700;
     --font-weight-ui: 600;
     
-    /* Shapes */
-    --radius: 16px;
+    /* Shapes - Soft & Rounded */
+    --radius: 20px;
+    --radius-full: 9999px;
     --stroke-width: 3px;
     
     font-family: 'DM Sans', 'Inter', sans-serif;
@@ -149,30 +154,32 @@ All colors MUST be HSL.
   .light .bg-card {
     background: white;
     border: 3px solid black;
-    box-shadow: var(--shadow-brutal);
+    box-shadow: var(--shadow-sticker);
     transition: all 0.2s ease;
+    border-radius: var(--radius);
   }
 
   .light .bg-card:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: var(--shadow-brutal-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sticker-hover);
   }
 
   .light button {
     border: 3px solid black;
     font-weight: 700;
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+    box-shadow: var(--shadow-sticker);
     transition: all 0.15s ease;
+    border-radius: var(--radius-full);
   }
 
   .light button:not(:disabled):hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sticker-hover);
   }
 
   .light button:not(:disabled):active {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+    transform: scale(0.95);
+    box-shadow: var(--shadow-sticker-active);
   }
 
   .light textarea, .light input {
@@ -180,12 +187,13 @@ All colors MUST be HSL.
     font-weight: 600;
     background: white;
     transition: all 0.2s ease;
+    border-radius: var(--radius);
   }
 
   .light textarea:focus, .light input:focus {
     outline: none;
     border-color: black;
-    box-shadow: 0 0 0 4px hsl(var(--neo-pink) / 0.3);
+    box-shadow: 0 0 0 4px hsl(var(--sticker-pink) / 0.3);
   }
 
   /* ========================= DARK MODE (NEOBRUTALISM DARK) ========================= */
