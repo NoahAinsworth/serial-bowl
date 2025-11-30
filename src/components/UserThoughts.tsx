@@ -23,26 +23,24 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
     if (!userId) return;
 
     const { data: thoughtsData } = await supabase
-      .from('thoughts')
+      .from('posts')
       .select(`
         id,
-        user_id,
-        text_content,
-        content_id,
+        author_id,
+        body,
+        item_id,
+        item_type,
         created_at,
-        profiles!thoughts_user_id_fkey (
+        is_spoiler,
+        profiles:author_id (
           id,
           handle,
           avatar_url
-        ),
-        content (
-          title,
-          kind,
-          external_id,
-          metadata
         )
       `)
-      .eq('user_id', userId)
+      .eq('author_id', userId)
+      .eq('kind', 'thought')
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -50,51 +48,24 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
       const thoughtsWithCounts = await Promise.all(
         thoughtsData.map(async (thought: any) => {
           const { data: reactions } = await supabase
-            .from('reactions')
-            .select('reaction_type')
-            .eq('thought_id', thought.id);
+            .from('post_reactions')
+            .select('kind')
+            .eq('post_id', thought.id);
 
           const { data: comments } = await supabase
             .from('comments')
             .select('id')
-            .eq('thought_id', thought.id);
+            .eq('post_id', thought.id);
 
           const { data: userReaction } = await supabase
-            .from('reactions')
-            .select('reaction_type')
-            .eq('thought_id', thought.id)
+            .from('post_reactions')
+            .select('kind')
+            .eq('post_id', thought.id)
             .eq('user_id', user?.id || '')
             .maybeSingle();
 
-          const likes = reactions?.filter(r => r.reaction_type === 'like').length || 0;
-          const dislikes = reactions?.filter(r => r.reaction_type === 'dislike').length || 0;
-          const rethinks = reactions?.filter(r => r.reaction_type === 'rethink').length || 0;
-
-          // Determine what to show based on content kind
-          let contentDisplay: any = {};
-          if (thought.content) {
-            if (thought.content.kind === 'show') {
-              contentDisplay.show = { 
-                title: thought.content.title, 
-                external_id: thought.content.external_id 
-              };
-            } else if (thought.content.kind === 'season') {
-              const metadata = thought.content.metadata as any;
-              contentDisplay.season = {
-                title: thought.content.title,
-                external_id: thought.content.external_id,
-                show_external_id: metadata?.show_id
-              };
-            } else if (thought.content.kind === 'episode') {
-              const metadata = thought.content.metadata as any;
-              contentDisplay.episode = {
-                title: thought.content.title,
-                external_id: thought.content.external_id,
-                season_external_id: metadata?.season_number,
-                show_external_id: metadata?.show_id
-              };
-            }
-          }
+          const likes = reactions?.filter(r => r.kind === 'like').length || 0;
+          const dislikes = reactions?.filter(r => r.kind === 'dislike').length || 0;
 
           return {
             id: thought.id,
@@ -103,13 +74,12 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
               handle: thought.profiles.handle,
               avatar_url: thought.profiles.avatar_url,
             },
-            content: thought.text_content,
-            ...contentDisplay,
+            content: thought.body,
+            is_spoiler: thought.is_spoiler,
             likes,
             dislikes,
             comments: comments?.length || 0,
-            rethinks,
-            userReaction: userReaction?.reaction_type,
+            userReaction: userReaction?.kind,
           };
         })
       );
