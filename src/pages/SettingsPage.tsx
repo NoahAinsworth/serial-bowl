@@ -97,7 +97,7 @@ export default function SettingsPage() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('settings')
+      .select('settings, is_private')
       .eq('id', user.id)
       .single();
 
@@ -106,7 +106,7 @@ export default function SettingsPage() {
       const loadedSettings = data.settings as any;
       setSettings({
         privacy: {
-          private_profile: loadedSettings?.privacy?.private_profile ?? false,
+          private_profile: loadedSettings?.privacy?.private_profile ?? data.is_private ?? false,
           dm_permission: loadedSettings?.privacy?.dm_permission ?? 'everyone',
           comment_permission: loadedSettings?.privacy?.comment_permission ?? 'everyone',
         },
@@ -147,14 +147,48 @@ export default function SettingsPage() {
     }
   };
 
-  const updateSetting = (category: string, key: string, value: any) => {
-    setSettings(prev => ({
-      ...prev,
+  const updateSetting = async (category: string, key: string, value: any) => {
+    const newSettings = {
+      ...settings,
       [category]: {
-        ...prev[category as keyof typeof prev],
+        ...settings[category as keyof typeof settings],
         [key]: value,
       },
-    }));
+    };
+    
+    setSettings(newSettings);
+    
+    // Auto-save to database immediately
+    if (!user) return;
+    
+    // Update settings JSON
+    const updateData: any = { settings: newSettings };
+    
+    // Also update is_private field if privacy.private_profile is changed
+    if (category === 'privacy' && key === 'private_profile') {
+      updateData.is_private = value;
+    }
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update(updateData)
+      .eq('id', user.id);
+    
+    if (error) {
+      console.error('Failed to save setting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save setting",
+        variant: "destructive",
+      });
+    } else {
+      // Show subtle feedback that setting was saved
+      toast({
+        title: "Saved",
+        description: "Setting updated",
+        duration: 2000,
+      });
+    }
   };
 
   const recalculateBingePoints = async () => {
@@ -377,8 +411,8 @@ export default function SettingsPage() {
         </Card>
       )}
 
-        <Button onClick={saveSettings} className="w-full btn-glow">
-          Save Settings
+        <Button onClick={() => navigate('/profile')} className="w-full btn-glow">
+          Done
         </Button>
         </TabsContent>
 
