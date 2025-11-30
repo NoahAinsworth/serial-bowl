@@ -196,21 +196,21 @@ All colors MUST be HSL.
     box-shadow: 0 0 0 4px hsl(var(--sticker-pink) / 0.3);
   }
 
-  /* ========================= DARK MODE (NEOBRUTALISM DARK) ========================= */
+  /* ========================= DARK MODE (STICKER OS DARK) ========================= */
   .dark {
-    /* Neobrutalism Dark - Same vibrant colors, dark background */
+    /* Sticker OS Dark - Pastel colors on dark background */
     --background: 240 10% 12%;          /* Dark blue-grey #1A1D24 */
     --foreground: 0 0% 100%;            /* White text */
     
-    /* Brand Colors (SAME as light mode) */
-    --primary: 333 99% 72%;             /* Hot Pink #FE5BD6 */
+    /* Pastel Sticker Colors (same as light) */
+    --primary: 340 100% 78%;            /* Pastel Pink #FF91C7 */
     --primary-foreground: 0 0% 0%;
     
-    --secondary: 46 100% 61%;           /* Amber #FEC437 */
+    --secondary: 48 100% 65%;           /* Pastel Yellow #FFD74E */
     --secondary-foreground: 0 0% 0%;
     
-    --accent: 246 45% 64%;              /* Lavender #897BC1 */
-    --accent-foreground: 0 0% 100%;
+    --accent: 220 100% 90%;             /* Soft Sky Blue #CFE9FF */
+    --accent-foreground: 0 0% 0%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -225,42 +225,39 @@ All colors MUST be HSL.
     --muted: 240 10% 25%;               /* Dark muted blue */
     --muted-foreground: 0 0% 80%;
     
-    --border: 0 0% 100%;                /* White borders (inverted) */
+    --border: 0 0% 100%;                /* White borders */
     --input: 240 8% 18%;
-    --ring: 333 99% 72%;
+    --ring: 340 100% 78%;
     
-    /* Extended Palette (SAME) */
-    --neo-pink: 333 99% 72%;
-    --neo-amber: 46 100% 61%;
-    --neo-lavender: 246 45% 64%;
-    --neo-baby-blue: 201 53% 88%;
-    --neo-lime: 88 83% 74%;
-    --neo-coral: 14 100% 71%;
+    /* Sticker Palette */
+    --sticker-pink: 340 100% 78%;
+    --sticker-yellow: 48 100% 65%;
+    --sticker-sky: 220 100% 90%;
+    --sticker-lavender: 260 100% 93%;
     
-    /* Effects (white shadows for dark mode) */
-    --shadow-brutal: 6px 6px 0px rgba(255, 255, 255, 0.15);
-    --shadow-brutal-hover: 8px 8px 0px rgba(255, 255, 255, 0.2);
-    --shadow-brutal-active: 2px 2px 0px rgba(255, 255, 255, 0.1);
+    /* Sticker Shadows (light for dark mode) */
+    --shadow-sticker: 4px 4px 0px rgba(255, 255, 255, 0.15);
+    --shadow-sticker-hover: 6px 6px 0px rgba(255, 255, 255, 0.2);
+    --shadow-sticker-active: 2px 2px 0px rgba(255, 255, 255, 0.1);
     
     /* Typography */
-    --font-weight-display: 800;
+    --font-weight-display: 700;
     --font-weight-ui: 600;
     
     /* Shapes */
-    --radius: 16px;
+    --radius: 20px;
+    --radius-full: 9999px;
     --stroke-width: 3px;
     
     font-family: 'DM Sans', 'Inter', sans-serif;
   }
-
-  /* No VHS effects in neobrutalism dark mode */
 
   .dark h1,
   .dark h2,
   .dark h3,
   .dark .wordmark {
     font-family: 'DM Sans', 'Inter', sans-serif;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.01em;
     color: hsl(var(--foreground));
   }
@@ -274,30 +271,32 @@ All colors MUST be HSL.
   .dark .bg-card {
     background: hsl(var(--card));
     border: 3px solid rgba(255, 255, 255, 0.2);
-    box-shadow: var(--shadow-brutal);
+    box-shadow: var(--shadow-sticker);
+    border-radius: var(--radius);
     transition: all 0.2s ease;
   }
 
   .dark .bg-card:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: var(--shadow-brutal-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sticker-hover);
   }
 
   .dark button {
     border: 3px solid rgba(255, 255, 255, 0.3);
     font-weight: 700;
-    box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.15);
+    box-shadow: var(--shadow-sticker);
+    border-radius: var(--radius-full);
     transition: all 0.15s ease;
   }
 
   .dark button:not(:disabled):hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sticker-hover);
   }
 
   .dark button:not(:disabled):active {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+    box-shadow: var(--shadow-sticker-active);
   }
 
   .dark textarea,
@@ -306,6 +305,7 @@ All colors MUST be HSL.
     font-weight: 600;
     background: hsl(var(--input));
     color: hsl(var(--foreground));
+    border-radius: var(--radius);
     transition: all 0.2s ease;
   }
 
@@ -313,7 +313,7 @@ All colors MUST be HSL.
   .dark input:focus {
     outline: none;
     border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 0 4px hsl(var(--neo-pink) / 0.3);
+    box-shadow: 0 0 0 4px hsl(var(--sticker-pink) / 0.3);
   }
 
   /* VHS Progress Bars - Add Neon Glow */
@@ -453,7 +453,7 @@ All colors MUST be HSL.
     /* Upside Down - Stranger Things Dark & Eerie */
     --background: 0 0% 8%;           /* Very dark background #141414 */
     --foreground: 0 0% 95%;          /* Light grey text */
-    --card: 0 0% 8%;                 /* Very dark grey #141414 (darker to match eerie vibe) */
+    --card: 0 0% 8%;                 /* Very dark grey */
     --card-foreground: 0 0% 95%;
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 95%;
@@ -461,7 +461,7 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --secondary: 24 100% 50%;        /* Orange #FF7B00 */
     --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 18%;               /* Dark muted #2E2E2E */
+    --muted: 0 0% 18%;
     --muted-foreground: 0 0% 60%;
     --accent: 276 77% 58%;           /* Purple #9D4EDD */
     --accent-foreground: 0 0% 100%;
@@ -470,33 +470,33 @@ All colors MUST be HSL.
     --border: 0 100% 50%;            /* Glowing Red border */
     --input: 0 0% 18%;
     --ring: 0 100% 50%;
-    --radius: 0.5rem;
+    --radius: 20px;                  /* Sticker OS rounded */
 
     /* Extended Upside Down Palette */
-    --blood-red: 0 100% 38%;         /* #C00000 */
-    --toxic-orange: 24 100% 50%;     /* #FF7B00 */
-    --void-purple: 276 77% 58%;      /* #9D4EDD */
-    --shadow-grey: 0 0% 18%;         /* #2E2E2E */
+    --blood-red: 0 100% 38%;
+    --toxic-orange: 24 100% 50%;
+    --void-purple: 276 77% 58%;
+    --shadow-grey: 0 0% 18%;
 
-    /* Typography - Eerie & Unsettling - ITC Benguiat Style */
+    /* Typography */
     --font-display: 'Cinzel', 'Palatino', serif;
     --font-ui: 'Roboto', 'Arial', sans-serif;
     --letter-display: 0.02em;
     --font-weight-display: 700;
     --font-weight-ui: 400;
     
-    /* Shapes - Angular & Ominous */
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
-    --btn-shape: 4px;
-    --tab-shape: 6px;
-    --stroke-width: 1px;
+    /* Shapes - Sticker OS Style */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --btn-shape: 9999px;
+    --tab-shape: 9999px;
+    --stroke-width: 3px;
     --stroke-style: solid;
     
-    /* Effects - Glitchy & Eerie */
-    --shadow-1: 0 4px 12px rgba(255, 0, 0, 0.4), 0 0 8px rgba(255, 0, 0, 0.3);
-    --shadow-2: 0 8px 24px rgba(255, 0, 0, 0.5), 0 0 12px rgba(255, 0, 0, 0.4);
+    /* Effects - Eerie Sticker Shadows */
+    --shadow-1: 4px 4px 0px rgba(255, 0, 0, 0.4);
+    --shadow-2: 6px 6px 0px rgba(255, 0, 0, 0.5);
     --inner-glow: inset 0 0 20px rgba(255, 0, 0, 0.2);
     --active-underline: none;
     --img-filter: saturate(0.7) contrast(1.1) brightness(0.9);
@@ -506,8 +506,8 @@ All colors MUST be HSL.
   .the_one_with_the_theme {
     /* The One with the Theme - 90s Central Perk Cozy Vibes */
     --background: 280 28% 68%;        /* Monica's Wall Purple #B497BD */
-    --foreground: 0 0% 12%;           /* Black Ink #1F1F1F */
-    --card: 39 100% 94%;              /* Warm cream #FFF3D1 (matches muted color) */
+    --foreground: 0 0% 12%;           /* Black Ink */
+    --card: 39 100% 94%;              /* Warm cream #FFF3D1 */
     --card-foreground: 0 0% 12%;
     --popover: 0 0% 99%;
     --popover-foreground: 0 0% 12%;
@@ -515,24 +515,24 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 12%;
     --secondary: 25 69% 54%;          /* Couch Orange #D97B36 */
     --secondary-foreground: 0 0% 100%;
-    --muted: 39 100% 94%;             /* Light Cream #FFF3D1 */
+    --muted: 39 100% 94%;             /* Light Cream */
     --muted-foreground: 0 0% 40%;
-    --accent: 280 28% 68%;            /* Monica's Wall Purple #B497BD */
+    --accent: 280 28% 68%;            /* Monica's Wall Purple */
     --accent-foreground: 0 0% 100%;
     --destructive: 7 80% 54%;
     --destructive-foreground: 0 0% 100%;
     --border: 45 100% 64%;            /* Golden Yellow border */
     --input: 0 0% 99%;
     --ring: 45 100% 64%;
-    --radius: 1.25rem;
+    --radius: 20px;                   /* Sticker OS rounded */
 
     /* Extended Friends Palette */
-    --friends-purple: 280 28% 68%;    /* Monica's Wall #B497BD */
-    --friends-lavender: 270 38% 85%;  /* Soft Lavender #D6C0E9 */
-    --friends-yellow: 45 100% 64%;    /* Golden Frame #FFD84D */
-    --friends-cream: 39 100% 94%;     /* Coffee Cream #F7E6C4 */
-    --friends-orange: 25 69% 54%;     /* Couch Orange #D97B36 */
-    --friends-green: 140 35% 30%;     /* Chalkboard Green #355E3B */
+    --friends-purple: 280 28% 68%;
+    --friends-lavender: 270 38% 85%;
+    --friends-yellow: 45 100% 64%;
+    --friends-cream: 39 100% 94%;
+    --friends-orange: 25 69% 54%;
+    --friends-green: 140 35% 30%;
 
     /* Typography - Rounded & Friendly */
     --font-display: 'Poppins', 'Nunito', sans-serif;
@@ -541,74 +541,55 @@ All colors MUST be HSL.
     --font-weight-display: 600;
     --font-weight-ui: 500;
     
-    /* Shapes - Cozy Rounded */
-    --radius-sm: 15px;
-    --radius-md: 20px;
-    --radius-lg: 25px;
-    --btn-shape: 20px;
-    --tab-shape: 18px;
-    --stroke-width: 0px;
-    --stroke-style: none;
+    /* Shapes - Sticker OS Cozy */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --btn-shape: 9999px;
+    --tab-shape: 9999px;
+    --stroke-width: 3px;
+    --stroke-style: solid;
     
-    /* Effects - Warm & Cozy */
-    --shadow-1: none;
-    --shadow-2: none;
+    /* Effects - Warm Sticker Shadows */
+    --shadow-1: 3px 3px 0px rgba(0, 0, 0, 0.15);
+    --shadow-2: 5px 5px 0px rgba(0, 0, 0, 0.2);
     --inner-glow: none;
     --active-underline: linear-gradient(90deg, hsl(45 100% 64%), hsl(25 69% 54%));
     --img-filter: saturate(1.05) brightness(1.02);
-    --fx-overlay: none;
-    --letter-ui: 0;
-    --font-weight-display: 600;
-    --font-weight-ui: 400;
-    
-    /* Shapes - Flat Polaroid style */
-    --radius-sm: 8px;
-    --radius-md: 8px;
-    --radius-lg: 8px;
-    --btn-shape: 8px;
-    --tab-shape: 20px;
-    --stroke-width: 1px;
-    
-    /* Effects - Minimal, flat */
-    --shadow-1: none;
-    --shadow-2: none;
-    --inner-glow: none;
-    --active-underline: none;
-    --img-filter: saturate(0.95) contrast(1.02);
     --fx-overlay: none;
   }
 
 
   .green_wireframe {
     /* Green Wireframe Mode - Y2K Cyber Aesthetic */
-    --background: 0 0% 0%;            /* Pure black #000000 */
-    --foreground: 120 100% 95%;       /* Light green text #E8FFE8 */
-    --card: 0 0% 5%;                  /* Very dark gray #0D0D0D */
+    --background: 0 0% 0%;            /* Pure black */
+    --foreground: 120 100% 95%;       /* Light green text */
+    --card: 0 0% 5%;                  /* Very dark gray */
     --card-foreground: 120 100% 95%;
     --popover: 0 0% 5%;
     --popover-foreground: 120 100% 95%;
     --primary: 158 100% 50%;          /* Neon Green #00FF85 */
-    --primary-foreground: 0 0% 0%;    /* Black */
+    --primary-foreground: 0 0% 0%;
     --secondary: 162 100% 50%;        /* Electric Lime #00FFC2 */
-    --secondary-foreground: 0 0% 0%;  /* Black */
+    --secondary-foreground: 0 0% 0%;
     --muted: 140 35% 8%;
-    --muted-foreground: 149 72% 76%;  /* Text Secondary #8CF0AA */
+    --muted-foreground: 149 72% 76%;
     --accent: 158 100% 50%;
-    --accent-foreground: 0 0% 0%;     /* Black */
-    --destructive: 345 100% 62%;      /* Magenta pop #FF3D6A */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 345 100% 62%;
     --destructive-foreground: 120 100% 95%;
-    --border: 158 100% 50% / 0.25;    /* Wireframe outline */
+    --border: 158 100% 50%;           /* Neon green outline */
     --input: 140 35% 5%;
     --ring: 158 100% 50%;
-    --radius: 0.625rem;
+    --radius: 20px;                   /* Sticker OS rounded */
 
     /* Extended Wireframe Palette */
-    --neon-green: 158 100% 50%;       /* #00FF85 */
-    --electric-lime: 162 100% 50%;    /* #00FFC2 */
-    --button-highlight: 158 100% 77%; /* #8EFFC2 */
+    --neon-green: 158 100% 50%;
+    --electric-lime: 162 100% 50%;
+    --button-highlight: 158 100% 77%;
     --wireframe-glow: 158 100% 50% / 0.15;
 
-    /* Typography - Cyber Futuristic Y2K Digital */
+    /* Typography - Cyber Futuristic */
     --font-ui: 'Audiowide', 'Orbitron', sans-serif;
     --font-display: 'Audiowide', 'Orbitron', sans-serif;
     --font-accent: 'Orbitron', monospace;
@@ -618,29 +599,29 @@ All colors MUST be HSL.
     --letter-ui: 0.05em;
     --letter-display: 0.15em;
 
-    /* Shape Tokens - Angular Y2K */
-    --radius-sm: 8px;
-    --radius-md: 10px;
-    --radius-lg: 12px;
-    --stroke-width: 1px;
+    /* Shape Tokens - Sticker OS Cyber */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --stroke-width: 3px;
     --stroke-style: solid;
-    --tab-shape: 8px;
-    --btn-shape: 8px;
+    --tab-shape: 9999px;
+    --btn-shape: 9999px;
 
-    /* Elevation - Neon Glow */
-    --shadow-1: 0 0 15px rgba(0, 255, 133, 0.1);
-    --shadow-2: 0 0 25px rgba(0, 255, 133, 0.15);
-    --shadow-hover: 0 0 30px rgba(0, 255, 133, 0.3), 0 0 60px rgba(0, 255, 133, 0.1);
+    /* Elevation - Neon Sticker Glow */
+    --shadow-1: 4px 4px 0px rgba(0, 255, 133, 0.3);
+    --shadow-2: 6px 6px 0px rgba(0, 255, 133, 0.4);
+    --shadow-hover: 8px 8px 0px rgba(0, 255, 133, 0.5);
     --inner-glow: inset 0 0 20px rgba(0, 255, 133, 0.05);
 
-    /* Motion - Electronic & Fluid */
+    /* Motion */
     --ease-ui: cubic-bezier(0.25, 0.1, 0.25, 1);
     --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --dur-fast: 150ms;
     --dur-med: 300ms;
     --dur-slow: 500ms;
 
-    /* Effects - Holographic Grid */
+    /* Effects */
     --fx-overlay: repeating-linear-gradient(
       0deg,
       transparent,
@@ -662,31 +643,31 @@ All colors MUST be HSL.
 
   .donut_mode {
     /* Donut Mode - Simpsons Springfield Theme */
-    --background: 201 71% 73%;        /* #87CEEB - Springfield Sky Blue */
-    --foreground: 0 0% 12%;           /* #1E1E1E - Dark text */
-    --card: 201 40% 96%;              /* Soft sky-tinted white #EBF6FA */
+    --background: 201 71% 73%;        /* Springfield Sky Blue #87CEEB */
+    --foreground: 0 0% 12%;           /* Dark text */
+    --card: 201 40% 96%;              /* Soft sky-tinted white */
     --card-foreground: 0 0% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 12%;
-    --primary: 222 19% 24%;           /* #2B2D42 - Deep navy for contrast */
+    --primary: 222 19% 24%;           /* Deep navy */
     --primary-foreground: 0 0% 100%;
-    --secondary: 46 100% 53%;         /* #FFD90F - Simpsons Yellow */
+    --secondary: 46 100% 53%;         /* Simpsons Yellow #FFD90F */
     --secondary-foreground: 0 0% 12%;
-    --muted: 210 40% 96%;             /* Light muted */
+    --muted: 210 40% 96%;
     --muted-foreground: 222 19% 40%;
-    --accent: 333 100% 71%;           /* #FF6FAE - Donut Pink (sprinkles) */
+    --accent: 333 100% 71%;           /* Donut Pink #FF6FAE */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     --border: 333 60% 85%;            /* Pink-tinted borders */
-    --input: 333 40% 95%;             /* Soft pink input backgrounds */
-    --ring: 333 100% 71%;             /* Pink focus rings */
-    --radius: 1rem;
+    --input: 333 40% 95%;             /* Soft pink input */
+    --ring: 333 100% 71%;
+    --radius: 20px;                   /* Sticker OS rounded */
 
     /* Extended Donut Mode Palette */
-    --simpsons-yellow: 46 100% 53%;   /* #FFD90F */
-    --donut-pink: 333 100% 71%;       /* #FF6FAE */
-    --sky-blue: 201 71% 73%;          /* #87CEEB */
+    --simpsons-yellow: 46 100% 53%;
+    --donut-pink: 333 100% 71%;
+    --sky-blue: 201 71% 73%;
 
     /* Typography - Fun & Friendly */
     --font-display: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
@@ -695,18 +676,18 @@ All colors MUST be HSL.
     --font-weight-display: 700;
     --font-weight-ui: 500;
     
-    /* Shapes - Playful Rounded */
+    /* Shapes - Playful Sticker */
     --radius-sm: 12px;
     --radius-md: 16px;
     --radius-lg: 20px;
-    --btn-shape: 16px;
-    --tab-shape: 16px;
-    --stroke-width: 2px;
+    --btn-shape: 9999px;
+    --tab-shape: 9999px;
+    --stroke-width: 3px;
     --stroke-style: solid;
     
-    /* Effects - Bright & Fun with Pink Sprinkles */
-    --shadow-1: 0 2px 8px rgba(255, 111, 174, 0.2);
-    --shadow-2: 0 4px 16px rgba(255, 111, 174, 0.3);
+    /* Effects - Bright Fun Stickers */
+    --shadow-1: 4px 4px 0px rgba(255, 111, 174, 0.3);
+    --shadow-2: 6px 6px 0px rgba(255, 111, 174, 0.4);
     --inner-glow: 0 0 20px rgba(255, 111, 174, 0.15);
     --active-underline: 2px solid hsl(var(--donut-pink));
     --img-filter: saturate(1.15) brightness(1.05);
@@ -773,26 +754,23 @@ All colors MUST be HSL.
 
 .static_tv {
   /* Base Colors - Pure Black & Brushed Silver */
-  --background: 0 0% 0%; /* Pure black */
-  --foreground: 0 0% 95%; /* Soft white/silver text */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 95%;
   
-  /* Card Colors */
-  --card: 0 0% 5%; /* Near black for cards */
+  --card: 0 0% 5%;
   --card-foreground: 0 0% 90%;
   
-  /* Popover */
   --popover: 0 0% 8%;
   --popover-foreground: 0 0% 90%;
   
   /* Primary - Brushed Silver */
-  --primary: 0 0% 75%; /* Silver #C0C0C0 */
-  --primary-foreground: 0 0% 10%; /* Black text on silver */
+  --primary: 0 0% 75%;
+  --primary-foreground: 0 0% 10%;
   
   /* Secondary - Graphite */
   --secondary: 0 0% 20%;
   --secondary-foreground: 0 0% 85%;
   
-  /* Muted - Dark Grey */
   --muted: 0 0% 15%;
   --muted-foreground: 0 0% 70%;
   
@@ -800,30 +778,41 @@ All colors MUST be HSL.
   --accent: 0 0% 60%;
   --accent-foreground: 0 0% 10%;
   
-  /* Destructive */
   --destructive: 0 0% 50%;
   --destructive-foreground: 0 0% 95%;
   
   /* Border & Input */
-  --border: 0 0% 75%; /* Silver borders */
+  --border: 0 0% 75%;
   --input: 0 0% 30%;
   --ring: 0 0% 75%;
   
-  /* Chart colors - Monochrome gradient */
-  --chart-1: 0 0% 80%;
-  --chart-2: 0 0% 65%;
-  --chart-3: 0 0% 50%;
-  --chart-4: 0 0% 35%;
-  --chart-5: 0 0% 20%;
-  
-  /* Radius */
-  --radius: 0.5rem;
+  --radius: 20px;                     /* Sticker OS rounded */
   
   /* Custom Static TV variables */
   --static-silver: 0 0% 75%;
   --chrome: 0 0% 85%;
   --graphite: 0 0% 20%;
   --steel: 0 0% 60%;
+  
+  /* Chart colors */
+  --chart-1: 0 0% 80%;
+  --chart-2: 0 0% 65%;
+  --chart-3: 0 0% 50%;
+  --chart-4: 0 0% 35%;
+  --chart-5: 0 0% 20%;
+  
+  /* Sticker OS Shapes */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --btn-shape: 9999px;
+  --tab-shape: 9999px;
+  --stroke-width: 3px;
+  
+  /* Metallic Sticker Shadows */
+  --shadow-1: 4px 4px 0px rgba(192, 192, 192, 0.3);
+  --shadow-2: 6px 6px 0px rgba(192, 192, 192, 0.4);
+  --shadow-hover: 8px 8px 0px rgba(192, 192, 192, 0.5);
 }
 
 /* Static TV Background Animation */
@@ -1419,45 +1408,44 @@ All colors MUST be HSL.
 
 .neobrutalism {
   /* Base Colors - Clean & Vibrant */
-  --background: 201 30% 94%; /* Light grey-blue background */
-  --foreground: 0 0% 0%; /* Pure black text */
-  --card: 0 0% 100%; /* White cards */
+  --background: 201 30% 94%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
   --card-foreground: 0 0% 0%;
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 0%;
   
   /* Primary - Hot Pink */
-  --primary: 333 99% 72%; /* #FE5BD6 */
+  --primary: 333 99% 72%;
   --primary-foreground: 0 0% 0%;
   
   /* Secondary - Amber */
-  --secondary: 46 100% 61%; /* #FEC437 */
+  --secondary: 46 100% 61%;
   --secondary-foreground: 0 0% 0%;
   
   /* Accent - Lavender */
-  --accent: 246 45% 64%; /* #897BC1 */
+  --accent: 246 45% 64%;
   --accent-foreground: 0 0% 0%;
   
   /* Muted - Baby Blue */
-  --muted: 201 53% 88%; /* #C9D9F0 */
+  --muted: 201 53% 88%;
   --muted-foreground: 0 0% 20%;
   
   /* Border & Input */
-  --border: 0 0% 0%; /* Black borders */
+  --border: 0 0% 0%;
   --input: 0 0% 100%;
   --ring: 333 99% 72%;
   
-  /* Destructive */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   
   /* Extended Palette */
-  --neo-pink: 333 99% 72%; /* #FE5BD6 */
-  --neo-amber: 46 100% 61%; /* #FEC437 */
-  --neo-lavender: 246 45% 64%; /* #897BC1 */
-  --neo-baby-blue: 201 53% 88%; /* #C9D9F0 */
-  --neo-lime: 88 83% 74%; /* Lime green */
-  --neo-coral: 14 100% 71%; /* Coral */
+  --neo-pink: 333 99% 72%;
+  --neo-amber: 46 100% 61%;
+  --neo-lavender: 246 45% 64%;
+  --neo-baby-blue: 201 53% 88%;
+  --neo-lime: 88 83% 74%;
+  --neo-coral: 14 100% 71%;
   
   /* Chart Colors */
   --chart-1: 333 99% 72%;
@@ -1471,23 +1459,22 @@ All colors MUST be HSL.
   --font-ui: 'Inter', sans-serif;
   --letter-display: 0.01em;
   --letter-ui: 0em;
-  --font-weight-display: 800; /* Extra bold */
-  --font-weight-ui: 600; /* Semi-bold */
+  --font-weight-display: 800;
+  --font-weight-ui: 600;
   
-  /* Shapes - Brutalist */
-  --radius: 16px;
-  --btn-shape: 16px;
-  --tab-shape: 16px;
+  /* Shapes - Sticker OS Style */
+  --radius: 20px;
+  --btn-shape: 9999px;
+  --tab-shape: 9999px;
   --stroke-width: 3px;
   
-  /* Effects - Minimal */
+  /* Effects - Sticker Shadows */
   --shadow-1: 4px 4px 0px rgba(0, 0, 0, 1);
   --shadow-2: 6px 6px 0px rgba(0, 0, 0, 1);
   --shadow-hover: 8px 8px 0px rgba(0, 0, 0, 1);
   --active-underline: 3px solid hsl(var(--neo-pink));
   --img-filter: saturate(1.2) contrast(1.1);
   
-  /* No overlays */
   --fx-overlay: none;
 }
 
@@ -1519,26 +1506,26 @@ All colors MUST be HSL.
 }
 
 .neobrutalism .bg-card:hover {
-  transform: translate(-2px, -2px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
 }
 
 /* Buttons - Vibrant Colors with Black Borders */
 .neobrutalism button {
   border: 3px solid hsl(var(--border));
-  border-radius: 12px;
+  border-radius: var(--btn-shape);
   font-weight: 700;
   box-shadow: var(--shadow-1);
   transition: all 0.15s ease;
 }
 
 .neobrutalism button:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-2);
 }
 
 .neobrutalism button:active:not(:disabled) {
-  transform: translate(2px, 2px);
+  transform: scale(0.95);
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
 }
 
@@ -2133,9 +2120,124 @@ All colors MUST be HSL.
   * {
     -webkit-overflow-scrolling: touch;
   }
-  /* Smooth scrolling on mobile */
-  * {
-    -webkit-overflow-scrolling: touch;
+
+  /* ===========================
+     THEME-SPECIFIC STICKER STYLING
+     =========================== */
+
+  /* Donut Mode - Playful Sticker Buttons & Cards */
+  .donut_mode button {
+    border: 3px solid hsl(var(--border));
+    border-radius: var(--btn-shape);
+    box-shadow: var(--shadow-1);
+  }
+
+  .donut_mode button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .donut_mode button:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .donut_mode .bg-card {
+    border: 3px solid hsl(var(--donut-pink) / 0.3);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+  }
+
+  .donut_mode .bg-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+
+  /* Friends Theme - Cozy Sticker Buttons */
+  .the_one_with_the_theme button {
+    border: 3px solid hsl(var(--border));
+    border-radius: var(--btn-shape);
+    box-shadow: var(--shadow-1);
+  }
+
+  .the_one_with_the_theme button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .the_one_with_the_theme button:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .the_one_with_the_theme .bg-card {
+    border: 3px solid hsl(var(--friends-yellow) / 0.4);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+  }
+
+  /* Green Wireframe - Cyber Sticker with Glow */
+  .green_wireframe button {
+    border: 3px solid hsl(var(--neon-green));
+    border-radius: var(--btn-shape);
+    box-shadow: var(--shadow-1), 0 0 15px rgba(0, 255, 133, 0.3);
+  }
+
+  .green_wireframe button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2), 0 0 25px rgba(0, 255, 133, 0.5);
+  }
+
+  .green_wireframe button:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .green_wireframe .bg-card {
+    border: 3px solid hsl(var(--neon-green) / 0.4);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1), 0 0 20px rgba(0, 255, 133, 0.2);
+  }
+
+  /* Upside Down - Eerie Sticker with Red Glow */
+  .upside_down button {
+    border: 3px solid hsl(var(--blood-red));
+    border-radius: var(--btn-shape);
+    box-shadow: var(--shadow-1);
+  }
+
+  .upside_down button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .upside_down button:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .upside_down .bg-card {
+    border: 3px solid hsl(var(--blood-red) / 0.5);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+  }
+
+  /* Static TV - Metallic Sticker with Silver */
+  .static_tv button {
+    border: 3px solid hsl(var(--chrome));
+    border-radius: var(--btn-shape);
+    box-shadow: var(--shadow-1);
+  }
+
+  .static_tv button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .static_tv button:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .static_tv .bg-card {
+    border: 3px solid hsl(var(--steel));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
   }
 }
 
