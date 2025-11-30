@@ -461,10 +461,10 @@ export default function ProfilePage() {
               </h1>
             )}
 
-            {/* Stats without circles */}
+            {/* Stats with subtle shadow underneath */}
             <div className="flex gap-8 justify-center text-center mb-4">
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-opacity border-none outline-none"
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -473,7 +473,7 @@ export default function ProfilePage() {
                 <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Posts</span>
               </button>
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-opacity border-none outline-none"
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
                 onClick={() => navigate('/followers')}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -482,7 +482,7 @@ export default function ProfilePage() {
                 <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Followers</span>
               </button>
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-opacity border-none outline-none"
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
                 onClick={() => navigate('/following')}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
