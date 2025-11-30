@@ -17,11 +17,18 @@ interface Entity {
   episodeId?: string;
 }
 
+interface RatingAction {
+  itemType: "show" | "season" | "episode";
+  name: string;
+  rating: number;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
   entities?: Entity[];
   followUps?: string[];
+  ratingAction?: RatingAction;
 }
 
 interface BingeBotAIProps {
@@ -68,15 +75,21 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       if (error) throw error;
 
       setSessionId(data.sessionId);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.message,
-          entities: data.entities || [],
-          followUps: data.followUps || []
-        }
-      ]);
+      
+      const assistantMessage = {
+        role: "assistant" as const,
+        content: data.message,
+        entities: data.entities || [],
+        followUps: data.followUps || [],
+        ratingAction: data.ratingAction
+      };
+      
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      // Handle rating action if present
+      if (data.ratingAction) {
+        await handleRatingAction(data.ratingAction);
+      }
     } catch (error: any) {
       console.error("Chat error:", error);
       toast({
@@ -86,6 +99,49 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRatingAction = async (action: RatingAction) => {
+    try {
+      // Find the content in database to get proper item_id
+      const { data: contentData, error: searchError } = await supabase
+        .from("content")
+        .select("external_id, kind")
+        .ilike("title", `%${action.name}%`)
+        .eq("kind", action.itemType)
+        .maybeSingle();
+
+      if (searchError || !contentData) {
+        toast({
+          title: "Rating Error",
+          description: `Could not find ${action.name} to rate`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.rpc("api_rate_and_review", {
+        p_item_type: action.itemType,
+        p_item_id: contentData.external_id,
+        p_score_any: String(action.rating),
+        p_review: null,
+        p_is_spoiler: false,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Rating Applied! ⭐",
+        description: `Rated ${action.name} as ${action.rating}%`,
+      });
+    } catch (error: any) {
+      console.error("Rating error:", error);
+      toast({
+        title: "Rating Error",
+        description: error.message || "Failed to apply rating",
+        variant: "destructive",
+      });
     }
   };
 
@@ -117,16 +173,22 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       if (error) throw error;
 
       setSessionId(data.sessionId);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.message,
-          entities: data.entities || [],
-          followUps: data.followUps || []
-        }
-      ]);
+      
+      const assistantMessage = {
+        role: "assistant" as const,
+        content: data.message,
+        entities: data.entities || [],
+        followUps: data.followUps || [],
+        ratingAction: data.ratingAction
+      };
+      
+      setMessages((prev) => [...prev, assistantMessage]);
       setInput("");
+
+      // Handle rating action if present
+      if (data.ratingAction) {
+        await handleRatingAction(data.ratingAction);
+      }
     } catch (error: any) {
       console.error("Chat error:", error);
       toast({
@@ -190,8 +252,14 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
               <h3 className="text-xl font-semibold mb-2">How can I help you today?</h3>
               <p className="text-muted-foreground mb-6">Ask me about shows, seasons, episodes, or cast</p>
               <div className="flex flex-wrap gap-2 justify-center max-w-md">
-                {["Tell me about Peacemaker", "Who's in the cast?", "Latest episodes"].map((q) => (
-                  <Button key={q} variant="outline" size="sm" onClick={() => setInput(q)}>
+                {["Find me a show to watch", "Who plays Walter White?", "Rate Breaking Bad 95%", "Show me The Office"].map((q) => (
+                  <Button 
+                    key={q} 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setInput(q)}
+                    className="border-2 hover:scale-105 transition-transform"
+                  >
                     {q}
                   </Button>
                 ))}
@@ -203,7 +271,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                 <div key={idx}>
                   {msg.role === "user" ? (
                     <div className="flex justify-end mb-3 sm:mb-4 w-full">
-                      <div className="bg-primary text-primary-foreground rounded-2xl px-2.5 sm:px-4 py-2 sm:py-2.5 max-w-[98%] sm:max-w-[85%] break-words text-xs sm:text-sm">
+                      <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-2xl px-2.5 sm:px-4 py-2 sm:py-2.5 max-w-[98%] sm:max-w-[85%] break-words text-xs sm:text-sm border-2 border-border shadow-md">
                         {msg.content}
                       </div>
                     </div>
