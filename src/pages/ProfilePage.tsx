@@ -464,7 +464,7 @@ export default function ProfilePage() {
             {/* Stats without circles */}
             <div className="flex gap-8 justify-center text-center mb-4">
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-opacity"
+                className="flex flex-col items-center hover:opacity-80 transition-opacity border-none outline-none"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -473,7 +473,7 @@ export default function ProfilePage() {
                 <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Posts</span>
               </button>
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-opacity"
+                className="flex flex-col items-center hover:opacity-80 transition-opacity border-none outline-none"
                 onClick={() => navigate('/followers')}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -482,7 +482,7 @@ export default function ProfilePage() {
                 <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Followers</span>
               </button>
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-opacity"
+                className="flex flex-col items-center hover:opacity-80 transition-opacity border-none outline-none"
                 onClick={() => navigate('/following')}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -495,19 +495,19 @@ export default function ProfilePage() {
             {/* Action Buttons */}
             <div className="flex gap-2 w-full max-w-xs">
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
                 onClick={() => navigate('/profile/edit')} 
-                className="flex-1 h-9 font-semibold border-2 border-primary/40 bg-background/50 backdrop-blur-sm hover:bg-background/70 hover:border-primary/60"
+                className="flex-1 h-9 font-semibold bg-white/10 backdrop-blur-sm hover:bg-white/20"
               >
                 <Edit className="h-4 w-4 mr-1.5" />
                 Edit
               </Button>
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
                 onClick={handleShare}
-                className="flex-1 h-9 font-semibold border-2 border-primary/40 bg-background/50 backdrop-blur-sm hover:bg-background/70 hover:border-primary/60"
+                className="flex-1 h-9 font-semibold bg-white/10 backdrop-blur-sm hover:bg-white/20"
               >
                 <Share2 className="h-4 w-4 mr-1.5" />
                 Share
