@@ -220,11 +220,16 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
       {/* Modern Header */}
       <div className="border-b px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3">
-          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-purple-500 to-pink-500">
-            <AvatarFallback className="bg-transparent text-white">
-              <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
-            </AvatarFallback>
-          </Avatar>
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-border shadow-md flex-shrink-0">
+            <video
+              src="/videos/bingebot-character.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          </div>
           <div>
             <h2 className="font-semibold text-sm sm:text-base">Binge Bot</h2>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -244,11 +249,16 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
 
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-              <Avatar className="h-20 w-20 mb-4 bg-gradient-to-br from-purple-500 to-pink-500">
-                <AvatarFallback className="bg-transparent text-white">
-                  <Bot className="h-12 w-12" />
-                </AvatarFallback>
-              </Avatar>
+              <div className="h-20 w-20 mb-4 rounded-full overflow-hidden border-3 border-border shadow-xl">
+                <video
+                  src="/videos/bingebot-character.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <h3 className="text-xl font-semibold mb-2">How can I help you today?</h3>
               <p className="text-muted-foreground mb-6">Ask me about shows, seasons, episodes, or cast</p>
               <div className="flex flex-wrap gap-2 justify-center max-w-md">
@@ -277,11 +287,16 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                     </div>
                   ) : (
                     <div className="flex gap-1.5 sm:gap-3 mb-3 sm:mb-4 w-full">
-                      <Avatar className="h-6 w-6 sm:h-8 sm:w-8 bg-gradient-to-br from-purple-500 to-pink-500 flex-shrink-0 mt-0.5">
-                        <AvatarFallback className="bg-transparent text-white">
-                          <Bot className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full overflow-hidden border border-border flex-shrink-0 mt-0.5">
+                        <video
+                          src="/videos/bingebot-character.mp4"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                       <div className="flex-1 space-y-1.5 sm:space-y-2 min-w-0">
                         <BingeBotMessage
                           content={msg.content}
@@ -313,11 +328,16 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
               ))}
               {loading && (
                 <div className="flex gap-3">
-                  <Avatar className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-500">
-                    <AvatarFallback className="bg-transparent text-white">
-                      <Bot className="h-5 w-5" />
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-border">
+                    <video
+                      src="/videos/bingebot-character.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <div className="flex gap-1">
                       <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
