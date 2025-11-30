@@ -26,6 +26,14 @@ STRICT RULES:
 9. Add "[Spoiler Warning]" before potentially spoiler content.
 10. Be friendly, energetic, and TV-nerd coded.
 
+**CRITICAL: When REAL-TIME TV DATABASE INFO is provided, ALWAYS use it for facts about:**
+- Season/episode counts (e.g., "How many seasons does X have?")
+- Air dates and schedules (e.g., "When does season 2 come out?")
+- Show status (continuing/ended)
+- Network information
+- Latest episodes and seasons
+Prefer this real-time data over your training knowledge for recent/current information.
+
 When user asks about a specific show/season/episode, include the title in [brackets] so we can create navigation links.
 Example: "You should check out [Breaking Bad] - it's incredible!"
 
@@ -81,6 +89,32 @@ async function searchTVDB(query: string, token: string) {
   } catch (error) {
     console.error(`TVDB search error for "${query}":`, error);
     return [];
+  }
+}
+
+// Fetch extended series information with seasons and episodes
+async function getSeriesExtended(seriesId: number, token: string) {
+  try {
+    const response = await fetch(
+      `https://api4.thetvdb.com/v4/series/${seriesId}/extended?meta=episodes&short=true`,
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`TVDB extended fetch failed for series ${seriesId}: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error(`TVDB extended fetch error for series ${seriesId}:`, error);
+    return null;
   }
 }
 
@@ -154,7 +188,7 @@ serve(async (req) => {
     // Get the last user message to search for show names
     const lastUserMessage = messages[messages.length - 1]?.content || "";
     
-    // Extract and search for shows in TVDB
+    // Extract and search for shows in TVDB with extended data
     let showContext = "";
     if (TVDB_API_KEY && lastUserMessage) {
       try {
@@ -170,17 +204,57 @@ serve(async (req) => {
           }
           
           if (searchResults.length > 0) {
-            // Format show data for context
-            const formattedShows = searchResults.slice(0, 3).map((show: any) => ({
-              name: show.name || show.title,
-              year: show.year || show.first_aired?.substring(0, 4),
-              status: show.status,
-              overview: show.overview?.substring(0, 200),
-              network: show.network,
-            }));
+            // Fetch extended data for each show
+            const enrichedShows = [];
+            for (const show of searchResults.slice(0, 2)) { // Limit extended fetches
+              const extendedData = await getSeriesExtended(show.tvdb_id, tvdbToken);
+              
+              if (extendedData) {
+                // Find aired seasons (not specials)
+                const airedSeasons = extendedData.seasons?.filter((s: any) => 
+                  s.type?.name === "Aired Order" && s.number > 0
+                ) || [];
+                
+                // Get latest season info
+                const latestSeason = airedSeasons.sort((a: any, b: any) => b.number - a.number)[0];
+                
+                const enrichedShow = {
+                  name: show.name || show.title,
+                  year: show.year || show.first_aired?.substring(0, 4),
+                  status: extendedData.status?.name || show.status,
+                  totalSeasons: airedSeasons.length,
+                  totalEpisodes: extendedData.episodes?.length || 0,
+                  lastAired: extendedData.lastAired,
+                  nextAired: extendedData.nextAired,
+                  airsDay: extendedData.airsDays?.[0],
+                  airsTime: extendedData.airsTime,
+                  network: extendedData.originalNetwork?.name || show.network,
+                  latestSeason: latestSeason ? {
+                    number: latestSeason.number,
+                    episodeCount: latestSeason.episodes?.length || 0,
+                    year: latestSeason.year,
+                  } : null,
+                  overview: (show.overview || extendedData.overview)?.substring(0, 300),
+                };
+                
+                enrichedShows.push(enrichedShow);
+                console.log(`Enriched data for ${enrichedShow.name}: ${enrichedShow.totalSeasons} seasons, ${enrichedShow.totalEpisodes} episodes`);
+              } else {
+                // Fallback to basic data if extended fetch fails
+                enrichedShows.push({
+                  name: show.name || show.title,
+                  year: show.year || show.first_aired?.substring(0, 4),
+                  status: show.status,
+                  overview: show.overview?.substring(0, 200),
+                  network: show.network,
+                });
+              }
+            }
             
-            showContext = `\n\nREAL-TIME TV DATABASE INFO (Use this for accurate, up-to-date information):\n${JSON.stringify(formattedShows, null, 2)}`;
-            console.log("Added TVDB context for:", formattedShows.map(s => s.name).join(", "));
+            if (enrichedShows.length > 0) {
+              showContext = `\n\nREAL-TIME TV DATABASE INFO (AUTHORITATIVE - Use this for all facts about seasons, episodes, air dates, and status):\n${JSON.stringify(enrichedShows, null, 2)}`;
+              console.log("Added enriched TVDB context for:", enrichedShows.map(s => s.name).join(", "));
+            }
           }
         }
       } catch (error) {
@@ -205,7 +279,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-pro-preview",
         messages: aiMessages,
       }),
     });
