@@ -19,12 +19,23 @@ import { VHSProfileRing } from '@/components/VHSProfileRing';
 import { BadgeDisplay } from '@/components/BadgeDisplay';
 import { BadgeCollection } from '@/components/BadgeCollection';
 import { DynamicBackground } from '@/components/DynamicBackground';
-import { AboutMeSection } from '@/components/AboutMeSection';
+
 import { CinematicFavorites } from '@/components/CinematicFavorites';
 import { Progress } from '@/components/ui/progress';
 import { BingePointsDisplay } from '@/components/BingePointsDisplay';
 import { Separator } from '@/components/ui/separator';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+
+const BADGE_TIERS = [
+  { name: 'Pilot Watcher', threshold: 0 },
+  { name: 'Casual Viewer', threshold: 150 },
+  { name: 'Marathon Madness', threshold: 500 },
+  { name: 'Season Smasher', threshold: 1200 },
+  { name: 'Series Finisher', threshold: 2500 },
+  { name: 'Stream Scholar', threshold: 5000 },
+  { name: 'Ultimate Binger', threshold: 10000 },
+];
+
 export default function UserProfilePage() {
   const {
     handle
@@ -59,7 +70,8 @@ export default function UserProfilePage() {
     following: 0,
     binge_points: 0,
     badge_tier: 'Pilot Watcher',
-    top3Shows: [] as any[]
+    top3Shows: [] as any[],
+    settings: null as any
   });
   const [thoughts, setThoughts] = useState<any[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
@@ -151,7 +163,8 @@ export default function UserProfilePage() {
         following: 0,
         binge_points: profileData.binge_points || 0,
         badge_tier: profileData.badge_tier || 'Pilot Watcher',
-        top3Shows: []
+        top3Shows: [],
+        settings: profileData.settings
       });
       setLoading(false);
       return;
@@ -198,7 +211,8 @@ export default function UserProfilePage() {
       following: following || 0,
       binge_points: profileData.binge_points || 0,
       badge_tier: profileData.badge_tier || 'Pilot Watcher',
-      top3Shows
+      top3Shows,
+      settings: profileData.settings
     });
     setLoading(false);
   };
@@ -278,39 +292,11 @@ export default function UserProfilePage() {
   };
   const currentBadge = profile.badge_tier || 'Pilot Watcher';
   const bingePoints = profile.binge_points || 0;
-  const BADGE_THRESHOLDS = [{
-    name: 'Pilot Watcher',
-    min: 0,
-    max: 149
-  }, {
-    name: 'Casual Viewer',
-    min: 150,
-    max: 499
-  }, {
-    name: 'Marathon Madness',
-    min: 500,
-    max: 1199
-  }, {
-    name: 'Season Smasher',
-    min: 1200,
-    max: 2499
-  }, {
-    name: 'Series Finisher',
-    min: 2500,
-    max: 4999
-  }, {
-    name: 'Stream Scholar',
-    min: 5000,
-    max: 9999
-  }, {
-    name: 'Ultimate Binger',
-    min: 10000,
-    max: Infinity
-  }];
-  const currentTier = BADGE_THRESHOLDS.find(t => t.name === currentBadge) || BADGE_THRESHOLDS[0];
-  const currentIndex = BADGE_THRESHOLDS.findIndex(t => t.name === currentBadge);
-  const nextTier = currentIndex < BADGE_THRESHOLDS.length - 1 ? BADGE_THRESHOLDS[currentIndex + 1] : null;
-  const progress = nextTier ? (bingePoints - currentTier.min) / (nextTier.min - currentTier.min) * 100 : 100;
+  
+  const currentTier = BADGE_TIERS.find(t => t.name === currentBadge) || BADGE_TIERS[0];
+  const currentIndex = BADGE_TIERS.findIndex(t => t.name === currentBadge);
+  const nextTier = currentIndex < BADGE_TIERS.length - 1 ? BADGE_TIERS[currentIndex + 1] : null;
+  const progress = nextTier ? ((bingePoints - currentTier.threshold) / (nextTier.threshold - currentTier.threshold)) * 100 : 100;
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -353,9 +339,9 @@ export default function UserProfilePage() {
             </div>
 
             {/* Name centered under profile pic */}
-            {(profile as any).settings?.displayName && (
+            {profile.settings?.displayName && (
               <h1 className="text-lg font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight mb-4">
-                {(profile as any).settings.displayName}
+                {profile.settings.displayName}
               </h1>
             )}
 
@@ -404,92 +390,149 @@ export default function UserProfilePage() {
               </div>
             )}
           </div>
+
+          {/* Bio - inline display */}
+          {profile.bio && (
+            <div className="text-center px-4">
+              <p className="text-sm text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-relaxed">
+                {profile.bio}
+              </p>
+            </div>
+          )}
         </div>
 
-        <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
-          <AboutMeSection bio={profile.bio || ''} onSave={async () => {}} isOwner={false} />
-        </div>
-
-        <div className="px-2 sm:px-4 mb-4 sm:mb-6 animate-fade-in relative z-10">
+        <div className="px-3 mb-5 animate-fade-in relative z-10">
           <CinematicFavorites shows={profile.top3Shows || []} onEdit={() => {}} onRemove={() => {}} badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'} isOwner={false} />
         </div>
 
         {/* Tabs */}
-        {!profile.is_private || followStatus === 'accepted' ? <div className="max-w-4xl mx-auto px-2 sm:px-4 relative z-10">
+        {!profile.is_private || followStatus === 'accepted' ? <div className="max-w-4xl mx-auto relative z-10">
             <Tabs defaultValue="posts" className="w-full mt-0">
-              <TabsList className="w-full grid grid-cols-4 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10">
-                <TabsTrigger value="posts">Posts</TabsTrigger>
-                <TabsTrigger value="shows">Shows</TabsTrigger>
-                <TabsTrigger value="seasons">Seasons</TabsTrigger>
-                <TabsTrigger value="episodes">Episodes</TabsTrigger>
+              <TabsList className="w-full grid grid-cols-2 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10 h-12">
+                <TabsTrigger value="posts" className="text-xs sm:text-sm">Posts</TabsTrigger>
+                <TabsTrigger value="ratings" className="text-xs sm:text-sm">Ratings</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="posts" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-2 sm:p-4">
+              <TabsContent value="posts" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
                 <Tabs defaultValue="all" className="w-full">
-                  <TabsList className="w-full justify-start mb-4 overflow-x-auto">
-                    <TabsTrigger value="all" className="text-xs sm:text-sm flex-shrink-0">All</TabsTrigger>
-                    <TabsTrigger value="thoughts" className="text-xs sm:text-sm flex-shrink-0">Thoughts</TabsTrigger>
-                    <TabsTrigger value="reviews" className="text-xs sm:text-sm flex-shrink-0">Reviews</TabsTrigger>
+                  <TabsList className="w-full grid grid-cols-3 mb-4 h-10">
+                    <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
+                    <TabsTrigger value="thoughts" className="text-xs sm:text-sm">Thoughts</TabsTrigger>
+                    <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reviews</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="all">
+                  <TabsContent value="all" className="mt-0">
                     <UserPosts userId={userId} />
                   </TabsContent>
 
-                  <TabsContent value="thoughts">
+                  <TabsContent value="thoughts" className="mt-0">
                     <UserThoughts userId={userId} />
                   </TabsContent>
 
-                  <TabsContent value="reviews">
+                  <TabsContent value="reviews" className="mt-0">
                     <UserReviews userId={userId} />
                   </TabsContent>
                 </Tabs>
               </TabsContent>
 
-              <TabsContent value="shows" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-2 sm:p-4">
-                <UserRatings userId={userId} contentKind="show" />
-              </TabsContent>
-
-              <TabsContent value="seasons" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-2 sm:p-4">
-                <UserRatings userId={userId} contentKind="season" />
-              </TabsContent>
-
-              <TabsContent value="episodes" className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 p-2 sm:p-4">
-                <UserRatings userId={userId} contentKind="episode" />
+              <TabsContent value="ratings" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+                <Tabs defaultValue="shows" className="w-full">
+                  <TabsList className="w-full grid grid-cols-3 mb-4 h-10">
+                    <TabsTrigger value="shows" className="text-xs sm:text-sm">Shows</TabsTrigger>
+                    <TabsTrigger value="seasons" className="text-xs sm:text-sm">Seasons</TabsTrigger>
+                    <TabsTrigger value="episodes" className="text-xs sm:text-sm">Episodes</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="shows" className="mt-0 py-4">
+                    <UserRatings userId={userId} contentKind="show" />
+                  </TabsContent>
+                  <TabsContent value="seasons" className="mt-0 py-4">
+                    <UserRatings userId={userId} contentKind="season" />
+                  </TabsContent>
+                  <TabsContent value="episodes" className="mt-0 py-4">
+                    <UserRatings userId={userId} contentKind="episode" />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
             </Tabs>
 
             {/* Binge Stats Section */}
-            {flags.BINGE_POINTS && <div className="mt-8 mb-4">
-                <h2 className="text-xl font-semibold text-foreground">Binge Stats</h2>
-                <Separator className="mt-2" />
-              </div>}
-
-            {flags.BINGE_POINTS && <div className="mb-6 animate-fade-in">
-                <BingePointsDisplay points={bingePoints} badge={currentBadge} showBreakdown={false} />
-              </div>}
-
-            {flags.BINGE_POINTS && nextTier && <div className="mb-6 animate-fade-in">
-                <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-                      {currentBadge}
-                    </span>
-                    <div className="flex items-center gap-1 text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-                      <TrendingUp className="h-3 w-3" />
-                      <span className="text-xs font-semibold">Next: {nextTier.name}</span>
+            {flags.BINGE_POINTS && (
+              <div className="px-4 mb-6 animate-fade-in">
+                <Card className="p-6 bg-card/70 backdrop-blur-md border-border/30">
+                  <div className="space-y-4">
+                    {/* Trophy Case */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-foreground/90">
+                          Trophy Case ({BADGE_TIERS.filter(tier => bingePoints >= tier.threshold).length}/{BADGE_TIERS.length})
+                        </h4>
+                        {userRank && (
+                          <div className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 text-sm font-medium flex items-center gap-1">
+                            <Trophy className="w-3 h-3 text-primary" />
+                            <span className="text-foreground">Rank #{userRank}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="overflow-x-auto">
+                        <div className="flex gap-4 pb-2">
+                          {BADGE_TIERS.filter(tier => bingePoints >= tier.threshold).reverse().map((badge) => (
+                            <div 
+                              key={badge.name}
+                              className="flex-shrink-0 flex flex-col items-center gap-1"
+                            >
+                              <BadgeDisplay 
+                                badge={badge.name} 
+                                size="sm"
+                                showGlow={badge.name === currentBadge}
+                              />
+                              <div className="whitespace-nowrap bg-background/98 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/50 text-foreground shadow-lg">
+                                {badge.threshold} pts
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                  <div className="text-xs text-black dark:text-white text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
-                    {bingePoints} / {nextTier.min} Binge Points
-                  </div>
-                </div>
-              </div>}
 
-            {flags.BINGE_POINTS && <div className="mb-6 animate-fade-in">
-                <BadgeCollection currentBadge={currentBadge} bingePoints={bingePoints} />
-              </div>}
+                    <Separator className="my-4" />
+
+                    {/* Binge Meter */}
+                    <div>
+                      <h4 className="text-sm font-semibold mb-3 text-foreground/90">Binge Meter</h4>
+                      <BingePointsDisplay
+                        points={bingePoints}
+                        badge={currentBadge}
+                        showBreakdown={false}
+                      />
+                    </div>
+
+                    {nextTier && (
+                      <>
+                        <Separator className="my-4" />
+                        <div>
+                          <h4 className="text-sm font-semibold mb-3 text-foreground/90">Next Badge</h4>
+                          <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+                                {currentBadge}
+                              </span>
+                              <div className="flex items-center gap-1 text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+                                <TrendingUp className="h-3 w-3" />
+                                <span className="text-xs font-semibold">Next: {nextTier.name}</span>
+                              </div>
+                            </div>
+                            <Progress value={progress} className="h-2" />
+                            <div className="text-xs text-black dark:text-white text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
+                              {bingePoints} / {nextTier.threshold} Binge Points
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            )}
           </div> : <div className="px-2 sm:px-4 relative z-10">
             <Card className="p-8 sm:p-12 text-center bg-card/70 backdrop-blur-md border-border/30">
               <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
