@@ -16,6 +16,8 @@ import { supabase } from '@/api/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { BowlScoreBadge } from '@/components/BowlScoreBadge';
+import { useBowlScores } from '@/hooks/useBowlScores';
 
 export default function ShowDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +31,10 @@ export default function ShowDetailPage() {
   const [showPostDialog, setShowPostDialog] = useState(false);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [contentId, setContentId] = useState<string | null>(null);
+  
+  // Extract numeric ID for bowl scores
+  const numericShowId = id ? (id.match(/(\d+)$/) || [])[1] || id : null;
+  const { globalScore, personalScore } = useBowlScores(numericShowId || '');
 
   useEffect(() => {
     if (id) {
@@ -187,7 +193,15 @@ export default function ShowDetailPage() {
             </div>
           )}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2">{show.name}</h1>
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h1 className="text-3xl font-bold">{show.name}</h1>
+              <div className="flex flex-wrap gap-2 items-center">
+                <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" />
+                {user && personalScore !== null && (
+                  <BowlScoreBadge score={personalScore} variant="personal" showLabel size="md" />
+                )}
+              </div>
+            </div>
             <p className="text-muted-foreground mb-4">{show.overview}</p>
             
             {user && (

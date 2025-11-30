@@ -1297,6 +1297,42 @@ export type Database = {
           },
         ]
       }
+      show_bowl_scores: {
+        Row: {
+          bowl_score: number | null
+          episode_avg: number | null
+          episode_count: number | null
+          season_avg: number | null
+          season_count: number | null
+          show_avg: number | null
+          show_id: string
+          show_rating_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          bowl_score?: number | null
+          episode_avg?: number | null
+          episode_count?: number | null
+          season_avg?: number | null
+          season_count?: number | null
+          show_avg?: number | null
+          show_id: string
+          show_rating_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          bowl_score?: number | null
+          episode_avg?: number | null
+          episode_count?: number | null
+          season_avg?: number | null
+          season_count?: number | null
+          show_avg?: number | null
+          show_id?: string
+          show_rating_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       show_season_counts: {
         Row: {
           external_id: string
@@ -1656,6 +1692,42 @@ export type Database = {
           },
         ]
       }
+      user_show_bowl_scores: {
+        Row: {
+          bowl_score: number | null
+          episode_avg: number | null
+          episode_count: number | null
+          season_avg: number | null
+          season_count: number | null
+          show_id: string
+          show_rating: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bowl_score?: number | null
+          episode_avg?: number | null
+          episode_count?: number | null
+          season_avg?: number | null
+          season_count?: number | null
+          show_id: string
+          show_rating?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bowl_score?: number | null
+          episode_avg?: number | null
+          episode_count?: number | null
+          season_avg?: number | null
+          season_count?: number | null
+          show_id?: string
+          show_rating?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       watched: {
         Row: {
           content_id: string
@@ -1920,6 +1992,18 @@ export type Database = {
           show_bonuses: number
           total_points: number
         }[]
+      }
+      calculate_bowl_confidence: {
+        Args: { layer_type: string; rating_count: number }
+        Returns: number
+      }
+      calculate_global_bowl_score: {
+        Args: { p_show_id: string }
+        Returns: undefined
+      }
+      calculate_personal_bowl_score: {
+        Args: { p_show_id: string; p_user_id: string }
+        Returns: undefined
       }
       compute_season_rollup: {
         Args: { p_season_id: string; p_user: string }
