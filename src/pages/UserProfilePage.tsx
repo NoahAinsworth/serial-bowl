@@ -319,79 +319,90 @@ export default function UserProfilePage() {
   return <>
       <div className="min-h-screen pb-20 relative overflow-x-hidden">
         {/* Profile Card */}
-        <div className="px-4 py-8 mb-6 animate-fade-in">
-          <div className="flex flex-col items-center gap-6">
-            {/* Profile Ring with Badge */}
-            <div className="relative inline-flex items-center gap-4">
-              <div className="w-48 h-48 relative">
-                {theme === 'dark' ? <VHSProfileRing size="lg">
-                    <Avatar className="w-full h-full border-4 border-background shadow-lg">
-                      <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
-                      <AvatarFallback className="text-4xl font-bold">
-                        {profile.handle[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </VHSProfileRing> : <ProfileRing points={bingePoints} badge={currentBadge}>
-                    <Avatar className="w-full h-full border-4 border-background shadow-lg">
-                      <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} />
-                      <AvatarFallback className="text-4xl font-bold">
-                        {profile.handle[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </ProfileRing>}
-                
-                {/* Follow button attached to profile circle */}
-                {user && userId && user.id !== userId && <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2">
-                    <FollowRequestButton targetUserId={userId} isPrivate={profile.is_private} initialFollowStatus={followStatus} onStatusChange={() => loadProfile()} />
-                  </div>}
-              </div>
-              
-              {/* Badge beside ring */}
-              <div className="flex-shrink-0">
-                <BadgeDisplay badge={currentBadge} size="lg" showGlow={false} />
-              </div>
+        <div className="px-3 py-6 mb-4 animate-fade-in relative">
+          <div className="flex flex-col items-center mb-6">
+            {/* Handle above profile pic */}
+            <div className="flex items-center gap-2 mb-3">
+              <p className="text-sm text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-medium">
+                {profile.handle.startsWith('@') ? profile.handle : `@${profile.handle}`}
+              </p>
+              <BadgeDisplay badge={currentBadge} size="sm" showGlow={false} />
             </div>
 
-            {/* Name and handle */}
-            <div className="text-center space-y-3 w-full max-w-md">
-              {(profile as any).settings?.displayName && <h1 className="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  {(profile as any).settings.displayName}
-                </h1>}
-              <div className="flex items-center justify-center gap-2 flex-wrap">
-                <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                  {profile.handle.startsWith('@') ? profile.handle : `@${profile.handle}`}
-                </p>
-                <span className="text-sm px-2 py-0.5 bg-primary/20 border border-primary/30 rounded-full text-primary font-semibold">
-                  {currentBadge}
+            {/* Profile Picture */}
+            <div className="w-24 h-24 mb-3">
+              {theme === 'dark' ? (
+                <VHSProfileRing size="md">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} className="object-cover" />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                      {profile.handle[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </VHSProfileRing>
+              ) : (
+                <ProfileRing points={bingePoints} badge={currentBadge}>
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} className="object-cover" />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                      {profile.handle[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </ProfileRing>
+              )}
+            </div>
+
+            {/* Name centered under profile pic */}
+            {(profile as any).settings?.displayName && (
+              <h1 className="text-lg font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight mb-4">
+                {(profile as any).settings.displayName}
+              </h1>
+            )}
+
+            {/* Stats with subtle shadow underneath */}
+            <div className="flex gap-8 justify-center text-center mb-4">
+              <button 
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] !border-none !rounded-none !shadow-none"
+                style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
+              >
+                <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  {profile.postCount}
                 </span>
-              </div>
-
-              {/* Stats */}
-              <div className="flex gap-2 flex-wrap justify-center">
-                <button className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium">
-                  <span className="text-foreground">{profile.postCount}</span> Posts
-                </button>
-                <button 
-                  className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
-                  onClick={() => navigate(`/user/${profile.handle}/followers`)}
-                >
-                  <span className="text-foreground">{profile.followers}</span> Followers
-                </button>
-                <button 
-                  className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
-                  onClick={() => navigate(`/user/${profile.handle}/following`)}
-                >
-                  <span className="text-foreground">{profile.following}</span> Following
-                </button>
-                <button 
-                  className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium flex items-center gap-1"
-                  onClick={() => navigate('/binge-board')}
-                >
-                  <Trophy className="w-3 h-3 text-primary" />
-                  <span className="text-foreground">Rank #{userRank || '—'}</span>
-                </button>
-              </div>
+                <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Posts</span>
+              </button>
+              <button 
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] !border-none !rounded-none !shadow-none"
+                onClick={() => navigate(`/user/${profile.handle}/followers`)}
+                style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
+              >
+                <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  {profile.followers}
+                </span>
+                <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Followers</span>
+              </button>
+              <button 
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] !border-none !rounded-none !shadow-none"
+                onClick={() => navigate(`/user/${profile.handle}/following`)}
+                style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
+              >
+                <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  {profile.following}
+                </span>
+                <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Following</span>
+              </button>
             </div>
+
+            {/* Follow Button */}
+            {user && userId && user.id !== userId && (
+              <div className="w-full max-w-xs">
+                <FollowRequestButton 
+                  targetUserId={userId} 
+                  isPrivate={profile.is_private} 
+                  initialFollowStatus={followStatus} 
+                  onStatusChange={() => loadProfile()} 
+                />
+              </div>
+            )}
           </div>
         </div>
 
