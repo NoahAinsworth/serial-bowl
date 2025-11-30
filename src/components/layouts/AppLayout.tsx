@@ -96,18 +96,18 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             ) : (
               <h1 className="wordmark">Serial Bowl</h1>
             )}
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist" className="min-w-[44px] min-h-[44px]">
-                <BookmarkPlus className="h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/watchlist')} title="Watchlist" className="min-w-[44px] min-h-[44px] hover:bg-sticker-lavender/30 hover:scale-105 transition-all">
+                <BookmarkPlus className="h-5 w-5 stroke-[2.5]" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/messages')} title="Inbox" className="min-w-[44px] min-h-[44px]">
-                <MessageSquare className="h-5 w-5" />
+              <Button variant="ghost" size="icon" onClick={() => navigate('/messages')} title="Inbox" className="min-w-[44px] min-h-[44px] hover:bg-sticker-pink/30 hover:scale-105 transition-all">
+                <MessageSquare className="h-5 w-5 stroke-[2.5]" />
                 {unreadDMs > 0 && (
-                  <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500"></div>
+                  <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                 )}
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings" className="min-w-[44px] min-h-[44px]">
-                <Settings className="h-5 w-5" />
+              <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Settings" className="min-w-[44px] min-h-[44px] hover:bg-sticker-sky/30 hover:scale-105 transition-all">
+                <Settings className="h-5 w-5 stroke-[2.5]" />
               </Button>
             </div>
           </div>
@@ -119,25 +119,25 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </main>
 
         {/* Bottom Navigation - Safari-safe fixed positioning */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95" style={{ paddingBottom: 'max(1rem, var(--safe-bottom))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)', transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t-3 border-border bg-gradient-to-r from-sticker-lavender/20 via-background/95 to-sticker-sky/20 backdrop-blur supports-[backdrop-filter]:bg-background/95" style={{ paddingBottom: 'max(1rem, var(--safe-bottom))', paddingLeft: 'var(--safe-left)', paddingRight: 'var(--safe-right)', transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
           <div className="flex h-16 items-center justify-around px-2">
             {navItems.map(({ icon: Icon, label, path, showDot }) => (
               <Link
                 key={path}
                 to={path}
-                className={`flex flex-col items-center gap-1 transition-all relative px-3 py-2 rounded-lg ${
+                className={`flex flex-col items-center gap-1 transition-all relative px-4 py-2 rounded-2xl ${
                   isActive(path)
-                    ? 'text-primary font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-primary font-bold bg-sticker-pink/20 scale-105'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-sticker-lavender/20 hover:scale-105'
                 }`}
               >
                 <div className="relative">
-                  <Icon className="h-6 w-6" />
+                  <Icon className={`h-6 w-6 stroke-[2.5] ${isActive(path) ? 'drop-shadow-[0_2px_4px_rgba(255,145,199,0.4)]' : ''}`} />
                   {showDot && (
-                    <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500"></div>
+                    <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                   )}
                 </div>
-                <span className="text-xs">{label}</span>
+                <span className="text-xs font-semibold">{label}</span>
               </Link>
             ))}
           </div>
