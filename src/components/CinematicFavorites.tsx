@@ -37,7 +37,7 @@ export function CinematicFavorites({
       </h2>
       
       <div className="relative overflow-x-auto pb-4 -mx-4 px-4">
-        <div className="flex gap-4 min-w-min">
+        <div className="flex gap-2 sm:gap-4 min-w-min">
           {[0, 1, 2].map((index) => {
             const show = shows[index];
             const isHovered = hoveredIndex === index;
@@ -45,7 +45,7 @@ export function CinematicFavorites({
             return (
               <div 
                 key={index}
-                className="flex-shrink-0 w-40 group relative"
+                className="flex-shrink-0 w-28 sm:w-40 group relative"
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
@@ -145,7 +145,7 @@ export function CinematicFavorites({
                 </div>
 
                 {/* Title below card */}
-                <p className="text-sm font-medium text-center mt-2 text-foreground/80 line-clamp-1">
+                <p className="text-xs sm:text-sm font-medium text-center mt-2 text-foreground/80 line-clamp-1">
                   {show?.title || `Slot #${index + 1}`}
                 </p>
               </div>
