@@ -432,15 +432,16 @@ export default function ProfilePage() {
             <MessageCircle className="h-5 w-5" />
           </Button>
 
-          <div className="flex flex-col items-center gap-6">
-            {/* Profile Ring with Badge */}
-            <div className="relative inline-flex items-center gap-4">
-              <div className="w-24 h-24">
+          {/* Instagram-style horizontal profile header */}
+          <div className="flex items-start gap-6 px-4">
+            {/* Profile Picture - Left */}
+            <div className="flex-shrink-0">
+              <div className="w-20 h-20">
                 {theme === 'dark' ? (
-                  <VHSProfileRing size="md">
+                  <VHSProfileRing size="sm">
                     <Avatar className="w-full h-full">
                       <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xl">
                         {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -449,73 +450,89 @@ export default function ProfilePage() {
                   <ProfileRing points={bingePoints} badge={currentBadge}>
                     <Avatar className="w-full h-full">
                       <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xl">
                         {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                   </ProfileRing>
                 )}
               </div>
-
-              {/* Badge beside ring */}
-              <div className="flex-shrink-0">
-                <BadgeDisplay badge={currentBadge} size="md" showGlow={false} />
-              </div>
             </div>
 
-            <div className="text-center space-y-3 w-full max-w-md">
-              {profile?.settings?.displayName && (
-                <h1 className="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  {profile.settings.displayName}
-                </h1>
-              )}
-              <div className="flex items-center justify-center gap-2 flex-wrap">
-                <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                  {profile?.handle?.startsWith('@') ? profile.handle : `@${profile?.handle || 'user'}`}
-                </p>
+            {/* Stats - Right */}
+            <div className="flex-1 space-y-4">
+              <div className="flex gap-6 justify-around text-center">
+                <button 
+                  className="flex flex-col items-center hover:opacity-80 transition-opacity"
+                  onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
+                >
+                  <span className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    {stats.thoughtsCount}
+                  </span>
+                  <span className="text-sm text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Posts</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center hover:opacity-80 transition-opacity"
+                  onClick={() => navigate('/followers')}
+                >
+                  <span className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    {stats.followersCount}
+                  </span>
+                  <span className="text-sm text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Followers</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center hover:opacity-80 transition-opacity"
+                  onClick={() => navigate('/following')}
+                >
+                  <span className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    {stats.followingCount}
+                  </span>
+                  <span className="text-sm text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Following</span>
+                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
                 <Button 
-                  variant="ghost" 
+                  variant="secondary" 
                   size="sm" 
                   onClick={() => navigate('/profile/edit')} 
-                  title="Edit profile"
-                  className="h-6 px-2 text-xs text-white/90"
+                  className="flex-1"
                 >
-                  <Edit className="h-3 w-3" />
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={handleShare}
+                  className="flex-1"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
                 </Button>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="px-4 mb-6 animate-fade-in">
-          <AboutMeSection 
-            bio={profile?.bio || ''} 
-            onSave={handleBioSave}
-            isOwner={true}
-          />
-        </div>
-
-        {/* Stats Chips */}
-        <div className="px-4 mb-6 animate-fade-in">
-          <div className="flex gap-2 flex-wrap justify-center">
-            <button 
-              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
-              onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
-            >
-              <span className="text-foreground">{stats.thoughtsCount}</span> Posts
-            </button>
-            <button 
-              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
-              onClick={() => navigate('/followers')}
-            >
-              <span className="text-foreground">{stats.followersCount}</span> Followers
-            </button>
-            <button 
-              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium"
-              onClick={() => navigate('/following')}
-            >
-              <span className="text-foreground">{stats.followingCount}</span> Following
-            </button>
+          {/* Name, Handle, Bio - Below profile pic */}
+          <div className="px-4 mt-4 space-y-2 text-left">
+            {profile?.settings?.displayName && (
+              <h1 className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                {profile.settings.displayName}
+              </h1>
+            )}
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                {profile?.handle?.startsWith('@') ? profile.handle : `@${profile?.handle || 'user'}`}
+              </p>
+              <BadgeDisplay badge={currentBadge} size="sm" showGlow={false} />
+            </div>
+            {profile?.bio && (
+              <p className="text-sm text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                {profile.bio}
+              </p>
+            )}
           </div>
         </div>
 
