@@ -106,22 +106,17 @@ export default function AIListBuilderPage() {
       let position = 1;
       for (const show of generatedShows) {
         try {
-          // Search TVDB
-          const searchResponse = await fetch(
-            `https://api4.thetvdb.com/v4/search?query=${encodeURIComponent(show.name)}&type=series&year=${show.year || ''}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${import.meta.env.VITE_TVDB_API_KEY}`
-              }
-            }
-          );
+          // Search TVDB using existing function
+          const { searchShows } = await import('@/api/tvdb');
+          const searchResults = await searchShows(show.name);
 
-          if (!searchResponse.ok) continue;
-
-          const searchData = await searchResponse.json();
-          if (searchData.data && searchData.data.length > 0) {
-            const tvdbShow = searchData.data[0];
-            const contentId = await resolveShowToContent(parseInt(tvdbShow.tvdb_id), tvdbShow);
+          if (searchResults && searchResults.length > 0) {
+            const tvdbShow = searchResults[0];
+            const contentId = await resolveShowToContent(tvdbShow.tvdbId, {
+              name: tvdbShow.title,
+              image: tvdbShow.posterUrl,
+              overview: tvdbShow.overview
+            });
 
             await supabase.from('list_items').insert({
               list_id: list.id,

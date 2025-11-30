@@ -1915,6 +1915,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "watch_parties_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
         ]
       }
       watch_party_members: {

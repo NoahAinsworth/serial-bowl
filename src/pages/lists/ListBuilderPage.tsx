@@ -95,19 +95,10 @@ export default function ListBuilderPage() {
     setSearching(true);
 
     try {
-      const response = await fetch(
-        `https://api4.thetvdb.com/v4/search?query=${encodeURIComponent(searchQuery)}&type=series`,
-        {
-          headers: {
-            'Authorization': `Bearer ${import.meta.env.VITE_TVDB_API_KEY}`
-          }
-        }
-      );
-
-      if (!response.ok) throw new Error('Search failed');
-
-      const data = await response.json();
-      setSearchResults(data.data || []);
+      // Use existing searchShows function from api/tvdb
+      const { searchShows } = await import('@/api/tvdb');
+      const results = await searchShows(searchQuery);
+      setSearchResults(results || []);
     } catch (error) {
       console.error('Search error:', error);
       toast.error('Failed to search shows');
@@ -121,7 +112,11 @@ export default function ListBuilderPage() {
 
     try {
       // Resolve show to content table
-      const contentId = await resolveShowToContent(parseInt(show.tvdb_id), show);
+      const contentId = await resolveShowToContent(show.tvdbId, {
+        name: show.title,
+        image: show.posterUrl,
+        overview: show.overview
+      });
 
       // Add to list
       const newPosition = items.length + 1;
@@ -140,8 +135,8 @@ export default function ListBuilderPage() {
       const newItem: ListItem = {
         id: data.id,
         contentId: contentId,
-        title: show.name,
-        posterUrl: show.image_url,
+        title: show.title,
+        posterUrl: show.posterUrl,
         position: newPosition,
         notes: ''
       };
@@ -149,7 +144,7 @@ export default function ListBuilderPage() {
       setItems([...items, newItem]);
       setSearchQuery('');
       setSearchResults([]);
-      toast.success(`Added ${show.name} to list`);
+      toast.success(`Added ${show.title} to list`);
     } catch (error) {
       console.error('Add show error:', error);
       toast.error('Failed to add show');
@@ -274,19 +269,19 @@ export default function ListBuilderPage() {
             <p className="text-sm font-medium mb-2">Search Results:</p>
             {searchResults.slice(0, 5).map((show) => (
               <button
-                key={show.tvdb_id}
+                key={show.tvdbId}
                 onClick={() => handleAddShow(show)}
                 className="w-full flex items-center gap-3 p-2 hover:bg-background rounded transition-colors text-left"
               >
-                {show.image_url && (
+                {show.posterUrl && (
                   <img
-                    src={show.image_url}
-                    alt={show.name}
+                    src={show.posterUrl}
+                    alt={show.title}
                     className="w-12 h-16 object-cover rounded"
                   />
                 )}
                 <div>
-                  <p className="font-medium">{show.name}</p>
+                  <p className="font-medium">{show.title}</p>
                   <p className="text-sm text-muted-foreground">{show.year}</p>
                 </div>
               </button>
