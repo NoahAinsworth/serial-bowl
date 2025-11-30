@@ -196,9 +196,9 @@ export default function ShowDetailPage() {
             <div className="flex items-start justify-between gap-4 mb-2">
               <h1 className="text-3xl font-bold">{show.name}</h1>
               <div className="flex flex-wrap gap-2 items-center">
-                <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" />
-                {user && personalScore !== null && (
-                  <BowlScoreBadge score={personalScore} variant="personal" showLabel size="md" />
+                <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" showEmpty />
+                {user && (
+                  <BowlScoreBadge score={personalScore} variant="personal" showLabel size="md" showEmpty />
                 )}
               </div>
             </div>
