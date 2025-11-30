@@ -464,8 +464,9 @@ export default function ProfilePage() {
             {/* Stats with subtle shadow underneath */}
             <div className="flex gap-8 justify-center text-center mb-4">
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] !border-none !rounded-none !shadow-none"
                 onClick={() => toast({ title: "Coming soon", description: "Thoughts list will be shown here" })}
+                style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                   {stats.thoughtsCount}
@@ -473,8 +474,9 @@ export default function ProfilePage() {
                 <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Posts</span>
               </button>
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] !border-none !rounded-none !shadow-none"
                 onClick={() => navigate('/followers')}
+                style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                   {stats.followersCount}
@@ -482,8 +484,9 @@ export default function ProfilePage() {
                 <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Followers</span>
               </button>
               <button 
-                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
+                className="flex flex-col items-center hover:opacity-80 transition-all drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] !border-none !rounded-none !shadow-none"
                 onClick={() => navigate('/following')}
+                style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
               >
                 <span className="text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                   {stats.followingCount}
