@@ -163,7 +163,7 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
             </div>
             
             <Card
-              className={`cursor-pointer hover:border-primary transition-all ${
+              className={`cursor-pointer hover:border-primary transition-all relative group ${
                 isSwiped ? '-translate-x-16' : 'translate-x-0'
               }`}
               onClick={() => handleClick(rating)}
@@ -186,6 +186,16 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
                 <div className="absolute top-2 right-2">
                   <RatingBadge rating={rating.score} size="sm" />
                 </div>
+                
+                {/* Delete button - visible on hover for desktop */}
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex h-8 w-8"
+                  onClick={(e) => handleDelete(e, rating)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
               <div className="p-3">
                 <p className="text-xs font-semibold line-clamp-2 mb-1">{rating.title}</p>
