@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { BingeBotMessage } from "./BingeBotMessage";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BingeBotLoadingIndicator } from "./BingeBotLoadingIndicator";
 
 interface Entity {
   type: "show" | "season" | "episode";
@@ -338,13 +339,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
+                  <BingeBotLoadingIndicator />
                 </div>
               )}
               <div ref={chatEndRef} />
