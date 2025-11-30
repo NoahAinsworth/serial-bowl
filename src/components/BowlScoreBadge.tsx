@@ -7,6 +7,7 @@ interface BowlScoreBadgeProps {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'global' | 'personal';
   showLabel?: boolean;
+  showEmpty?: boolean;
   className?: string;
 }
 
@@ -15,12 +16,9 @@ export function BowlScoreBadge({
   size = 'md', 
   variant = 'global',
   showLabel = false,
+  showEmpty = false,
   className 
 }: BowlScoreBadgeProps) {
-  if (score === null || score === undefined) {
-    return null;
-  }
-
   const sizeClasses = {
     sm: 'text-xs px-2 py-1',
     md: 'text-sm px-3 py-1.5',
@@ -32,6 +30,39 @@ export function BowlScoreBadge({
     md: 'h-3.5 w-3.5',
     lg: 'h-4 w-4'
   };
+
+  if (score === null || score === undefined) {
+    if (!showEmpty) return null;
+    
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border-2 font-medium shadow-sm",
+                sizeClasses[size],
+                "bg-muted/50 text-muted-foreground border-border/50",
+                className
+              )}
+            >
+              {variant === 'personal' && (
+                <User className={iconSizes[size]} />
+              )}
+              <span>Not Rated Yet</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">
+              {variant === 'global' 
+                ? "No community ratings yet" 
+                : "Rate episodes, seasons, or the show to see your Bowl Score"}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
 
   // Color based on score
   const getScoreColor = (score: number) => {
