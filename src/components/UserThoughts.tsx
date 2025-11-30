@@ -67,6 +67,59 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
           const likes = reactions?.filter(r => r.kind === 'like').length || 0;
           const dislikes = reactions?.filter(r => r.kind === 'dislike').length || 0;
 
+          // Fetch content data if item_id and item_type exist
+          let show, season, episode;
+          if (thought.item_id && thought.item_type) {
+            const parts = thought.item_id.split(':');
+            const showId = parts[0];
+            
+            if (thought.item_type === 'show') {
+              const { data: showData } = await supabase
+                .from('content')
+                .select('title, external_id')
+                .eq('external_id', showId)
+                .eq('kind', 'show')
+                .maybeSingle();
+              
+              if (showData) {
+                show = { title: showData.title, external_id: showData.external_id };
+              }
+            } else if (thought.item_type === 'season') {
+              const seasonId = `${showId}:${parts[1]}`;
+              const { data: seasonData } = await supabase
+                .from('content')
+                .select('title, external_id')
+                .eq('external_id', seasonId)
+                .eq('kind', 'season')
+                .maybeSingle();
+              
+              if (seasonData) {
+                season = { 
+                  title: seasonData.title, 
+                  external_id: parts[1],
+                  show_external_id: showId
+                };
+              }
+            } else if (thought.item_type === 'episode') {
+              const episodeId = `${showId}:${parts[1]}:${parts[2]}`;
+              const { data: episodeData } = await supabase
+                .from('content')
+                .select('title, external_id')
+                .eq('external_id', episodeId)
+                .eq('kind', 'episode')
+                .maybeSingle();
+              
+              if (episodeData) {
+                episode = { 
+                  title: episodeData.title, 
+                  external_id: parts[2],
+                  season_external_id: parts[1],
+                  show_external_id: showId
+                };
+              }
+            }
+          }
+
           return {
             id: thought.id,
             user: {
@@ -76,6 +129,9 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
             },
             content: thought.body,
             is_spoiler: thought.is_spoiler,
+            show,
+            season,
+            episode,
             likes,
             dislikes,
             comments: comments?.length || 0,
