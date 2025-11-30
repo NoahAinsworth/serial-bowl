@@ -187,14 +187,14 @@ export function UserRatings({ userId, contentKind }: UserRatingsProps) {
                   <RatingBadge rating={rating.score} size="sm" />
                 </div>
                 
-                {/* Delete button - visible on hover for desktop */}
+                {/* Delete button - always visible */}
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex h-8 w-8"
+                  className="absolute top-2 left-2 h-7 w-7 sm:h-8 sm:w-8 shadow-lg"
                   onClick={(e) => handleDelete(e, rating)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
               <div className="p-3">
