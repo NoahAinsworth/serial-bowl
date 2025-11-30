@@ -232,10 +232,10 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
             />
           </div>
           <div>
-            <h2 className="font-semibold text-sm sm:text-base">Binge Bot</h2>
+            <h2 className="font-semibold text-sm sm:text-base">BingeBot AI</h2>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <Sparkles className="h-3 w-3" />
-              AI Assistant
+              TV Genius
             </p>
           </div>
         </div>
@@ -355,7 +355,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message Binge Bot..."
+            placeholder="Message BingeBot AI..."
             className="flex-1 rounded-full text-sm"
             disabled={loading}
           />
