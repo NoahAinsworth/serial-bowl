@@ -262,22 +262,22 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
       variant={isWatched ? "default" : "outline"}
       onClick={toggleWatched}
       disabled={loading}
-      className="w-full h-auto py-1.5 sm:py-2 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm rounded-full border-2"
+      className="w-full h-auto py-1 sm:py-1.5 flex items-center justify-center gap-1 text-xs rounded-full border-2"
     >
       {loading ? (
         <>
-          <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-          <span className="font-semibold">{isWatched ? 'Unwatching...' : 'Marking...'}</span>
+          <Loader2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 animate-spin" />
+          <span className="hidden sm:inline font-semibold">{isWatched ? 'Unwatching...' : 'Marking...'}</span>
         </>
       ) : isWatched ? (
         <>
-          <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          <span className="font-semibold">Seen</span>
+          <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          <span className="hidden sm:inline font-semibold">Seen</span>
         </>
       ) : (
         <>
-          <EyeOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          <span className="font-semibold">Seen</span>
+          <EyeOff className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          <span className="hidden sm:inline font-semibold">Seen</span>
         </>
       )}
     </Button>
