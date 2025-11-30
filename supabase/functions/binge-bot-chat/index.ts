@@ -86,7 +86,6 @@ async function searchTVDB(query: string, token: string) {
 
 // Extract potential show names from user message
 function extractShowNames(message: string): string[] {
-  const words = message.toLowerCase();
   const names: string[] = [];
   
   // Extract quoted strings (e.g., "Breaking Bad")
@@ -104,7 +103,25 @@ function extractShowNames(message: string): string[] {
     }
   }
   
-  return [...new Set(names)]; // Remove duplicates
+  // Extract potential show names from lowercase text
+  const cleanedMessage = message
+    .toLowerCase()
+    .replace(/\b(tell|me|about|what|is|the|season|episode|watch|rate|give|score|set|my|rating|for|to|as|a|an|it|do|you|know|when|does|come|out|release|date)\b/gi, '')
+    .replace(/\d+%?/g, '') // Remove numbers/percentages
+    .trim();
+  
+  // If there's remaining text of 2+ characters, use it as a search term
+  if (cleanedMessage.length >= 2) {
+    const chunks = cleanedMessage.split(/[,;]/).map(c => c.trim()).filter(c => c.length >= 2);
+    names.push(...chunks);
+  }
+  
+  // Also try the raw message as a search (TVDB is smart)
+  if (message.length <= 50 && !message.includes('?')) {
+    names.push(message);
+  }
+  
+  return [...new Set(names)].filter(n => n.length >= 2);
 }
 
 serve(async (req) => {
