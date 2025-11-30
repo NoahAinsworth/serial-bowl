@@ -55,24 +55,42 @@ export default function MessageRequestsPage() {
 
   const loadRequests = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch message requests
+      const { data: requestsData, error: requestsError } = await supabase
         .from('message_requests')
-        .select(`
-          id,
-          message,
-          created_at,
-          sender:profiles!message_requests_sender_id_fkey (
-            id,
-            handle,
-            avatar_url
-          )
-        `)
+        .select('id, message, created_at, sender_id')
+        .eq('recipient_id', user?.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (requestsError) throw requestsError;
 
-      setRequests(data as any || []);
+      if (!requestsData || requestsData.length === 0) {
+        setRequests([]);
+        return;
+      }
+
+      // Fetch sender profiles
+      const senderIds = requestsData.map(r => r.sender_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, handle, avatar_url')
+        .in('id', senderIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine the data
+      const requestsWithSenders = requestsData.map(request => {
+        const sender = profilesData?.find(p => p.id === request.sender_id);
+        return {
+          id: request.id,
+          message: request.message,
+          created_at: request.created_at,
+          sender: sender || { id: request.sender_id, handle: 'Unknown', avatar_url: null }
+        };
+      });
+
+      setRequests(requestsWithSenders);
     } catch (error) {
       console.error('Error loading message requests:', error);
       toast.error('Failed to load message requests');
