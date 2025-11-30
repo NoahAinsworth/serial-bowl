@@ -479,11 +479,11 @@ All colors MUST be HSL.
     --shadow-grey: 0 0% 18%;
 
     /* Typography */
-    --font-display: 'Cinzel', 'Palatino', serif;
-    --font-ui: 'Roboto', 'Arial', sans-serif;
-    --letter-display: 0.02em;
+    --font-display: 'DM Sans', 'Inter', serif;
+    --font-ui: 'Inter', sans-serif;
+    --letter-display: 0.01em;
     --font-weight-display: 700;
-    --font-weight-ui: 400;
+    --font-weight-ui: 600;
     
     /* Shapes - Sticker OS Style */
     --radius-sm: 12px;
@@ -535,11 +535,11 @@ All colors MUST be HSL.
     --friends-green: 140 35% 30%;
 
     /* Typography - Rounded & Friendly */
-    --font-display: 'Poppins', 'Nunito', sans-serif;
-    --font-ui: 'Inter', 'Nunito Sans', sans-serif;
-    --letter-display: 0.015em;
-    --font-weight-display: 600;
-    --font-weight-ui: 500;
+    --font-display: 'DM Sans', 'Inter', sans-serif;
+    --font-ui: 'Inter', sans-serif;
+    --letter-display: 0.01em;
+    --font-weight-display: 700;
+    --font-weight-ui: 600;
     
     /* Shapes - Sticker OS Cozy */
     --radius-sm: 12px;
@@ -590,14 +590,14 @@ All colors MUST be HSL.
     --wireframe-glow: 158 100% 50% / 0.15;
 
     /* Typography - Cyber Futuristic */
-    --font-ui: 'Audiowide', 'Orbitron', sans-serif;
-    --font-display: 'Audiowide', 'Orbitron', sans-serif;
-    --font-accent: 'Orbitron', monospace;
-    --font-weight-ui: 400;
-    --font-weight-display: 400;
+    --font-ui: 'DM Sans', 'Inter', sans-serif;
+    --font-display: 'DM Sans', 'Inter', sans-serif;
+    --font-accent: 'DM Sans', sans-serif;
+    --font-weight-ui: 600;
+    --font-weight-display: 700;
     --font-weight-accent: 700;
-    --letter-ui: 0.05em;
-    --letter-display: 0.15em;
+    --letter-ui: 0.01em;
+    --letter-display: 0.02em;
 
     /* Shape Tokens - Sticker OS Cyber */
     --radius-sm: 12px;
@@ -942,9 +942,9 @@ All colors MUST be HSL.
   }
 }
 
-/* Typography - Monospace Tech Font */
+/* Typography - Consistent Design System */
 .static_tv {
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: 'DM Sans', 'Inter', sans-serif;
 }
 
 /* Cards with Metallic Silver Glow */
@@ -2499,7 +2499,7 @@ All colors MUST be HSL.
 
   /* The One with the Theme - Friends Logo */
   .the_one_with_the_theme .friends-logo {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-weight: 700;
     color: hsl(var(--primary));
     text-transform: none;
@@ -2519,9 +2519,9 @@ All colors MUST be HSL.
 
   /* Saturday Morning Cartoon - Wordmark & Animations */
   .saturday_morning_cartoon .wordmark {
-    font-family: 'Baloo 2', cursive;
+    font-family: 'DM Sans', cursive;
     font-weight: 700;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
     color: hsl(var(--foreground));
     animation: gentle-bounce 2s ease-in-out infinite;
   }
@@ -2630,9 +2630,9 @@ All colors MUST be HSL.
 
   /* Green Wireframe Mode - Cyber Effects */
   .green_wireframe .wordmark {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.02em;
     color: hsl(var(--neon-green));
     text-transform: uppercase;
     text-shadow: 0 0 10px rgba(0, 255, 133, 0.5);
