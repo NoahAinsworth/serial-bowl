@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Edit, Loader2, Share2, X, TrendingUp, Trophy, Plus, Search } from 'lucide-react';
+import { Edit, Loader2, Share2, X, TrendingUp, Trophy, Plus, Search, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserPosts } from '@/components/UserPosts';
 import { UserRatings } from '@/components/UserRatings';
@@ -420,16 +420,27 @@ export default function ProfilePage() {
           <FollowRequestsList />
         </div>
 
-        <div className="px-4 py-8 mb-6 animate-fade-in">
+        <div className="px-4 py-8 mb-6 animate-fade-in relative">
+          {/* DM Button in corner */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/messages')}
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-card/60 backdrop-blur-md border border-border/30 hover:border-primary/50 hover:bg-card/80 transition-all"
+            title="Messages"
+          >
+            <MessageCircle className="h-5 w-5" />
+          </Button>
+
           <div className="flex flex-col items-center gap-6">
             {/* Profile Ring with Badge */}
             <div className="relative inline-flex items-center gap-4">
-              <div className="w-48 h-48">
+              <div className="w-24 h-24">
                 {theme === 'dark' ? (
-                  <VHSProfileRing size="lg">
+                  <VHSProfileRing size="md">
                     <Avatar className="w-full h-full">
                       <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
                         {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -438,7 +449,7 @@ export default function ProfilePage() {
                   <ProfileRing points={bingePoints} badge={currentBadge}>
                     <Avatar className="w-full h-full">
                       <AvatarImage src={profile?.avatar_url} alt={profile?.handle} className="object-cover" />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
                         {profile?.handle?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -462,20 +473,15 @@ export default function ProfilePage() {
                 <p className="text-lg text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                   {profile?.handle?.startsWith('@') ? profile.handle : `@${profile?.handle || 'user'}`}
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm px-2 py-0.5 bg-primary/20 border border-primary/30 rounded-full text-primary font-semibold">
-                    {currentBadge}
-                  </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => navigate('/profile/edit')} 
-                    title="Edit profile"
-                    className="h-6 px-2 text-xs text-white/90"
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/profile/edit')} 
+                  title="Edit profile"
+                  className="h-6 px-2 text-xs text-white/90"
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
               </div>
             </div>
           </div>
