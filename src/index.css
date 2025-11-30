@@ -182,6 +182,11 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-sticker-active);
   }
 
+  /* Override tab button borders to prevent stacking */
+  .light [role="tablist"] button {
+    border: none;
+  }
+
   .light textarea, .light input {
     border: 3px solid black;
     font-weight: 600;

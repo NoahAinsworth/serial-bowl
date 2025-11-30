@@ -39,17 +39,20 @@ interface ThoughtCardProps {
     show?: {
       title: string;
       external_id?: string;
+      poster_url?: string;
     };
     season?: {
       title: string;
       external_id?: string;
       show_external_id?: string;
+      poster_url?: string;
     };
     episode?: {
       title: string;
       external_id?: string;
       season_external_id?: string;
       show_external_id?: string;
+      poster_url?: string;
     };
     likes: number;
     dislikes: number;
@@ -332,9 +335,16 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
           <div className="flex flex-wrap gap-2 mb-3">
             {thought.show && (
               <div 
-                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm cursor-pointer active:from-primary/20 active:to-primary/10 transition-all duration-300 border border-primary/20 active:border-primary/40 active:scale-95"
+                className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm cursor-pointer active:from-primary/20 active:to-primary/10 transition-all duration-300 border border-primary/20 active:border-primary/40 active:scale-95"
                 onClick={() => thought.show?.external_id && navigate(`/show/${thought.show.external_id}`)}
               >
+                {thought.show.poster_url && (
+                  <img 
+                    src={thought.show.poster_url} 
+                    alt={thought.show.title}
+                    className="w-6 h-9 object-cover rounded"
+                  />
+                )}
                 <span className="flex items-center gap-1.5">
                   <span className="text-base">📺</span>
                   <span className="font-medium">{thought.show.title}</span>
@@ -343,9 +353,16 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
             )}
             {thought.season && (
               <div 
-                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-secondary/10 to-secondary/5 text-secondary text-sm cursor-pointer active:from-secondary/20 active:to-secondary/10 transition-all duration-300 border border-secondary/20 active:border-secondary/40 active:scale-95"
+                className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gradient-to-r from-secondary/10 to-secondary/5 text-secondary text-sm cursor-pointer active:from-secondary/20 active:to-secondary/10 transition-all duration-300 border border-secondary/20 active:border-secondary/40 active:scale-95"
                 onClick={() => thought.season?.show_external_id && thought.season?.external_id && navigate(`/show/${thought.season.show_external_id}/season/${thought.season.external_id}`)}
               >
+                {thought.season.poster_url && (
+                  <img 
+                    src={thought.season.poster_url} 
+                    alt={thought.season.title}
+                    className="w-6 h-9 object-cover rounded"
+                  />
+                )}
                 <span className="flex items-center gap-1.5">
                   <span className="text-base">📖</span>
                   <span className="font-medium">{thought.season.title}</span>
@@ -354,9 +371,16 @@ export function ThoughtCard({ thought, userHideSpoilers = true, strictSafety = f
             )}
             {thought.episode && (
               <div 
-                className="inline-block px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 text-accent text-sm cursor-pointer active:from-accent/20 active:to-accent/10 transition-all duration-300 border border-accent/20 active:border-accent/40 active:scale-95"
+                className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 text-accent text-sm cursor-pointer active:from-accent/20 active:to-accent/10 transition-all duration-300 border border-accent/20 active:border-accent/40 active:scale-95"
                 onClick={() => thought.episode?.show_external_id && thought.episode?.season_external_id && thought.episode?.external_id && navigate(`/show/${thought.episode.show_external_id}/season/${thought.episode.season_external_id}/episode/${thought.episode.external_id}`)}
               >
+                {thought.episode.poster_url && (
+                  <img 
+                    src={thought.episode.poster_url} 
+                    alt={thought.episode.title}
+                    className="w-6 h-9 object-cover rounded"
+                  />
+                )}
                 <span className="flex items-center gap-1.5">
                   <span className="text-base">🎬</span>
                   <span className="font-medium">{thought.episode.title}</span>
