@@ -125,7 +125,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <Link
                 key={path}
                 to={path}
-                className={`flex flex-col items-center gap-1 transition-all relative px-4 py-2 rounded-2xl ${
+                title={label}
+                className={`flex items-center justify-center transition-all relative w-14 h-14 rounded-full ${
                   isActive(path)
                     ? 'text-primary font-bold bg-sticker-pink/20 scale-105'
                     : 'text-muted-foreground hover:text-foreground hover:bg-sticker-lavender/20 hover:scale-105'
@@ -134,10 +135,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <div className="relative">
                   <Icon className={`h-6 w-6 stroke-[2.5] ${isActive(path) ? 'drop-shadow-[0_2px_4px_rgba(255,145,199,0.4)]' : ''}`} />
                   {showDot && (
-                    <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                   )}
                 </div>
-                <span className="text-xs font-semibold">{label}</span>
               </Link>
             ))}
           </div>
