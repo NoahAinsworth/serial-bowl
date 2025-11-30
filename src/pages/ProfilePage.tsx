@@ -594,11 +594,9 @@ export default function ProfilePage() {
         </Dialog>
 
         <Tabs defaultValue="posts" className="w-full mt-0">
-          <TabsList className="w-full grid grid-cols-4 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10 h-12">
+          <TabsList className="w-full grid grid-cols-2 rounded-t-2xl bg-background/80 backdrop-blur-lg sticky top-0 z-10 h-12">
             <TabsTrigger value="posts" className="text-xs sm:text-sm">Posts</TabsTrigger>
-            <TabsTrigger value="shows" className="text-xs sm:text-sm">Shows</TabsTrigger>
-            <TabsTrigger value="seasons" className="text-xs sm:text-sm">Seasons</TabsTrigger>
-            <TabsTrigger value="episodes" className="text-xs sm:text-sm">Episodes</TabsTrigger>
+            <TabsTrigger value="ratings" className="text-xs sm:text-sm">Ratings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="posts" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
@@ -623,16 +621,23 @@ export default function ProfilePage() {
             </Tabs>
           </TabsContent>
 
-          <TabsContent value="shows" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20 py-4">
-            <UserRatings userId={user!.id} contentKind="show" />
-          </TabsContent>
-
-          <TabsContent value="seasons" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20 py-4">
-            <UserRatings userId={user!.id} contentKind="season" />
-          </TabsContent>
-
-          <TabsContent value="episodes" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20 py-4">
-            <UserRatings userId={user!.id} contentKind="episode" />
+          <TabsContent value="ratings" className="mt-0 px-3 sm:px-4 bg-card/50 rounded-b-2xl border-x border-b border-border/20">
+            <Tabs defaultValue="shows" className="w-full">
+              <TabsList className="w-full grid grid-cols-3 mb-4 h-10">
+                <TabsTrigger value="shows" className="text-xs sm:text-sm">Shows</TabsTrigger>
+                <TabsTrigger value="seasons" className="text-xs sm:text-sm">Seasons</TabsTrigger>
+                <TabsTrigger value="episodes" className="text-xs sm:text-sm">Episodes</TabsTrigger>
+              </TabsList>
+              <TabsContent value="shows" className="mt-0 py-4">
+                <UserRatings userId={user!.id} contentKind="show" />
+              </TabsContent>
+              <TabsContent value="seasons" className="mt-0 py-4">
+                <UserRatings userId={user!.id} contentKind="season" />
+              </TabsContent>
+              <TabsContent value="episodes" className="mt-0 py-4">
+                <UserRatings userId={user!.id} contentKind="episode" />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
 
