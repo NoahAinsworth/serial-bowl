@@ -510,13 +510,6 @@ export default function ProfilePage() {
             >
               <span className="text-foreground">{stats.followingCount}</span> Following
             </button>
-            <button 
-              className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium flex items-center gap-1"
-              onClick={() => navigate('/binge-board')}
-            >
-              <Trophy className="w-3 h-3 text-primary" />
-              <span className="text-foreground">Rank #{userRank || '—'}</span>
-            </button>
           </div>
         </div>
 
@@ -641,9 +634,18 @@ export default function ProfilePage() {
                 <TabsContent value="stats" className="space-y-4">
                   {/* Trophy Case */}
                   <div>
-                    <h4 className="text-sm font-semibold mb-3 text-foreground/90">
-                      Trophy Case ({BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).length}/{BADGE_THRESHOLDS.length})
-                    </h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-foreground/90">
+                        Trophy Case ({BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).length}/{BADGE_THRESHOLDS.length})
+                      </h4>
+                      <button 
+                        className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 hover:border-primary/50 transition-all text-sm font-medium flex items-center gap-1"
+                        onClick={() => navigate('/binge-board')}
+                      >
+                        <Trophy className="w-3 h-3 text-primary" />
+                        <span className="text-foreground">Rank #{userRank || '—'}</span>
+                      </button>
+                    </div>
                     <div className="overflow-x-auto">
                       <div className="flex gap-4 pb-2">
                         {BADGE_THRESHOLDS.filter(tier => bingePoints >= tier.min).reverse().map((badge) => (
