@@ -142,15 +142,29 @@ export default function ListsPage() {
           <List className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold neon-glow">My Lists</h1>
         </div>
-        
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="btn-glow">
-              <Plus className="h-4 w-4 mr-2" />
-              Create List
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/lists/ai-builder')}
+            className="hidden sm:flex"
+          >
+            ✨ AI Builder
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/lists/builder')}
+            className="hidden sm:flex"
+          >
+            🏗️ List Builder
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="btn-glow">
+                <Plus className="h-4 w-4 mr-2" />
+                Create List
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New List</DialogTitle>
             </DialogHeader>
@@ -175,6 +189,7 @@ export default function ListsPage() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {lists.length === 0 ? (
