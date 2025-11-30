@@ -187,6 +187,13 @@ All colors MUST be HSL.
     border: none;
   }
 
+  /* Ghost buttons and borderless buttons should not have borders */
+  .light button.border-0,
+  .light button[data-variant="ghost"] {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
   .light textarea, .light input {
     border: 3px solid black;
     font-weight: 600;
