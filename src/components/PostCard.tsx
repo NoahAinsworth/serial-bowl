@@ -66,7 +66,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editHistory, setEditHistory] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode'; externalId: string } | null>(null);
+  const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode'; externalId: string; posterUrl?: string } | null>(null);
   
   const isOwner = user?.id === post.user.id;
 
@@ -92,7 +92,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
 
         const { data, error } = await supabase
           .from('content')
-          .select('title, external_id, kind, metadata')
+          .select('title, external_id, kind, metadata, poster_url')
           .eq('external_src', 'thetvdb')
           .eq('external_id', post.item_id)
           .eq('kind', post.item_type as 'show' | 'season' | 'episode')
@@ -114,7 +114,8 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             setContentInfo({
               title: `${showName} - S${parts[1]}E${parts[2]}`,
               type: 'episode',
-              externalId: data.external_id
+              externalId: data.external_id,
+              posterUrl: data.poster_url || undefined
             });
           } else if (data.kind === 'season') {
             const showId = parts[0];
@@ -130,14 +131,16 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             setContentInfo({
               title: `${showName} - Season ${parts[1]}`,
               type: 'season',
-              externalId: data.external_id
+              externalId: data.external_id,
+              posterUrl: data.poster_url || undefined
             });
           } else {
             // For shows, use the title directly
             setContentInfo({ 
               title: data.title, 
               type: data.kind as 'show' | 'season' | 'episode',
-              externalId: data.external_id 
+              externalId: data.external_id,
+              posterUrl: data.poster_url || undefined
             });
           }
         } else {
@@ -157,7 +160,8 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             setContentInfo({
               title: `${showName} - S${parts[1]}E${parts[2]}`,
               type: 'episode',
-              externalId: post.item_id
+              externalId: post.item_id,
+              posterUrl: undefined
             });
           } else if (post.item_type === 'season') {
             // For seasons, fetch show name
@@ -174,7 +178,8 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             setContentInfo({
               title: `${showName} - Season ${parts[1]}`,
               type: 'season',
-              externalId: post.item_id
+              externalId: post.item_id,
+              posterUrl: undefined
             });
           } else if (post.item_type === 'show') {
             const showId = parts[0];
@@ -189,7 +194,8 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             setContentInfo({
               title: showData?.title || 'Unknown Show',
               type: 'show',
-              externalId: post.item_id
+              externalId: post.item_id,
+              posterUrl: undefined
             });
           }
         }
@@ -472,7 +478,7 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
             )}
             {contentInfo && (
               <div 
-                className="mb-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40"
+                className="mb-2 inline-flex items-center gap-2 px-2 py-1.5 rounded-lg bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40"
                 onClick={() => {
                   if (contentInfo.type === 'show') {
                     navigate(`/show/${contentInfo.externalId}`);
@@ -485,6 +491,13 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
                   }
                 }}
               >
+                {contentInfo.posterUrl && (
+                  <img 
+                    src={contentInfo.posterUrl} 
+                    alt={contentInfo.title}
+                    className="w-6 h-9 object-cover rounded"
+                  />
+                )}
                 <Tv className="h-3.5 w-3.5 flex-shrink-0" />
                 <span className="font-medium truncate">{contentInfo.title}</span>
               </div>

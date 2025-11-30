@@ -76,19 +76,19 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
             if (thought.item_type === 'show') {
               const { data: showData } = await supabase
                 .from('content')
-                .select('title, external_id')
+                .select('title, external_id, poster_url')
                 .eq('external_id', showId)
                 .eq('kind', 'show')
                 .maybeSingle();
               
               if (showData) {
-                show = { title: showData.title, external_id: showData.external_id };
+                show = { title: showData.title, external_id: showData.external_id, poster_url: showData.poster_url };
               }
             } else if (thought.item_type === 'season') {
               const seasonId = `${showId}:${parts[1]}`;
               const { data: seasonData } = await supabase
                 .from('content')
-                .select('title, external_id')
+                .select('title, external_id, poster_url')
                 .eq('external_id', seasonId)
                 .eq('kind', 'season')
                 .maybeSingle();
@@ -97,14 +97,15 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
                 season = { 
                   title: seasonData.title, 
                   external_id: parts[1],
-                  show_external_id: showId
+                  show_external_id: showId,
+                  poster_url: seasonData.poster_url
                 };
               }
             } else if (thought.item_type === 'episode') {
               const episodeId = `${showId}:${parts[1]}:${parts[2]}`;
               const { data: episodeData } = await supabase
                 .from('content')
-                .select('title, external_id')
+                .select('title, external_id, poster_url')
                 .eq('external_id', episodeId)
                 .eq('kind', 'episode')
                 .maybeSingle();
@@ -114,7 +115,8 @@ export function UserThoughts({ userId }: UserThoughtsProps) {
                   title: episodeData.title, 
                   external_id: parts[2],
                   season_external_id: parts[1],
-                  show_external_id: showId
+                  show_external_id: showId,
+                  poster_url: episodeData.poster_url
                 };
               }
             }
