@@ -16,70 +16,48 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 interface Message {
   id: string;
   sender_id: string;
-  recipient_id?: string;
-  text_content: string;
+  body: string;
   post_id?: string;
   created_at: string;
-  read: boolean;
   edited_at?: string | null;
 }
 
 export default function DMThreadPage() {
-  const { userId } = useParams<{ userId: string }>();
+  const { conversationId } = useParams<{ conversationId: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [otherUser, setOtherUser] = useState<{ handle: string; avatar_url: string | null } | null>(null);
-  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
-  const [editHistories, setEditHistories] = useState<Record<string, any[]>>({});
+  const [otherUser, setOtherUser] = useState<{ id: string; handle: string; avatar_url: string | null } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (user && userId) {
+    if (user && conversationId) {
       loadMessages();
       loadOtherUser();
-      markAsRead();
       
       // Set up realtime subscription for new messages
       const channel = supabase
-        .channel(`dm-thread-${userId}`)
+        .channel(`conversation-${conversationId}`)
         .on(
           'postgres_changes',
           {
-            event: 'INSERT',
+            event: '*',
             schema: 'public',
-            table: 'dms',
+            table: 'messages',
+            filter: `conversation_id=eq.${conversationId}`,
           },
           (payload) => {
-            const newMsg = payload.new as Message;
-            // Only add if it's part of this conversation
-            if (
-              (newMsg.sender_id === userId && newMsg.recipient_id === user.id) ||
-              (newMsg.sender_id === user.id && newMsg.recipient_id === userId)
-            ) {
+            if (payload.eventType === 'INSERT') {
+              const newMsg = payload.new as Message;
               setMessages(prev => [...prev, newMsg]);
-              if (newMsg.sender_id === userId) {
-                markAsRead();
-              }
+            } else if (payload.eventType === 'UPDATE') {
+              const updatedMsg = payload.new as Message;
+              setMessages(prev => 
+                prev.map(msg => msg.id === updatedMsg.id ? updatedMsg : msg)
+              );
             }
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'dms',
-          },
-          (payload) => {
-            const updatedMsg = payload.new as Message;
-            setMessages(prev => 
-              prev.map(msg => msg.id === updatedMsg.id ? updatedMsg : msg)
-            );
           }
         )
         .subscribe();
@@ -88,7 +66,7 @@ export default function DMThreadPage() {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, userId]);
+  }, [user, conversationId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -99,12 +77,23 @@ export default function DMThreadPage() {
   };
 
   const loadOtherUser = async () => {
-    if (!userId) return;
+    if (!conversationId || !user) return;
     
+    // Get other participant in this conversation
+    const { data: participants } = await supabase
+      .from('conversation_participants')
+      .select('user_id')
+      .eq('conversation_id', conversationId);
+    
+    if (!participants) return;
+    
+    const otherUserId = participants.find(p => p.user_id !== user.id)?.user_id;
+    if (!otherUserId) return;
+
     const { data } = await supabase
       .from('profiles')
-      .select('handle, avatar_url')
-      .eq('id', userId)
+      .select('id, handle, avatar_url')
+      .eq('id', otherUserId)
       .maybeSingle();
     
     if (data) {
@@ -113,12 +102,12 @@ export default function DMThreadPage() {
   };
 
   const loadMessages = async () => {
-    if (!user || !userId) return;
+    if (!conversationId) return;
 
     const { data, error } = await supabase
-      .from('dms')
+      .from('messages')
       .select('*')
-      .or(`and(sender_id.eq.${user.id},recipient_id.eq.${userId}),and(sender_id.eq.${userId},recipient_id.eq.${user.id})`)
+      .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
 
     if (!error && data) {
@@ -126,54 +115,25 @@ export default function DMThreadPage() {
     }
   };
 
-  const markAsRead = async () => {
-    if (!user || !userId) return;
-
-    await supabase
-      .from('dms')
-      .update({ read: true })
-      .eq('sender_id', userId)
-      .eq('recipient_id', user.id)
-      .eq('read', false);
-  };
-
-  const loadEditHistory = async (dmId: string) => {
-    if (editHistories[dmId]) {
-      return;
-    }
-    
-    const { data, error } = await supabase
-      .from('dm_edit_history')
-      .select('*')
-      .eq('dm_id', dmId)
-      .order('edited_at', { ascending: false });
-    
-    if (data) {
-      setEditHistories(prev => ({ ...prev, [dmId]: data }));
-    }
-  };
-
   const handleSend = async () => {
-    if (!user || !userId || !newMessage.trim()) return;
+    if (!user || !conversationId || !newMessage.trim()) return;
 
     const optimisticMessage = {
       id: 'temp-' + Date.now(),
       sender_id: user.id,
-      recipient_id: userId,
-      text_content: newMessage.trim(),
+      body: newMessage.trim(),
       created_at: new Date().toISOString(),
-      read: false,
     };
 
     setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage('');
 
     const { error } = await supabase
-      .from('dms')
+      .from('messages')
       .insert({
+        conversation_id: conversationId,
         sender_id: user.id,
-        recipient_id: userId,
-        text_content: optimisticMessage.text_content,
+        body: newMessage.trim(),
       });
 
     if (error) {
@@ -237,41 +197,14 @@ export default function DMThreadPage() {
                           <p className="text-xs opacity-80">Shared a post</p>
                         </div>
                       )}
-                      {message.text_content && (
+                      {message.body && (
                         <div>
-                          <p className="break-words">{message.text_content}</p>
+                          <p className="break-words">{message.body}</p>
                           {message.edited_at && (
-                            <Collapsible 
-                              open={expandedHistory === message.id} 
-                              onOpenChange={(open) => {
-                                setExpandedHistory(open ? message.id : null);
-                                if (open) loadEditHistory(message.id);
-                              }}
-                            >
-                              <CollapsibleTrigger className={`text-xs mt-1 hover:underline cursor-pointer flex items-center gap-1 transition-colors ${isSent ? 'text-primary-foreground/70 hover:text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                                <Clock className="h-3 w-3" />
-                                Edited
-                                <ChevronDown className={`h-3 w-3 transition-transform ${expandedHistory === message.id ? 'rotate-180' : ''}`} />
-                              </CollapsibleTrigger>
-                              <CollapsibleContent className="mt-2">
-                                <div className={`space-y-2 pl-3 border-l-2 ${isSent ? 'border-primary-foreground/20' : 'border-border'}`}>
-                                  {!editHistories[message.id] ? (
-                                    <p className={`text-xs ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>Loading history...</p>
-                                  ) : editHistories[message.id].length === 0 ? (
-                                    <p className={`text-xs ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>No edit history</p>
-                                  ) : (
-                                    editHistories[message.id].map((edit) => (
-                                      <div key={edit.id} className="text-sm">
-                                        <div className={`text-xs mb-1 ${isSent ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
-                                          {new Date(edit.edited_at).toLocaleString()}
-                                        </div>
-                                        <div className={`whitespace-pre-wrap ${isSent ? 'text-primary-foreground/80' : 'opacity-80'}`}>{edit.previous_text_content}</div>
-                                      </div>
-                                    ))
-                                  )}
-                                </div>
-                              </CollapsibleContent>
-                            </Collapsible>
+                            <p className={`text-xs mt-1 ${isSent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                              <Clock className="h-3 w-3 inline mr-1" />
+                              Edited
+                            </p>
                           )}
                         </div>
                       )}
@@ -279,33 +212,7 @@ export default function DMThreadPage() {
                         {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                       </p>
                     </div>
-                    {isSent && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute -right-10 top-0 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                        onClick={() => {
-                          setEditingMessage(message);
-                          setShowEditDialog(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
-                  
-                  {/* Emoji reactions */}
-                  <DMReactions 
-                    dmId={message.id} 
-                    senderId={message.sender_id}
-                    recipientId={message.recipient_id || userId || ''}
-                  />
-                  
-                  {isSent && isLastMessage && (
-                    <span className={`text-xs mt-1 ${isSent ? 'text-right text-muted-foreground' : ''}`}>
-                      {message.read ? '✓ Read' : '✓ Sent'}
-                    </span>
-                  )}
                 </div>
               </div>
             );
@@ -325,15 +232,6 @@ export default function DMThreadPage() {
           <Send className="h-4 w-4" />
         </Button>
       </div>
-
-      {editingMessage && (
-        <EditDMDialog
-          open={showEditDialog}
-          onOpenChange={setShowEditDialog}
-          dm={editingMessage}
-          onSuccess={loadMessages}
-        />
-      )}
     </div>
   );
 }

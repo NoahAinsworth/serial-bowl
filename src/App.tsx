@@ -76,7 +76,7 @@ function AppRouter() {
                 <Route path="/post" element={<ProtectedRoute><AppLayout><PostPage /></AppLayout></ProtectedRoute>} />
                 <Route path="/post/:id" element={<ProtectedRoute><AppLayout><PostDetailPage /></AppLayout></ProtectedRoute>} />
                 <Route path="/messages" element={<ProtectedRoute><AppLayout><MessagesPage /></AppLayout></ProtectedRoute>} />
-                <Route path="/dms/:userId" element={<ProtectedRoute><AppLayout><DMThreadPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/dm-thread/:conversationId" element={<ProtectedRoute><AppLayout><DMThreadPage /></AppLayout></ProtectedRoute>} />
                 <Route path="/followers" element={<ProtectedRoute><AppLayout><FollowersPage /></AppLayout></ProtectedRoute>} />
                 <Route path="/user/:userId/followers" element={<ProtectedRoute><AppLayout><FollowersPage /></AppLayout></ProtectedRoute>} />
                 <Route path="/following" element={<ProtectedRoute><AppLayout><FollowingPage /></AppLayout></ProtectedRoute>} />

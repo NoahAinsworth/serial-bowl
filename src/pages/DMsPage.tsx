@@ -11,6 +11,7 @@ import { UserSearch } from '@/components/UserSearch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface DMThread {
+  conversationId: string;
   otherUser: {
     id: string;
     handle: string;
@@ -19,9 +20,8 @@ interface DMThread {
   lastMessage: {
     text: string;
     created_at: string;
-    read: boolean;
     sender_id: string;
-  };
+  } | null;
   unreadCount: number;
 }
 
@@ -43,13 +43,13 @@ export default function DMsPage() {
     if (!user) return;
 
     const channel = supabase
-      .channel('dms_updates')
+      .channel('messages_updates')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'dms',
+          table: 'messages',
         },
         () => {
           loadThreads();
@@ -65,52 +65,93 @@ export default function DMsPage() {
   const loadThreads = async () => {
     if (!user) return;
 
-    const { data: dms, error } = await supabase
-      .from('dms')
-      .select(`
-        id,
-        sender_id,
-        recipient_id,
-        text_content,
-        read,
-        created_at,
-        sender:profiles!dms_sender_id_fkey(id, handle, avatar_url),
-        recipient:profiles!dms_recipient_id_fkey(id, handle, avatar_url)
-      `)
-      .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
-      .order('created_at', { ascending: false });
+    try {
+      // Get all conversations for this user
+      const { data: conversations, error: convError } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', user.id);
 
-    if (!error && dms) {
-      // Group by conversation partner
-      const threadsMap = new Map<string, DMThread>();
-      
-      dms.forEach((dm: any) => {
-        const isReceived = dm.recipient_id === user.id;
-        const otherUser = isReceived ? dm.sender : dm.recipient;
+      if (convError) throw convError;
+      if (!conversations || conversations.length === 0) {
+        setThreads([]);
+        setLoading(false);
+        return;
+      }
+
+      const conversationIds = conversations.map(c => c.conversation_id);
+
+      // Get all participants for these conversations
+      const { data: participants, error: partError } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id, user_id')
+        .in('conversation_id', conversationIds);
+
+      if (partError) throw partError;
+
+      // Get other users' profiles
+      const otherUserIds = participants
+        ?.filter(p => p.user_id !== user.id)
+        .map(p => p.user_id) || [];
+
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, handle, avatar_url')
+        .in('id', otherUserIds);
+
+      if (profilesError) throw profilesError;
+
+      // Get latest messages for each conversation
+      const { data: messages, error: messagesError } = await supabase
+        .from('messages')
+        .select('conversation_id, body, created_at, sender_id')
+        .in('conversation_id', conversationIds)
+        .order('created_at', { ascending: false });
+
+      if (messagesError) throw messagesError;
+
+      // Build threads
+      const threadsArray: DMThread[] = conversationIds.map(convId => {
+        // Find other user in this conversation
+        const otherParticipant = participants?.find(
+          p => p.conversation_id === convId && p.user_id !== user.id
+        );
         
-        if (!threadsMap.has(otherUser.id)) {
-          threadsMap.set(otherUser.id, {
-            otherUser,
-            lastMessage: {
-              text: dm.text_content,
-              created_at: dm.created_at,
-              read: dm.read,
-              sender_id: dm.sender_id,
-            },
-            unreadCount: isReceived && !dm.read ? 1 : 0,
-          });
-        } else {
-          const thread = threadsMap.get(otherUser.id)!;
-          if (isReceived && !dm.read) {
-            thread.unreadCount++;
-          }
-        }
+        const otherUserProfile = profiles?.find(p => p.id === otherParticipant?.user_id);
+        
+        // Find latest message
+        const latestMessage = messages?.find(m => m.conversation_id === convId);
+
+        return {
+          conversationId: convId,
+          otherUser: otherUserProfile || { 
+            id: otherParticipant?.user_id || '', 
+            handle: 'Unknown', 
+            avatar_url: undefined 
+          },
+          lastMessage: latestMessage ? {
+            text: latestMessage.body || '',
+            created_at: latestMessage.created_at,
+            sender_id: latestMessage.sender_id || ''
+          } : null,
+          unreadCount: 0 // TODO: implement read tracking
+        };
       });
-      
-      setThreads(Array.from(threadsMap.values()));
+
+      // Filter out threads without messages and sort by latest message
+      const sortedThreads = threadsArray
+        .filter(t => t.lastMessage !== null)
+        .sort((a, b) => {
+          if (!a.lastMessage || !b.lastMessage) return 0;
+          return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
+        });
+
+      setThreads(sortedThreads);
+    } catch (error) {
+      console.error('Error loading threads:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   if (!user) {
@@ -142,9 +183,9 @@ export default function DMsPage() {
         <div className="space-y-3 animate-fade-in">
           {threads.map((thread) => (
             <Card
-              key={thread.otherUser.id}
+              key={thread.conversationId}
               className="p-4 cursor-pointer hover:border-primary/50 transition-all card-enhanced group"
-              onClick={() => navigate(`/dms/${thread.otherUser.id}`)}
+              onClick={() => navigate(`/dm-thread/${thread.conversationId}`)}
             >
               <div className="flex gap-3">
                 <div className="avatar-ring">
@@ -158,20 +199,22 @@ export default function DMsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold">{thread.otherUser.handle}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(thread.lastMessage.created_at), { addSuffix: true })}
-                    </span>
-                  </div>
-                  <p className={`text-sm truncate ${thread.unreadCount > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                    {thread.lastMessage.text}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    {thread.lastMessage.sender_id === user?.id && (
+                    {thread.lastMessage && (
                       <span className="text-xs text-muted-foreground">
-                        {thread.lastMessage.read ? '✓ Read' : '✓ Sent'}
+                        {formatDistanceToNow(new Date(thread.lastMessage.created_at), { addSuffix: true })}
                       </span>
                     )}
                   </div>
+                  <p className={`text-sm truncate ${thread.unreadCount > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                    {thread.lastMessage?.text || 'No messages yet'}
+                  </p>
+                  {thread.lastMessage && (
+                    <div className="flex items-center gap-2 mt-1">
+                      {thread.lastMessage.sender_id === user?.id && (
+                        <span className="text-xs text-muted-foreground">✓ Sent</span>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {thread.unreadCount > 0 && (
                   <div className="relative flex-shrink-0">
