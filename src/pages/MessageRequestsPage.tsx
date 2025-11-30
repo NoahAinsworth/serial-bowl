@@ -61,7 +61,7 @@ export default function MessageRequestsPage() {
           id,
           message,
           created_at,
-          sender:sender_id!message_requests_sender_profile_fkey (
+          sender:profiles!message_requests_sender_id_fkey (
             id,
             handle,
             avatar_url
