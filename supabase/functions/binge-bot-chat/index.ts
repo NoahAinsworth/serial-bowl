@@ -10,6 +10,7 @@ const corsHeaders = {
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const TVDB_API_KEY = Deno.env.get("TVDB_API_KEY");
 
 const SYSTEM_PROMPT = `You are "BingeBot," a friendly TV information assistant inside Serial Bowl, a TV show rating and tracking app.
 
@@ -35,6 +36,76 @@ For rating requests:
 - Include RATING_ACTION marker in your response when user confirms: RATING_ACTION{type:show|season|episode, name:NAME, rating:NUMBER}
 
 Keep it fun, helpful, and TV-focused!`;
+
+// TVDB Authentication
+async function getTVDBToken(): Promise<string> {
+  const response = await fetch("https://api4.thetvdb.com/v4/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify({
+      apikey: TVDB_API_KEY,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`TVDB login failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.data.token;
+}
+
+// Search TVDB for show information
+async function searchTVDB(query: string, token: string) {
+  try {
+    const response = await fetch(
+      `https://api4.thetvdb.com/v4/search?query=${encodeURIComponent(query)}&type=series&limit=3`,
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`TVDB search failed for "${query}": ${response.status}`);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error(`TVDB search error for "${query}":`, error);
+    return [];
+  }
+}
+
+// Extract potential show names from user message
+function extractShowNames(message: string): string[] {
+  const words = message.toLowerCase();
+  const names: string[] = [];
+  
+  // Extract quoted strings (e.g., "Breaking Bad")
+  const quotedRegex = /["']([^"']+)["']/g;
+  let match;
+  while ((match = quotedRegex.exec(message)) !== null) {
+    names.push(match[1]);
+  }
+  
+  // Extract capitalized phrases (e.g., Breaking Bad, The Office)
+  const capitalizedRegex = /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b/g;
+  while ((match = capitalizedRegex.exec(message)) !== null) {
+    if (match[1].length > 3) { // Avoid short words like "The"
+      names.push(match[1]);
+    }
+  }
+  
+  return [...new Set(names)]; // Remove duplicates
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -63,9 +134,48 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY not configured");
     }
 
-    // Build messages array with system prompt
+    // Get the last user message to search for show names
+    const lastUserMessage = messages[messages.length - 1]?.content || "";
+    
+    // Extract and search for shows in TVDB
+    let showContext = "";
+    if (TVDB_API_KEY && lastUserMessage) {
+      try {
+        const showNames = extractShowNames(lastUserMessage);
+        if (showNames.length > 0) {
+          console.log("Searching TVDB for shows:", showNames);
+          const tvdbToken = await getTVDBToken();
+          
+          const searchResults = [];
+          for (const name of showNames.slice(0, 2)) { // Limit to 2 searches
+            const results = await searchTVDB(name, tvdbToken);
+            searchResults.push(...results);
+          }
+          
+          if (searchResults.length > 0) {
+            // Format show data for context
+            const formattedShows = searchResults.slice(0, 3).map((show: any) => ({
+              name: show.name || show.title,
+              year: show.year || show.first_aired?.substring(0, 4),
+              status: show.status,
+              overview: show.overview?.substring(0, 200),
+              network: show.network,
+            }));
+            
+            showContext = `\n\nREAL-TIME TV DATABASE INFO (Use this for accurate, up-to-date information):\n${JSON.stringify(formattedShows, null, 2)}`;
+            console.log("Added TVDB context for:", formattedShows.map(s => s.name).join(", "));
+          }
+        }
+      } catch (error) {
+        console.error("TVDB search error:", error);
+        // Continue without TVDB context
+      }
+    }
+
+    // Build messages array with enhanced system prompt
+    const enhancedSystemPrompt = SYSTEM_PROMPT + showContext;
     const aiMessages = [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: enhancedSystemPrompt },
       ...messages,
     ];
 
