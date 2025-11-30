@@ -223,7 +223,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-border shadow-md flex-shrink-0">
             <video
-              src="/videos/bingebot-character.mp4"
+              src="/videos/bingebot-bounce.mp4"
               autoPlay
               loop
               muted
@@ -252,7 +252,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
               <div className="h-20 w-20 mb-4 rounded-full overflow-hidden border-3 border-border shadow-xl">
                 <video
-                  src="/videos/bingebot-character.mp4"
+                  src="/videos/bingebot-bounce.mp4"
                   autoPlay
                   loop
                   muted
@@ -290,7 +290,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                     <div className="flex gap-1.5 sm:gap-3 mb-3 sm:mb-4 w-full">
                       <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full overflow-hidden border border-border flex-shrink-0 mt-0.5">
                         <video
-                          src="/videos/bingebot-character.mp4"
+                          src="/videos/bingebot-bounce.mp4"
                           autoPlay
                           loop
                           muted
@@ -331,7 +331,7 @@ export function BingeBotAI({ open, onOpenChange, initialPrompt }: BingeBotAIProp
                 <div className="flex gap-3">
                   <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-border">
                     <video
-                      src="/videos/bingebot-character.mp4"
+                      src="/videos/bingebot-bounce.mp4"
                       autoPlay
                       loop
                       muted

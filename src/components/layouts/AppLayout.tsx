@@ -156,7 +156,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           }}
         >
           <video
-            src="/videos/bingebot-character.mp4"
+            src="/videos/bingebot-bounce.mp4"
             autoPlay
             loop
             muted
