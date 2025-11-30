@@ -179,10 +179,11 @@ export default function ShowDetailPage() {
         Back to Discover
       </Button>
       
+      {/* Header Section - Title + Description Only */}
       <Card className="p-6">
         <div className="flex flex-col md:flex-row gap-6">
           {show.image && (
-            <div className="relative">
+            <div className="relative flex-shrink-0">
               <img
                 src={show.image}
                 alt={show.name}
@@ -192,35 +193,41 @@ export default function ShowDetailPage() {
               />
             </div>
           )}
-          <div className="flex-1">
-            <div className="flex items-start justify-between gap-4 mb-2">
-              <h1 className="text-3xl font-bold">{show.name}</h1>
-              <div className="flex flex-wrap gap-2 items-center">
-                <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" showEmpty />
-                {user && (
-                  <BowlScoreBadge score={personalScore} variant="personal" showLabel size="md" showEmpty />
-                )}
-              </div>
+          <div className="flex-1 space-y-6">
+            {/* Header: Title + Description */}
+            <div>
+              <h1 className="text-3xl font-bold mb-3">{show.name}</h1>
+              <p className="text-muted-foreground">{show.overview}</p>
             </div>
-            <p className="text-muted-foreground mb-4">{show.overview}</p>
-            
-            {user && (
-              <div className="space-y-4">
-                {contentId && (
-                  <div className="flex gap-2 w-full overflow-hidden">
-                    <WatchlistButton contentId={contentId} showTitle={show.name} />
-                    <WatchedButton contentId={contentId} showTitle={show.name} />
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium mb-2">Your Rating</p>
-                  <PercentRating
-                    initialRating={userRating || 0}
-                    onRate={handleRatingChange}
-                    compact
-                    showSaveButton
-                  />
+
+            {user && contentId && (
+              <>
+                {/* Quick Actions Section - List + Seen */}
+                <div className="grid grid-cols-2 gap-3">
+                  <WatchlistButton contentId={contentId} showTitle={show.name} />
+                  <WatchedButton contentId={contentId} showTitle={show.name} />
                 </div>
+
+                {/* Ratings Section - Bowl Score + Your Rating */}
+                <Card className="border-2 rounded-xl p-5 bg-card/50 space-y-4">
+                  {/* Global Bowl Score */}
+                  <div>
+                    <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" showEmpty />
+                  </div>
+
+                  {/* Personal Rating Slider */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Your Rating</p>
+                    <PercentRating
+                      initialRating={userRating || 0}
+                      onRate={handleRatingChange}
+                      compact
+                      showSaveButton
+                    />
+                  </div>
+                </Card>
+
+                {/* Post Actions Section */}
                 <PostTypeSelector
                   onReviewClick={() => {
                     setPostType('review');
@@ -231,7 +238,7 @@ export default function ShowDetailPage() {
                     setShowPostDialog(true);
                   }}
                 />
-              </div>
+              </>
             )}
           </div>
         </div>
