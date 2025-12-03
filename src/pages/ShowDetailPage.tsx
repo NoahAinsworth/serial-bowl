@@ -200,6 +200,25 @@ export default function ShowDetailPage() {
               <p className="text-muted-foreground">{show.overview}</p>
             </div>
 
+            {/* Bowl Score - Always visible */}
+            <Card className="border-2 rounded-xl p-5 bg-card/50 space-y-4">
+              <div>
+                <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" showEmpty />
+              </div>
+
+              {user && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Your Rating</p>
+                  <PercentRating
+                    initialRating={userRating || 0}
+                    onRate={handleRatingChange}
+                    compact
+                    showSaveButton
+                  />
+                </div>
+              )}
+            </Card>
+
             {user && contentId && (
               <>
                 {/* Quick Actions Section - List + Seen */}
@@ -207,25 +226,6 @@ export default function ShowDetailPage() {
                   <WatchlistButton contentId={contentId} showTitle={show.name} />
                   <WatchedButton contentId={contentId} showTitle={show.name} />
                 </div>
-
-                {/* Ratings Section - Bowl Score + Your Rating */}
-                <Card className="border-2 rounded-xl p-5 bg-card/50 space-y-4">
-                  {/* Global Bowl Score */}
-                  <div>
-                    <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" showEmpty />
-                  </div>
-
-                  {/* Personal Rating Slider */}
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Your Rating</p>
-                    <PercentRating
-                      initialRating={userRating || 0}
-                      onRate={handleRatingChange}
-                      compact
-                      showSaveButton
-                    />
-                  </div>
-                </Card>
 
                 {/* Post Actions Section */}
                 <PostTypeSelector
