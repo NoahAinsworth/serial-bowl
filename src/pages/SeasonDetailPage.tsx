@@ -16,6 +16,8 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
 import { Button } from '@/components/ui/button';
+import { BowlScoreBadge } from '@/components/BowlScoreBadge';
+import { useContentBowlScore } from '@/hooks/useContentBowlScore';
 
 export default function SeasonDetailPage() {
   const { showId, seasonNumber } = useParams<{ showId: string; seasonNumber: string }>();
@@ -30,6 +32,10 @@ export default function SeasonDetailPage() {
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
+  
+  // Bowl score for season
+  const seasonItemId = showId && seasonNumber ? `${showId}:${seasonNumber}` : null;
+  const { globalScore } = useContentBowlScore('season', seasonItemId);
 
   useEffect(() => {
     if (showId && seasonNumber) {
@@ -199,18 +205,29 @@ export default function SeasonDetailPage() {
       </Button>
       
       <Card className="p-6">
-        <h1 className="text-3xl font-bold mb-4 neon-glow">Season {seasonNumber}</h1>
+        <h1 className="text-3xl font-bold mb-4 neon-glow">{showName ? `${showName} - ` : ''}Season {seasonNumber}</h1>
         <div className="space-y-4">
+          {/* Bowl Score - Always visible */}
+          <Card className="border-2 rounded-xl p-5 bg-card/50 space-y-4">
+            <div>
+              <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" showEmpty />
+            </div>
+
+            {user && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Your Rating</p>
+                <PercentRating initialRating={userRating || 0} onRate={handleRate} />
+              </div>
+            )}
+          </Card>
+
           {contentId && (
             <div className="flex gap-2 w-full overflow-hidden">
               <WatchlistButton contentId={contentId} showTitle={showName ? `${showName} - Season ${seasonNumber}` : `Season ${seasonNumber}`} />
               <WatchedButton contentId={contentId} showTitle={showName ? `${showName} - Season ${seasonNumber}` : `Season ${seasonNumber}`} />
             </div>
           )}
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Rate this season</p>
-            <PercentRating initialRating={userRating || 0} onRate={handleRate} />
-          </div>
+          
           {contentId && (
             <div>
               <PostTypeSelector 

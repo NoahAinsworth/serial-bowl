@@ -15,6 +15,8 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
 import { PostCreationDialog } from '@/components/PostCreationDialog';
 import { Button } from '@/components/ui/button';
+import { BowlScoreBadge } from '@/components/BowlScoreBadge';
+import { useContentBowlScore } from '@/hooks/useContentBowlScore';
 
 export default function EpisodeDetailPage() {
   const { showId, seasonNumber, episodeNumber } = useParams<{ 
@@ -33,6 +35,10 @@ export default function EpisodeDetailPage() {
   const [contentId, setContentId] = useState<string | null>(null);
   const [postType, setPostType] = useState<'review' | 'thought'>('review');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
+  
+  // Bowl score for episode
+  const episodeItemId = showId && seasonNumber && episodeNumber ? `${showId}:${seasonNumber}:${episodeNumber}` : null;
+  const { globalScore } = useContentBowlScore('episode', episodeItemId);
 
   useEffect(() => {
     if (showId && seasonNumber && episodeNumber) {
@@ -256,6 +262,20 @@ export default function EpisodeDetailPage() {
           </p>
         )}
         
+        {/* Bowl Score - Always visible */}
+        <Card className="border-2 rounded-xl p-5 bg-card/50 space-y-4">
+          <div>
+            <BowlScoreBadge score={globalScore} variant="global" showLabel size="md" showEmpty />
+          </div>
+
+          {user && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Your Rating</p>
+              <PercentRating initialRating={userRating || 0} onRate={handleRate} />
+            </div>
+          )}
+        </Card>
+
         {contentId && (
           <div className="flex gap-2 w-full overflow-hidden">
             <WatchlistButton 
@@ -269,10 +289,6 @@ export default function EpisodeDetailPage() {
           </div>
         )}
         
-        <div>
-          <p className="text-sm text-muted-foreground mb-2">Rate this episode</p>
-          <PercentRating initialRating={userRating || 0} onRate={handleRate} />
-        </div>
         {contentId && (
           <div>
             <PostTypeSelector 
