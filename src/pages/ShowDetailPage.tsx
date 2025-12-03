@@ -46,7 +46,7 @@ export default function ShowDetailPage() {
         loadShow(numericId);
       }
     }
-  }, [id]);
+  }, [id, user]);
 
   const loadShow = async (showId: number) => {
     const showData = await fetchShow(showId);
