@@ -46,6 +46,56 @@ export type Database = {
           },
         ]
       }
+      binge_point_logs: {
+        Row: {
+          anti_cheat_denied: boolean | null
+          episode_count: number
+          id: string
+          logged_at: string | null
+          points_earned: number
+          season_bonus: number | null
+          show_bonus: number | null
+          show_id: string
+          show_title: string | null
+          user_id: string
+          was_bulk: boolean | null
+        }
+        Insert: {
+          anti_cheat_denied?: boolean | null
+          episode_count?: number
+          id?: string
+          logged_at?: string | null
+          points_earned?: number
+          season_bonus?: number | null
+          show_bonus?: number | null
+          show_id: string
+          show_title?: string | null
+          user_id: string
+          was_bulk?: boolean | null
+        }
+        Update: {
+          anti_cheat_denied?: boolean | null
+          episode_count?: number
+          id?: string
+          logged_at?: string | null
+          points_earned?: number
+          season_bonus?: number | null
+          show_bonus?: number | null
+          show_id?: string
+          show_title?: string | null
+          user_id?: string
+          was_bulk?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "binge_point_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_feedback: {
         Row: {
           created_at: string | null
@@ -1187,11 +1237,15 @@ export type Database = {
           binge_points: number | null
           bio: string | null
           created_at: string | null
+          daily_points_earned: number | null
+          daily_points_reset_at: string | null
           handle: string
           id: string
           is_private: boolean
+          legacy_binge_points: number | null
           minutes_watched: number | null
           settings: Json | null
+          show_score: number | null
           updated_at: string | null
           video_storage_used: number | null
         }
@@ -1202,11 +1256,15 @@ export type Database = {
           binge_points?: number | null
           bio?: string | null
           created_at?: string | null
+          daily_points_earned?: number | null
+          daily_points_reset_at?: string | null
           handle: string
           id: string
           is_private?: boolean
+          legacy_binge_points?: number | null
           minutes_watched?: number | null
           settings?: Json | null
+          show_score?: number | null
           updated_at?: string | null
           video_storage_used?: number | null
         }
@@ -1217,11 +1275,15 @@ export type Database = {
           binge_points?: number | null
           bio?: string | null
           created_at?: string | null
+          daily_points_earned?: number | null
+          daily_points_reset_at?: string | null
           handle?: string
           id?: string
           is_private?: boolean
+          legacy_binge_points?: number | null
           minutes_watched?: number | null
           settings?: Json | null
+          show_score?: number | null
           updated_at?: string | null
           video_storage_used?: number | null
         }
@@ -2213,6 +2275,14 @@ export type Database = {
       }
     }
     Functions: {
+      add_binge_points: {
+        Args: { p_daily_cap?: number; p_points: number; p_user_id: string }
+        Returns: {
+          cap_reached: boolean
+          daily_total: number
+          points_added: number
+        }[]
+      }
       api_create_post: {
         Args: {
           p_body: string
@@ -2373,6 +2443,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_show_score: {
+        Args: { p_count?: number; p_user_id: string }
+        Returns: undefined
       }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }

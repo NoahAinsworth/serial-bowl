@@ -4,7 +4,6 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 interface WatchedButtonProps {
   contentId: string; // UUID from content table
@@ -14,7 +13,6 @@ interface WatchedButtonProps {
 export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const flags = useFeatureFlags();
   const [isWatched, setIsWatched] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -90,7 +88,6 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
 
         // For seasons: delete individual episode watches
         if (content?.kind === 'season') {
-          // Get episode content IDs to delete
           const { data: episodeContent } = await supabase
             .from('content')
             .select('id')
@@ -109,7 +106,6 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         
         // For shows: delete individual episode AND season watches
         if (content?.kind === 'show') {
-          // Get episode and season content IDs to delete
           const { data: childContent } = await supabase
             .from('content')
             .select('id')
@@ -147,103 +143,48 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
 
         setIsWatched(true);
         
-        // Populate counts for shows and seasons via edge function with retry logic
+        // Populate counts for shows and seasons via edge function (for Show Score calculation)
         if (content?.kind === 'show' || content?.kind === 'season') {
-          let retries = 2;
-          let lastError = null;
-          
-          for (let i = 0; i < retries; i++) {
-            try {
-              const { data, error: countError } = await supabase.functions.invoke('populate-content-counts', {
-                body: {
-                  external_id: content.external_id,
-                  kind: content.kind
-                }
-              });
-              
-              if (!countError) {
-                break;
+          try {
+            await supabase.functions.invoke('populate-content-counts', {
+              body: {
+                external_id: content.external_id,
+                kind: content.kind
               }
-              
-              lastError = countError;
-            } catch (e) {
-              lastError = e;
-            }
-            
-            if (i < retries - 1) {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-          }
-          
-          if (lastError) {
-            toast({
-              title: "Warning",
-              description: "Could not fetch episode counts. Your points may be inaccurate.",
-              variant: "destructive"
             });
+          } catch (e) {
+            console.error('Error populating counts:', e);
           }
         }
         
-        await supabase.rpc('update_user_binge_points', {
-          p_user_id: user.id
-        });
-        
-        // Fetch updated points for display
-        const { data: pointsResult } = await supabase.rpc('calculate_binge_points', {
-          p_user_id: user.id
-        });
-        
-        const pointsData = pointsResult?.[0];
-        
-        // Show appropriate toast based on what was marked
-        if (flags.BINGE_POINTS && pointsData && content) {
-          if (content.kind === 'season') {
-            // Get season episode count
-            const { data: seasonCount } = await supabase
-              .from('season_episode_counts')
-              .select('episode_count')
-              .eq('external_id', content.external_id)
-              .maybeSingle();
-            
-            const episodePoints = seasonCount?.episode_count || 0;
-            const seasonBonus = episodePoints >= 14 ? 15 : episodePoints >= 7 ? 10 : 5;
-            const totalEarned = episodePoints + seasonBonus;
-            
-            toast({
-              title: "Season complete!",
-              description: `${episodePoints} episodes + ${seasonBonus} bonus = ${totalEarned} Binge Points! 🎉`,
-            });
-          } else if (content.kind === 'show') {
-            // Get show episode count
-            const { data: showCount } = await supabase
-              .from('show_season_counts')
-              .select('total_episode_count, season_count')
-              .eq('external_id', content.external_id)
-              .maybeSingle();
-            
-            const episodePoints = showCount?.total_episode_count || 0;
-            const seasonCount = showCount?.season_count || 0;
-            // Estimate season bonuses (assume average 10 points per season)
-            const seasonBonuses = seasonCount * 10;
-            const showBonus = 100;
-            const totalEarned = episodePoints + seasonBonuses + showBonus;
-            
-            toast({
-              title: "Show complete!",
-              description: `${episodePoints} episodes + ${seasonBonuses} season bonuses + ${showBonus} show bonus = ${totalEarned} Binge Points! 🏆`,
-            });
-          } else {
-            toast({
-              title: "Marked as watched",
-              description: `${showTitle} • +1 Binge Point`,
-            });
-          }
-        } else {
-          toast({
-            title: "Marked as watched",
-            description: `${showTitle} added to watched list`,
-          });
+        // Increment Show Score based on content type (NO BINGE POINTS)
+        let episodeCount = 1;
+        if (content?.kind === 'season') {
+          const { data: seasonCount } = await supabase
+            .from('season_episode_counts')
+            .select('episode_count')
+            .eq('external_id', content.external_id)
+            .maybeSingle();
+          episodeCount = seasonCount?.episode_count || 1;
+        } else if (content?.kind === 'show') {
+          const { data: showCount } = await supabase
+            .from('show_season_counts')
+            .select('total_episode_count')
+            .eq('external_id', content.external_id)
+            .maybeSingle();
+          episodeCount = showCount?.total_episode_count || 1;
         }
+        
+        // Increment show_score (lifetime episode counter)
+        await supabase.rpc('increment_show_score', {
+          p_user_id: user.id,
+          p_count: episodeCount
+        });
+        
+        toast({
+          title: "Marked as watched",
+          description: `${showTitle} added to watched list`,
+        });
       }
     } catch (error) {
       console.error('Error toggling watched:', error);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { Circle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -119,8 +119,11 @@ export function EpisodeCheckbox({ episodeId, showId, seasonNumber, episodeNumber
           });
         setWatched(true);
         
-        // Update binge points
-        await supabase.rpc('update_user_binge_points', { p_user_id: user.id });
+        // Increment Show Score by 1 episode (NO BINGE POINTS from here)
+        await supabase.rpc('increment_show_score', {
+          p_user_id: user.id,
+          p_count: 1
+        });
       }
     }
 
