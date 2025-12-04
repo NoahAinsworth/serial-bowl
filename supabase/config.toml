@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.binge-bot-chat]
 verify_jwt = true
+
+[functions.earn-binge-points]
+verify_jwt = true
