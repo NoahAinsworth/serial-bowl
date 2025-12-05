@@ -11,8 +11,15 @@ export function ThemeBackground() {
   if (theme === 'light') {
     return (
       <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{ zIndex: 0 }}
+        className="fixed pointer-events-none bg-background"
+        style={{ 
+          zIndex: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 'calc(-1 * var(--safe-bottom, 0px))',
+          minHeight: 'calc(100dvh + var(--safe-bottom, 0px))'
+        }}
       >
         <div
           className="absolute inset-0"
@@ -32,8 +39,15 @@ export function ThemeBackground() {
   if (theme === 'donut_mode') {
     return (
       <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{ zIndex: 0 }}
+        className="fixed pointer-events-none bg-background"
+        style={{ 
+          zIndex: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 'calc(-1 * var(--safe-bottom, 0px))',
+          minHeight: 'calc(100dvh + var(--safe-bottom, 0px))'
+        }}
       >
         <div
           className="absolute inset-0"

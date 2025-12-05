@@ -7,25 +7,42 @@ html, body {
   margin: 0; 
   padding: 0;
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
   overflow: hidden;
+  /* Fallback background before CSS variables load */
+  background: #FAFAFA;
   background: hsl(var(--background));
   -webkit-text-size-adjust: 100%;
 }
 
-/* Safe-area variables for notched devices */
-:root {
-  --safe-top: env(safe-area-inset-top);
-  --safe-bottom: env(safe-area-inset-bottom);
-  --safe-left: env(safe-area-inset-left);
-  --safe-right: env(safe-area-inset-right);
+#root {
+  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  background: inherit;
 }
 
-/* Single scroll container for mobile - prevents rubber band bounce */
+/* Safe-area variables for notched devices - with fallbacks */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+/* Single scroll container for mobile - Safari-compatible heights */
 .app-scroll {
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  background: hsl(var(--background));
 }
 
 /* No film grain for flat Y2K aesthetic */
