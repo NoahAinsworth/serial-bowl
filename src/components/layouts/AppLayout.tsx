@@ -74,8 +74,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <>
-      <div className="app-scroll">
-        <div className="flex flex-col min-h-screen bg-transparent relative z-10">
+      <div className="app-scroll bg-background">
+        <div 
+          className="flex flex-col min-h-screen bg-background relative z-10"
+          style={{ minHeight: 'calc(100dvh + var(--safe-bottom, 0px))' }}
+        >
         <ThemeBackground />
         <SkyClouds count={8} />
         {/* Header */}

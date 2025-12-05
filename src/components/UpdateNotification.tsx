@@ -9,10 +9,10 @@ export function UpdateNotification() {
   } = useRegisterSW({
     onRegistered(r) {
       if (r) {
-        // Check for updates every hour
+        // Check for updates every 30 seconds for faster updates
         setInterval(() => {
           r.update();
-        }, 60 * 60 * 1000);
+        }, 30 * 1000);
       }
     },
     onRegisterError(error) {
