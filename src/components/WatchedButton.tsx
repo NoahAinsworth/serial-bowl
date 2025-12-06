@@ -157,29 +157,8 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
           }
         }
         
-        // Increment Show Score based on content type (NO BINGE POINTS)
-        let episodeCount = 1;
-        if (content?.kind === 'season') {
-          const { data: seasonCount } = await supabase
-            .from('season_episode_counts')
-            .select('episode_count')
-            .eq('external_id', content.external_id)
-            .maybeSingle();
-          episodeCount = seasonCount?.episode_count || 1;
-        } else if (content?.kind === 'show') {
-          const { data: showCount } = await supabase
-            .from('show_season_counts')
-            .select('total_episode_count')
-            .eq('external_id', content.external_id)
-            .maybeSingle();
-          episodeCount = showCount?.total_episode_count || 1;
-        }
-        
-        // Increment show_score (lifetime episode counter)
-        await supabase.rpc('increment_show_score', {
-          p_user_id: user.id,
-          p_count: episodeCount
-        });
+        // Note: show_score is now automatically recalculated by database trigger on watched table
+        // No manual increment needed
         
         toast({
           title: "Marked as watched",

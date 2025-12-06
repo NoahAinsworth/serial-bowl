@@ -2455,6 +2455,10 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      recalculate_user_show_score: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
       soft_delete_post: { Args: { p_post_id: string }; Returns: undefined }
       update_season_episode_count: {
         Args: { p_episode_count: number; p_season_external_id: string }

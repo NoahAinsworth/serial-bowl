@@ -113,6 +113,7 @@ Deno.serve(async (req) => {
 
       if (content) {
         // Insert watched entry (ignore if already exists)
+        // Note: show_score is now automatically recalculated by database trigger on watched table
         await supabase
           .from('watched')
           .upsert({
@@ -122,12 +123,6 @@ Deno.serve(async (req) => {
           }, { onConflict: 'user_id,content_id' });
       }
     }
-
-    // Always increment show_score
-    await supabase.rpc('increment_show_score', {
-      p_user_id: user_id,
-      p_count: showScoreAdded
-    });
 
     // Calculate points (if earning)
     let pointsEarned = 0;

@@ -78,11 +78,7 @@ export function SmartWatchButton({ contentId, showTitle }: SmartWatchButtonProps
       setIsInWatchlist(false);
       setIsWatched(true);
       
-      // Increment Show Score by 1 (NO BINGE POINTS from here)
-      await supabase.rpc('increment_show_score', {
-        p_user_id: user.id,
-        p_count: 1
-      });
+      // Note: show_score is now automatically recalculated by database trigger on watched table
       
       toast.success('✅ Marked as watched!');
     } else {
