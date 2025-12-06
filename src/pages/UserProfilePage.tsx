@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserPlus, UserMinus, TrendingUp, Lock, Trophy } from 'lucide-react';
+import { Loader2, Lock } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
 import { UserPosts } from '@/components/UserPosts';
 import { UserThoughts } from '@/components/UserThoughts';
@@ -17,13 +17,8 @@ import { FollowRequestButton } from '@/components/FollowRequestButton';
 import { ProfileRing } from '@/components/ProfileRing';
 import { VHSProfileRing } from '@/components/VHSProfileRing';
 import { BadgeDisplay } from '@/components/BadgeDisplay';
-import { BadgeCollection } from '@/components/BadgeCollection';
-import { DynamicBackground } from '@/components/DynamicBackground';
-
 import { CinematicFavorites } from '@/components/CinematicFavorites';
-import { Progress } from '@/components/ui/progress';
-import { BingePointsDisplay } from '@/components/BingePointsDisplay';
-import { Separator } from '@/components/ui/separator';
+import { InteractiveTrophyCase } from '@/components/InteractiveTrophyCase';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 const BADGE_TIERS = [
@@ -69,6 +64,7 @@ export default function UserProfilePage() {
     followers: 0,
     following: 0,
     binge_points: 0,
+    binge_score: 0,
     badge_tier: 'Pilot Watcher',
     top3Shows: [] as any[],
     settings: null as any
@@ -114,7 +110,7 @@ export default function UserProfilePage() {
     const {
       data: profileData,
       error: profileError
-    } = await supabase.from('profiles').select('id, handle, bio, avatar_url, is_private, binge_points, badge_tier, settings').eq('handle', handle).single();
+    } = await supabase.from('profiles').select('id, handle, bio, avatar_url, is_private, binge_points, binge_score, badge_tier, settings').eq('handle', handle).single();
     if (profileError || !profileData) {
       toast({
         title: "Profile not found",
@@ -162,6 +158,7 @@ export default function UserProfilePage() {
         followers: 0,
         following: 0,
         binge_points: profileData.binge_points || 0,
+        binge_score: profileData.binge_score || 0,
         badge_tier: profileData.badge_tier || 'Pilot Watcher',
         top3Shows: [],
         settings: profileData.settings
@@ -210,6 +207,7 @@ export default function UserProfilePage() {
       followers: followers || 0,
       following: following || 0,
       binge_points: profileData.binge_points || 0,
+      binge_score: profileData.binge_score || 0,
       badge_tier: profileData.badge_tier || 'Pilot Watcher',
       top3Shows,
       settings: profileData.settings
@@ -219,17 +217,17 @@ export default function UserProfilePage() {
   const loadUserRank = async () => {
     if (!userId) return;
 
-    // Get the user's current binge points
+    // Get the user's current binge score
     const {
       data: userData
-    } = await supabase.from('profiles').select('binge_points').eq('id', userId).single();
+    } = await supabase.from('profiles').select('binge_score').eq('id', userId).single();
     if (userData) {
       const {
         count
       } = await supabase.from('profiles').select('*', {
         count: 'exact',
         head: true
-      }).gt('binge_points', userData.binge_points || 0);
+      }).gt('binge_score', userData.binge_score || 0);
       setUserRank((count || 0) + 1);
     }
   };
@@ -237,7 +235,7 @@ export default function UserProfilePage() {
     if (userId) {
       loadUserRank();
     }
-  }, [userId, profile.binge_points]);
+  }, [userId, profile.binge_score]);
   const loadThoughts = async () => {
     if (!userId) return;
     const {
@@ -291,12 +289,7 @@ export default function UserProfilePage() {
     }
   };
   const currentBadge = profile.badge_tier || 'Pilot Watcher';
-  const bingePoints = profile.binge_points || 0;
-  
-  const currentTier = BADGE_TIERS.find(t => t.name === currentBadge) || BADGE_TIERS[0];
-  const currentIndex = BADGE_TIERS.findIndex(t => t.name === currentBadge);
-  const nextTier = currentIndex < BADGE_TIERS.length - 1 ? BADGE_TIERS[currentIndex + 1] : null;
-  const progress = nextTier ? ((bingePoints - currentTier.threshold) / (nextTier.threshold - currentTier.threshold)) * 100 : 100;
+  const bingeScore = profile.binge_score || 0;
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -327,7 +320,7 @@ export default function UserProfilePage() {
                   </Avatar>
                 </VHSProfileRing>
               ) : (
-                <ProfileRing points={bingePoints} badge={currentBadge}>
+                <ProfileRing points={bingeScore} badge={currentBadge}>
                   <Avatar className="w-full h-full">
                     <AvatarImage src={profile.avatar_url || undefined} alt={profile.handle} className="object-cover" />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
@@ -455,81 +448,15 @@ export default function UserProfilePage() {
               </TabsContent>
             </Tabs>
 
-            {/* Binge Stats Section */}
+            {/* Binge Stats Section - Using new InteractiveTrophyCase */}
             {flags.BINGE_POINTS && (
               <div className="px-4 mb-6 animate-fade-in">
                 <Card className="p-6 bg-card/70 backdrop-blur-md border-border/30">
-                  <div className="space-y-4">
-                    {/* Trophy Case */}
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-foreground/90">
-                          Trophy Case ({BADGE_TIERS.filter(tier => bingePoints >= tier.threshold).length}/{BADGE_TIERS.length})
-                        </h4>
-                        {userRank && (
-                          <div className="px-3 py-1.5 bg-card/60 backdrop-blur-md rounded-full border border-border/30 text-sm font-medium flex items-center gap-1">
-                            <Trophy className="w-3 h-3 text-primary" />
-                            <span className="text-foreground">Rank #{userRank}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="overflow-x-auto">
-                        <div className="flex gap-4 pb-2">
-                          {BADGE_TIERS.filter(tier => bingePoints >= tier.threshold).reverse().map((badge) => (
-                            <div 
-                              key={badge.name}
-                              className="flex-shrink-0 flex flex-col items-center gap-1"
-                            >
-                              <BadgeDisplay 
-                                badge={badge.name} 
-                                size="sm"
-                                showGlow={badge.name === currentBadge}
-                              />
-                              <div className="whitespace-nowrap bg-background/98 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/50 text-foreground shadow-lg">
-                                {badge.threshold} pts
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator className="my-4" />
-
-                    {/* Binge Meter */}
-                    <div>
-                      <h4 className="text-sm font-semibold mb-3 text-foreground/90">Binge Meter</h4>
-                      <BingePointsDisplay
-                        points={bingePoints}
-                        badge={currentBadge}
-                        showBreakdown={false}
-                      />
-                    </div>
-
-                    {nextTier && (
-                      <>
-                        <Separator className="my-4" />
-                        <div>
-                          <h4 className="text-sm font-semibold mb-3 text-foreground/90">Next Badge</h4>
-                          <div className="space-y-2 bg-card/60 backdrop-blur-md rounded-lg p-4 border border-border/30">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="font-semibold text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-                                {currentBadge}
-                              </span>
-                              <div className="flex items-center gap-1 text-black dark:text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-                                <TrendingUp className="h-3 w-3" />
-                                <span className="text-xs font-semibold">Next: {nextTier.name}</span>
-                              </div>
-                            </div>
-                            <Progress value={progress} className="h-2" />
-                            <div className="text-xs text-black dark:text-white text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-semibold">
-                              {bingePoints} / {nextTier.threshold} Binge Points
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  <InteractiveTrophyCase 
+                    bingeScore={bingeScore} 
+                    currentBadge={currentBadge}
+                    userRank={userRank}
+                  />
                 </Card>
               </div>
             )}
