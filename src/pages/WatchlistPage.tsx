@@ -225,13 +225,27 @@ export default function WatchlistPage() {
     }
   };
 
-  const removeFromWatched = async (id: string, title: string) => {
+  const removeFromWatched = async (id: string, title: string, externalId?: string) => {
+    // Get the item to find the show_id before deleting
+    const itemToRemove = watchedItems.find(item => item.id === id);
+    const showId = externalId || (itemToRemove ? itemToRemove.content_external_id.split(':')[0] : null);
+
     const { error } = await supabase
       .from('watched')
       .delete()
       .eq('id', id);
 
     if (!error) {
+      // Reverse any binge points earned for this show
+      if (showId && user) {
+        await supabase.rpc('reverse_binge_points_for_show', {
+          p_user_id: user.id,
+          p_show_id: showId
+        });
+        // Recalculate show_score after removal
+        await supabase.rpc('recalculate_user_show_score', { p_user_id: user.id });
+      }
+      
       setWatchedItems(watchedItems.filter(item => item.id !== id));
       toast({
         title: "Removed from watched",
@@ -386,6 +400,7 @@ export default function WatchlistPage() {
       } else {
         let retries = 2;
         let lastError = null;
+        let countsPopulated = false;
 
         for (let i = 0; i < retries; i++) {
           try {
@@ -397,6 +412,7 @@ export default function WatchlistPage() {
             });
             
             if (!countError) {
+              countsPopulated = true;
               break;
             }
             
@@ -408,6 +424,11 @@ export default function WatchlistPage() {
           if (i < retries - 1) {
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
+        }
+
+        // Recalculate show_score after counts are populated
+        if (countsPopulated) {
+          await supabase.rpc('recalculate_user_show_score', { p_user_id: user.id });
         }
 
         toast({

@@ -56,6 +56,13 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
 
     try {
       if (isWatched) {
+        // Get content details first for binge point reversal
+        const { data: content } = await supabase
+          .from('content')
+          .select('kind, external_id')
+          .eq('id', contentId)
+          .single();
+        
         const { error } = await supabase
           .from('watched')
           .delete()
@@ -71,6 +78,17 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
           });
           setLoading(false);
           return;
+        }
+
+        // Reverse binge points for this show
+        if (content?.external_id) {
+          const showId = content.external_id.split(':')[0];
+          await supabase.rpc('reverse_binge_points_for_show', {
+            p_user_id: user.id,
+            p_show_id: showId
+          });
+          // Recalculate show_score after removal
+          await supabase.rpc('recalculate_user_show_score', { p_user_id: user.id });
         }
 
         setIsWatched(false);
@@ -146,19 +164,21 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         // Populate counts for shows and seasons via edge function (for Show Score calculation)
         if (content?.kind === 'show' || content?.kind === 'season') {
           try {
-            await supabase.functions.invoke('populate-content-counts', {
+            const { error: countError } = await supabase.functions.invoke('populate-content-counts', {
               body: {
                 external_id: content.external_id,
                 kind: content.kind
               }
             });
+            
+            // Recalculate show_score after counts are populated
+            if (!countError) {
+              await supabase.rpc('recalculate_user_show_score', { p_user_id: user.id });
+            }
           } catch (e) {
             console.error('Error populating counts:', e);
           }
         }
-        
-        // Note: show_score is now automatically recalculated by database trigger on watched table
-        // No manual increment needed
         
         toast({
           title: "Marked as watched",
