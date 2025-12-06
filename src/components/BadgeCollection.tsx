@@ -1,10 +1,9 @@
 import { BadgeDisplay } from "./BadgeDisplay";
 import { Card } from "./ui/card";
-import { ScrollArea } from "./ui/scroll-area";
 
 interface BadgeCollectionProps {
   currentBadge: string;
-  bingePoints: number;
+  bingeScore: number;
 }
 
 const BADGE_TIERS = [
@@ -17,8 +16,8 @@ const BADGE_TIERS = [
   { name: 'Ultimate Binger', threshold: 10000 },
 ];
 
-export function BadgeCollection({ currentBadge, bingePoints }: BadgeCollectionProps) {
-  const earnedBadges = BADGE_TIERS.filter(tier => bingePoints >= tier.threshold);
+export function BadgeCollection({ currentBadge, bingeScore }: BadgeCollectionProps) {
+  const earnedBadges = BADGE_TIERS.filter(tier => bingeScore >= tier.threshold);
 
   if (earnedBadges.length === 0) return null;
 

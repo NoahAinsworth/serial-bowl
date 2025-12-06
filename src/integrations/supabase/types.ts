@@ -2409,7 +2409,7 @@ export type Database = {
           score: number
         }[]
       }
-      get_badge_tier: { Args: { p_points: number }; Returns: string }
+      get_badge_tier: { Args: { p_score: number }; Returns: string }
       get_watched_with_show_titles: {
         Args: { p_user_id: string }
         Returns: {

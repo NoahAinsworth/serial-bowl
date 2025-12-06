@@ -7,29 +7,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Edit, Loader2, Share2, X, TrendingUp, Trophy, Plus, Search, MessageCircle } from 'lucide-react';
+import { Loader2, Share2, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserPosts } from '@/components/UserPosts';
 import { UserRatings } from '@/components/UserRatings';
 import { UserThoughts } from '@/components/UserThoughts';
 import { UserReviews } from '@/components/UserReviews';
 import { FollowRequestsList } from '@/components/FollowRequestsList';
-import { VideoPostCard } from '@/components/VideoPostCard';
-import { UserVideos } from '@/components/UserVideos';
 import { Input } from '@/components/ui/input';
 import { useTVDB } from '@/hooks/useTVDB';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { ProfileRing } from '@/components/ProfileRing';
 import { VHSProfileRing } from '@/components/VHSProfileRing';
 import { BadgeDisplay } from '@/components/BadgeDisplay';
-import { BadgeCollection } from '@/components/BadgeCollection';
 import { DynamicBackground } from '@/components/DynamicBackground';
-import { AboutMeSection } from '@/components/AboutMeSection';
 import { CinematicFavorites } from '@/components/CinematicFavorites';
-import { Progress } from '@/components/ui/progress';
-import { BingePointsDisplay } from '@/components/BingePointsDisplay';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { InteractiveTrophyCase } from '@/components/InteractiveTrophyCase';
 import {
   Dialog,
   DialogContent,
@@ -37,13 +30,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -65,16 +51,6 @@ export default function ProfilePage() {
   const [top3Shows, setTop3Shows] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchingShows, setSearchingShows] = useState(false);
-  const [bingeBreakdown, setBingeBreakdown] = useState<{
-    episode_points: number;
-    season_bonuses: number;
-    show_bonuses: number;
-    completed_seasons: number;
-    completed_shows: number;
-  } | null>(null);
-  const [addShowsQuery, setAddShowsQuery] = useState('');
-  const [addShowsResults, setAddShowsResults] = useState<any[]>([]);
-  const [searchingAddShows, setSearchingAddShows] = useState(false);
   const [userRank, setUserRank] = useState<number | null>(null);
 
   useEffect(() => {
@@ -97,24 +73,12 @@ export default function ProfilePage() {
     return () => clearTimeout(delaySearch);
   }, [searchQuery, showTop3Dialog]);
 
-  useEffect(() => {
-    const delaySearch = setTimeout(() => {
-      if (addShowsQuery.trim()) {
-        searchAddShows(addShowsQuery);
-      } else {
-        setAddShowsResults([]);
-      }
-    }, 300);
-
-    return () => clearTimeout(delaySearch);
-  }, [addShowsQuery]);
-
   const loadProfile = async () => {
     if (!user) return;
 
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('handle, bio, avatar_url, settings, binge_points, badge_tier')
+      .select('handle, bio, avatar_url, settings, binge_points, binge_score, badge_tier')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -130,16 +94,6 @@ export default function ProfilePage() {
       followersCount: followersRes.count || 0,
       followingCount: followingRes.count || 0,
     });
-
-    // Fetch binge points breakdown
-    if (flags.BINGE_POINTS) {
-      const { data: breakdown } = await supabase
-        .rpc('calculate_binge_points', { p_user_id: user.id });
-      
-      if (breakdown && breakdown.length > 0) {
-        setBingeBreakdown(breakdown[0]);
-      }
-    }
 
     setLoading(false);
   };
@@ -199,92 +153,6 @@ export default function ProfilePage() {
     setSearchingShows(false);
   };
 
-  const searchAddShows = async (query: string) => {
-    if (!query.trim()) {
-      setAddShowsResults([]);
-      return;
-    }
-
-    setSearchingAddShows(true);
-    try {
-      const results = await searchTVDB(query);
-      setAddShowsResults(results);
-    } catch (error) {
-      console.error('Error searching shows:', error);
-    }
-    setSearchingAddShows(false);
-  };
-
-  const addToWatched = async (show: any) => {
-    if (!user) return;
-
-    try {
-      const { data: existingContent } = await supabase
-        .from('content')
-        .select('id')
-        .eq('external_src', 'thetvdb')
-        .eq('external_id', show.id.toString())
-        .eq('kind', 'show')
-        .maybeSingle();
-
-      let contentId = existingContent?.id;
-
-      if (!contentId) {
-        const { data: newContent, error: contentError } = await supabase
-          .from('content')
-          .insert({
-            external_src: 'thetvdb',
-            external_id: show.id.toString(),
-            kind: 'show',
-            title: show.name,
-            poster_url: show.image,
-            metadata: { overview: show.overview },
-          })
-          .select('id')
-          .single();
-
-        if (contentError) throw contentError;
-        contentId = newContent.id;
-      }
-
-      const { error } = await supabase
-        .from('watched')
-        .insert({
-          user_id: user.id,
-          content_id: contentId,
-        });
-
-      if (error) {
-        if (error.code === '23505') {
-          toast({
-            title: "Already marked as watched",
-            description: `${show.name} is already in your watched list`,
-            variant: "destructive",
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          title: "Marked as watched",
-          description: `${show.name} has been added`,
-        });
-        
-        // Reload profile to update binge points
-        loadProfile();
-        loadUserRank();
-        setAddShowsQuery('');
-        setAddShowsResults([]);
-      }
-    } catch (error) {
-      console.error('Error adding to watched:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add show to watched list",
-        variant: "destructive",
-      });
-    }
-  };
 
   const addToTop3 = async (show: any, slotIndex: number) => {
     const existingIndex = top3Shows.findIndex(s => s && s.id === show.id.toString());
@@ -394,6 +262,7 @@ export default function ProfilePage() {
 
   const currentBadge = profile?.badge_tier || 'Pilot Watcher';
   const bingePoints = profile?.binge_points || 0;
+  const bingeScore = profile?.binge_score || 0;
 
   const BADGE_TIERS = [
     { name: 'Pilot Watcher', threshold: 0 },
@@ -659,124 +528,25 @@ export default function ProfilePage() {
           </TabsContent>
         </Tabs>
 
-        {/* Your Stats Card */}
+        {/* Trophy Case */}
         {flags.BINGE_POINTS && (
           <Card className="rounded-2xl border-2 border-border/30 p-5 bg-card/50 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-foreground">Your Stats</h3>
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="rounded-full border-2 h-9">
-                    <Plus className="h-4 w-4 mr-1" /> Add Shows
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="h-[80vh]">
-                  <SheetHeader>
-                    <SheetTitle>Search & Add to Watched</SheetTitle>
-                  </SheetHeader>
-                  <div className="py-4 space-y-4">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
-                        placeholder="Search for TV shows..."
-                        value={addShowsQuery}
-                        onChange={(e) => setAddShowsQuery(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <ScrollArea className="h-[calc(80vh-200px)]">
-                      {searchingAddShows && (
-                        <div className="flex justify-center py-8">
-                          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                        </div>
-                      )}
-                      {!searchingAddShows && addShowsResults.length > 0 && (
-                        <div className="grid grid-cols-2 gap-4">
-                          {addShowsResults.map((show) => (
-                            <Card
-                              key={show.id}
-                              className="cursor-pointer hover:border-primary transition-colors overflow-hidden"
-                              onClick={() => addToWatched(show)}
-                            >
-                              <div className="aspect-[2/3] relative">
-                                {show.image ? (
-                                  <img
-                                    src={show.image}
-                                    alt={show.name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                                    <span className="text-muted-foreground text-xs">No Image</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="p-3">
-                                <h3 className="font-semibold text-sm line-clamp-2">{show.name}</h3>
-                                {show.firstAired && (
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {new Date(show.firstAired).getFullYear()}
-                                  </p>
-                                )}
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
-                      {!searchingAddShows && addShowsQuery && addShowsResults.length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          No shows found
-                        </div>
-                      )}
-                      {!addShowsQuery && (
-                        <div className="text-center py-8 text-muted-foreground text-sm">
-                          Search for TV shows to add to your watched list and earn binge points!
-                        </div>
-                      )}
-                    </ScrollArea>
-                  </div>
-                </SheetContent>
-              </Sheet>
+              <h3 className="text-lg font-bold text-foreground">Trophy Case</h3>
+              {userRank && (
+                <button 
+                  className="px-3 py-1 bg-primary/10 rounded-full text-xs font-medium border border-primary/30 flex items-center gap-1.5 hover:bg-primary/20 transition-colors"
+                  onClick={() => navigate('/binge-board')}
+                >
+                  <Trophy className="h-3 w-3 text-primary" />
+                  <span className="text-primary">Rank #{userRank}</span>
+                </button>
+              )}
             </div>
-
-            {/* Trophy Case */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold text-foreground">
-                  Trophy Case ({BADGE_TIERS.filter(t => bingePoints >= t.threshold).length}/{BADGE_TIERS.length})
-                </h4>
-                {userRank && (
-                  <button 
-                    className="px-3 py-1 bg-primary/10 rounded-full text-xs font-medium border border-primary/30 flex items-center gap-1.5 hover:bg-primary/20 transition-colors"
-                    onClick={() => navigate('/binge-board')}
-                  >
-                    <Trophy className="h-3 w-3 text-primary" />
-                    <span className="text-primary">Rank #{userRank}</span>
-                  </button>
-                )}
-              </div>
-              <BadgeCollection
-                currentBadge={currentBadge}
-                bingePoints={bingePoints}
-              />
-            </div>
-
-            <Separator className="my-4" />
-
-            {/* Binge Meter */}
-            <div>
-              <h4 className="text-sm font-semibold mb-3 text-foreground">Binge Meter</h4>
-              <BingePointsDisplay
-                points={bingePoints}
-                badge={currentBadge}
-                episodePoints={bingeBreakdown?.episode_points}
-                seasonBonuses={bingeBreakdown?.season_bonuses}
-                showBonuses={bingeBreakdown?.show_bonuses}
-                completedSeasons={bingeBreakdown?.completed_seasons}
-                completedShows={bingeBreakdown?.completed_shows}
-                showBreakdown={true}
-              />
-            </div>
+            <InteractiveTrophyCase
+              bingeScore={bingeScore}
+              currentBadge={currentBadge}
+            />
           </Card>
         )}
         </div>
