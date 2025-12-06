@@ -51,6 +51,7 @@ export type Database = {
           anti_cheat_denied: boolean | null
           episode_count: number
           id: string
+          is_reversed: boolean | null
           logged_at: string | null
           points_earned: number
           season_bonus: number | null
@@ -64,6 +65,7 @@ export type Database = {
           anti_cheat_denied?: boolean | null
           episode_count?: number
           id?: string
+          is_reversed?: boolean | null
           logged_at?: string | null
           points_earned?: number
           season_bonus?: number | null
@@ -77,6 +79,7 @@ export type Database = {
           anti_cheat_denied?: boolean | null
           episode_count?: number
           id?: string
+          is_reversed?: boolean | null
           logged_at?: string | null
           points_earned?: number
           season_bonus?: number | null
@@ -2447,6 +2450,10 @@ export type Database = {
       recalculate_user_show_score: {
         Args: { p_user_id: string }
         Returns: number
+      }
+      reverse_binge_points_for_show: {
+        Args: { p_show_id: string; p_user_id: string }
+        Returns: undefined
       }
       soft_delete_post: { Args: { p_post_id: string }; Returns: undefined }
       update_season_episode_count: {
