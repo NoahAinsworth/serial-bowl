@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { EarnPointsShowView } from '@/components/EarnPointsShowView';
 import { useTVDB } from '@/hooks/useTVDB';
+import { tvdbFetch } from '@/api/tvdb';
 
 interface SearchResult {
   id: number;
@@ -26,10 +27,88 @@ export default function EarnPointsPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedShow, setSelectedShow] = useState<SearchResult | null>(null);
   const [userStats, setUserStats] = useState({ dailyPointsEarned: 0, dailyCap: 200 });
+  
+  // Popular shows endless scroll state
+  const [popularShows, setPopularShows] = useState<SearchResult[]>([]);
+  const [loadingPopular, setLoadingPopular] = useState(false);
+  const [popularPage, setPopularPage] = useState(0);
+  const [hasMorePopular, setHasMorePopular] = useState(true);
+  const observerRef = useRef<HTMLDivElement>(null);
+  const seenIds = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     loadUserStats();
   }, [user]);
+
+  // Load initial popular shows on mount
+  useEffect(() => {
+    loadPopularShows(0);
+  }, []);
+
+  // Load more when page increments
+  useEffect(() => {
+    if (popularPage > 0) {
+      loadPopularShows(popularPage);
+    }
+  }, [popularPage]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    // Only trigger infinite scroll when not showing search results
+    if (searchQuery || results.length > 0) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMorePopular && !loadingPopular) {
+          setPopularPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.5, rootMargin: '200px' }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMorePopular, loadingPopular, searchQuery, results.length]);
+
+  const loadPopularShows = useCallback(async (page: number) => {
+    if (loadingPopular) return;
+    
+    setLoadingPopular(true);
+    try {
+      const response = await tvdbFetch(`/series/filter?sort=score&sortType=desc&page=${page}`);
+      
+      if (response && Array.isArray(response)) {
+        const newShows: SearchResult[] = response
+          .filter((show: any) => !seenIds.current.has(show.id))
+          .map((show: any) => {
+            seenIds.current.add(show.id);
+            return {
+              id: show.id,
+              name: show.name || 'Unknown',
+              year: show.year?.toString() || show.firstAired?.substring(0, 4),
+              image: show.image,
+              overview: show.overview
+            };
+          });
+        
+        if (newShows.length === 0) {
+          setHasMorePopular(false);
+        } else {
+          setPopularShows((prev) => [...prev, ...newShows]);
+        }
+      } else {
+        setHasMorePopular(false);
+      }
+    } catch (error) {
+      console.error('Error loading popular shows:', error);
+      setHasMorePopular(false);
+    } finally {
+      setLoadingPopular(false);
+    }
+  }, [loadingPopular]);
 
   const loadUserStats = async () => {
     if (!user) return;
@@ -111,6 +190,11 @@ export default function EarnPointsPage() {
     }
   };
 
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setResults([]);
+  };
+
   if (selectedShow) {
     return (
       <EarnPointsShowView
@@ -126,6 +210,40 @@ export default function EarnPointsPage() {
   }
 
   const dailyCapReached = userStats.dailyPointsEarned >= userStats.dailyCap;
+  const showPopularShows = !searchQuery && results.length === 0;
+
+  const renderShowCard = (show: SearchResult) => (
+    <Card
+      key={show.id}
+      className="p-4 cursor-pointer hover:bg-accent/50 transition-colors border-2"
+      onClick={() => setSelectedShow(show)}
+    >
+      <div className="flex gap-4">
+        {show.image ? (
+          <img
+            src={show.image}
+            alt={show.name}
+            className="w-16 h-24 object-cover rounded-lg"
+          />
+        ) : (
+          <div className="w-16 h-24 bg-muted rounded-lg flex items-center justify-center">
+            <Tv className="h-6 w-6 text-muted-foreground" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold truncate">{show.name}</h3>
+          {show.year && (
+            <p className="text-sm text-muted-foreground">{show.year}</p>
+          )}
+          {show.overview && (
+            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+              {show.overview}
+            </p>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen pb-20">
@@ -209,44 +327,23 @@ export default function EarnPointsPage() {
           </Button>
         </div>
 
-        {/* Results */}
+        {/* Search Results */}
         {results.length > 0 ? (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground mb-2">
-              Select a show to log episodes:
-            </p>
-            {results.map((show) => (
-              <Card
-                key={show.id}
-                className="p-4 cursor-pointer hover:bg-accent/50 transition-colors border-2"
-                onClick={() => setSelectedShow(show)}
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Select a show to log episodes:
+              </p>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleClearSearch}
+                className="text-xs"
               >
-                <div className="flex gap-4">
-                  {show.image ? (
-                    <img
-                      src={show.image}
-                      alt={show.name}
-                      className="w-16 h-24 object-cover rounded-lg"
-                    />
-                  ) : (
-                    <div className="w-16 h-24 bg-muted rounded-lg flex items-center justify-center">
-                      <Tv className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate">{show.name}</h3>
-                    {show.year && (
-                      <p className="text-sm text-muted-foreground">{show.year}</p>
-                    )}
-                    {show.overview && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                        {show.overview}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))}
+                Clear search
+              </Button>
+            </div>
+            {results.map(renderShowCard)}
           </div>
         ) : searching ? (
           <div className="flex items-center justify-center py-12">
@@ -260,15 +357,38 @@ export default function EarnPointsPage() {
               Try a different search term
             </p>
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">Search for a show to get started</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Find shows you've watched recently and log episodes to earn points
+        ) : showPopularShows ? (
+          /* Popular Shows Endless Scroll */
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground mb-2">
+              Popular shows to get started:
             </p>
+            
+            {popularShows.map(renderShowCard)}
+            
+            {loadingPopular && (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            )}
+            
+            {/* Infinite scroll trigger */}
+            <div ref={observerRef} className="h-4" />
+            
+            {!hasMorePopular && popularShows.length > 0 && (
+              <p className="text-center text-muted-foreground py-4 text-sm">
+                No more shows to load
+              </p>
+            )}
+            
+            {!loadingPopular && popularShows.length === 0 && (
+              <div className="text-center py-12">
+                <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">Search for a show to get started</p>
+              </div>
+            )}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
