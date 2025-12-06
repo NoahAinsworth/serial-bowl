@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Search, Loader2, Tv } from 'lucide-react';
+import { ArrowLeft, Search, Loader2, Tv, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { EarnPointsShowView } from '@/components/EarnPointsShowView';
+import { useTVDB } from '@/hooks/useTVDB';
 
 interface SearchResult {
   id: number;
@@ -19,6 +20,7 @@ interface SearchResult {
 export default function EarnPointsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { search: searchShows } = useTVDB();
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -58,7 +60,7 @@ export default function EarnPointsPage() {
     setResults([]);
 
     try {
-      // Use TVDB search via existing API
+      // First try local cache
       const { data: tvdbShows } = await supabase
         .from('tvdb_shows')
         .select('tvdb_id, name, year, json')
@@ -75,12 +77,29 @@ export default function EarnPointsPage() {
         }));
         setResults(mappedResults);
       } else {
-        // Fallback: search via edge function or direct TVDB
-        // For now, show empty state
-        setResults([]);
+        // Fallback to TVDB API search
+        try {
+          const apiResults = await searchShows(searchQuery);
+          if (apiResults && apiResults.length > 0) {
+            const mappedResults = apiResults.map((show: any) => ({
+              id: show.tvdb_id || show.id,
+              name: show.name || show.title || 'Unknown',
+              year: show.year?.toString() || show.first_air_date?.substring(0, 4),
+              image: show.image || show.poster_url,
+              overview: show.overview
+            }));
+            setResults(mappedResults);
+          } else {
+            setResults([]);
+          }
+        } catch (apiError) {
+          console.error('TVDB API search error:', apiError);
+          setResults([]);
+        }
       }
     } catch (error) {
       console.error('Search error:', error);
+      setResults([]);
     } finally {
       setSearching(false);
     }
@@ -129,6 +148,25 @@ export default function EarnPointsPage() {
           </div>
         </div>
 
+        {/* Info Box */}
+        <Card className="p-4 mb-4 border-2 bg-muted/30">
+          <div className="flex gap-3">
+            <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium mb-1">How points work:</p>
+              <ul className="text-muted-foreground space-y-1">
+                <li>• <strong>+10</strong> Binge Points per episode</li>
+                <li>• <strong>+50</strong> bonus for completing a season</li>
+                <li>• <strong>+200</strong> bonus for completing a show</li>
+                <li>• Daily cap: <strong>200</strong> Binge Points</li>
+              </ul>
+              <p className="text-xs mt-2 text-muted-foreground/80">
+                Episodes always count toward your Show Score, even after the daily cap.
+              </p>
+            </div>
+          </div>
+        </Card>
+
         {/* Daily Progress */}
         <Card className="p-4 mb-6 border-2">
           <div className="flex items-center justify-between mb-2">
@@ -145,7 +183,7 @@ export default function EarnPointsPage() {
           </div>
           {dailyCapReached && (
             <p className="text-sm text-amber-500 mt-2">
-              🎉 Daily limit reached! Come back tomorrow.
+              🎉 Daily limit reached! Episodes will still count toward your Show Score.
             </p>
           )}
         </Card>
@@ -181,7 +219,7 @@ export default function EarnPointsPage() {
               <Card
                 key={show.id}
                 className="p-4 cursor-pointer hover:bg-accent/50 transition-colors border-2"
-                onClick={() => !dailyCapReached && setSelectedShow(show)}
+                onClick={() => setSelectedShow(show)}
               >
                 <div className="flex gap-4">
                   {show.image ? (
@@ -226,8 +264,8 @@ export default function EarnPointsPage() {
           <div className="text-center py-12">
             <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <p className="text-muted-foreground">Search for a show to get started</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              You'll earn +10 points per episode logged
+            <p className="text-sm text-muted-foreground mt-2">
+              Find shows you've watched recently and log episodes to earn points
             </p>
           </div>
         )}
