@@ -2338,17 +2338,6 @@ export type Database = {
         }
         Returns: number
       }
-      calculate_binge_points: {
-        Args: { p_user_id: string }
-        Returns: {
-          completed_seasons: number
-          completed_shows: number
-          episode_points: number
-          season_bonuses: number
-          show_bonuses: number
-          total_points: number
-        }[]
-      }
       calculate_bowl_confidence: {
         Args: { layer_type: string; rating_count: number }
         Returns: number
@@ -2470,10 +2459,6 @@ export type Database = {
           p_show_external_id: string
           p_total_episode_count: number
         }
-        Returns: undefined
-      }
-      update_user_binge_points: {
-        Args: { p_user_id: string }
         Returns: undefined
       }
       update_user_watch_stats: {

@@ -410,33 +410,9 @@ export default function WatchlistPage() {
           }
         }
 
-        await supabase.rpc('update_user_binge_points', {
-          p_user_id: user.id
-        });
-
-        // Fetch updated points for display
-        const { data: pointsResult } = await supabase.rpc('calculate_binge_points', {
-          p_user_id: user.id
-        });
-
-        const pointsData = pointsResult?.[0];
-
-        // Get show episode count
-        const { data: showCount } = await supabase
-          .from('show_season_counts')
-          .select('total_episode_count, season_count')
-          .eq('external_id', (show.id || show.tvdb_id).toString())
-          .maybeSingle();
-
-        const episodePoints = showCount?.total_episode_count || 0;
-        const seasonCount = showCount?.season_count || 0;
-        const seasonBonuses = seasonCount * 10;
-        const showBonus = 100;
-        const totalEarned = episodePoints + seasonBonuses + showBonus;
-
         toast({
-          title: "Show complete!",
-          description: `${episodePoints} episodes + ${seasonBonuses} season bonuses + ${showBonus} show bonus = ${totalEarned} Binge Points! 🏆`,
+          title: "Marked as watched!",
+          description: `${show.name || show.title} marked as complete`,
         });
 
         loadWatched();

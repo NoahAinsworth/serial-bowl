@@ -26,7 +26,7 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const flags = useFeatureFlags();
   const [profile, setProfile] = useState<any>(null);
-  const [recalculating, setRecalculating] = useState(false);
+  
   
   const [settings, setSettings] = useState({
     privacy: {
@@ -191,31 +191,6 @@ export default function SettingsPage() {
     }
   };
 
-  const recalculateBingePoints = async () => {
-    if (!user) return;
-    
-    setRecalculating(true);
-    try {
-      await supabase.rpc('update_user_binge_points', {
-        p_user_id: user.id
-      });
-      
-      await loadProfile();
-      
-      toast({
-        title: "Success",
-        description: "Binge Points recalculated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to recalculate Binge Points",
-        variant: "destructive",
-      });
-    } finally {
-      setRecalculating(false);
-    }
-  };
   
   const handleSendReport = () => {
     const subject = encodeURIComponent('serial bowl™ Report');
@@ -393,21 +368,6 @@ export default function SettingsPage() {
             badge={profile.badge_tier || 'Pilot Watcher'}
             showBreakdown
           />
-          <Button
-            onClick={recalculateBingePoints}
-            disabled={recalculating}
-            variant="outline"
-            className="w-full"
-          >
-            {recalculating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Recalculating...
-              </>
-            ) : (
-              'Recalculate Binge Points'
-            )}
-          </Button>
         </Card>
       )}
 
