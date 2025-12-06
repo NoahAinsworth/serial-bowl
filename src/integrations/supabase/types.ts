@@ -1235,6 +1235,7 @@ export type Database = {
           badge_tier: string | null
           badge_updated_at: string | null
           binge_points: number | null
+          binge_score: number | null
           bio: string | null
           created_at: string | null
           daily_points_earned: number | null
@@ -1254,6 +1255,7 @@ export type Database = {
           badge_tier?: string | null
           badge_updated_at?: string | null
           binge_points?: number | null
+          binge_score?: number | null
           bio?: string | null
           created_at?: string | null
           daily_points_earned?: number | null
@@ -1273,6 +1275,7 @@ export type Database = {
           badge_tier?: string | null
           badge_updated_at?: string | null
           binge_points?: number | null
+          binge_score?: number | null
           bio?: string | null
           created_at?: string | null
           daily_points_earned?: number | null
