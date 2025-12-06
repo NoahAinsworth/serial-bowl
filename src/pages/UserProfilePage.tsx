@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Lock } from 'lucide-react';
+import { Loader2, Lock, Trophy } from 'lucide-react';
 import { UserRatings } from '@/components/UserRatings';
 import { UserPosts } from '@/components/UserPosts';
 import { UserThoughts } from '@/components/UserThoughts';
@@ -448,14 +448,25 @@ export default function UserProfilePage() {
               </TabsContent>
             </Tabs>
 
-            {/* Binge Stats Section - Using new InteractiveTrophyCase */}
+            {/* Binge Stats Section - Match ProfilePage styling exactly */}
             {flags.BINGE_POINTS && (
               <div className="px-4 mb-6 animate-fade-in">
-                <Card className="p-6 bg-card/70 backdrop-blur-md border-border/30">
+                <Card className="rounded-2xl border-2 border-border/30 p-5 bg-card/50 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-foreground">Trophy Case</h3>
+                    {userRank && (
+                      <button 
+                        className="px-3 py-1 bg-primary/10 rounded-full text-xs font-medium border border-primary/30 flex items-center gap-1.5 hover:bg-primary/20 transition-colors"
+                        onClick={() => navigate('/binge-board')}
+                      >
+                        <Trophy className="h-3 w-3 text-primary" />
+                        <span className="text-primary">Rank #{userRank}</span>
+                      </button>
+                    )}
+                  </div>
                   <InteractiveTrophyCase 
                     bingeScore={bingeScore} 
                     currentBadge={currentBadge}
-                    userRank={userRank}
                   />
                 </Card>
               </div>
