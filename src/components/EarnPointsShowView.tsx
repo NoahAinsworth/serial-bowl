@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Loader2, Trophy, ChevronDown, ChevronRight, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { BulkWatchConfirmDialog } from '@/components/BulkWatchConfirmDialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useTVDB } from '@/hooks/useTVDB';
 
 interface Episode {
   id: string;
@@ -39,6 +39,7 @@ export function EarnPointsShowView({
 }: EarnPointsShowViewProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { fetchSeasons, fetchEpisodes } = useTVDB();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [seasons, setSeasons] = useState<Season[]>([]);
@@ -54,7 +55,9 @@ export function EarnPointsShowView({
   const loadShowData = async () => {
     setLoading(true);
     try {
-      // Get show details from TVDB cache
+      let seasonsData: Season[] = [];
+      
+      // First try to get from cache
       const { data: showData } = await supabase
         .from('tvdb_shows')
         .select('json')
@@ -63,13 +66,12 @@ export function EarnPointsShowView({
 
       if (showData?.json) {
         const json = showData.json as any;
-        const seasonsData: Season[] = [];
         
-        // Parse seasons from show data
         if (json.seasons) {
           for (const season of json.seasons) {
             if (season.number === 0) continue; // Skip specials
             
+            // Try to get episodes from cache first
             const { data: episodesData } = await supabase
               .from('tvdb_episodes')
               .select('json, season, episode')
@@ -93,38 +95,47 @@ export function EarnPointsShowView({
             }
           }
         }
-        
-        setSeasons(seasonsData.sort((a, b) => a.number - b.number));
       }
+
+      // If no data from cache, fetch from TVDB API
+      if (seasonsData.length === 0) {
+        console.log('No cached episodes found, fetching from TVDB API...');
+        const apiSeasons = await fetchSeasons(parseInt(showId));
+        
+        for (const season of apiSeasons) {
+          if (season.number === 0) continue; // Skip specials
+          
+          const apiEpisodes = await fetchEpisodes(parseInt(showId), season.number);
+          
+          if (apiEpisodes.length > 0) {
+            const episodes: Episode[] = apiEpisodes.map(ep => ({
+              id: `${showId}:${ep.seasonNumber}:${ep.number}`,
+              seasonNumber: ep.seasonNumber,
+              episodeNumber: ep.number,
+              name: ep.name || `Episode ${ep.number}`,
+              aired: ep.aired
+            }));
+            
+            seasonsData.push({
+              number: season.number,
+              episodes
+            });
+          }
+        }
+      }
+      
+      setSeasons(seasonsData.sort((a, b) => a.number - b.number));
       
       // Load already watched episodes
       if (user) {
-        const { data: watched } = await supabase
-          .from('content')
-          .select('external_id')
-          .eq('kind', 'episode')
-          .like('external_id', `${showId}:%`);
+        const { data: watchedData } = await supabase
+          .from('watched_episodes')
+          .select('tvdb_id')
+          .eq('user_id', user.id)
+          .eq('show_id', parseInt(showId));
         
-        if (watched) {
-          const watchedIds = new Set<string>();
-          for (const content of watched) {
-            const { data: watchData } = await supabase
-              .from('watched')
-              .select('id')
-              .eq('user_id', user.id)
-              .eq('content_id', (await supabase
-                .from('content')
-                .select('id')
-                .eq('external_id', content.external_id)
-                .eq('kind', 'episode')
-                .single()).data?.id)
-              .maybeSingle();
-            
-            if (watchData) {
-              watchedIds.add(content.external_id);
-            }
-          }
-          setWatchedEpisodes(watchedIds);
+        if (watchedData) {
+          setWatchedEpisodes(new Set(watchedData.map(w => w.tvdb_id)));
         }
       }
     } catch (error) {
