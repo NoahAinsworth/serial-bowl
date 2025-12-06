@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trophy, Lock } from 'lucide-react';
+import { Trophy, Lock, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 interface TrophyCaseProps {
   bingeScore: number;
   currentBadge: string;
+  userRank?: number | null;
 }
 
 const BADGE_TIERS = [
@@ -34,7 +35,7 @@ const BADGE_COLORS: Record<string, { icon: string; bg: string; border: string; g
   'Ultimate Binger': { icon: 'text-purple-400', bg: 'bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950 dark:to-pink-950', border: 'border-purple-400', glow: 'shadow-purple-500/50' },
 };
 
-export function InteractiveTrophyCase({ bingeScore, currentBadge }: TrophyCaseProps) {
+export function InteractiveTrophyCase({ bingeScore, currentBadge, userRank }: TrophyCaseProps) {
   const [selectedBadge, setSelectedBadge] = useState<typeof BADGE_TIERS[0] | null>(null);
   
   const earnedBadges = BADGE_TIERS.filter(tier => bingeScore >= tier.threshold);
@@ -60,9 +61,17 @@ export function InteractiveTrophyCase({ bingeScore, currentBadge }: TrophyCasePr
           <h3 className="text-sm font-semibold text-foreground">
             Trophy Case ({earnedCount}/{BADGE_TIERS.length})
           </h3>
-          <span className="text-xs text-muted-foreground">
-            {bingeScore.toLocaleString()} BingeScore
-          </span>
+          <div className="flex items-center gap-2">
+            {userRank && (
+              <div className="px-2 py-1 bg-primary/10 rounded-full border border-primary/20 text-xs font-medium flex items-center gap-1">
+                <Award className="w-3 h-3 text-primary" />
+                <span className="text-foreground">#{userRank}</span>
+              </div>
+            )}
+            <span className="text-xs text-muted-foreground">
+              {bingeScore.toLocaleString()} BingeScore
+            </span>
+          </div>
         </div>
         
         <div className="flex gap-2 overflow-x-auto pb-2">
