@@ -27,7 +27,7 @@ async function getToken(): Promise<string> {
   return token;
 }
 
-async function tvdbFetch(path: string): Promise<any> {
+export async function tvdbFetch(path: string): Promise<any> {
   const token = await getToken();
 
   const response = await fetch(`${BASE_URL}${path}`, {
