@@ -394,9 +394,17 @@ export default function UserProfilePage() {
           )}
         </div>
 
-        <div className="px-3 mb-5 animate-fade-in relative z-10">
-          <CinematicFavorites shows={profile.top3Shows || []} onEdit={() => {}} onRemove={() => {}} badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'} isOwner={false} />
-        </div>
+          <div className="px-4 mb-5 animate-fade-in relative z-10">
+            <Card className="rounded-2xl border-2 border-border/30 p-4 bg-card/30 backdrop-blur-sm">
+              <CinematicFavorites 
+                shows={profile.top3Shows || []} 
+                onEdit={() => {}} 
+                onRemove={() => {}} 
+                badgeColor={currentBadge === 'Ultimate Binger' ? '#a855f7' : '#3b82f6'} 
+                isOwner={false} 
+              />
+            </Card>
+          </div>
 
         {/* Tabs */}
         {!profile.is_private || followStatus === 'accepted' ? <div className="max-w-4xl mx-auto relative z-10">
