@@ -31,20 +31,7 @@ export const env = {
     return import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
   },
 
-  // TVDB
-  get TVDB_API_KEY(): string {
-    return import.meta.env.VITE_TVDB_API_KEY || '';
-  },
-
-  get TVDB_BASE_URL(): string {
-    return import.meta.env.VITE_TVDB_BASE_URL || '';
-  },
-
-  // TMDB
-  get TMDB_API_KEY(): string {
-    return import.meta.env.VITE_TMDB_API_KEY || '';
-  },
-
+  // TMDB - Static config only (API calls should use server-side proxy)
   get TMDB_BASE_URL(): string {
     return 'https://api.themoviedb.org/3';
   },
