@@ -1,5 +1,4 @@
-const BASE_URL = 'https://api.trakt.tv';
-const API_KEY = import.meta.env.VITE_TRAKT_API_KEY;
+import { supabase } from '@/integrations/supabase/client';
 
 interface TraktShow {
   show: {
@@ -34,18 +33,15 @@ interface TraktPerson {
 }
 
 async function traktFetch(path: string) {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    headers: {
-      'trakt-api-version': '2',
-      'trakt-api-key': API_KEY,
-    },
+  const { data, error } = await supabase.functions.invoke('trakt-proxy', {
+    body: { path },
   });
 
-  if (!response.ok) {
-    throw new Error(`Trakt API error: ${response.status}`);
+  if (error) {
+    throw new Error(`Trakt API error: ${error.message}`);
   }
 
-  return response.json();
+  return data.data;
 }
 
 export async function getTrendingShows(page = 1, limit = 20) {

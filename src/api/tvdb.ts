@@ -1,46 +1,15 @@
-const BASE_URL = import.meta.env.VITE_TVDB_BASE_URL || 'https://api4.thetvdb.com/v4';
-const API_KEY = import.meta.env.VITE_TVDB_API_KEY;
-
-let cachedToken: { token: string; expiresAt: number } | null = null;
-
-async function getToken(): Promise<string> {
-  if (cachedToken && Date.now() < cachedToken.expiresAt) {
-    return cachedToken.token;
-  }
-
-  const response = await fetch(`${BASE_URL}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apikey: API_KEY }),
-  });
-
-  if (!response.ok) throw new Error('TVDB authentication failed');
-
-  const data = await response.json();
-  const token = data.data.token;
-
-  cachedToken = {
-    token,
-    expiresAt: Date.now() + 27 * 24 * 60 * 60 * 1000, // 27 days
-  };
-
-  return token;
-}
+import { supabase } from '@/integrations/supabase/client';
 
 export async function tvdbFetch(path: string): Promise<any> {
-  const token = await getToken();
-
-  const response = await fetch(`${BASE_URL}${path}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-    },
+  const { data, error } = await supabase.functions.invoke('tvdb-proxy', {
+    body: { path },
   });
 
-  if (!response.ok) throw new Error(`TVDB API error: ${response.status}`);
+  if (error) {
+    throw new Error(`TVDB API error: ${error.message}`);
+  }
 
-  const json = await response.json();
-  return json.data;
+  return data.data;
 }
 
 export interface TVShow {
