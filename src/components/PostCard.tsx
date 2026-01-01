@@ -67,7 +67,14 @@ export function PostCard({ post, userHideSpoilers = true, strictSafety = false, 
   const [editHistory, setEditHistory] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [contentInfo, setContentInfo] = useState<{ title: string; type: 'show' | 'season' | 'episode'; externalId: string; posterUrl?: string } | null>(null);
-  
+
+  // Keep local reaction/count state in sync when the post prop updates (e.g. after refetch)
+  useEffect(() => {
+    setLocalReaction(post.userReaction);
+    setLocalLikes(post.likes_count);
+    setLocalDislikes(post.dislikes_count);
+  }, [post.id, post.userReaction, post.likes_count, post.dislikes_count]);
+
   const isOwner = user?.id === post.user.id;
 
   // Load content info for reviews
