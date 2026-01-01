@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
@@ -331,57 +332,64 @@ export default function AuthPage() {
               )}
             </Button>
 
-            {!showResetForm ? (
-              <Button
-                variant="link"
-                className="w-full text-sm text-muted-foreground"
-                onClick={() => setShowResetForm(true)}
-              >
-                Forgot password?
-              </Button>
-            ) : (
-              <div className="space-y-3 p-4 bg-neo-baby-blue/30 dark:bg-neo-lavender/20 rounded-lg border-[3px] border-border">
-                <div className="space-y-2">
-                  <Label className="font-bold">Email for password reset</Label>
-                  <Input
-                    id="reset-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={resetEmail}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handlePasswordReset()}
-                  />
+            <Button
+              variant="link"
+              className="w-full text-sm text-muted-foreground"
+              onClick={() => setShowResetForm(true)}
+            >
+              Forgot password?
+            </Button>
+
+            <Sheet open={showResetForm} onOpenChange={setShowResetForm}>
+              <SheetContent side="bottom" className="rounded-t-2xl">
+                <SheetHeader className="text-left">
+                  <SheetTitle className="font-black text-xl">Reset Password</SheetTitle>
+                  <SheetDescription>
+                    Enter your email and we'll send you a link to reset your password.
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email" className="font-bold">Email</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handlePasswordReset()}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handlePasswordReset}
+                      disabled={loading || !resetEmail}
+                      className="flex-1 bg-neo-amber hover:bg-neo-amber/90 text-black dark:text-white font-bold border-[3px] border-border"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Sending...
+                        </>
+                      ) : (
+                        'Send Reset Link'
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowResetForm(false);
+                        setResetEmail('');
+                      }}
+                      className="border-[3px] border-border font-bold"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handlePasswordReset}
-                    disabled={loading || !resetEmail}
-                    className="flex-1 bg-neo-amber hover:bg-neo-amber/90 text-black dark:text-white font-bold border-[3px] border-border"
-                    size="sm"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Sending...
-                      </>
-                    ) : (
-                      'Send Reset Link'
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowResetForm(false);
-                      setResetEmail('');
-                    }}
-                    className="border-[3px] border-border font-bold"
-                    size="sm"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
+              </SheetContent>
+            </Sheet>
           </TabsContent>
 
           <TabsContent value="signup" className="space-y-4">
