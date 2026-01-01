@@ -13,6 +13,7 @@ import { useDeepLink } from "./hooks/useDeepLink";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import AuthPage from "./pages/AuthPage";
+import AuthCallback from "./pages/AuthCallback";
 import SearchPage from "./pages/SearchPage";
 import ShowDetailPage from "./pages/ShowDetailPage";
 import SeasonDetailPage from "./pages/SeasonDetailPage";
@@ -59,6 +60,7 @@ function AppRouter() {
       <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/home" element={<ProtectedRoute><AppLayout><Home /></AppLayout></ProtectedRoute>} />
                 <Route path="/search" element={<ProtectedRoute><AppLayout><SearchPage /></AppLayout></ProtectedRoute>} />
                 <Route path="/show/:id" element={<ProtectedRoute><AppLayout><ShowDetailPage /></AppLayout></ProtectedRoute>} />
