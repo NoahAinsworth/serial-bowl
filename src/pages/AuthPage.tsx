@@ -20,7 +20,6 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [handle, setHandle] = useState('');
-  const [accessCode, setAccessCode] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [showResetForm, setShowResetForm] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -74,16 +73,6 @@ export default function AuthPage() {
   };
 
   const handleSignUp = async () => {
-    // Beta access code check
-    if (accessCode.toLowerCase() !== 'serialcereal') {
-      toast({
-        title: "Invalid access code",
-        description: "Please enter a valid access code to create an account",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!handle.trim()) {
       toast({
         title: "Handle required",
@@ -407,17 +396,6 @@ export default function AuthPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="signup-access-code">Access Code</Label>
-              <Input
-                id="signup-access-code"
-                type="password"
-                placeholder="Enter beta access code"
-                value={accessCode}
-                onChange={(e) => setAccessCode(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Required for beta access</p>
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="signup-email">Email</Label>
               <Input
                 id="signup-email"
@@ -440,7 +418,7 @@ export default function AuthPage() {
             </div>
             <Button
               onClick={handleSignUp}
-              disabled={loading || !email || !password || !handle || !accessCode}
+              disabled={loading || !email || !password || !handle}
               className="w-full bg-neo-amber hover:bg-neo-amber/90 text-black dark:text-white font-bold border-[3px] border-border shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_rgba(255,255,255,0.2)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:active:shadow-[2px_2px_0px_rgba(255,255,255,0.1)] transition-all"
             >
               {loading ? (
