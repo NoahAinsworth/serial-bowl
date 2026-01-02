@@ -114,12 +114,8 @@ VITE_SUPABASE_URL=https://yqslvnsdqpsosqghpenq.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 VITE_SUPABASE_PROJECT_ID=yqslvnsdqpsosqghpenq
 
-# TVDB API
-VITE_TVDB_API_KEY=f2a44a3c-9b40-464f-a913-298efe037969
-VITE_TVDB_BASE_URL=https://api4.thetvdb.com/v4
-
-# Optional
-VITE_TMDB_API_KEY=<if using TMDB>
+# Note: TVDB API key is stored in Supabase Edge Function secrets only
+# All TVDB calls go through the tvdb-proxy edge function
 ```
 
 ## Database Architecture

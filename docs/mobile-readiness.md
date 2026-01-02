@@ -187,8 +187,8 @@ This document outlines all the changes made to prepare Serial Bowl for mobile ap
 All environment variables are accessed via `src/lib/env.ts`:
 - `VITE_SUPABASE_URL` - Supabase project URL
 - `VITE_SUPABASE_PUBLISHABLE_KEY` - Supabase anon key
-- `VITE_TVDB_API_KEY` - TheTVDB API key
-- `VITE_TVDB_BASE_URL` - TheTVDB base URL
+
+Note: TVDB API key is stored server-side in Supabase Edge Function secrets only.
 
 ## 📊 Performance Metrics
 
