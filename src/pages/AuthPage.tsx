@@ -44,11 +44,11 @@ export default function AuthPage() {
     });
 
     if (user && !isResettingPassword) {
-      navigate('/');
+      navigate('/home', { replace: true });
     }
 
     return () => subscription.unsubscribe();
-  }, [user, navigate]);
+  }, [user, navigate, isResettingPassword]);
 
   const handleSignIn = async () => {
     setLoading(true);
@@ -68,7 +68,7 @@ export default function AuthPage() {
         title: "Welcome back!",
         description: "Successfully signed in",
       });
-      navigate('/');
+      navigate('/home', { replace: true });
     }
     setLoading(false);
   };
@@ -123,9 +123,21 @@ export default function AuthPage() {
         title: "Account created!",
         description: "Welcome to Serial Bowl!",
       });
-      navigate('/home');
+      navigate('/home', { replace: true });
+      setLoading(false);
+      return;
+    }
+
+    // Session not returned immediately - check if we actually have one
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData.session) {
+      toast({
+        title: "Account created!",
+        description: "Welcome to Serial Bowl!",
+      });
+      navigate('/home', { replace: true });
     } else {
-      // Email confirmation required (auto-confirm disabled)
+      // Email confirmation truly required
       toast({
         title: "Check your email",
         description: "Please confirm your email to complete registration.",
