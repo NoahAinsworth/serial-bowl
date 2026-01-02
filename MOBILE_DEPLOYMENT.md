@@ -366,7 +366,8 @@ cd android
 The app uses these environment variables (configured in Lovable Cloud):
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `VITE_TVDB_API_KEY`
+
+Note: TVDB API key is stored in Supabase Edge Function secrets only (not client-side).
 
 These are **baked into the build** at build time. For native builds, they're included automatically.
 
