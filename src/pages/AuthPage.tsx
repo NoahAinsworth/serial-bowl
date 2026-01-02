@@ -26,8 +26,6 @@ export default function AuthPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isResettingPassword, setIsResettingPassword] = useState(false);
-  const [authStatus, setAuthStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error' | 'confirm-email'; message: string }>({ type: 'idle', message: '' });
-  const [activeTab, setActiveTab] = useState('signin');
 
   // Redirect if already logged in or handle password recovery
   useEffect(() => {
@@ -77,7 +75,6 @@ export default function AuthPage() {
 
   const handleSignUp = async () => {
     if (!handle.trim()) {
-      setAuthStatus({ type: 'error', message: 'Please enter a handle' });
       toast({
         title: "Handle required",
         description: "Please enter a handle",
@@ -87,93 +84,66 @@ export default function AuthPage() {
     }
 
     setLoading(true);
-    setAuthStatus({ type: 'loading', message: 'Creating your account...' });
-
-    try {
-      console.log('[Auth Debug] Starting signup with redirect:', env.AUTH_REDIRECT);
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            handle: handle.startsWith('@') 
-              ? handle.toLowerCase() 
-              : `@${handle.toLowerCase()}`,
-          },
-          emailRedirectTo: env.AUTH_REDIRECT,
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          handle: handle.startsWith('@') 
+            ? handle.toLowerCase() 
+            : `@${handle.toLowerCase()}`,
         },
-      });
+        emailRedirectTo: env.AUTH_REDIRECT,
+      },
+    });
 
-      console.log('[Auth Debug] signUp result - error:', error?.message, 'hasSession:', !!data?.session, 'hasUser:', !!data?.user);
-
-      if (error) {
-        // Handle duplicate email error
-        if (error.message?.toLowerCase().includes('already registered') || 
-            error.message?.toLowerCase().includes('already been registered')) {
-          setAuthStatus({ type: 'error', message: 'This email is already registered. Try signing in instead.' });
-          toast({
-            title: "Email already in use",
-            description: "This email is already registered. Try signing in instead.",
-            variant: "destructive",
-          });
-        } else {
-          setAuthStatus({ type: 'error', message: error.message });
-          toast({
-            title: "Sign up failed",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
-        return;
-      }
-
-      // With auto-confirm enabled, we get a session immediately
-      if (data.session) {
-        console.log('[Auth Debug] Got session immediately, navigating to /home');
-        setAuthStatus({ type: 'success', message: 'Account created! Redirecting...' });
+    if (error) {
+      // Handle duplicate email error
+      if (error.message?.toLowerCase().includes('already registered') || 
+          error.message?.toLowerCase().includes('already been registered')) {
         toast({
-          title: "Account created!",
-          description: "Welcome to Serial Bowl!",
+          title: "Email already in use",
+          description: "This email is already registered. Try signing in instead.",
+          variant: "destructive",
         });
-        navigate('/home', { replace: true });
-        return;
-      }
-
-      // Session not returned immediately - check if we actually have one
-      console.log('[Auth Debug] No immediate session, checking getSession...');
-      const { data: sessionData } = await supabase.auth.getSession();
-      console.log('[Auth Debug] getSession result - hasSession:', !!sessionData?.session);
-      
-      if (sessionData.session) {
-        console.log('[Auth Debug] Found session via getSession, navigating to /home');
-        setAuthStatus({ type: 'success', message: 'Account created! Redirecting...' });
-        toast({
-          title: "Account created!",
-          description: "Welcome to Serial Bowl!",
-        });
-        navigate('/home', { replace: true });
       } else {
-        // Email confirmation truly required - switch to sign in tab and show message
-        console.log('[Auth Debug] No session found - email confirmation required');
-        setAuthStatus({ type: 'confirm-email', message: 'Account created! Please check your email to confirm your address, then sign in.' });
-        setActiveTab('signin');
         toast({
-          title: "Check your email",
-          description: "Please confirm your email to complete registration.",
+          title: "Sign up failed",
+          description: error.message,
+          variant: "destructive",
         });
       }
-    } catch (err) {
-      console.error('[Auth Debug] Unexpected error during signup:', err);
-      setAuthStatus({ type: 'error', message: 'An unexpected error occurred. Please try again.' });
-      toast({
-        title: "Sign up failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
       setLoading(false);
+      return;
     }
+
+    // With auto-confirm enabled, we get a session immediately
+    if (data.session) {
+      toast({
+        title: "Account created!",
+        description: "Welcome to Serial Bowl!",
+      });
+      navigate('/home', { replace: true });
+      setLoading(false);
+      return;
+    }
+
+    // Session not returned immediately - check if we actually have one
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData.session) {
+      toast({
+        title: "Account created!",
+        description: "Welcome to Serial Bowl!",
+      });
+      navigate('/home', { replace: true });
+    } else {
+      // Email confirmation truly required
+      toast({
+        title: "Check your email",
+        description: "Please confirm your email to complete registration.",
+      });
+    }
+    setLoading(false);
   };
 
   const handlePasswordReset = async () => {
@@ -341,20 +311,7 @@ export default function AuthPage() {
           <p className="text-foreground font-semibold text-lg">Your bingeing experience awaits!</p>
         </div>
 
-        {/* Persistent status area */}
-        {authStatus.type !== 'idle' && (
-          <div className={`mb-4 p-3 rounded-xl border-[2px] text-center font-semibold ${
-            authStatus.type === 'loading' ? 'bg-neo-lavender/20 border-neo-lavender text-foreground' :
-            authStatus.type === 'success' ? 'bg-green-100 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-300' :
-            authStatus.type === 'confirm-email' ? 'bg-neo-amber/20 border-neo-amber text-foreground' :
-            'bg-destructive/10 border-destructive text-destructive'
-          }`}>
-            {authStatus.type === 'loading' && <Loader2 className="h-4 w-4 animate-spin inline mr-2" />}
-            {authStatus.message}
-          </div>
-        )}
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 p-1 bg-muted border-[3px] border-border rounded-xl">
             <TabsTrigger 
               value="signin" 
