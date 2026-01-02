@@ -164,19 +164,35 @@ export function WatchedButton({ contentId, showTitle }: WatchedButtonProps) {
         // Populate counts for shows and seasons via edge function (for Show Score calculation)
         if (content?.kind === 'show' || content?.kind === 'season') {
           try {
-            const { error: countError } = await supabase.functions.invoke('populate-content-counts', {
+            const { error: countError, data: countData } = await supabase.functions.invoke('populate-content-counts', {
               body: {
                 external_id: content.external_id,
                 kind: content.kind
               }
             });
             
-            // Recalculate show_score after counts are populated
-            if (!countError) {
-              await supabase.rpc('recalculate_user_show_score', { p_user_id: user.id });
+            console.log('Content counts response:', { countError, countData });
+            
+            // Always try to recalculate show_score, even if edge function had issues
+            // The counts might already exist from a previous run
+            try {
+              const { error: rpcError } = await supabase.rpc('recalculate_user_show_score', { p_user_id: user.id });
+              if (rpcError) {
+                console.error('Error recalculating show score:', rpcError);
+              } else {
+                console.log('Show score recalculated successfully');
+              }
+            } catch (rpcErr) {
+              console.error('Exception recalculating show score:', rpcErr);
             }
           } catch (e) {
             console.error('Error populating counts:', e);
+            // Still try to recalculate in case counts exist
+            try {
+              await supabase.rpc('recalculate_user_show_score', { p_user_id: user.id });
+            } catch (rpcErr) {
+              console.error('Fallback recalculate also failed:', rpcErr);
+            }
           }
         }
         

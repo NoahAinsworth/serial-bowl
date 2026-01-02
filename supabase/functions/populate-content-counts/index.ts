@@ -159,19 +159,6 @@ serve(async (req) => {
       
       console.log(`✅ Show ${showId}: ${seasonCount} seasons, ${totalEpisodes} episodes`)
 
-      // Update show counts
-      const { error: showError } = await supabase.rpc('update_show_counts', {
-        p_show_external_id: external_id,
-        p_season_count: seasonCount,
-        p_total_episode_count: totalEpisodes
-      })
-
-      if (showError) {
-        console.error(`❌ Failed to update show counts:`, showError)
-        throw showError
-      }
-      console.log(`✅ Show counts updated successfully`)
-
       // CRITICAL: Populate season_episode_counts for each season
       console.log(`🔄 Populating ${seasonCount} individual season counts for show ${showId}`)
       let successCount = 0
@@ -200,6 +187,19 @@ serve(async (req) => {
       if (failCount > 0) {
         throw new Error(`Failed to populate ${failCount} seasons`)
       }
+
+      // Update show counts AFTER seasons are populated (so we have accurate total)
+      const { error: showError } = await supabase.rpc('update_show_counts', {
+        p_show_external_id: external_id,
+        p_season_count: seasonCount,
+        p_total_episode_count: totalEpisodes
+      })
+
+      if (showError) {
+        console.error(`❌ Failed to update show counts:`, showError)
+        throw showError
+      }
+      console.log(`✅ Show counts updated successfully`)
 
     } else if (kind === 'season') {
       // Parse season info from external_id (format: "tvdb:123456:1" or "123456:1")
