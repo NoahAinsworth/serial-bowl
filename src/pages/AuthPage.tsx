@@ -84,7 +84,7 @@ export default function AuthPage() {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -98,17 +98,38 @@ export default function AuthPage() {
     });
 
     if (error) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+      // Handle duplicate email error
+      if (error.message?.toLowerCase().includes('already registered') || 
+          error.message?.toLowerCase().includes('already been registered')) {
+        toast({
+          title: "Email already in use",
+          description: "This email is already registered. Try signing in instead.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Sign up failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+      setLoading(false);
+      return;
+    }
+
+    // With auto-confirm enabled, we get a session immediately
+    if (data.session) {
       toast({
         title: "Account created!",
-        description: "Welcome!",
+        description: "Welcome to Serial Bowl!",
       });
-      navigate('/');
+      navigate('/home');
+    } else {
+      // Email confirmation required (auto-confirm disabled)
+      toast({
+        title: "Check your email",
+        description: "Please confirm your email to complete registration.",
+      });
     }
     setLoading(false);
   };
